@@ -1,0 +1,112 @@
+$primary_color: #06b6d4;
+
+html body{
+  overflow: hidden;
+  margin: 0px;
+}
+.primary{
+  color: $primary_color;
+}
+.navbar{
+    background-color: $primary_color !important;
+    color: white !important;
+}
+
+.navbar_items{
+.p-menuitem-link{
+    color: white !important;
+}
+.p-menuitem-link:hover{
+    color: black !important;
+}
+.p-menuitem-text{
+    color: white !important;
+}
+.p-menuitem-text:hover{
+    color: black !important;
+}
+.p-menuitem-icon{
+    color: white !important;
+}
+.p-menuitem-icon:hover{
+    color: black !important;
+}
+}
+#imageContainer {
+    background-image: url('../Assets/is2.jpg');
+    background-size: 100% 100%;
+    background-position: center;
+    height: 32rem;
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+  }
+  .main-p-img{
+    color: white; 
+    position: absolute;
+     top: 47%;
+    left: 0; 
+       text-align: center;
+  }
+  .main2-p-img{
+    color: white; 
+    position: absolute;
+     top: 50%;
+    left: 0; 
+       text-align: center;
+  }
+  .main-btn-img{
+    color: white; 
+    position: absolute;
+     top: 58%;
+
+    left: 0; 
+       text-align: center;
+  }
+
+  /* SearchBar.css */
+.search-bar-wrapper {
+    justify-content: space-around;
+    padding: 20px;
+    padding-bottom: 0px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 2px solid $primary_color;
+    overflow: hidden;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+  
+  .search-input,
+  .date-input,
+  .persons-input {
+    flex: 1;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    height: 60px;
+  }
+  
+.search-input{
+    .css-13cymwt-control{
+        height: 60px !important;
+    }
+}
+
+.login-back {
+  background-image: url('../Assets/istanbul.jpg');
+  background-size: 100% 100%;
+  background-position: center;
+  height: 100vh;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+}
+.login-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
