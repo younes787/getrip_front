@@ -1,0 +1,107 @@
+$primary_color: #4A235A;
+$secondery_color : #F1881F;
+$black : #3C3C3C;
+
+html body{
+  margin: 0px;
+}
+.primary{
+  color: $primary_color;
+}
+.navbar{
+  height: 5rem !important;
+  background-color: #fff !important;
+  border: 1px solid rgb(205, 205, 205);
+}
+.pr_btn{
+  background-color: $primary_color;
+}
+.outline_btn{
+  border-color: $primary_color;
+  color: $primary_color;
+}
+
+.navbar_items{
+.p-menuitem-link{
+    color: white !important;
+}
+.p-menuitem-link:hover{
+    color: black !important;
+}
+.p-menuitem-text{
+    color: white !important;
+}
+.p-menuitem-text:hover{
+    color: black !important;
+}
+.p-menuitem-icon{
+    color: white !important;
+}
+.p-menuitem-icon:hover{
+    color: black !important;
+}
+}
+#imageContainer {
+  background-image: url('../Assets/First.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+    height: 32rem;
+    box-sizing: border-box;
+  }
+  #imageContainer1 {
+    background-image: url('../Assets/First.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+      // height: 32rem;
+      box-sizing: border-box;
+      background-attachment: fixed;
+  background-position: center;
+    }
+  
+  .main-p-img{
+    color: white; 
+    position: absolute;
+     top: 47%;
+    left: 0; 
+       text-align: center;
+  }
+  .main2-p-img{
+    color: white; 
+    position: absolute;
+     top: 50%;
+    left: 0; 
+       text-align: center;
+  }
+  .main-btn-img{
+    color: white; 
+    position: absolute;
+     top: 58%;
+
+    left: 0; 
+       text-align: center;
+  }
+.black{
+  color: $black;
+}
+
+.login-back {
+  height: 100vh;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+}
+.login-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.get-rp{
+  font-size: 2.3rem;
+  font-weight: 500;
+  color: $primary_color !important;
+}
+.secondery{
+  color: $secondery_color;
+}
