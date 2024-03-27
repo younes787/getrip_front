@@ -1,1 +1,0 @@
-# getrip_front
