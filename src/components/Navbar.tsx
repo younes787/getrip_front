@@ -2,17 +2,12 @@ import { Menubar } from "primereact/menubar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCar,
-  faEdit,
   faPlane,
   faTaxi,
-  faTrashAlt,
   faTree,
 } from "@fortawesome/free-solid-svg-icons";
-import { Avatar } from "primereact/avatar";
-import user from "../Assets/user.svg";
 import { Menu } from "primereact/menu";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";

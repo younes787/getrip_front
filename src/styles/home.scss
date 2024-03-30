@@ -1,0 +1,28 @@
+/* HorizontalLine.css */
+.line-container {
+    position: relative;
+    text-align: center;
+    margin-top: 20px; 
+    margin-bottom: 20px; 
+  }
+  
+  .line {
+    border: none;
+    height: 1px;
+    background-color: #C6C6C6;
+    position: relative;
+    margin-bottom: 10px; 
+  }
+  
+  .line-text {
+    display: inline-block;
+    background-color: white;
+    padding: 0 10px;
+    position: relative;
+    top: -21px; 
+  }
+.card{
+    .p-card .p-card-content{
+        padding: 0px !important;
+    }
+}
