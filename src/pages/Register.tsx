@@ -9,7 +9,7 @@ return(
   <h1 className="md:mb-6 lg:mb-6 text-center get-rp">Welcome to Our Ge<span className="secondery">t</span>rip Website!</h1>
   <div className="grid justify-content-center gap-4">
       <div className="md:col-4 lg::col-4">
-        <label className=" font-bold text-base text-bluegray-900 " >First Name </label>
+        <label className=" font-bold text-base text-bluegray-900 " > Name </label>
         <InputText placeholder="First Name"></InputText>
        </div>
       <div className="md:col-4 lg::col-4">
