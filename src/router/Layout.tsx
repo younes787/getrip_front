@@ -5,8 +5,6 @@ import "primeflex/primeflex.css";
 import { Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
 import NavBar from "../components/Navbar";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
 
 const Layout = () =>{
  return(
@@ -14,8 +12,6 @@ const Layout = () =>{
     <NavBar/>
     <Routes>
     <Route path="/" element={<Home />}></Route>
-    <Route path="/login" element={<Login/>} ></Route>
-    <Route path="/register" element={<Register/>} ></Route>
     </Routes>
     </div>
  )
