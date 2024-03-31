@@ -1,10 +1,11 @@
 import { Card } from "primereact/card";
 import DashboardChart from "../components/Chart";
 import { Button } from "primereact/button";
+import { useNavigate } from "react-router-dom";
 
 
 const Dashboard = () =>{
-
+const navigate = useNavigate()
 return(
     <>
     <span>
@@ -17,7 +18,7 @@ return(
         rounded
         label="Manage Users"
         icon="pi pi-user"
-        // onClick={() => setshow(true)}
+        onClick={()=>navigate('/users')}
         className="pr_btn"
       />
       <Button

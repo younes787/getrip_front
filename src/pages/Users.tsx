@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
-import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { InputSwitch } from "primereact/inputswitch";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from "primereact/dropdown";
 import { UsersDTO } from "../modules/getrip.modules";
@@ -20,19 +18,20 @@ const Users = () => {
   const getUsers = () => {
     GetAllUsers().then((res) => {
       if (res !== undefined ){
-        setUsersList(res);
+        setUsersList(res?.data);
     }
     });
     GetAllRoles().then((res) => setRolesList(res));
   };
-  const options = RolesList?.map((role: any) => ({
+  const options = Array.isArray(RolesList) ? RolesList?.map((role: any) => ({
     label: role,
     value: role,
-  }));
+  })) : ''
   const Usersform = useFormik<UsersDTO>({
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
+        Usersform.values.role = 'Administrator'
         CreateUser(Usersform.values);
       setShow(false);
     },
@@ -50,10 +49,10 @@ const Users = () => {
   useEffect(() => {
     getUsers();
   }, []);
-  const DeleteUsers = (id: number) => {
-    DeleteUser(id);
+  const DeleteUsers = (Email: string) => {
+    DeleteUser(Email);
   };
-  const confirm = (id: number) => {
+  const confirm = (email: string) => {
     confirmDialog({
       message: "Do you want to delete this user?",
       header: "Delete Confirmation",
@@ -63,7 +62,7 @@ const Users = () => {
       rejectClassName: "p-button-outlined py-2",
       acceptLabel: "Delete",
       rejectLabel: "Cancel",
-      accept: () => DeleteUsers(id),
+      accept: () => DeleteUsers(email),
     });
   };
 
@@ -82,7 +81,7 @@ const Users = () => {
         ></i>
         <i
           className="pi pi-bold pi-trash"
-          onClick={() => confirm(rowData?.id)}
+          onClick={() => confirm(rowData?.email)}
           style={{ fontSize: "1.2rem", color: "red", cursor: "pointer" }}
         ></i>
       </div>
@@ -96,8 +95,7 @@ const Users = () => {
         label="Add New User"
         onClick={() => setShow(true)}
         size="small"
-        severity="info"
-        className="mt-4 ml-5"
+        className="mt-4 ml-5 pr_btn"
       ></Button>
       <DataTable
         value={UsersList}
@@ -106,7 +104,7 @@ const Users = () => {
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
       >
-        <Column field="username" header="UserName"></Column>
+        <Column field="username" sortField="" header="UserName"></Column>
         <Column field="name" header="Name"></Column>
         <Column field="lastname" header="Last Name"></Column>
         <Column field="business" header="Business"></Column>
@@ -126,8 +124,9 @@ const Users = () => {
             <div>
               <Button
                 label="Save"
-                severity="info"
                 size="small"
+                severity="warning"
+                outlined
                 onClick={() => Usersform.handleSubmit()}
                 className="mt-4"
               ></Button>
@@ -143,8 +142,8 @@ const Users = () => {
           </>
         }
       >
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div >
+  <div className="grid gap-4">
+          <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Status">
               {" "}
               UserName{" "}
@@ -172,7 +171,9 @@ const Users = () => {
               }
             />
           </div>
-          <div className="md:col-4 lg:col-4">
+        </div>
+        <div className="grid gap-4 mt-2">
+        <div className="md:col-4 lg:col-4 ">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
               Last Name{" "}
@@ -186,9 +187,7 @@ const Users = () => {
               }
             />
           </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-          <div >
+          <div className="md:col-4 lg:col-4" >
             <label className="mb-2" htmlFor="Status">
               {" "}
               Business{" "}
@@ -243,7 +242,8 @@ const Users = () => {
             <div>
               <Button
                 label="Edit"
-                severity="info"
+                outlined
+                severity="warning"
                 size="small"
                 onClick={() => UsersformEdit.handleSubmit()}
                 className="mt-4"
@@ -260,8 +260,8 @@ const Users = () => {
           </>
         }
       >
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div >
+       <div className="grid gap-4">
+          <div className="md:col-4 lg:col-4 ">
             <label className="mb-2" htmlFor="Status">
               {" "}
               UserName{" "}
@@ -273,6 +273,7 @@ const Users = () => {
               onChange={(e) =>
                 UsersformEdit.setFieldValue("username", e.target.value)
               }
+              className="w-25rem"
             />
           </div>
           <div className="md:col-4 lg:col-4">
@@ -289,7 +290,9 @@ const Users = () => {
               }
             />
           </div>
-          <div className="md:col-4 lg:col-4">
+        </div>
+        <div className="grid gap-4 mt-2">
+        <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
               Last Name{" "}
@@ -303,9 +306,7 @@ const Users = () => {
               }
             />
           </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
-          <div >
+          <div className="md:col-4 lg:col-4 " >
             <label className="mb-2" htmlFor="Status">
               {" "}
               Business{" "}

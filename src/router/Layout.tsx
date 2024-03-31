@@ -8,8 +8,12 @@ import Home from "../pages/Home";
 import NavBar from "../components/Navbar";
 import { Bounce, ToastContainer } from "react-toastify";
 import Dashboard from "../pages/Dashboard";
+import Users from "../pages/Users";
+import { useAuth } from "../AuthContext/AuthContext";
 
 const Layout = () =>{
+  const { user } = useAuth();
+
  return(
     <div>
     <NavBar/>
@@ -28,9 +32,15 @@ const Layout = () =>{
       />
       <ToastContainer />
     <Routes>
-    <Route path="/" element={<Home />}></Route>
+    {user ? 
+   (  <>
     <Route path="/dashboard" element={<Dashboard />}></Route>
-
+    <Route path="/users" element={<Users />}></Route>
+    </>):
+    <>
+        <Route path="/" element={<Home />}></Route>
+    </>
+    }
     </Routes>
     </div>
  )
