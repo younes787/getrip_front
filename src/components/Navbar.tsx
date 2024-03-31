@@ -15,11 +15,17 @@ import { useFormik } from "formik";
 import { authRegister } from "../Services";
 import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
+import { Avatar } from "primereact/avatar";
+import { useNavigate } from "react-router-dom";
+import AvatarImage from '../Assets/Ellipse.png'
 const NavBar = () => {
   const menuLeft = useRef<any>(null);
   const [show, setshow] = useState<boolean>(false);
   const [showsign, setshowsign] = useState<boolean>(false);
   const { login } = useAuth();
+  const { logout } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
@@ -83,7 +89,7 @@ const NavBar = () => {
   ];
   const Menuitems = [
     {
-      label: "Dania",
+      label: "User Menu",
       items: [
         {
           label: "My Profile",
@@ -92,27 +98,41 @@ const NavBar = () => {
         {
           label: "Log Out",
           icon: "pi pi-sign-out",
-          // command:() => navigate('/login')
+          command: () => logout(),
         },
       ],
     },
   ];
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
-      {/* <Avatar image={user} onClick={(event) => menuLeft.current.toggle(event)} shape="circle" /> */}
       <Button
         rounded
         label="Become A Partner"
         outlined
         className="outline_btn"
       />
+      {user ? 
+      <>
+       <i
+       className="pi pi-bold pi-bell mx-2 "
+       style={{ cursor: "pointer" }}
+       onClick={() => navigate("/notifications")}
+     ></i>
+       <Avatar
+        image={AvatarImage}
+        className="mx-2"
+        onClick={(event) => menuLeft.current.toggle(event)}
+        shape="circle"
+        style={{ cursor: "pointer" }}
+      />
+     </>:
       <Button
         rounded
         label="Account"
         icon="pi pi-user"
         onClick={() => setshow(true)}
         className="pr_btn"
-      />
+      />}
     </div>
   );
   return (
