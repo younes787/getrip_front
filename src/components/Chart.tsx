@@ -1,77 +1,94 @@
 
 import React, { useState, useEffect } from 'react';
 import { Chart } from 'primereact/chart';
+import PropTypes from 'prop-types';
+import { Card } from 'primereact/card';
 
-export default function DashboardChart() {
+export default function AppWebsiteVisits({ title, subheader, chart, ...other }: any) {
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
-    const [chartDataDoughnut, setChartDataDoughnut] = useState({});
-    const [chartOptionsDoughnut, setChartOptionsDoughnut] = useState({});
     useEffect(() => {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const textColor = documentStyle.getPropertyValue('--text-color');
+        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
         const data = {
-            labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
                 {
-                    label: 'New Users',
-                    data: [540, 325, 702, 620],
-                    backgroundColor: [
-                        'rgba(255, 159, 64, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
-                      ],
-                      borderColor: [
-                        'rgb(255, 159, 64)',
-                        'rgb(75, 192, 192)',
-                        'rgb(54, 162, 235)',
-                        'rgb(153, 102, 255)'
-                      ],
-                      borderWidth: 1
+                    label: 'First Dataset',
+                    data: [65, 59, 80, 81, 56, 55, 40],
+                    fill: false,
+                    tension: 0.4,
+                    borderColor: documentStyle.getPropertyValue('--blue-500')
+                },
+                {
+                    label: 'Second Dataset',
+                    data: [28, 48, 40, 19, 86, 27, 90],
+                    fill: false,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    borderColor: documentStyle.getPropertyValue('--teal-500')
+                },
+                {
+                    label: 'Third Dataset',
+                    data: [12, 51, 62, 33, 21, 62, 45],
+                    fill: true,
+                    borderColor: documentStyle.getPropertyValue('--orange-500'),
+                    tension: 0.4,
+                    backgroundColor: 'rgba(255,167,38,0.2)'
                 }
             ]
         };
         const options = {
+            maintainAspectRatio: false,
+            aspectRatio: 0.6,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: textColor
+                    }
+                }
+            },
             scales: {
+                x: {
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
+                },
                 y: {
-                    beginAtZero: true
+                    ticks: {
+                        color: textColorSecondary
+                    },
+                    grid: {
+                        color: surfaceBorder
+                    }
                 }
             }
         };
+
         setChartData(data);
         setChartOptions(options);
-        const documentStyle = getComputedStyle(document.documentElement);
-        const datadoughnut = {
-            labels: ['A', 'B', 'C'],
-            datasets: [
-                {
-                    data: [300, 50, 100],
-                    backgroundColor: [
-                        documentStyle.getPropertyValue('--blue-500'), 
-                        documentStyle.getPropertyValue('--yellow-500'), 
-                        documentStyle.getPropertyValue('--green-500')
-                    ],
-                    hoverBackgroundColor: [
-                        documentStyle.getPropertyValue('--blue-400'), 
-                        documentStyle.getPropertyValue('--yellow-400'), 
-                        documentStyle.getPropertyValue('--green-400')
-                    ]
-                }
-            ]
-        };
-        const optionsDoughnut = {
-            cutout: '60%'
-        };
-
-        setChartDataDoughnut(datadoughnut);
-        setChartOptionsDoughnut(optionsDoughnut);
     }, []);
 
     return (
-        <div className="card grid mr-0">
-            <Chart type="bar" data={chartData} options={chartOptions} className="w-full md:w-8 p-4"   />
-            <Chart type="doughnut" data={chartDataDoughnut} options={chartOptionsDoughnut} className="w-full md:w-3 p-4 mt-6" />
+        
+        <div className="card p-5">
+              <Card className='w-full'  title={title} subTitle={subheader}>
 
+      <div className='p-3 pb-1'>
+      <Chart type="line" data={chartData} options={chartOptions} />
+
+      </div>
+    </Card>
         </div>
     )
 }
-        
+AppWebsiteVisits.propTypes = {
+    chart: PropTypes.object,
+    subheader: PropTypes.string,
+    title: PropTypes.string,
+  };
