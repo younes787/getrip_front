@@ -7,7 +7,7 @@ import { AuthProvider } from "./AuthContext/AuthContext";
 
 function App() {
   return (
-    <div>
+    <div style={{overflowX:'hidden'}}>
       <AuthProvider>
         <BrowserRouter>
           <PrimeReactProvider>

@@ -209,9 +209,9 @@ const headerIcondinner = (
         </div>
     </div>
         </div>
-         <div className="grid gap-8 ml-7	align-content-center">
-<Image src={imgcard}  preview />
-<Image src={imgcard1}  preview />
+         <div className="grid gap-8 md:ml-7	lg:ml-7 align-content-center">
+<img src={imgcard} className="img-container" />
+<img src={imgcard1} className="img-container"  />
 
          </div>
          <div className="ml-7">
