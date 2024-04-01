@@ -214,7 +214,7 @@ const headerIcondinner = (
 <img src={imgcard1} className="img-container"  />
 
          </div>
-         <div className="ml-7">
+         <div className="md:ml-7 lg:ml-7 card-container">
          <h2 className="black">Last-minute weekend deals</h2>
          <div className="card grid gap-3 ">
             <Card title="Grand Bosphorus Hotel" subTitle="Sultanahmet District"  header={header} className="md:w-21rem">

@@ -30,6 +30,9 @@
 .img-container {
   width: 40rem; 
 }
+.card-container{
+  padding: 0px;
+}
 
 /* Media query for small screens */
 @media screen and (max-width: 768px) {
@@ -37,5 +40,8 @@
     width: 100%; 
     max-width: 26rem; 
     margin: 0 auto; 
+  }
+  .card-container{
+    padding: 50px;
   }
 }
