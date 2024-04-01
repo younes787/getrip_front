@@ -33,7 +33,7 @@ export const authRegister = async (registerData: any) => {
 export const CreateUser = async (userData: any) => {
   try {
     const response = await api.post("/createuser", userData);
-    return handleResponse(response,'');
+    return handleResponse(response,'Post');
   } catch (error) {
     handleError(error);
   }
@@ -41,7 +41,7 @@ export const CreateUser = async (userData: any) => {
 export const UpdateUser = async (userData: any) => {
   try {
     const response = await api.put("/updateuser", userData);
-    return handleResponse(response ,'');
+    return handleResponse(response ,'Post');
   } catch (error) {
     handleError(error);
   }
@@ -49,7 +49,7 @@ export const UpdateUser = async (userData: any) => {
 export const DeleteUser = async (email: any) => {
   try {
     const response = await api.delete(`/deleteuser/${email}`);
-    return handleResponse(response , '');
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }

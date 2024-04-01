@@ -7,6 +7,12 @@ export class LoginDTO {
   export class RegisterDTO {
     email: string = "";
     password: string = "";
+    username: string ='';
+    name:string='';
+    lastname:string='';
+    role:string='';
+    business:string='';
+
   }
 
   export class UsersDTO{

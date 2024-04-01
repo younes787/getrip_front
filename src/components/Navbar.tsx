@@ -12,7 +12,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { authRegister } from "../Services";
+import { CreateUser, authRegister } from "../Services";
 import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
@@ -31,7 +31,8 @@ const NavBar = () => {
     initialValues: new RegisterDTO(),
     validateOnChange: true,
     onSubmit: async () => {
-      await authRegister(register.values);
+      register.values.role = 'Client'
+      await CreateUser(register.values);
     },
   });
   const loginform = useFormik<LoginDTO>({
@@ -228,6 +229,70 @@ const NavBar = () => {
           Join to unlimited travel features
         </span>
         <div className=" mt-4">
+        <div className="col ml-3 ">
+          <div>
+            <label className="primary" htmlFor="Wallet">
+              {" "}
+              First Name{" "}
+            </label></div>
+            <InputText
+              placeholder="First Name"
+              name="name"
+              className="mt-2 w-24rem	"
+              value={register?.values?.name}
+              onChange={(e) =>
+                register.setFieldValue("name", e.target.value)
+              }
+            />
+          </div>
+        <div className="col ml-3 ">
+          <div>
+            <label className="primary" htmlFor="Wallet">
+              {" "}
+              Last Name{" "}
+            </label></div>
+            <InputText
+              placeholder="Last Name"
+              name="lastname"
+              value={register?.values?.lastname}
+              className="mt-2 w-24rem	"
+              onChange={(e) =>
+                register.setFieldValue("lastname", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3" >
+            <div>
+            <label className="primary" htmlFor="Status">
+              {" "}
+              Business{" "}
+            </label></div>
+            <InputText
+              placeholder="Business"
+              name="business"
+              className="mt-2 w-24rem	"
+              value={register?.values?.business}
+              onChange={(e) =>
+                register.setFieldValue("business", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+            <label className=" primary" htmlFor="">
+              {" "}
+              Username{" "}
+            </label></div>
+            <InputText
+              placeholder="Username"
+              name="username"
+              className="mt-2 w-24rem	"
+              value={register?.values?.username}
+              onChange={(e) =>
+                register.setFieldValue("username", e.target.value)
+              }
+            />
+          </div>
           <div className="col ml-3">
             <div>
               <label className=" primary" htmlFor="Email">
