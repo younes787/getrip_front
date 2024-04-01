@@ -145,7 +145,7 @@ const NavBar = () => {
           </span>
         }
         visible={show}
-        className="	md:w-30rem lg:w-30rem"
+        className="	md:w-30rem lg:w-30rem card-container"
         onHide={() => setshow(false)}
       >
         <span className="primary flex justify-content-center">
@@ -221,7 +221,7 @@ const NavBar = () => {
           </span>
         }
         visible={showsign}
-        className="	md:w-30rem lg:w-30rem"
+        className="	md:w-30rem lg:w-30rem card-container"
         onHide={() => setshowsign(false)}
       >
         <span className="primary flex justify-content-center">
