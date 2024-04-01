@@ -21,17 +21,16 @@ const Users = () => {
         setUsersList(res?.data);
     }
     });
-    GetAllRoles().then((res) => setRolesList(res));
+    GetAllRoles().then((res) => setRolesList(res.data));
   };
   const options = Array.isArray(RolesList) ? RolesList?.map((role: any) => ({
-    label: role,
-    value: role,
+    label: role.name,
+    value: role.name,
   })) : ''
   const Usersform = useFormik<UsersDTO>({
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
-        Usersform.values.role = 'Administrator'
         CreateUser(Usersform.values);
       setShow(false);
     },
@@ -45,7 +44,18 @@ const Users = () => {
       setShowEdit(false);
     },
   });
-
+const ShowUser = (rowData:any) =>{
+  setShowEdit(true)
+  UsersformEdit.setValues({
+    username: rowData.username,
+    name: rowData.name,
+    lastname:rowData.lastname,
+    business:rowData.business,
+    password:rowData.password,
+    email:rowData.email,
+    role:rowData.role
+  });
+}
   useEffect(() => {
     getUsers();
   }, []);
@@ -71,7 +81,7 @@ const Users = () => {
       <div className="gap-3">
         <i
           className="pi pi-bold pi-pencil"
-          onClick={() => setShowEdit(true)}
+          onClick={() => ShowUser(rowData)}
           style={{
             fontSize: "1.2rem",
             color: "slateblue",
@@ -105,7 +115,7 @@ const Users = () => {
         tableStyle={{ minWidth: "50rem" }}
       >
         <Column field="username" sortField="" header="UserName"></Column>
-        <Column field="name" header="Name"></Column>
+        <Column field="name" header="First Name"></Column>
         <Column field="lastname" header="Last Name"></Column>
         <Column field="business" header="Business"></Column>
         <Column field="password" header="Password"></Column>
@@ -160,10 +170,10 @@ const Users = () => {
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
-               Name{" "}
+             First  Name{" "}
             </label>
             <InputText
-              placeholder=" Name"
+              placeholder="First Name"
               name="name"
               value={Usersform?.values?.name}
               onChange={(e) =>
@@ -228,7 +238,24 @@ const Users = () => {
             />
           </div>
         </div>
-       
+        <div className="md:col-4 lg:col-4">
+          <div>
+            <label className="mb-2" htmlFor="Wallet">
+              {" "}
+              Role{" "}
+            </label>
+            </div>
+            <Dropdown
+              placeholder="Role"
+              options={options as any}
+              optionLabel="label"
+              optionValue="value"
+              name="role"
+              className="w-full"
+              value={Usersform?.values?.role}
+              onChange={(e) => Usersform.setFieldValue("role", e.target.value)}
+            />
+          </div>
       
       </Dialog>
       <></>
@@ -273,16 +300,16 @@ const Users = () => {
               onChange={(e) =>
                 UsersformEdit.setFieldValue("username", e.target.value)
               }
-              className="w-25rem"
+              readOnly
             />
           </div>
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
-               Name{" "}
+              First Name{" "}
             </label>
             <InputText
-              placeholder=" Name"
+              placeholder="First Name"
               name="name"
               value={UsersformEdit?.values?.name}
               onChange={(e) =>
@@ -344,10 +371,29 @@ const Users = () => {
               name="email"
               value={UsersformEdit?.values?.email}
               onChange={(e) => UsersformEdit.setFieldValue("email", e.target.value)}
+              readOnly
             />
+            
           </div>
         </div>
-       
+        <div className="md:col-4 lg:col-4">
+          <div>
+            <label className="mb-2" htmlFor="Wallet">
+              {" "}
+              Role{" "}
+            </label>
+            </div>
+            <Dropdown
+              placeholder="Role"
+              options={options as any}
+              optionLabel="label"
+              optionValue="value"
+              name="role"
+              className="w-full"
+              value={UsersformEdit?.values?.role}
+              onChange={(e) => UsersformEdit.setFieldValue("role", e.target.value)}
+            />
+          </div>
       </Dialog>
     </div>
   );
