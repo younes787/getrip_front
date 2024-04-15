@@ -8,14 +8,19 @@ import glassBag from '../Assets/glass/ic_glass_bag.png'
 import glassbuy from '../Assets/glass/ic_glass_buy.png'
 import glassUsers from '../Assets/glass/ic_glass_users.png'
 import AppWebsiteVisits from "../components/Chart";
+import SideBar from "../components/SideBar";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 
 
 const Dashboard = () =>{
-const navigate = useNavigate()
 return(
-    <>
+    <div className="flex" style={{backgroundColor:'whitesmoke'}}>
+      <SideBar/>
+      <div >
+      <div>
     <span>
-        <h1 className="text-center text-4xl get-rp">Welcome In  Ge<span className="secondery">t</span>rip</h1>  
+        <h1 className="text-center text-4xl get-rp ml-5">Welcome In  Ge<span className="secondery">t</span>rip</h1>  
           </span>
           <div className="grid mr-0 gap-5 mt-5">
           <AppWidgetSummary
@@ -36,45 +41,34 @@ return(
             color="warning"
             icon={<img alt="icon" src={glassbuy} />}
           />
-          <AppWidgetSummary
-            title="Bug Reports"
-            total={234}
-            color="error"
-            icon={<img alt="icon" src={glassMessage}/>}
-          />
           </div>
-          <div className="mt-5">
+          </div>
+          <div className="mt-3 ml-2 grid">
           <AppWebsiteVisits
             title="Website Visits"
             subheader="(+43%) than last year"/>
+             <AppWebsiteVisits
+            title="Website Visits"
+            subheader="(+43%) than last year"/>
           </div>
-    <Card>
-    <div className="grid gap-7 mt-5 ml-3">
-    <Button
-        rounded
-        label="Manage Users"
-        icon="pi pi-user"
-        onClick={()=>navigate('/users')}
-        className="pr_btn"
-      />
-      <Button
-        rounded
-        label="Manage Services"
-        icon="pi pi-user"
-        // onClick={() => setshow(true)}
-        className="pr_btn"
-      />
-      <Button
-        rounded
-        label="Manage Payment"
-        icon="pi pi-user"
-        // onClick={() => setshow(true)}
-        className="pr_btn"
-      />
+          <div className="ml-5">
+          <Card title='Orders' className="mb-5">
+          <DataTable
+        // value={UsersList}
+        stripedRows
+        showGridlines
+        className=" p-5"
+        tableStyle={{ minWidth: "50rem" }}
+      >
+        <Column field="username" sortField="" header="Order"></Column>
+        <Column field="name" header="Name"></Column>
+        <Column field="lastname" header="Date"></Column>
+        <Column field="business" header="Status"></Column>
+      </DataTable>
+      </Card>
+          </div>
     </div>
-    
-    </Card>
-    </>
+    </div>
 )
 
 }

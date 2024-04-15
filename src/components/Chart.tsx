@@ -79,8 +79,8 @@ export default function AppWebsiteVisits({ title, subheader, chart, ...other }: 
         <div className="card p-5">
               <Card className='w-full'  title={title} subTitle={subheader}>
 
-      <div className='p-3 pb-1'>
-      <Chart type="line" data={chartData} options={chartOptions} />
+      <div className='p-3 pb-1' style={{height:"15rem"}}>
+      <Chart type="line" data={chartData} options={chartOptions} style={{height:"15rem"}} />
 
       </div>
     </Card>
