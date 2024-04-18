@@ -17,7 +17,7 @@ import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
-import AvatarImage from '../Assets/Ellipse.png'
+import AvatarImage from "../Assets/Ellipse.png";
 const NavBar = () => {
   const menuLeft = useRef<any>(null);
   const [show, setshow] = useState<boolean>(false);
@@ -31,7 +31,7 @@ const NavBar = () => {
     initialValues: new RegisterDTO(),
     validateOnChange: true,
     onSubmit: async () => {
-      register.values.role = 'Client'
+      register.values.role = "Client";
       await CreateUser(register.values);
     },
   });
@@ -39,7 +39,7 @@ const NavBar = () => {
     initialValues: new LoginDTO(),
     validateOnChange: true,
     onSubmit: async () => {
-       login(loginform.values);
+      login(loginform.values);
     },
   });
   const itemRenderer = (item: any) => (
@@ -112,28 +112,30 @@ const NavBar = () => {
         outlined
         className="outline_btn"
       />
-      {user ? 
-      <>
-       <i
-       className="pi pi-bold pi-bell mx-2 "
-       style={{ cursor: "pointer" }}
-       onClick={() => navigate("/notifications")}
-     ></i>
-       <Avatar
-        image={AvatarImage}
-        className="mx-2"
-        onClick={(event) => menuLeft.current.toggle(event)}
-        shape="circle"
-        style={{ cursor: "pointer" }}
-      />
-     </>:
-      <Button
-        rounded
-        label="Account"
-        icon="pi pi-user"
-        onClick={() => setshow(true)}
-        className="pr_btn"
-      />}
+      {user ? (
+        <>
+          <i
+            className="pi pi-bold pi-bell mx-2 "
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/notifications")}
+          ></i>
+          <Avatar
+            image={AvatarImage}
+            className="mx-2"
+            onClick={(event) => menuLeft.current.toggle(event)}
+            shape="circle"
+            style={{ cursor: "pointer" }}
+          />
+        </>
+      ) : (
+        <Button
+          rounded
+          label="Account"
+          icon="pi pi-user"
+          onClick={() => setshow(true)}
+          className="pr_btn"
+        />
+      )}
     </div>
   );
   return (
@@ -165,9 +167,7 @@ const NavBar = () => {
               name="email"
               className="mt-2 w-24rem	"
               value={loginform?.values?.email}
-              onChange={(e) =>
-                loginform.setFieldValue("email", e.target.value)
-              }
+              onChange={(e) => loginform.setFieldValue("email", e.target.value)}
             />
           </div>
           <div className="col ml-3">
@@ -189,7 +189,12 @@ const NavBar = () => {
           </div>
         </div>
         <div className="flex justify-content-center">
-          <Button rounded label="Log In" className="pr_btn w-11 mt-3 " onClick={()=>loginform.handleSubmit()} />
+          <Button
+            rounded
+            label="Log In"
+            className="pr_btn w-11 mt-3 "
+            onClick={() => loginform.handleSubmit()}
+          />
         </div>
         <div className="line-container">
           <hr className="line" />
@@ -229,28 +234,28 @@ const NavBar = () => {
           Join to unlimited travel features
         </span>
         <div className=" mt-4">
-        <div className="col ml-3 ">
-          <div>
-            <label className="primary" htmlFor="Wallet">
-              {" "}
-              First Name{" "}
-            </label></div>
+          <div className="col ml-3 ">
+            <div>
+              <label className="primary" htmlFor="Wallet">
+                {" "}
+                First Name{" "}
+              </label>
+            </div>
             <InputText
               placeholder="First Name"
               name="name"
               className="mt-2 w-24rem	"
               value={register?.values?.name}
-              onChange={(e) =>
-                register.setFieldValue("name", e.target.value)
-              }
+              onChange={(e) => register.setFieldValue("name", e.target.value)}
             />
           </div>
-        <div className="col ml-3 ">
-          <div>
-            <label className="primary" htmlFor="Wallet">
-              {" "}
-              Last Name{" "}
-            </label></div>
+          <div className="col ml-3 ">
+            <div>
+              <label className="primary" htmlFor="Wallet">
+                {" "}
+                Last Name{" "}
+              </label>
+            </div>
             <InputText
               placeholder="Last Name"
               name="lastname"
@@ -261,12 +266,13 @@ const NavBar = () => {
               }
             />
           </div>
-          <div className="col ml-3" >
+          <div className="col ml-3">
             <div>
-            <label className="primary" htmlFor="Status">
-              {" "}
-              Business{" "}
-            </label></div>
+              <label className="primary" htmlFor="Status">
+                {" "}
+                Business{" "}
+              </label>
+            </div>
             <InputText
               placeholder="Business"
               name="business"
@@ -279,10 +285,11 @@ const NavBar = () => {
           </div>
           <div className="col ml-3">
             <div>
-            <label className=" primary" htmlFor="">
-              {" "}
-              Username{" "}
-            </label></div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Username{" "}
+              </label>
+            </div>
             <InputText
               placeholder="Username"
               name="username"
@@ -305,9 +312,7 @@ const NavBar = () => {
               name="email"
               className="mt-2 w-24rem	"
               value={register?.values?.email}
-              onChange={(e) =>
-                register.setFieldValue("email", e.target.value)
-              }
+              onChange={(e) => register.setFieldValue("email", e.target.value)}
             />
           </div>
           <div className="col ml-3">
@@ -333,7 +338,7 @@ const NavBar = () => {
             rounded
             label="Create Account"
             className="pr_btn w-11 mt-3 "
-            onClick={()=>register.handleSubmit()}
+            onClick={() => register.handleSubmit()}
           />
         </div>
         <div className="line-container">

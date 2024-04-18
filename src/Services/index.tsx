@@ -1,9 +1,8 @@
 import axios from "axios";
 import { handleResponse, handleError } from "./handleResponse";
 
-
 const api = axios.create({
-  baseURL: 'https://getrip.azurewebsites.net',
+  baseURL: "https://getrip.azurewebsites.net",
   headers: {
     "Content-Type": "application/json",
     Authorization: `Bearer ${
@@ -13,27 +12,27 @@ const api = axios.create({
 });
 // Auth
 export const authRegister = async (registerData: any) => {
-    try {
-      const response = await api.post("/register", registerData);
-      return handleResponse(response);
-    } catch (error) {
-      handleError(error);
-    }
-  };
-  
-  export const authLogin = async (loginData: any) => {
-    try {
-      const response = await api.post("/login", loginData);
-      return handleResponse(response);
-    } catch (error) {
-      handleError(error);
-    }
-  };
+  try {
+    const response = await api.post("/register", registerData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const authLogin = async (loginData: any) => {
+  try {
+    const response = await api.post("/login", loginData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Users
 export const CreateUser = async (userData: any) => {
   try {
     const response = await api.post("/createuser", userData);
-    return handleResponse(response,'Post');
+    return handleResponse(response, "Post");
   } catch (error) {
     handleError(error);
   }
@@ -41,7 +40,7 @@ export const CreateUser = async (userData: any) => {
 export const UpdateUser = async (userData: any) => {
   try {
     const response = await api.put("/updateuser", userData);
-    return handleResponse(response ,'Post');
+    return handleResponse(response, "Post");
   } catch (error) {
     handleError(error);
   }
@@ -49,7 +48,7 @@ export const UpdateUser = async (userData: any) => {
 export const DeleteUser = async (email: any) => {
   try {
     const response = await api.delete(`/deleteuser/${email}`);
-    return handleResponse(response , 'Post');
+    return handleResponse(response, "Post");
   } catch (error) {
     handleError(error);
   }
@@ -71,9 +70,9 @@ export const GetAllRoles = async () => {
   }
 };
 // Services
-export const CreateServiceType = async (ServicesData:any) => {
+export const CreateServiceType = async (ServicesData: any) => {
   try {
-    const response = await api.post("/createservicetype",ServicesData);
+    const response = await api.post("/createservicetype", ServicesData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -89,7 +88,7 @@ export const GetAllService = async () => {
   }
 };
 
-export const UpdateService = async (ServicesData:any) => {
+export const UpdateService = async (ServicesData: any) => {
   try {
     const response = await api.put("/updateservicetype", ServicesData);
     return handleResponse(response);
@@ -98,7 +97,7 @@ export const UpdateService = async (ServicesData:any) => {
   }
 };
 // Logistics
-export const CreateCountry = async (CountryData:any) => {
+export const CreateCountry = async (CountryData: any) => {
   try {
     const response = await api.post("/createcountry", CountryData);
     return handleResponse(response);
@@ -106,7 +105,7 @@ export const CreateCountry = async (CountryData:any) => {
     handleError(error);
   }
 };
-export const UpdateCountry = async (CountryData:any) => {
+export const UpdateCountry = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecountry", CountryData);
     return handleResponse(response);
@@ -124,7 +123,7 @@ export const GetAllCountries = async () => {
   }
 };
 // Cites
-export const AddCity = async (CityData:any) => {
+export const AddCity = async (CityData: any) => {
   try {
     const response = await api.post("/addcity", CityData);
     return handleResponse(response);
@@ -132,7 +131,7 @@ export const AddCity = async (CityData:any) => {
     handleError(error);
   }
 };
-export const UpdateCity = async (CountryData:any) => {
+export const UpdateCity = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecity", CountryData);
     return handleResponse(response);
@@ -141,7 +140,7 @@ export const UpdateCity = async (CountryData:any) => {
   }
 };
 
-export const GetCitiesbyid = async (pid:number) => {
+export const GetCitiesbyid = async (pid: number) => {
   try {
     const response = await api.get(`/getcitiesbypid/${pid}`);
     return handleResponse(response);
@@ -149,4 +148,4 @@ export const GetCitiesbyid = async (pid:number) => {
     handleError(error);
   }
 };
-  export default api;
+export default api;

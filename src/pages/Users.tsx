@@ -8,7 +8,13 @@ import { InputText } from "primereact/inputtext";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from "primereact/dropdown";
 import { UsersDTO } from "../modules/getrip.modules";
-import { CreateUser, DeleteUser, GetAllRoles, GetAllUsers, UpdateUser } from "../Services";
+import {
+  CreateUser,
+  DeleteUser,
+  GetAllRoles,
+  GetAllUsers,
+  UpdateUser,
+} from "../Services";
 
 const Users = () => {
   const [UsersList, setUsersList] = useState<any>();
@@ -17,21 +23,23 @@ const Users = () => {
   const [RolesList, setRolesList] = useState<any>();
   const getUsers = () => {
     GetAllUsers().then((res) => {
-      if (res !== undefined ){
+      if (res !== undefined) {
         setUsersList(res?.data);
-    }
+      }
     });
     GetAllRoles().then((res) => setRolesList(res.data));
   };
-  const options = Array.isArray(RolesList) ? RolesList?.map((role: any) => ({
-    label: role.name,
-    value: role.name,
-  })) : ''
+  const options = Array.isArray(RolesList)
+    ? RolesList?.map((role: any) => ({
+        label: role.name,
+        value: role.name,
+      }))
+    : "";
   const Usersform = useFormik<UsersDTO>({
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
-        CreateUser(Usersform.values);
+      CreateUser(Usersform.values);
       setShow(false);
     },
   });
@@ -40,22 +48,22 @@ const Users = () => {
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
-        UpdateUser(UsersformEdit.values);
+      UpdateUser(UsersformEdit.values);
       setShowEdit(false);
     },
   });
-const ShowUser = (rowData:any) =>{
-  setShowEdit(true)
-  UsersformEdit.setValues({
-    username: rowData.username,
-    name: rowData.name,
-    lastname:rowData.lastname,
-    business:rowData.business,
-    password:rowData.password,
-    email:rowData.email,
-    role:rowData.role
-  });
-}
+  const ShowUser = (rowData: any) => {
+    setShowEdit(true);
+    UsersformEdit.setValues({
+      username: rowData.username,
+      name: rowData.name,
+      lastname: rowData.lastname,
+      business: rowData.business,
+      password: rowData.password,
+      email: rowData.email,
+      role: rowData.role,
+    });
+  };
   useEffect(() => {
     getUsers();
   }, []);
@@ -98,7 +106,6 @@ const ShowUser = (rowData:any) =>{
     );
   };
   return (
-    
     <div>
       <ConfirmDialog />
       <Button
@@ -152,7 +159,7 @@ const ShowUser = (rowData:any) =>{
           </>
         }
       >
-  <div className="grid gap-4">
+        <div className="grid gap-4">
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Status">
               {" "}
@@ -170,20 +177,18 @@ const ShowUser = (rowData:any) =>{
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
-             First  Name{" "}
+              First Name{" "}
             </label>
             <InputText
               placeholder="First Name"
               name="name"
               value={Usersform?.values?.name}
-              onChange={(e) =>
-                Usersform.setFieldValue("name", e.target.value)
-              }
+              onChange={(e) => Usersform.setFieldValue("name", e.target.value)}
             />
           </div>
         </div>
         <div className="grid gap-4 mt-2">
-        <div className="md:col-4 lg:col-4 ">
+          <div className="md:col-4 lg:col-4 ">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
               Last Name{" "}
@@ -197,7 +202,7 @@ const ShowUser = (rowData:any) =>{
               }
             />
           </div>
-          <div className="md:col-4 lg:col-4" >
+          <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Status">
               {" "}
               Business{" "}
@@ -244,19 +249,18 @@ const ShowUser = (rowData:any) =>{
               {" "}
               Role{" "}
             </label>
-            </div>
-            <Dropdown
-              placeholder="Role"
-              options={options as any}
-              optionLabel="label"
-              optionValue="value"
-              name="role"
-              className="w-full"
-              value={Usersform?.values?.role}
-              onChange={(e) => Usersform.setFieldValue("role", e.target.value)}
-            />
           </div>
-      
+          <Dropdown
+            placeholder="Role"
+            options={options as any}
+            optionLabel="label"
+            optionValue="value"
+            name="role"
+            className="w-full"
+            value={Usersform?.values?.role}
+            onChange={(e) => Usersform.setFieldValue("role", e.target.value)}
+          />
+        </div>
       </Dialog>
       <></>
       <Dialog
@@ -287,7 +291,7 @@ const ShowUser = (rowData:any) =>{
           </>
         }
       >
-       <div className="grid gap-4">
+        <div className="grid gap-4">
           <div className="md:col-4 lg:col-4 ">
             <label className="mb-2" htmlFor="Status">
               {" "}
@@ -319,7 +323,7 @@ const ShowUser = (rowData:any) =>{
           </div>
         </div>
         <div className="grid gap-4 mt-2">
-        <div className="md:col-4 lg:col-4">
+          <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
               Last Name{" "}
@@ -333,7 +337,7 @@ const ShowUser = (rowData:any) =>{
               }
             />
           </div>
-          <div className="md:col-4 lg:col-4 " >
+          <div className="md:col-4 lg:col-4 ">
             <label className="mb-2" htmlFor="Status">
               {" "}
               Business{" "}
@@ -370,10 +374,11 @@ const ShowUser = (rowData:any) =>{
               placeholder="Email"
               name="email"
               value={UsersformEdit?.values?.email}
-              onChange={(e) => UsersformEdit.setFieldValue("email", e.target.value)}
+              onChange={(e) =>
+                UsersformEdit.setFieldValue("email", e.target.value)
+              }
               readOnly
             />
-            
           </div>
         </div>
         <div className="md:col-4 lg:col-4">
@@ -382,18 +387,20 @@ const ShowUser = (rowData:any) =>{
               {" "}
               Role{" "}
             </label>
-            </div>
-            <Dropdown
-              placeholder="Role"
-              options={options as any}
-              optionLabel="label"
-              optionValue="value"
-              name="role"
-              className="w-full"
-              value={UsersformEdit?.values?.role}
-              onChange={(e) => UsersformEdit.setFieldValue("role", e.target.value)}
-            />
           </div>
+          <Dropdown
+            placeholder="Role"
+            options={options as any}
+            optionLabel="label"
+            optionValue="value"
+            name="role"
+            className="w-full"
+            value={UsersformEdit?.values?.role}
+            onChange={(e) =>
+              UsersformEdit.setFieldValue("role", e.target.value)
+            }
+          />
+        </div>
       </Dialog>
     </div>
   );
