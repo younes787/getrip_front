@@ -38,14 +38,14 @@ const SideBar = () => {
           ></i>{" "}
           Manage Payments{" "}
         </MenuItem>
-        <MenuItem>
-          {" "}
-          <i
+        <SubMenu label={<div> <i
             className="pi pi-globe  mr-4"
             style={{ color: "#4a235a", fontSize: "1.3rem" }}
-          ></i>{" "}
-          Logistics{" "}
+          ></i> Logistics</div>}>
+        <MenuItem onClick={() => navigate("/countries")}>
+         Countries {" "}
         </MenuItem>
+        </SubMenu>
         <MenuItem>
           {" "}
           <i

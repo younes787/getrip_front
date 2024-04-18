@@ -29,3 +29,9 @@ export class ServicesDTO {
   description: string = '';
   name: string = '';
 }
+
+export class CountriesDTO {
+  id?: number = 0;
+  countryCode: string = '';
+  name: string = '';
+}

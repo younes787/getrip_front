@@ -11,6 +11,7 @@ import Dashboard from "../pages/Dashboard";
 import Users from "../pages/Users";
 import { useAuth } from "../AuthContext/AuthContext";
 import Services from "../pages/Services";
+import Logistics from "../pages/Logistics";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -39,6 +40,8 @@ const Layout = () => {
             <Route path="/dashboard" element={<Dashboard />}></Route>
             <Route path="/users" element={<Users />}></Route>
             <Route path="/services-type" element={<Services />}></Route>
+            <Route path="/countries" element={<Logistics />}></Route>
+
           </>
         ) : (
           <>
