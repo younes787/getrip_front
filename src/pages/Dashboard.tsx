@@ -11,6 +11,7 @@ import AppWebsiteVisits from "../components/Chart";
 import SideBar from "../components/SideBar";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import AppUsersVisits from "../components/Circle";
 
 
 const Dashboard = () =>{
@@ -43,13 +44,25 @@ return(
           />
           </div>
           </div>
-          <div className="mt-3 ml-2 grid">
+          {/* <div className="mt-3 ml-2 grid">
           <AppWebsiteVisits
             title="Website Visits"
             subheader="(+43%) than last year"/>
              <AppWebsiteVisits
             title="Website Visits"
             subheader="(+43%) than last year"/>
+          </div> */}
+          <div className="mt-5">
+          <div className="flex flex-wrap mr-0 gap-5 mt-5">
+          <div  className="grid grid-cols-2 w-full">
+          <AppWebsiteVisits
+            title="Website Visits"
+            subheader="(+43%) than last year"/>
+            <AppUsersVisits
+            title="Website Visits"
+            subheader="(+43%) than last year"/>
+          </div>
+          </div>
           </div>
           <div className="ml-5">
           <Card title='Orders' className="mb-5">
