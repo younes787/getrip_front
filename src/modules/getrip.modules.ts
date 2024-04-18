@@ -24,3 +24,8 @@ export class LoginDTO {
     email:string='';
     role:string='';
   }
+
+  export class ServicesDTO{
+    description: string ='';
+    name:string='';
+  }

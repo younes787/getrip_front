@@ -44,14 +44,6 @@ return(
           />
           </div>
           </div>
-          {/* <div className="mt-3 ml-2 grid">
-          <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"/>
-             <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"/>
-          </div> */}
           <div className="mt-5">
           <div className="flex flex-wrap mr-0 gap-5 mt-5">
           <div  className="grid grid-cols-2 w-full">

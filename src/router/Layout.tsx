@@ -10,6 +10,7 @@ import { Bounce, ToastContainer } from "react-toastify";
 import Dashboard from "../pages/Dashboard";
 import Users from "../pages/Users";
 import { useAuth } from "../AuthContext/AuthContext";
+import Services from "../pages/Services";
 
 const Layout = () =>{
   const { user } = useAuth();
@@ -34,8 +35,11 @@ const Layout = () =>{
     <Routes>
     {user ? 
    (  <>
+    <Route path="/" element={<Home />}></Route>
     <Route path="/dashboard" element={<Dashboard />}></Route>
     <Route path="/users" element={<Users />}></Route>
+    <Route path="/services-type" element={<Services />}></Route>
+
     </>):
     <>
         <Route path="/" element={<Home />}></Route>

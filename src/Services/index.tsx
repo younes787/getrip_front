@@ -70,4 +70,83 @@ export const GetAllRoles = async () => {
     handleError(error);
   }
 };
+// Services
+export const CreateServiceType = async (ServicesData:any) => {
+  try {
+    const response = await api.post("/createservicetype",ServicesData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllService = async () => {
+  try {
+    const response = await api.get("/getallservicetypes");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdateService = async (ServicesData:any) => {
+  try {
+    const response = await api.put("/updateservicetype", ServicesData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+// Logistics
+export const CreateCountry = async (CountryData:any) => {
+  try {
+    const response = await api.post("/createcountry", CountryData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateCountry = async (CountryData:any) => {
+  try {
+    const response = await api.put("/updatecountry", CountryData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllCountries = async () => {
+  try {
+    const response = await api.get("/getallcountries");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+// Cites
+export const AddCity = async (CityData:any) => {
+  try {
+    const response = await api.post("/addcity", CityData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateCity = async (CountryData:any) => {
+  try {
+    const response = await api.put("/updatecity", CountryData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetCitiesbyid = async (pid:number) => {
+  try {
+    const response = await api.get(`/getcitiesbypid/${pid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
   export default api;
