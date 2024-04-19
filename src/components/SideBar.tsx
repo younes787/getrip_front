@@ -45,6 +45,12 @@ const SideBar = () => {
         <MenuItem onClick={() => navigate("/countries")}>
          Countries {" "}
         </MenuItem>
+        <MenuItem onClick={() => navigate("/countries")}>
+         Provinces {" "}
+        </MenuItem>
+        <MenuItem onClick={() => navigate("/cities")}>
+         Cities {" "}
+        </MenuItem>
         </SubMenu>
         <MenuItem>
           {" "}

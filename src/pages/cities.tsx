@@ -5,16 +5,21 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddCity, CreateCountry, GetAllCities, GetAllCountries, UpdateCountry } from "../Services";
+import { AddCity, GetAllCities, GetAllProvinces, GetCitiesbyid, UpdateCity } from "../Services";
 import { useFormik } from "formik";
-import { CitiesDTO, CountriesDTO } from "../modules/getrip.modules";
+import { CitiesDTO } from "../modules/getrip.modules";
+import SideBar from "../components/SideBar";
 
 const Cites = () => {
   const [cities, setcities] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [provinces , setProvinces] = useState<any>()
+  const [allcities , setAllCities] = useState<any>()
+
   useEffect(() => {
     GetAllCities().then((res) => setcities(res.data));
+    GetAllProvinces().then((res) => setProvinces(res.data));
   }, []);
   const Cityform = useFormik<CitiesDTO>({
     initialValues: new CitiesDTO(),
@@ -29,7 +34,7 @@ const Cites = () => {
     initialValues: new CitiesDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      UpdateCountry(CityformEdit.values);
+        UpdateCity(CityformEdit.values);
       setShowEdit(false);
     },
   });
@@ -38,8 +43,14 @@ const Cites = () => {
     CityformEdit.setValues({
       description: rowData.description,
       name: rowData.name,
+      provinceId: rowData.provinceId,
+      id:rowData.id
     });
   };
+  const handleProvinceChange = (e:any) =>{
+    Cityform.setFieldValue("provinceId", e.target.value)
+    GetCitiesbyid(e.target.value).then((res)=> setAllCities(res.data))
+  }
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
@@ -57,7 +68,9 @@ const Cites = () => {
     );
   };
   return (
-    <>
+    <div className="flex">
+    <SideBar/>
+    <div>
       <Button
         label="Add New City"
         onClick={() => setShow(true)}
@@ -71,7 +84,7 @@ const Cites = () => {
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
       >
-        <Column field="name" header="Country Name"></Column>
+        <Column field="name" header="City Name"></Column>
         <Column field="description" sortField="" header="Description"></Column>
         <Column field="" header="Actions" body={BodyTemplate}></Column>
       </DataTable>
@@ -104,21 +117,37 @@ const Cites = () => {
           </>
         }
       >
-        <div className="grid gap-4">
-          <div className="md:col-4 lg:col-4">
-            <label className="mb-2" htmlFor="Status">
+        <div className="grid mt-3">
+        <div className="md:col-6 lg:col-6">
+        <label className="mb-2" htmlFor="Status">
               {" "}
-              Country Name{" "}
+              Province Name{" "}
             </label>
-            <InputText
-              placeholder="Country Name"
-              name="name"
-              value={Cityform?.values?.name}
-              onChange={(e) =>
-                Cityform.setFieldValue("name", e.target.value)
-              }
-            />
+        <Dropdown
+            placeholder="Select a Province"
+            options={provinces as any}
+            optionLabel="name"
+            optionValue="id"
+            name="provinceId"
+            className="w-full"
+            value={Cityform?.values?.provinceId}
+            onChange={(e) => handleProvinceChange(e)
+            }
+          />
+        </div>
+          <div className="md:col-5 lg:col-5">
+            <label className="mb-2" htmlFor="">
+              {" "}
+              City Name{" "}
+            </label>
+            <InputText 
+          name="name"
+          value={Cityform.values.name}
+          onChange={(e)=> Cityform.setFieldValue('name' , e.target.value)} />
           </div>
+          </div>
+
+          <div className="grid gap-4">
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               {" "}
@@ -137,7 +166,7 @@ const Cites = () => {
       </Dialog>
       <></>
       <Dialog
-        header="Edit Country"
+        header="Edit City"
         visible={showEdit}
         style={{ width: "50vw" }}
         onHide={() => setShowEdit(false)}
@@ -164,20 +193,44 @@ const Cites = () => {
           </>
         }
       >
-        <div className="grid gap-4">
-          <div className="md:col-4 lg:col-4">
+        <div className="grid">
+        <div className="md:col-6 lg:col-6">
+        <label className="mb-2" htmlFor="Status">
+              {" "}
+              Province Name{" "}
+            </label>
+          <Dropdown
+            placeholder="Select a Province"
+            options={provinces as any}
+            optionLabel="name"
+            optionValue="id"
+            name="provinceId"
+            className="w-full"
+            value={CityformEdit?.values?.provinceId}
+            onChange={(e) => handleProvinceChange(e)}
+          />
+          </div>
+          <div className="md:col-6 lg:col-6">
             <label className="mb-2" htmlFor="Status">
               {" "}
-              Country Name{" "}
+              City Name{" "}
             </label>
-            <InputText
-              placeholder="Country Name"
-              name="name"
-              value={CityformEdit?.values?.name}
-              onChange={(e) =>
-                CityformEdit.setFieldValue("name", e.target.value)
-              }
-            />
+            {/* <Dropdown
+            placeholder="Select a City"
+            options={allcities as any}
+            optionLabel="name"
+            optionValue="id"
+            name="id"
+            className="w-full"
+            value={CityformEdit?.values?.id}
+            onChange={(e) =>
+                CityformEdit.setFieldValue("id", e.target.value)
+            }
+          /> */}
+          <InputText 
+          name="name"
+          value={CityformEdit.values.name}
+          onChange={(e)=> CityformEdit.setFieldValue('name' , e.target.value)} />
           </div>
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
@@ -195,7 +248,8 @@ const Cites = () => {
           </div>
         </div>
       </Dialog>
-    </>
+      </div>
+    </div>
   );
 };
 

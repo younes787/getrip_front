@@ -6,6 +6,7 @@ import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ServicesDTO } from "../modules/getrip.modules";
+import SideBar from "../components/SideBar";
 
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
@@ -39,7 +40,9 @@ const Services = () => {
     });
   };
   return (
-    <>
+    <div className="flex">
+      <SideBar/>
+      <div>
       <Dialog
         header="Add New Service"
         visible={show}
@@ -190,7 +193,8 @@ const Services = () => {
           </div>
         </Card>
       </div>
-    </>
+      </div>
+    </div>
   );
 };
 

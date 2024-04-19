@@ -100,7 +100,7 @@ export const UpdateService = async (ServicesData: any) => {
 export const CreateCountry = async (CountryData: any) => {
   try {
     const response = await api.post("/createcountry", CountryData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
