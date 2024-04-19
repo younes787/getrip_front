@@ -148,4 +148,13 @@ export const GetCitiesbyid = async (pid: number) => {
     handleError(error);
   }
 };
+
+export const GetAllCities = async () => {
+  try {
+    const response = await api.get(`/getallcities`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 export default api;

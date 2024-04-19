@@ -35,3 +35,10 @@ export class CountriesDTO {
   countryCode: string = '';
   name: string = '';
 }
+
+export class CitiesDTO {
+  id?: number = 0;
+  description: string = '';
+  name: string = '';
+  provinceId?:number =0;
+}
