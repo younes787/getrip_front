@@ -53,3 +53,14 @@ export class EditProvincesDTO {
   name: string = '';
   countryId?: number;
 }
+
+export class PlaceDTO {
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  googleMapsUrl: string = ''; 
+  lang: string = '';
+  lot: string = '';
+  cityId: number = 0;
+
+}
