@@ -13,6 +13,7 @@ const Logistics = () => {
   const [countries, setCountries] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+
   useEffect(() => {
     GetAllCountries().then((res) => setCountries(res.data));
   }, []);
@@ -38,6 +39,7 @@ const Logistics = () => {
     CountryformEdit.setValues({
       countryCode: rowData.countryCode,
       name: rowData.name,
+      id: rowData.id
     });
   };
   const BodyTemplate = (rowData: any) => {
@@ -70,10 +72,21 @@ const Logistics = () => {
         showGridlines
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
+        size="small"
+        style={{ fontSize: "1.2rem", padding: '16px' }}
+        resizableColumns
+        rows={5}
+        rowsPerPageOptions={[10, 15, 20, 50]}
+        // filters={filters.value}
+        filterDisplay="menu"
+        globalFilterFields={['global']}
+        paginator
+        rowHover
+        sortMode="multiple"
       >
-        <Column field="countryCode" sortField="" header="Country Code"></Column>
-        <Column field="name" header="Country Name"></Column>
-        <Column field="" header="Actions" body={BodyTemplate}></Column>
+        <Column sortable field="countryCode" sortField="" header="Country Code"></Column>
+        <Column sortable field="name" header="Country Name"></Column>
+        <Column sortable field="" header="Actions" body={BodyTemplate}></Column>
       </DataTable>
       <></>
       <Dialog

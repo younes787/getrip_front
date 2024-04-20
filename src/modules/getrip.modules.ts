@@ -31,6 +31,7 @@ export class ServicesDTO {
 }
 
 export class CountriesDTO {
+  id?: number = 0
   countryCode: string = '';
   name: string = '';
 }
