@@ -52,7 +52,7 @@ const SideBar = () => {
          Cities {" "}
         </MenuItem>
         </SubMenu>
-        <MenuItem>
+        <MenuItem onClick={() => navigate("/places")}>
           {" "}
           <i
             className="pi pi-building mr-4"
