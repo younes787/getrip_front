@@ -194,4 +194,39 @@ export const GetAllProvinces = async () => {
   }
 };
 
+// places
+export const AddPlace = async (PlaceData: any) => {
+  try {
+    const response = await api.post("/addplace", PlaceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdatePlace = async (PlaceData: any) => {
+  try {
+    const response = await api.put("/updateplace", PlaceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetPlacesbyid = async (cid: number) => {
+  try {
+    const response = await api.get(`/getplacesbycid/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllPlaces = async () => {
+  try {
+    const response = await api.get(`/getallplaces`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 export default api;
