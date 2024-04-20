@@ -266,4 +266,40 @@ export const GetAllActivities = async () => {
   }
 };
 
+//Attributes
+
+export const AddAttributeToSt = async (AttributeData: any) => {
+  try {
+    const response = await api.post("/addatributetost", AttributeData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const AddAttributeToV = async (AttributeData: any) => {
+  try {
+    const response = await api.post("/addatributetov", AttributeData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateAttributeToSt = async (AttributeData: any) => {
+  try {
+    const response = await api.put("/updateatributetost", AttributeData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateAttributeToV = async (AttributeData: any) => {
+  try {
+    const response = await api.put("/updateatributetov", AttributeData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+
 export default api;
