@@ -76,9 +76,20 @@ const Provinces = () => {
         showGridlines
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
+        size="small"
+        style={{ fontSize: "1.2rem", padding: '16px' }}
+        resizableColumns
+        rows={5}
+        rowsPerPageOptions={[10, 15, 20, 50]}
+        // filters={filters.value}
+        filterDisplay="menu"
+        globalFilterFields={['global']}
+        paginator
+        rowHover
+        sortMode="multiple"
       >
-        <Column field="name" header="Province Name"></Column>
-        <Column field="" header="Actions" body={BodyTemplate}></Column>
+        <Column field="name" sortable header="Province Name"></Column>
+        <Column field="" sortable header="Actions" body={BodyTemplate}></Column>
       </DataTable>
       <></>
       <Dialog
