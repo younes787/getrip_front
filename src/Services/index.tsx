@@ -336,4 +336,30 @@ export const GetAllVehicles = async () => {
   }
 };
 
+// Maker
+export const AddMaker = async (MakerData: any) => {
+  try {
+    const response = await api.post("/createmaker", MakerData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateMaker = async (MakerData: any) => {
+  try {
+    const response = await api.put("/updatemaker", MakerData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllMakers = async () => {
+  try {
+    const response = await api.get(`/getallmakers`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 export default api;
