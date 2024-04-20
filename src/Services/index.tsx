@@ -229,4 +229,41 @@ export const GetAllPlaces = async () => {
     handleError(error);
   }
 };
+
+// activity
+export const AddActivity = async (ActivityData: any) => {
+  try {
+    const response = await api.post("/addactivity", ActivityData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateActivity = async (ActivityData: any) => {
+  try {
+    const response = await api.put("/updateactivity", ActivityData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetActivitiesbyid = async (pid: number) => {
+  try {
+    const response = await api.get(`/getactivitiesbypid/${pid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllActivities = async () => {
+  try {
+    const response = await api.get(`/getallactivities`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export default api;
