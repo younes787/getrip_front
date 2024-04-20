@@ -47,10 +47,6 @@ const Cites = () => {
       id:rowData.id
     });
   };
-  const handleProvinceChange = (e:any) =>{
-    Cityform.setFieldValue("provinceId", e.target.value)
-    GetCitiesbyid(e.target.value).then((res)=> setAllCities(res.data))
-  }
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
@@ -82,9 +78,20 @@ const Cites = () => {
         showGridlines
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
+        size="small"
+        style={{ fontSize: "1.2rem", padding: '16px' }}
+        resizableColumns
+        rows={5}
+        rowsPerPageOptions={[10, 15, 20, 50]}
+        // filters={filters.value}
+        filterDisplay="menu"
+        globalFilterFields={['global']}
+        paginator
+        rowHover
+        sortMode="multiple"
       >
-        <Column field="name" header="City Name"></Column>
-        <Column field="description" sortField="" header="Description"></Column>
+        <Column field="name" sortable header="City Name"></Column>
+        <Column field="description" sortable  header="Description"></Column>
         <Column field="" header="Actions" body={BodyTemplate}></Column>
       </DataTable>
       <></>
@@ -130,7 +137,7 @@ const Cites = () => {
             name="provinceId"
             className="w-full"
             value={Cityform?.values?.provinceId}
-            onChange={(e) => handleProvinceChange(e)
+            onChange={(e) => Cityform.setFieldValue("provinceId", e.target.value)
             }
           />
         </div>
@@ -206,7 +213,8 @@ const Cites = () => {
             name="provinceId"
             className="w-full"
             value={CityformEdit?.values?.provinceId}
-            onChange={(e) => handleProvinceChange(e)}
+            onChange={(e) =>     CityformEdit.setFieldValue("provinceId", e.target.value)
+          }
           />
           </div>
           <div className="md:col-6 lg:col-6">
@@ -214,18 +222,6 @@ const Cites = () => {
               {" "}
               City Name{" "}
             </label>
-            {/* <Dropdown
-            placeholder="Select a City"
-            options={allcities as any}
-            optionLabel="name"
-            optionValue="id"
-            name="id"
-            className="w-full"
-            value={CityformEdit?.values?.id}
-            onChange={(e) =>
-                CityformEdit.setFieldValue("id", e.target.value)
-            }
-          /> */}
           <InputText 
           name="name"
           value={CityformEdit.values.name}
