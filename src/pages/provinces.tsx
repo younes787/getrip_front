@@ -44,9 +44,7 @@ const Provinces = () => {
       id:rowData.id
     });
   };
-  const handleCountryChange = (e:any) =>{
-    Provincesform.setFieldValue("countryId", e.target.value)
-  }
+
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
@@ -119,13 +117,13 @@ const Provinces = () => {
             </label>
         <Dropdown
             placeholder="Select a Country"
-            options={countries as any}
+            options={countries}
             optionLabel="name"
             optionValue="id"
             name="countryId"
             className="w-full"
-            value={Provincesform?.values?.countryId}
-            onChange={(e) => handleCountryChange(e)
+            value={(Provincesform?.values?.countryId)}
+            onChange={(e) => Provincesform.setFieldValue('countryId' , e.value)
             }
           />
         </div>
@@ -184,7 +182,7 @@ const Provinces = () => {
             name="countryId"
             className="w-full"
             value={ProvinceformEdit?.values?.countryId}
-            onChange={(e) => handleCountryChange(e)}
+            onChange={(e) => ProvinceformEdit.setFieldValue('countryId', e.value)}
           />
           </div>
           <div className="md:col-6 lg:col-6">

@@ -31,7 +31,6 @@ export class ServicesDTO {
 }
 
 export class CountriesDTO {
-  id?: number = 0;
   countryCode: string = '';
   name: string = '';
 }
@@ -44,12 +43,12 @@ export class CitiesDTO {
 }
 
 export class ProvincesDTO {
+  id?: number = 0;
   name: string = '';
-  countryId?:number =0;
-}
+  countryId?:number;}
 
 export class EditProvincesDTO {
   id?: number = 0;
   name: string = '';
-  countryId?:number =0;
+  countryId?: number;
 }
