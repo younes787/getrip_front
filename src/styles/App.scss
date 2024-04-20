@@ -91,9 +91,16 @@ html body {
 
 .siderbar {
   .css-dip3t8 {
-    background-color: #fff !important;
+    background-color: $primary_color !important;
+    color: white !important;
   }
-
+  .css-ewdv3l{
+    background-color: $primary_color !important;
+    color: white !important;
+  }
+  a:hover{
+    background-color: #b85eb8 !important;
+  }
   box-shadow: 3px 3px 3px rgb(194, 194, 194);
   height: 100vh;
 }

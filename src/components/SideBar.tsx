@@ -15,7 +15,7 @@ const SideBar = () => {
         <MenuItem onClick={handleToggleSidebar}>
           <i
             className="pi pi-chart-line"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           />
         </MenuItem>
         <MenuItem onClick={() => navigate("/users")}>
@@ -26,7 +26,7 @@ const SideBar = () => {
           {" "}
           <i
             className="pi pi-file mr-4"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           ></i>{" "}
           Manage Services{" "}
         </MenuItem>
@@ -34,13 +34,13 @@ const SideBar = () => {
           {" "}
           <i
             className="pi pi-wallet mr-4"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           ></i>{" "}
           Manage Payments{" "}
         </MenuItem>
         <SubMenu label={<div> <i
             className="pi pi-globe  mr-4"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           ></i> Logistics</div>}>
         <MenuItem onClick={() => navigate("/countries")}>
          Countries {" "}
@@ -56,7 +56,7 @@ const SideBar = () => {
           {" "}
           <i
             className="pi pi-building mr-4"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           ></i>{" "}
           Places{" "}
         </MenuItem>
@@ -64,7 +64,7 @@ const SideBar = () => {
           {" "}
           <i
             className="pi pi-car mr-4"
-            style={{ color: "#4a235a", fontSize: "1.3rem" }}
+            style={{ fontSize: "1.3rem" }}
           ></i>{" "}
           Vichels{" "}
         </MenuItem>
