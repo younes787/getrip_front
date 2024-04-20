@@ -300,6 +300,40 @@ export const UpdateAttributeToV = async (AttributeData: any) => {
     handleError(error);
   }
 };
+// Vehicle
+export const AddVehicle = async (VehicleData: any) => {
+  try {
+    const response = await api.post("/addvehicle", VehicleData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateVehicle = async (VehicleData: any) => {
+  try {
+    const response = await api.put("/updatevehicle", VehicleData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
+export const GetVehiclesbyid = async (mid: number) => {
+  try {
+    const response = await api.get(`/getvehiclebymid/${mid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllVehicles = async () => {
+  try {
+    const response = await api.get(`/getallvehicles`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export default api;
