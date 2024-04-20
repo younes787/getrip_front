@@ -68,8 +68,7 @@ const Cites = () => {
     );
   };
   return (
-    <div className="flex">
-    <SideBar/>
+    <div>
     <div>
       <Button
         label="Add New City"

@@ -13,6 +13,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import Services from "../pages/Services";
 import Logistics from "../pages/Logistics";
 import Cites from "../pages/cities";
+import LayoutWithSidebar from "../pages/layoutWithSidebar";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -35,17 +36,19 @@ const Layout = () => {
       />
       <ToastContainer />
       <Routes>
-        (
+        {user ? (
+          <Route element={<LayoutWithSidebar />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/services-type" element={<Services />} />
+          <Route path="/countries" element={<Logistics />} />
+          <Route path="/cities" element={<Cites />} />
+        </Route>
+        ) : (
           <>
             <Route path="/" element={<Home />}></Route>
-            <Route path="/dashboard" element={<Dashboard />}></Route>
-            <Route path="/users" element={<Users />}></Route>
-            <Route path="/services-type" element={<Services />}></Route>
-            <Route path="/countries" element={<Logistics />}></Route>
-            <Route path="/cities" element={<Cites />}></Route>
-
           </>
-        ) 
+        )}
       </Routes>
     </div>
   );

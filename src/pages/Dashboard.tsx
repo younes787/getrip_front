@@ -15,8 +15,7 @@ import AppUsersVisits from "../components/Circle";
 
 const Dashboard = () => {
   return (
-    <div className="flex" style={{ backgroundColor: "whitesmoke" }}>
-      <SideBar />
+    <div style={{ backgroundColor: "whitesmoke" }}>
       <div>
         <div>
           <span>
