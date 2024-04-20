@@ -42,3 +42,14 @@ export class CitiesDTO {
   name: string = '';
   provinceId?:number =0;
 }
+
+export class ProvincesDTO {
+  name: string = '';
+  countryId?:number =0;
+}
+
+export class EditProvincesDTO {
+  id?: number = 0;
+  name: string = '';
+  countryId?:number =0;
+}
