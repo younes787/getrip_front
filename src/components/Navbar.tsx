@@ -180,6 +180,7 @@ const NavBar = () => {
             <InputText
               placeholder="Password"
               name="password"
+              type="password"
               className="mt-2 w-24rem	"
               value={loginform?.values?.password}
               onChange={(e) =>
@@ -325,6 +326,7 @@ const NavBar = () => {
             <InputText
               placeholder="Password"
               name="password"
+              type="password"
               className="mt-2 w-24rem	"
               value={register?.values?.password}
               onChange={(e) =>
