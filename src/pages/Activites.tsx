@@ -4,7 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddActivity, AddMaker, GetAllActivities, GetAllMakers, UpdateActivity, UpdateMaker } from "../Services";
+import { AddActivity, AddMaker, GetActivitiesbyid, GetAllActivities, GetAllMakers, UpdateActivity, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
 import { ActivityDTO, MakerDTO } from "../modules/getrip.modules";
 import { useParams } from "react-router-dom";
@@ -16,7 +16,7 @@ const Activites = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
    const params = useParams()
   useEffect(() => {
-    GetAllActivities().then((res) => setActivity(res.data));
+    GetActivitiesbyid(parseInt(params.id as any)).then((res) => setActivity(res.data));
   }, []);
   const Activityform = useFormik<ActivityDTO>({
     initialValues: new ActivityDTO(),

@@ -74,7 +74,7 @@ const Places = () => {
         ></i>
         <i
           className="pi pi-bold pi-info-circle"
-          onClick={() => navigate(`places/activites/${rowData.id}`)}
+          onClick={() => navigate(`activites/${rowData.id}`)}
           style={{
             fontSize: "1.2rem",
             color: "slateblue",
