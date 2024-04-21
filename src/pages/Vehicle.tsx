@@ -5,7 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddPlace, GetAllCities, GetAllMakers, GetAllPlaces, GetAllVehicles, UpdatePlace } from "../Services";
+import { AddPlace, AddVehicle, GetAllCities, GetAllMakers, GetAllPlaces, GetAllVehicles, UpdatePlace, UpdateVehicle } from "../Services";
 import { useFormik } from "formik";
 import { PlaceDTO, VehicleDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
@@ -26,7 +26,7 @@ const Vehicle = () => {
     initialValues: new VehicleDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      AddPlace(Vehicleform.values);
+     AddVehicle(Vehicleform.values);
       setShow(false);
     },
   });
@@ -35,7 +35,7 @@ const Vehicle = () => {
     initialValues: new VehicleDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      UpdatePlace(VehicleformEdit.values);
+        UpdateVehicle(VehicleformEdit.values);
       setShowEdit(false);
     },
   });
@@ -70,7 +70,7 @@ const Vehicle = () => {
     <div>
       <div>
         <Button
-          label="Add New Place"
+          label="Add New Vichel"
           onClick={() => setShow(true)}
           size="small"
           className="mt-4 ml-5 pr_btn"
@@ -103,6 +103,7 @@ const Vehicle = () => {
             field="isVip"
             sortable
             header="is Vip"
+            body={(rowData)=> rowData.isVip === true ? 'Yes' : 'No'}
           ></Column>
           <Column
             field=""
@@ -199,14 +200,106 @@ const Vehicle = () => {
                 name="isVip"
                 checked={Vehicleform.values.isVip}
                 onChange={(e) =>
-                  Vehicleform.setFieldValue("isVip", e.target.value)
+                  Vehicleform.setFieldValue("isVip", e.checked)
                 }
               />
             </div>
           </div>
         </Dialog>
         <></>
-       
+        <Dialog
+          header="Edit Vehicle"
+          visible={showEdit}
+          className="md:w-50 lg:w-50"
+          onHide={() => setShowEdit(false)}
+          footer={
+            <>
+              <div>
+                <Button
+                  label="Save"
+                  size="small"
+                  severity="warning"
+                  outlined
+                  onClick={() => VehicleformEdit.handleSubmit()}
+                  className="mt-4"
+                ></Button>
+                <Button
+                  label="Cancel"
+                  severity="danger"
+                  outlined
+                  size="small"
+                  onClick={() => setShowEdit(false)}
+                  className="mt-4"
+                ></Button>
+              </div>
+            </>
+          }
+        >
+          <div className="grid mt-3">
+            <div className="md:col-6 lg:col-6">
+              <label className="mb-2" htmlFor="Status">
+                {" "}
+                Maker Name{" "}
+              </label>
+              <Dropdown
+                placeholder="Select a Maker"
+                options={makers}
+                optionLabel="name"
+                optionValue="id"
+                name="makerId"
+                className="w-full"
+                value={VehicleformEdit?.values?.makerId}
+                onChange={(e) => VehicleformEdit.setFieldValue("makerId", e.value)}
+              />
+            </div>
+            <div className="md:col-5 lg:col-5">
+              <div>
+                <label className="mb-2" htmlFor="">
+                  {" "}
+                  Vehicle Model{" "}
+                </label>
+              </div>
+              <InputText
+                name="model"
+                value={VehicleformEdit.values.model}
+                onChange={(e) =>
+                    VehicleformEdit.setFieldValue("model", e.target.value)
+                }
+              />
+            </div>
+          </div>
+          <div className="grid mt-3">
+            <div className="md:col-6 lg:col-6">
+              <div>
+                <label className="mb-2" htmlFor="Status">
+                  {" "}
+                  Passengers Count{" "}
+                </label>
+              </div>
+              <InputNumber
+               name="passengersCount"
+               value={VehicleformEdit.values.passengersCount}
+               onChange={(e) =>
+                VehicleformEdit.setFieldValue("passengersCount", e.value)
+               } />
+            </div>
+            <div className="md:col-5 lg:col-5">
+              <div>
+                <label className="mb-2" htmlFor="">
+                  {" "}
+                  is VIP{" "}
+                </label>
+              </div>
+              <Checkbox
+                name="isVip"
+                checked={VehicleformEdit.values.isVip}
+                onChange={(e) =>
+                    VehicleformEdit.setFieldValue("isVip", e.checked)
+                }
+              />
+            </div>
+          </div>
+        </Dialog>
       </div>
     </div>
   );
