@@ -6,11 +6,13 @@ import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ServicesDTO } from "../modules/getrip.modules";
+import { useNavigate } from "react-router-dom";
 
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const navigate = useNavigate()
   const Servicesform = useFormik<ServicesDTO>({
     initialValues: new ServicesDTO(),
     validateOnChange: true,
@@ -168,6 +170,7 @@ const Services = () => {
               <div>
                 {s?.name}{" "}
                 <i className="pi pi-pencil ml-4" onClick={() => ShowUser(s)} />
+                <i className="pi pi-info-circle ml-2" onClick={() => navigate(`attribute/${s.id}`)}/>
               </div>
             }
             subTitle={<div style={{ color: "white" }}>{s?.description}</div>}

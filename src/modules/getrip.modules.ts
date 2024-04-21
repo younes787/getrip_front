@@ -84,3 +84,10 @@ export class ActivityDTO{
   description: string = '';
   pLaceId?:number=0;
 }
+
+export class ServiceAttributeDTO{
+  id?: number = 0;
+  name: string = '';
+  value: string = '';
+  serviceTypeId?:number=0;
+}

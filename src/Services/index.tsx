@@ -286,7 +286,7 @@ export const AddAttributeToV = async (AttributeData: any) => {
 };
 export const UpdateAttributeToSt = async (AttributeData: any) => {
   try {
-    const response = await api.put("/updateatributetost", AttributeData);
+    const response = await api.put("/updateattributetost", AttributeData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -294,7 +294,7 @@ export const UpdateAttributeToSt = async (AttributeData: any) => {
 };
 export const UpdateAttributeToV = async (AttributeData: any) => {
   try {
-    const response = await api.put("/updateatributetov", AttributeData);
+    const response = await api.put("/updatteatributetov", AttributeData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
