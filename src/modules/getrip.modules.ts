@@ -71,3 +71,9 @@ export class VehicleDTO {
   passengersCount: number = 0;
   makerId?: number = 0;
 }
+
+export class MakerDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+}
