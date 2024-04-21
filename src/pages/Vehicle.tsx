@@ -70,7 +70,7 @@ const Vehicle = () => {
     <div>
       <div>
         <Button
-          label="Add New Vichel"
+          label="Add New Vehicle"
           onClick={() => setShow(true)}
           size="small"
           className="mt-4 ml-5 pr_btn"
