@@ -50,11 +50,11 @@ const Places = () => {
     });
   };
   const truncateText = (text: any, wordCount: any) => {
-    const words = text.split(" ");
-    if (words.length <= wordCount) {
+    const words = text?.split(" ");
+    if (words?.length <= wordCount) {
       return text;
     }
-    const truncated = words.slice(0, wordCount).join(" ");
+    const truncated = words?.slice(0, wordCount)?.join(" ");
     return `${truncated}...`;
   };
   const BodyTemplate = (rowData: any) => {
