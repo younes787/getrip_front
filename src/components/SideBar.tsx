@@ -43,13 +43,24 @@ const SideBar = () => {
             style={{ fontSize: "1.3rem" }}
           ></i> Logistics</div>}>
         <MenuItem onClick={() => navigate("/countries")}>
-         Countries {" "}
+        <div><i
+            className="pi pi-globe  mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i> 
+        Countries {" "}</div> 
         </MenuItem>
         <MenuItem onClick={() => navigate("/provinces")}>
-         Provinces {" "}
+          <div><i
+            className="pi pi-globe  mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i> 
+          Provinces {" "}</div> 
         </MenuItem>
         <MenuItem onClick={() => navigate("/cities")}>
-         Cities {" "}
+        <div> <i
+            className="pi pi-globe  mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i>  Cities {" "}</div>
         </MenuItem>
         </SubMenu>
         <MenuItem onClick={() => navigate("/places")}>
@@ -60,6 +71,10 @@ const SideBar = () => {
           ></i>{" "}
           Places{" "}
         </MenuItem>
+        <SubMenu label={<div> <i
+            className="pi pi-car mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i> Vichels</div>}>
         <MenuItem onClick={() => navigate("/vehicle")}>
           {" "}
           <i
@@ -68,6 +83,15 @@ const SideBar = () => {
           ></i>{" "}
           Vichels{" "}
         </MenuItem>
+        <MenuItem onClick={() => navigate("/makers")}>
+          {" "}
+          <i
+            className="pi pi-cog mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i>{" "}
+          Makers{" "}
+        </MenuItem>
+        </SubMenu>
       </Menu>
     </Sidebar>
   );
