@@ -77,3 +77,10 @@ export class MakerDTO{
   name: string = '';
   description: string = '';
 }
+
+export class ActivityDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  pLaceId?:number=0;
+}

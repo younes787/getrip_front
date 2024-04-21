@@ -4,39 +4,42 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddMaker, GetAllMakers, UpdateMaker } from "../Services";
+import { AddActivity, AddMaker, GetAllActivities, GetAllMakers, UpdateActivity, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
-import { MakerDTO } from "../modules/getrip.modules";
+import { ActivityDTO, MakerDTO } from "../modules/getrip.modules";
+import { useParams } from "react-router-dom";
 
 
 const Activites = () => {
-  const [maker, setMaker] = useState();
+  const [activity, setActivity] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
-
+   const params = useParams()
   useEffect(() => {
-    GetAllMakers().then((res) => setMaker(res.data));
+    GetAllActivities().then((res) => setActivity(res.data));
   }, []);
-  const Makerform = useFormik<MakerDTO>({
-    initialValues: new MakerDTO(),
+  const Activityform = useFormik<ActivityDTO>({
+    initialValues: new ActivityDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      AddMaker(Makerform.values);
+    Activityform.values.pLaceId = parseInt(params.id as any)
+     AddActivity(Activityform.values);
       setShow(false);
     },
   });
 
-  const MakerformEdit = useFormik<MakerDTO>({
-    initialValues: new MakerDTO(),
+  const ActivityformEdit = useFormik<ActivityDTO>({
+    initialValues: new ActivityDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      UpdateMaker(MakerformEdit.values);
+    ActivityformEdit.values.pLaceId = parseInt(params.id as any)
+    UpdateActivity(ActivityformEdit.values);
       setShowEdit(false);
     },
   });
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
-    MakerformEdit.setValues({
+    ActivityformEdit.setValues({
       id: rowData.id,
       name: rowData.name,
       description: rowData.description
@@ -63,13 +66,13 @@ const Activites = () => {
     <div>
       <div>
         <Button
-          label="Add New Maker"
+          label="Add New Activity"
           onClick={() => setShow(true)}
           size="small"
           className="mt-4 ml-5 pr_btn"
         ></Button>
         <DataTable
-          value={maker}
+          value={activity}
           stripedRows
           showGridlines
           className=" p-5"
@@ -101,7 +104,7 @@ const Activites = () => {
         </DataTable>
         <></>
         <Dialog
-          header="Add New Maker"
+          header="Add New Activity"
           visible={show}
           className="md:w-50 lg:w-50"
           onHide={() => setShow(false)}
@@ -113,7 +116,7 @@ const Activites = () => {
                   size="small"
                   severity="warning"
                   outlined
-                  onClick={() => Makerform.handleSubmit()}
+                  onClick={() => Activityform.handleSubmit()}
                   className="mt-4"
                 ></Button>
                 <Button
@@ -132,13 +135,13 @@ const Activites = () => {
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
-                Maker Name{" "}
+                Activity Name{" "}
               </label>
               <InputText
                 name="name"
-                value={Makerform.values.name}
+                value={Activityform.values.name}
                 onChange={(e) =>
-                  Makerform.setFieldValue("name", e.target.value)
+                  Activityform.setFieldValue("name", e.target.value)
                 }
               />
             </div>
@@ -151,9 +154,9 @@ const Activites = () => {
               </div>
               <InputText
                 name="description"
-                value={Makerform.values.description}
+                value={Activityform.values.description}
                 onChange={(e) =>
-                  Makerform.setFieldValue("description", e.target.value)
+                  Activityform.setFieldValue("description", e.target.value)
                 }
               />
             </div>
@@ -161,7 +164,7 @@ const Activites = () => {
         </Dialog>
         <></>
         <Dialog
-          header="Edit Maker"
+          header="Edit Activity"
           visible={showEdit}
           className="md:w-50 lg:w-50"
           onHide={() => setShowEdit(false)}
@@ -173,7 +176,7 @@ const Activites = () => {
                   size="small"
                   severity="warning"
                   outlined
-                  onClick={() => MakerformEdit.handleSubmit()}
+                  onClick={() => ActivityformEdit.handleSubmit()}
                   className="mt-4"
                 ></Button>
                 <Button
@@ -192,13 +195,13 @@ const Activites = () => {
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
-                Maker Name{" "}
+                Activity Name{" "}
               </label>
               <InputText
                 name="name"
-                value={MakerformEdit.values.name}
+                value={ActivityformEdit.values.name}
                 onChange={(e) =>
-                    MakerformEdit.setFieldValue("name", e.target.value)
+                    ActivityformEdit.setFieldValue("name", e.target.value)
                 }
               />
             </div>
@@ -211,9 +214,9 @@ const Activites = () => {
               </div>
               <InputText
                 name="description"
-                value={MakerformEdit.values.description}
+                value={ActivityformEdit.values.description}
                 onChange={(e) =>
-                    MakerformEdit.setFieldValue("description", e.target.value)
+                    ActivityformEdit.setFieldValue("description", e.target.value)
                 }
               />
             </div>
