@@ -300,6 +300,22 @@ export const UpdateAttributeToV = async (AttributeData: any) => {
     handleError(error);
   }
 };
+export const Getattributesbysid = async (sid: number) => {
+  try {
+    const response = await api.get(`/getattributesbystid/${sid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const Getattributesbyvid = async (vid: number) => {
+  try {
+    const response = await api.get(`/getattributesbyvid/${vid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Vehicle
 export const AddVehicle = async (VehicleData: any) => {
   try {
