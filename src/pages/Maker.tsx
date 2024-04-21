@@ -2,15 +2,12 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddMaker, AddPlace, AddVehicle, GetAllCities, GetAllMakers, GetAllPlaces, GetAllVehicles, UpdateMaker, UpdatePlace, UpdateVehicle } from "../Services";
+import { AddMaker, GetAllMakers, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
-import { MakerDTO, PlaceDTO, VehicleDTO } from "../modules/getrip.modules";
-import { Editor } from "primereact/editor";
-import { InputNumber } from "primereact/inputnumber";
-import { Checkbox } from "primereact/checkbox";
+import { MakerDTO } from "../modules/getrip.modules";
+
 
 const Maker = () => {
   const [maker, setMaker] = useState();
@@ -18,7 +15,7 @@ const Maker = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllVehicles().then((res) => setMaker(res.data));
+    GetAllMakers().then((res) => setMaker(res.data));
   }, []);
   const Makerform = useFormik<MakerDTO>({
     initialValues: new MakerDTO(),
@@ -199,9 +196,9 @@ const Maker = () => {
               </label>
               <InputText
                 name="name"
-                value={Makerform.values.name}
+                value={MakerformEdit.values.name}
                 onChange={(e) =>
-                  Makerform.setFieldValue("name", e.target.value)
+                    MakerformEdit.setFieldValue("name", e.target.value)
                 }
               />
             </div>
