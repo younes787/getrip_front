@@ -62,5 +62,12 @@ export class PlaceDTO {
   lang: string = '';
   lot: string = '';
   cityId: number = 0;
+}
 
+export class VehicleDTO {
+  id?: number = 0;
+  model: string = '';
+  isVip: boolean = false; 
+  passengersCount: number = 0;
+  makerId?: number = 0;
 }
