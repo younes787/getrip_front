@@ -9,6 +9,7 @@ import { AddPlace, GetAllCities, GetAllPlaces, UpdatePlace } from "../Services";
 import { useFormik } from "formik";
 import { PlaceDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
+import { useNavigate } from "react-router-dom";
 
 const Places = () => {
   const [places, setPlaces] = useState();
@@ -20,6 +21,7 @@ const Places = () => {
     GetAllPlaces().then((res) => setPlaces(res.data));
     GetAllCities().then((res) => setCities(res.data));
   }, []);
+  const navigate = useNavigate()
   const Placeform = useFormik<PlaceDTO>({
     initialValues: new PlaceDTO(),
     validateOnChange: true,
@@ -61,8 +63,18 @@ const Places = () => {
     return (
       <div className="gap-3">
         <i
-          className="pi pi-bold pi-pencil"
+          className="pi pi-bold pi-pencil ml-3"
           onClick={() => ShowUser(rowData)}
+          style={{
+            fontSize: "1.2rem",
+            color: "slateblue",
+            padding: "7px",
+            cursor: "pointer",
+          }}
+        ></i>
+        <i
+          className="pi pi-bold pi-info-circle"
+          onClick={() => navigate(`activites/${rowData.id}`)}
           style={{
             fontSize: "1.2rem",
             color: "slateblue",

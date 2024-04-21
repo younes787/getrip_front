@@ -18,6 +18,7 @@ import Provinces from "../pages/provinces";
 import Places from "../pages/Places";
 import Vehicle from "../pages/Vehicle";
 import Maker from "../pages/Maker";
+import Activites from "../pages/Activites";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -51,7 +52,7 @@ const Layout = () => {
           <Route path="/places" element={<Places />} />
           <Route path="/vehicle" element={<Vehicle />} />
           <Route path="/makers" element={<Maker />} />
-
+          <Route path="/activites/:id" element={<Activites />} />
         </Route>
         ) : (
           <>
