@@ -16,6 +16,7 @@ import Cites from "../pages/cities";
 import LayoutWithSidebar from "../pages/layoutWithSidebar";
 import Provinces from "../pages/provinces";
 import Places from "../pages/Places";
+import Vehicle from "../pages/Vehicle";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -47,6 +48,7 @@ const Layout = () => {
           <Route path="/cities" element={<Cites />} />
           <Route path="/provinces" element={<Provinces />} />
           <Route path="/places" element={<Places />} />
+          <Route path="/vehicle" element={<Vehicle />} />
         </Route>
         ) : (
           <>

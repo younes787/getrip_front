@@ -60,7 +60,7 @@ const SideBar = () => {
           ></i>{" "}
           Places{" "}
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => navigate("/vehicle")}>
           {" "}
           <i
             className="pi pi-car mr-4"
