@@ -177,10 +177,9 @@ const Services = () => {
             className="mt-5 ml-5 mb-5 service-card"
           >
             {s?.attributes.map((a: any) => (
-              <>
-                <h5>{a.name}</h5>
-                <h5>{a.value}</h5>
-              </>
+              <div className="flex">
+                <h5>{a.name} : {a.value}</h5>
+              </div>
             ))}
           </Card>
         ))}
