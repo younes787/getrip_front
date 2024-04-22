@@ -73,7 +73,7 @@ export const GetAllRoles = async () => {
 export const CreateServiceType = async (ServicesData: any) => {
   try {
     const response = await api.post("/createservicetype", ServicesData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -91,7 +91,7 @@ export const GetAllService = async () => {
 export const UpdateService = async (ServicesData: any) => {
   try {
     const response = await api.put("/updateservicetype", ServicesData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -100,7 +100,7 @@ export const UpdateService = async (ServicesData: any) => {
 export const CreateCountry = async (CountryData: any) => {
   try {
     const response = await api.post("/createcountry", CountryData);
-    return handleResponse(response , '');
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -108,7 +108,7 @@ export const CreateCountry = async (CountryData: any) => {
 export const UpdateCountry = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecountry", CountryData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -126,7 +126,7 @@ export const GetAllCountries = async () => {
 export const AddCity = async (CityData: any) => {
   try {
     const response = await api.post("/addcity", CityData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -134,7 +134,7 @@ export const AddCity = async (CityData: any) => {
 export const UpdateCity = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecity", CountryData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -162,7 +162,7 @@ export const GetAllCities = async () => {
 export const AddProvince = async (ProvinceData: any) => {
   try {
     const response = await api.post("/addprovince", ProvinceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -170,7 +170,7 @@ export const AddProvince = async (ProvinceData: any) => {
 export const UpdateProvince = async (ProvinceData: any) => {
   try {
     const response = await api.put("/updateprovince", ProvinceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -198,7 +198,7 @@ export const GetAllProvinces = async () => {
 export const AddPlace = async (PlaceData: any) => {
   try {
     const response = await api.post("/addplace", PlaceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -206,7 +206,7 @@ export const AddPlace = async (PlaceData: any) => {
 export const UpdatePlace = async (PlaceData: any) => {
   try {
     const response = await api.put("/updateplace", PlaceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -234,7 +234,7 @@ export const GetAllPlaces = async () => {
 export const AddActivity = async (ActivityData: any) => {
   try {
     const response = await api.post("/addactivity", ActivityData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -242,7 +242,7 @@ export const AddActivity = async (ActivityData: any) => {
 export const UpdateActivity = async (ActivityData: any) => {
   try {
     const response = await api.put("/updateactivity", ActivityData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -271,7 +271,7 @@ export const GetAllActivities = async () => {
 export const AddAttributeToSt = async (AttributeData: any) => {
   try {
     const response = await api.post("/addatributetost", AttributeData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -279,7 +279,7 @@ export const AddAttributeToSt = async (AttributeData: any) => {
 export const AddAttributeToV = async (AttributeData: any) => {
   try {
     const response = await api.post("/addatributetov", AttributeData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -287,7 +287,7 @@ export const AddAttributeToV = async (AttributeData: any) => {
 export const UpdateAttributeToSt = async (AttributeData: any) => {
   try {
     const response = await api.put("/updateattributetost", AttributeData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -295,7 +295,7 @@ export const UpdateAttributeToSt = async (AttributeData: any) => {
 export const UpdateAttributeToV = async (AttributeData: any) => {
   try {
     const response = await api.put("/updatteatributetov", AttributeData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -320,7 +320,7 @@ export const Getattributesbyvid = async (vid: number) => {
 export const AddVehicle = async (VehicleData: any) => {
   try {
     const response = await api.post("/addvehicle", VehicleData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -328,7 +328,7 @@ export const AddVehicle = async (VehicleData: any) => {
 export const UpdateVehicle = async (VehicleData: any) => {
   try {
     const response = await api.put("/updatevehicle", VehicleData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -356,7 +356,7 @@ export const GetAllVehicles = async () => {
 export const AddMaker = async (MakerData: any) => {
   try {
     const response = await api.post("/createmaker", MakerData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -364,7 +364,7 @@ export const AddMaker = async (MakerData: any) => {
 export const UpdateMaker = async (MakerData: any) => {
   try {
     const response = await api.put("/updatemaker", MakerData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
