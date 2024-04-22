@@ -18,6 +18,12 @@ const SideBar = () => {
             style={{ fontSize: "1.3rem" }}
           />
         </MenuItem>
+        <MenuItem onClick={()=> navigate('/dashboard')}>
+          <i
+            className="pi pi-chart-bar mr-4"
+            style={{ fontSize: "1.3rem" }}
+          /> Dashboard
+        </MenuItem>
         <MenuItem onClick={() => navigate("/users")}>
           {" "}
           <i className="pi pi-user mr-4"></i> Manage Users{" "}

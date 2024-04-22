@@ -43,6 +43,7 @@ const Layout = () => {
       <ToastContainer />
       <Routes>
         {user ? (
+          <>
           <Route element={<LayoutWithSidebar />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
@@ -56,6 +57,8 @@ const Layout = () => {
           <Route path="places/activites/:id" element={<Activites />} />
           <Route path="services-type/attribute/:id" element={<ServiceAttributes />} />
         </Route>
+        <Route path="/" element={<Home />}></Route>
+        </>
         ) : (
           <>
             <Route path="/" element={<Home />}></Route>

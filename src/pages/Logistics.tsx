@@ -8,14 +8,21 @@ import { useEffect, useState } from "react";
 import { CreateCountry, GetAllCountries, UpdateCountry } from "../Services";
 import { useFormik } from "formik";
 import { CountriesDTO } from "../modules/getrip.modules";
+import LoadingComponent from "../components/Loading";
 
 const Logistics = () => {
   const [countries, setCountries] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllCountries().then((res) => setCountries(res.data));
+    setLoading(true);
+    GetAllCountries().then((res) => {setCountries(res.data)
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
   }, []);
   const Countryform = useFormik<CountriesDTO>({
     initialValues: new CountriesDTO(),
@@ -59,7 +66,8 @@ const Logistics = () => {
     );
   };
   return (
-    <>
+    <div>
+    {loading ? <LoadingComponent/> : <>
       <Button
         label="Add New Country"
         onClick={() => setShow(true)}
@@ -208,7 +216,8 @@ const Logistics = () => {
           </div>
         </div>
       </Dialog>
-    </>
+    </>}
+    </div>
   );
 };
 

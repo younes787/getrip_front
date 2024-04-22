@@ -7,15 +7,22 @@ import { useEffect, useState } from "react";
 import { AddMaker, GetAllMakers, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
 import { MakerDTO } from "../modules/getrip.modules";
+import LoadingComponent from "../components/Loading";
 
 
 const Maker = () => {
   const [maker, setMaker] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllMakers().then((res) => setMaker(res.data));
+    setLoading(true);
+    GetAllMakers().then((res) => {setMaker(res.data)
+      setLoading(false)
+    }).catch((error) => {
+      setLoading(false);
+    });
   }, []);
   const Makerform = useFormik<MakerDTO>({
     initialValues: new MakerDTO(),
@@ -61,7 +68,7 @@ const Maker = () => {
   };
   return (
     <div>
-      <div>
+      {loading ? <LoadingComponent/>: <div>
         <Button
           label="Add New Maker"
           onClick={() => setShow(true)}
@@ -219,7 +226,7 @@ const Maker = () => {
             </div>
           </div>
         </Dialog>
-      </div>
+      </div>}
     </div>
   );
 };

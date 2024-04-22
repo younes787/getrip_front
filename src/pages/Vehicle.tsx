@@ -11,15 +11,22 @@ import { PlaceDTO, VehicleDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { InputNumber } from "primereact/inputnumber";
 import { Checkbox } from "primereact/checkbox";
+import LoadingComponent from "../components/Loading";
 
 const Vehicle = () => {
   const [vehicle, setVehicle] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [makers, setMakers] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllVehicles().then((res) => setVehicle(res.data));
+    setLoading(true);
+    GetAllVehicles().then((res) =>{ setVehicle(res.data)
+      setLoading(false)
+    }).catch((error) => {
+      setLoading(false);
+    });
     GetAllMakers().then((res) => setMakers(res.data));
   }, []);
   const Vehicleform = useFormik<VehicleDTO>({
@@ -68,7 +75,7 @@ const Vehicle = () => {
   };
   return (
     <div>
-      <div>
+     { loading ? <LoadingComponent/> : <div>
         <Button
           label="Add New Vehicle"
           onClick={() => setShow(true)}
@@ -300,7 +307,7 @@ const Vehicle = () => {
             </div>
           </div>
         </Dialog>
-      </div>
+      </div>}
     </div>
   );
 };

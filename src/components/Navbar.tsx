@@ -18,6 +18,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
 import AvatarImage from "../Assets/Ellipse.png";
+import LoadingComponent from "./Loading";
 const NavBar = () => {
   const menuLeft = useRef<any>(null);
   const [show, setshow] = useState<boolean>(false);
@@ -26,20 +27,28 @@ const NavBar = () => {
   const { logout } = useAuth();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
     validateOnChange: true,
     onSubmit: async () => {
+      setLoading(true)
       register.values.role = "Client";
-      await CreateUser(register.values);
+      await CreateUser(register.values).then((res)=> setLoading(false)).catch((error) => {
+        setLoading(false);
+      });
     },
   });
   const loginform = useFormik<LoginDTO>({
     initialValues: new LoginDTO(),
     validateOnChange: true,
     onSubmit: async () => {
-      login(loginform.values);
+      setLoading(true)
+      setshow(false)
+      await login(loginform.values).then((res:any)=> setLoading(false)).catch((error:any) => {
+        setLoading(false);
+      });
     },
   });
   const itemRenderer = (item: any) => (
@@ -97,6 +106,11 @@ const NavBar = () => {
           icon: "pi pi-user",
         },
         {
+          label: "Dashboard",
+          icon: "pi pi-chart-bar",
+          command: ()=> navigate('/dashboard'),
+        },
+        {
           label: "Log Out",
           icon: "pi pi-sign-out",
           command: () => logout(),
@@ -106,12 +120,12 @@ const NavBar = () => {
   ];
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
-      <Button
+      {user ? <></> :<Button
         rounded
         label="Become A Partner"
         outlined
         className="outline_btn"
-      />
+      />}
       {user ? (
         <>
           <i
@@ -366,15 +380,15 @@ const NavBar = () => {
         </span>
       </Dialog>
       <Menu model={Menuitems} popup ref={menuLeft} className="popup-left" />
-      <Menubar
+      {loading ? <LoadingComponent/>: <Menubar
         end={end}
         start={
-          <span className="ml-6 text-2xl get-rp">
+          <span className="ml-6 text-2xl get-rp" onClick={()=>navigate('/')}>
             Ge<span className="secondery">t</span>rip
           </span>
         }
         className="navbar"
-      />
+      />}
     </div>
   );
 };

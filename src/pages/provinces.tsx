@@ -13,15 +13,22 @@ import {
 } from "../Services";
 import { useFormik } from "formik";
 import { EditProvincesDTO, ProvincesDTO } from "../modules/getrip.modules";
+import LoadingComponent from "../components/Loading";
 
 const Provinces = () => {
   const [provinces, setProvinces] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [countries, setCountries] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllProvinces().then((res) => setProvinces(res.data));
+    setLoading(true);
+    GetAllProvinces().then((res) => {setProvinces(res.data)
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
     GetAllCountries().then((res) => setCountries(res.data));
   }, []);
   const Provincesform = useFormik<ProvincesDTO>({
@@ -68,7 +75,7 @@ const Provinces = () => {
   };
   return (
     <div>
-      <div>
+    {loading? <LoadingComponent/>:  <div>
         <Button
           label="Add New Province"
           onClick={() => setShow(true)}
@@ -227,7 +234,7 @@ const Provinces = () => {
             </div>
           </div>
         </Dialog>
-      </div>
+      </div>}
     </div>
   );
 };

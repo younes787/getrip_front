@@ -7,11 +7,14 @@ import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ServicesDTO } from "../modules/getrip.modules";
 import { useNavigate } from "react-router-dom";
+import LoadingComponent from "../components/Loading";
 
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
   const navigate = useNavigate()
   const Servicesform = useFormik<ServicesDTO>({
     initialValues: new ServicesDTO(),
@@ -31,8 +34,17 @@ const Services = () => {
     },
   });
   useEffect(() => {
-    GetAllService().then((res) => setServiceType(res.data));
+    setLoading(true);
+    GetAllService()
+      .then((res) => {
+        setServiceType(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
   }, []);
+  
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     ServicesformEdit.setValues({
@@ -40,9 +52,17 @@ const Services = () => {
       name: rowData.name,
     });
   };
+  const footer = (s:any) => (
+    <>
+        <Button label="Update" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
+        <Button label="Attribute" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }}  onClick={() => navigate(`attribute/${s.id}`)} />
+    </>
+);
+
   return (
     <div>
-      <div>
+
+     {loading ? <LoadingComponent />: <div>
       <Dialog
         header="Add New Service"
         visible={show}
@@ -169,12 +189,12 @@ const Services = () => {
             title={
               <div>
                 {s?.name}{" "}
-                <i className="pi pi-pencil ml-4" onClick={() => ShowUser(s)} />
-                <i className="pi pi-info-circle ml-2" onClick={() => navigate(`attribute/${s.id}`)}/>
+              
               </div>
             }
             subTitle={<div style={{ color: "white" }}>{s?.description}</div>}
             className="mt-5 ml-5 mb-5 service-card"
+            footer={footer(s)}
           >
             {s?.attributes.map((a: any) => (
               <div className="flex">
@@ -193,7 +213,7 @@ const Services = () => {
           </div>
         </Card>
       </div>
-      </div>
+      </div>}
     </div>
   );
 };

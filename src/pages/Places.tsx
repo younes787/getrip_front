@@ -10,16 +10,26 @@ import { useFormik } from "formik";
 import { PlaceDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
+import LoadingComponent from "../components/Loading";
 
 const Places = () => {
   const [places, setPlaces] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [cities, setCities] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllPlaces().then((res) => setPlaces(res.data));
-    GetAllCities().then((res) => setCities(res.data));
+    setLoading(true);
+    GetAllPlaces().then((res) =>{
+      setPlaces(res.data)
+      setLoading(false);
+    }
+  ).catch((error) => {
+    setLoading(false);
+  });
+
+ GetAllCities().then((res) => setCities(res.data));
   }, []);
   const navigate = useNavigate()
   const Placeform = useFormik<PlaceDTO>({
@@ -87,7 +97,7 @@ const Places = () => {
   };
   return (
     <div>
-      <div>
+     { loading ? <LoadingComponent/> : <div>
         <Button
           label="Add New Place"
           onClick={() => setShow(true)}
@@ -123,13 +133,6 @@ const Places = () => {
               </div>
             )} // Use the truncate function
           ></Column>
-          <Column
-            field="googleMapsUrl"
-            sortable
-            header="Google Maps Url"
-          ></Column>
-          <Column field="lang" sortable header="Lang"></Column>
-          <Column field="lot" sortable header="Lot"></Column>
           <Column
             field=""
             sortable
@@ -392,7 +395,7 @@ const Places = () => {
             </div>
           </div>
         </Dialog>
-      </div>
+      </div>}
     </div>
   );
 };

@@ -9,16 +9,22 @@ import { AddCity, GetAllCities, GetAllProvinces, GetCitiesbyid, UpdateCity } fro
 import { useFormik } from "formik";
 import { CitiesDTO } from "../modules/getrip.modules";
 import SideBar from "../components/SideBar";
+import LoadingComponent from "../components/Loading";
 
 const Cites = () => {
   const [cities, setcities] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [provinces , setProvinces] = useState<any>()
-  const [allcities , setAllCities] = useState<any>()
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    GetAllCities().then((res) => setcities(res.data));
+    setLoading(true);
+    GetAllCities().then((res) => {setcities(res.data)
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
     GetAllProvinces().then((res) => setProvinces(res.data));
   }, []);
   const Cityform = useFormik<CitiesDTO>({
@@ -65,7 +71,7 @@ const Cites = () => {
   };
   return (
     <div>
-    <div>
+   {loading ? <LoadingComponent/> : <div>
       <Button
         label="Add New City"
         onClick={() => setShow(true)}
@@ -243,7 +249,7 @@ const Cites = () => {
           </div>
         </div>
       </Dialog>
-      </div>
+      </div>}
     </div>
   );
 };

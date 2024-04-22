@@ -14,7 +14,7 @@ import { authLogin } from "../Services";
   
   type AuthContextType = {
     user: User | null;
-    login: (userData: User) => void;
+    login: (userData: User) => any;
     logout: () => void;
   };
   interface AuthProviderProps {

@@ -15,17 +15,24 @@ import {
   GetAllUsers,
   UpdateUser,
 } from "../Services";
+import LoadingComponent from "../components/Loading";
 
 const Users = () => {
   const [UsersList, setUsersList] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [RolesList, setRolesList] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const getUsers = () => {
+    setLoading(true);
     GetAllUsers().then((res) => {
       if (res !== undefined) {
         setUsersList(res?.data);
       }
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
     });
     GetAllRoles().then((res) => setRolesList(res.data));
   };
@@ -65,7 +72,7 @@ const Users = () => {
     });
   };
   useEffect(() => {
-    getUsers();
+    getUsers()
   }, []);
   const DeleteUsers = (Email: string) => {
     DeleteUser(Email);
@@ -107,6 +114,7 @@ const Users = () => {
   };
   return (
     <div>
+    {loading ? <LoadingComponent/> : <div>
       <ConfirmDialog />
       <Button
         label="Add New User"
@@ -120,15 +128,17 @@ const Users = () => {
         showGridlines
         className=" p-5"
         tableStyle={{ minWidth: "50rem" }}
+        sortMode="multiple"
+        rows={5}
+        rowsPerPageOptions={[10, 15, 20, 50]}
+        paginator
+        rowHover
       >
-        <Column field="username" sortField="" header="UserName"></Column>
-        <Column field="name" header="First Name"></Column>
-        <Column field="lastname" header="Last Name"></Column>
-        <Column field="business" header="Business"></Column>
-        <Column field="password" header="Password"></Column>
-        <Column field="email" header="Email"></Column>
-        <Column field="role" header="Role"></Column>
-        <Column field="" header="Actions" body={BodyTemplate}></Column>
+        <Column field="lastname" sortable body={(rowData)=>(<div> {rowData.name + ' ' + rowData.lastname}</div>) } header="Full Name"></Column>
+        <Column field="business" sortable header="Business"></Column>
+        <Column field="email" sortable header="Email"></Column>
+        <Column field="role" sortable header="Role"></Column>
+        <Column field="" header="Actions" sortable body={BodyTemplate}></Column>
       </DataTable>
       <></>
       <Dialog
@@ -402,6 +412,7 @@ const Users = () => {
           />
         </div>
       </Dialog>
+    </div>}
     </div>
   );
 };
