@@ -11,13 +11,16 @@ import { PlaceDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
+import Activites from "./Activites";
 
 const Places = () => {
   const [places, setPlaces] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [showAct, setShowAct] = useState<boolean>(false);
   const [cities, setCities] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
 
   useEffect(() => {
     setLoading(true);
@@ -84,7 +87,10 @@ const Places = () => {
         ></i>
         <i
           className="pi pi-bold pi-info-circle"
-          onClick={() => navigate(`activites/${rowData.id}`)}
+          onClick={() => {
+            setCurrentPlaceId(rowData.id); 
+            setShowAct(true); 
+          }}
           style={{
             fontSize: "1.2rem",
             color: "slateblue",
@@ -140,6 +146,15 @@ const Places = () => {
             body={BodyTemplate}
           ></Column>
         </DataTable>
+        <></>
+        <Dialog
+          header="Add New Activity"
+          visible={showAct}
+          className="md:w-50 lg:w-50"
+          onHide={() => setShowAct(false)}
+        >
+         <Activites id={currentPlaceId}/>
+        </Dialog>
         <></>
         <Dialog
           header="Add New Place"

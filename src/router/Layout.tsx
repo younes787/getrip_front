@@ -54,7 +54,6 @@ const Layout = () => {
           <Route path="/places" element={<Places />} />
           <Route path="/vehicle" element={<Vehicle />} />
           <Route path="/makers" element={<Maker />} />
-          <Route path="places/activites/:id" element={<Activites />} />
         </Route>
         <Route path="/" element={<Home />}></Route>
         </>

@@ -7,22 +7,22 @@ import { useEffect, useState } from "react";
 import { AddActivity, AddMaker, GetActivitiesbyid, GetAllActivities, GetAllMakers, UpdateActivity, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
 import { ActivityDTO, MakerDTO } from "../modules/getrip.modules";
-import { useParams } from "react-router-dom";
 
-
-const Activites = () => {
+type Props ={
+  id : number
+}
+const Activites = (props:Props) => {
   const [activity, setActivity] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
-   const params = useParams()
   useEffect(() => {
-    GetActivitiesbyid(parseInt(params.id as any)).then((res) => setActivity(res.data));
+    GetActivitiesbyid(props.id).then((res) => setActivity(res.data));
   }, []);
   const Activityform = useFormik<ActivityDTO>({
     initialValues: new ActivityDTO(),
     validateOnChange: true,
     onSubmit: () => {
-    Activityform.values.pLaceId = parseInt(params.id as any)
+    Activityform.values.pLaceId = props.id
      AddActivity(Activityform.values);
       setShow(false);
     },
@@ -32,7 +32,7 @@ const Activites = () => {
     initialValues: new ActivityDTO(),
     validateOnChange: true,
     onSubmit: () => {
-    ActivityformEdit.values.pLaceId = parseInt(params.id as any)
+    ActivityformEdit.values.pLaceId = props.id
     UpdateActivity(ActivityformEdit.values);
       setShowEdit(false);
     },
