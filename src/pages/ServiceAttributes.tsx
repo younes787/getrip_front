@@ -8,21 +8,24 @@ import { AddAttributeToSt, Getattributesbysid, UpdateAttributeToSt} from "../Ser
 import { useFormik } from "formik";
 import { ServiceAttributeDTO } from "../modules/getrip.modules";
 import { useParams } from "react-router-dom";
+import { Type } from "react-toastify/dist/utils";
 
-
-const ServiceAttributes = () => {
+type Props ={
+  id : number
+}
+const ServiceAttributes = (props:Props) => {
   const [attributes, setAttributes] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
-   const params = useParams()
+
   useEffect(() => {
-    Getattributesbysid(parseInt(params.id as any)).then((res) => setAttributes(res.data));
+    Getattributesbysid(props.id).then((res) => setAttributes(res.data));
   }, []);
   const Attributeform = useFormik<ServiceAttributeDTO>({
     initialValues: new ServiceAttributeDTO(),
     validateOnChange: true,
     onSubmit: () => {
-    Attributeform.values.serviceTypeId = parseInt(params.id as any)
+    Attributeform.values.serviceTypeId = props.id
     AddAttributeToSt(Attributeform.values);
       setShow(false);
     },
@@ -32,7 +35,7 @@ const ServiceAttributes = () => {
     initialValues: new ServiceAttributeDTO(),
     validateOnChange: true,
     onSubmit: () => {
-    AttributeformEdit.values.serviceTypeId = parseInt(params.id as any)
+    AttributeformEdit.values.serviceTypeId = props.id
     UpdateAttributeToSt(AttributeformEdit.values);
       setShowEdit(false);
     },

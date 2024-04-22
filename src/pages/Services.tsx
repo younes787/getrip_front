@@ -9,11 +9,14 @@ import { ServicesDTO } from "../modules/getrip.modules";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
 import { Tag } from "primereact/tag";
+import ServiceAttributes from "./ServiceAttributes";
 
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [showAtt, setShowAtt] = useState<boolean>(false);
+  const [currentServiceId, setCurrentServiceId] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
 
   const navigate = useNavigate()
@@ -56,7 +59,11 @@ const Services = () => {
   const footer = (s:any) => (
     <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button label="Update" size="small" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
-        <Button label="Attribute" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }}  onClick={() => navigate(`attribute/${s.id}`)} />
+        <Button label="Attribute" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }} 
+         onClick={() => {
+          setCurrentServiceId(s.id); // Set the current service ID
+          setShowAtt(true); // Show the dialog
+        }}/>
     </div>
 );
 
@@ -64,6 +71,20 @@ const Services = () => {
     <div>
 
      {loading ? <LoadingComponent />: <div>
+     <Dialog
+        header="Add Atribute"
+        visible={showAtt}
+        className="md:w-50 lg:w-50"
+        onHide={() => setShowAtt(false)}
+        footer={
+          <>
+           
+          </>
+        }
+      >
+        <ServiceAttributes id={currentServiceId}/>
+      </Dialog>
+      <></>
       <Dialog
         header="Add New Service"
         visible={show}
