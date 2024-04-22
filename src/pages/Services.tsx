@@ -8,6 +8,7 @@ import { InputText } from "primereact/inputtext";
 import { ServicesDTO } from "../modules/getrip.modules";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
+import { Tag } from "primereact/tag";
 
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
@@ -53,10 +54,10 @@ const Services = () => {
     });
   };
   const footer = (s:any) => (
-    <>
-        <Button label="Update" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
-        <Button label="Attribute" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }}  onClick={() => navigate(`attribute/${s.id}`)} />
-    </>
+    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button label="Update" size="small" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
+        <Button label="Attribute" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }}  onClick={() => navigate(`attribute/${s.id}`)} />
+    </div>
 );
 
   return (
@@ -192,16 +193,17 @@ const Services = () => {
               
               </div>
             }
-            subTitle={<div style={{ color: "white" }}>{s?.description}</div>}
+            subTitle={<div style={{ color: "white" }}> {s?.attributes.map((a: any) => (
+              <Tag  value={a.value} style={{ marginRight: "8px" }}
+              > </Tag>
+            ))}</div>}
             className="mt-5 ml-5 mb-5 service-card"
             footer={footer(s)}
+            style={{ display: "flex", flexDirection: "column", height: "100%" }}
           >
-            {s?.attributes.map((a: any) => (
-              <div className="flex">
-                <h5>{a.name} : {a.value}</h5>
-              </div>
-            ))}
-          </Card>
+ <div style={{ paddingBottom: "40px" }}> 
+    {s?.description}
+  </div>          </Card>
         ))}
         <Card
           title="Add New Service"

@@ -107,13 +107,13 @@ html body {
 }
 
 .service-card {
-  background: linear-gradient(90deg, #5B2A9C, #F1881F);
+  background-color: $primary_color;
   box-shadow: 3px 3px 3px rgb(194, 194, 194);
   color: white;
   width: 80%; 
   max-width: 400px; 
   height: auto;
-  min-height: 220px;
+  min-height: 210px;
   border-radius: 10px; 
   transition: width 0.3s, height 0.3s; 
 }
