@@ -223,7 +223,7 @@ export const GetPlacesbyid = async (cid: number) => {
 
 export const GetAllPlaces = async () => {
   try {
-    const response = await api.get(`/getallplaces`);
+    const response = await api.get(`/getallplaceswithimages`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -378,4 +378,15 @@ export const GetAllMakers = async () => {
     handleError(error);
   }
 };
+
+// Photos 
+export const AddImageToPlace = async (imageData:any) => {
+  try {
+    const response = await api.post(`/addimagetoplace`, imageData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export default api;

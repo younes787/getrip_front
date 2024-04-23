@@ -383,7 +383,7 @@ const NavBar = () => {
       {loading ? <LoadingComponent/>: <Menubar
         end={end}
         start={
-          <span className="ml-6 text-2xl get-rp" onClick={()=>navigate('/')}>
+          <span className=" text-2xl get-rp" style={{marginLeft:'100px'}} onClick={()=>navigate('/')}>
             Ge<span className="secondery">t</span>rip
           </span>
         }

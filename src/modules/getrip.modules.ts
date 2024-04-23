@@ -91,3 +91,9 @@ export class ServiceAttributeDTO{
   value: string = '';
   serviceTypeId?:number=0;
 }
+
+export class PlaceImageDTO{
+  id?: number = 0;
+  imagePath: string = '';
+  placeId?:number=0;
+}

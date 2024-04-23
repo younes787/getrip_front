@@ -6,3 +6,10 @@
     flex: 1;
     padding: 20px;
   }
+
+  .content-with-offset {
+    // margin-left: 250px;  /* Same as the sidebar width */
+    padding: 20px;  /* Optional padding */
+    flex: 1;
+
+  }

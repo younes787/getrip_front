@@ -4,7 +4,7 @@ import '../styles/LayoutSidebar.scss'
 const LayoutWithSidebar = () => (
   <div className="layout-with-sidebar">
     <SideBar />
-    <div className="content">
+    <div className="content-with-offset">
       <Outlet />
     </div>
   </div>

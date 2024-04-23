@@ -5,13 +5,21 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddPlace, GetAllCities, GetAllPlaces, UpdatePlace } from "../Services";
+import { AddImageToPlace, AddPlace, GetAllCities, GetAllPlaces, UpdatePlace } from "../Services";
 import { useFormik } from "formik";
-import { PlaceDTO } from "../modules/getrip.modules";
+import { PlaceDTO, PlaceImageDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
 import Activites from "./Activites";
+import { Image } from 'primereact/image';
+import { FileUpload } from "primereact/fileupload";
+import p1 from '../Assets/place1.avif'
+import p2 from '../Assets/istanbul-36h-basilica.jpg'
+import p3 from '../Assets/istanbul.jpg'
+import p4 from '../Assets/is.jpg'
+import p5 from '../Assets/is2.jpg'
+
 
 const Places = () => {
   const [places, setPlaces] = useState();
@@ -21,6 +29,8 @@ const Places = () => {
   const [cities, setCities] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
+  const [file, setFile] = useState<any>();
+
 
   useEffect(() => {
     setLoading(true);
@@ -52,6 +62,14 @@ const Places = () => {
       setShowEdit(false);
     },
   });
+
+  const ImagePlaceform = useFormik<PlaceImageDTO>({
+    initialValues: new PlaceImageDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      AddImageToPlace(ImagePlaceform.values);
+    },
+  });
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     PlaceformEdit.setValues({
@@ -63,7 +81,23 @@ const Places = () => {
       lot: rowData.lot,
       googleMapsUrl: rowData.googleMapsUrl,
     });
+    setCurrentPlaceId(rowData.id); 
   };
+  const imageArray = [p1, p2, p3, p4, p5];
+  const imageBodyTemplate = () => {
+   
+  return   <Image  src={imageArray[0]} width="80" height="40" preview />
+   
+};
+const handleOnChange = (e: any) => {
+  setFile(e.files[0]);
+  console.log(e.files[0])
+  const File = e.files?.[0];
+  const objectURL = URL.createObjectURL(File);
+  ImagePlaceform.values.imagePath= objectURL
+  ImagePlaceform.values.placeId = currentPlaceId
+  ImagePlaceform.handleSubmit()
+};
   const truncateText = (text: any, wordCount: any) => {
     const words = text?.split(" ");
     if (words?.length <= wordCount) {
@@ -72,6 +106,10 @@ const Places = () => {
     const truncated = words?.slice(0, wordCount)?.join(" ");
     return `${truncated}...`;
   };
+  const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
+  const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
+  const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
@@ -128,6 +166,7 @@ const Places = () => {
           rowHover
           sortMode="multiple"
         >
+          <Column sortable body={imageBodyTemplate} header="photos" ></Column>
           <Column field="name" sortable header="Place Name"></Column>
           <Column
             field="description"
@@ -408,6 +447,23 @@ const Places = () => {
                 }
               />
             </div>
+          </div>
+          <div className="mt-4 grid gap-4">
+          <div className="col-8">
+          <FileUpload 
+           name="imagePath"
+            multiple accept="image/*"
+            onSelect={handleOnChange}
+            maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
+            chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions}
+            />
+            </div>
+            <div className="mt-3">
+          <Image  src={imageArray[0]} width="300" height="200" preview />
+          </div>
+
+          </div>
+          <div className="mt-5 ml-2">
           </div>
         </Dialog>
       </div>}
