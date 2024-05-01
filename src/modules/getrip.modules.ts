@@ -97,3 +97,25 @@ export class PlaceImageDTO{
   imagePath: string = '';
   placeId?:number=0;
 }
+
+export class ResidenceDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  placeId?:number=0;
+  residenceTypeId?:number=0;
+}
+export type PhotosDTO={
+  id?: number 
+  imagePath: string 
+  imageData: string
+  residenceId:number
+}
+export class UpdateResidenceDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  placeId?:number=0;
+  residenceTypeId?:number=0;
+  photos?:PhotosDTO
+}

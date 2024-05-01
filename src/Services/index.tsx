@@ -388,5 +388,56 @@ export const AddImageToPlace = async (imageData:any) => {
     handleError(error);
   }
 };
+// Residence
+export const AddResidence = async (residenceData:any) => {
+  try {
+    const response = await api.post(`/addresidence`, residenceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddResidenceType = async (residenceData:any) => {
+  try {
+    const response = await api.post(`/addresidencetype`, residenceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdateResidenceType = async (residenceData:any) => {
+  try {
+    const response = await api.put(`/updateresidencetype`, residenceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateResidence = async (residenceData:any) => {
+  try {
+    const response = await api.put(`/updateresidence`, residenceData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetResidence = async () => {
+  try {
+    const response = await api.get(`/getallresidences`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetResidenceType = async () => {
+  try {
+    const response = await api.get(`/getallresidencetypes`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export default api;
