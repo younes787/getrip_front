@@ -77,6 +77,14 @@ const SideBar = () => {
           ></i>{" "}
           Places{" "}
         </MenuItem>
+        <MenuItem onClick={() => navigate("/residence")}>
+          {" "}
+          <i
+            className="pi pi-building mr-4"
+            style={{ fontSize: "1.3rem" }}
+          ></i>{" "}
+          Residence{" "}
+        </MenuItem>
         <SubMenu label={<div> <i
             className="pi pi-car mr-4"
             style={{ fontSize: "1.3rem" }}

@@ -20,6 +20,7 @@ import Vehicle from "../pages/Vehicle";
 import Maker from "../pages/Maker";
 import Activites from "../pages/Activites";
 import ServiceAttributes from "../pages/ServiceAttributes";
+import Residence from "../pages/Residence";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -54,6 +55,7 @@ const Layout = () => {
           <Route path="/places" element={<Places />} />
           <Route path="/vehicle" element={<Vehicle />} />
           <Route path="/makers" element={<Maker />} />
+          <Route path="/residence" element={<Residence />} />
         </Route>
         <Route path="/" element={<Home />}></Route>
         </>
