@@ -119,3 +119,8 @@ export class UpdateResidenceDTO{
   residenceTypeId?:number=0;
   photos?:PhotosDTO
 }
+
+export class ResidenceTypeDTO{
+  id?: number = 0;
+  name: string = '';
+}
