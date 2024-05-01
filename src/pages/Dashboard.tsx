@@ -16,7 +16,7 @@ import { Accordion, AccordionTab } from "primereact/accordion";
 
 const Dashboard = () => {
   return (
-    <div style={{ backgroundColor: "whitesmoke" }}>
+    <div>
       <div>
         <div>
           <span>
