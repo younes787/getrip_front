@@ -20,15 +20,10 @@ import LoadingComponent from "../components/Loading";
 import Activites from "./Activites";
 import { Image } from "primereact/image";
 import { FileUpload } from "primereact/fileupload";
-import p1 from "../Assets/place1.avif";
-import p2 from "../Assets/istanbul-36h-basilica.jpg";
-import p3 from "../Assets/istanbul.jpg";
-import p4 from "../Assets/is.jpg";
-import p5 from "../Assets/is2.jpg";
 import { FilterMatchMode } from "primereact/api";
 
 const Places = () => {
-  const [places, setPlaces] = useState();
+  const [places, setPlaces] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showAct, setShowAct] = useState<boolean>(false);
@@ -90,8 +85,7 @@ const Places = () => {
       AddImageToPlace(formData);
     },
   });
-  console.log(file);
-  console.log(currentPlaceId);
+
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     PlaceformEdit.setValues({
@@ -105,10 +99,9 @@ const Places = () => {
     });
     setCurrentPlaceId(rowData.id);
   };
-  const imageArray = [p1, p2, p3, p4, p5];
   const imageBodyTemplate = (row: any) => {
     return (
-      <Image src={row.photos[5]?.imagePath} width="80" height="40" preview />
+      <Image src={row.photos[0]?.imagePath} width="80" height="40" preview />
     );
   };
   const handleOnChange = (e: any) => {
@@ -532,7 +525,14 @@ const Places = () => {
                 />
               </div>
               <div className="mt-3">
-                <Image src={imageArray[0]} width="300" height="200" preview />
+                {places?.map((p: any) => (
+                  <Image
+                    src={p.photos[0]?.imagePath}
+                    width="300"
+                    height="200"
+                    preview
+                  />
+                ))}{" "}
               </div>
             </div>
             <div className="mt-5 ml-2"></div>
