@@ -88,7 +88,6 @@ export class ActivityDTO{
 export class ServiceAttributeDTO{
   id?: number = 0;
   name: string = '';
-  value: string = '';
   serviceTypeId?:number=0;
 }
 

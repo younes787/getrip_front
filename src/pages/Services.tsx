@@ -59,7 +59,7 @@ const Services = () => {
   const footer = (s:any) => (
     <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button label="Update" size="small" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
-        <Button label="Attribute" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }} 
+        <Button label="Fields" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }} 
          onClick={() => {
           setCurrentServiceId(s.id); // Set the current service ID
           setShowAtt(true); // Show the dialog
@@ -72,7 +72,7 @@ const Services = () => {
 
      {loading ? <LoadingComponent />: <div>
      <Dialog
-        header="Add Atribute"
+        header="Add Field"
         visible={showAtt}
         className="md:w-50 lg:w-50"
         onHide={() => setShowAtt(false)}
@@ -214,8 +214,8 @@ const Services = () => {
               
               </div>
             }
-            subTitle={<div style={{ color: "white" }}> {s?.attributes.map((a: any) => (
-              <Tag  value={a.value} style={{ marginRight: "8px" }}
+            subTitle={<div style={{ color: "white" }}> {s?.serviceTypeFields.map((a: any) => (
+              <Tag  value={a.name} style={{ marginRight: "8px" }}
               > </Tag>
             ))}</div>}
             className="mt-5 ml-5 mb-5 service-card"

@@ -325,6 +325,31 @@ export const Getattributesbyvid = async (vid: number) => {
     handleError(error);
   }
 };
+// Feilds
+export const AddFeilds = async (FeildsData: any) => {
+  try {
+    const response = await api.post("/addservicetypefield", FeildsData);
+    return handleResponse(response , '');
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const UpdateFeilds = async (FeildsData: any) => {
+  try {
+    const response = await api.put("/updateservicetypefield", FeildsData);
+    return handleResponse(response , '');
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetFeilds = async () => {
+  try {
+    const response = await api.get("/getallservicetypefield");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Vehicle
 export const AddVehicle = async (VehicleData: any) => {
   try {

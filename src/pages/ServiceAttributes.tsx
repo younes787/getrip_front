@@ -4,7 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddAttributeToSt, Getattributesbysid, UpdateAttributeToSt} from "../Services";
+import { AddAttributeToSt, AddFeilds, GetFeilds, Getattributesbysid, UpdateAttributeToSt, UpdateFeilds} from "../Services";
 import { useFormik } from "formik";
 import { ServiceAttributeDTO } from "../modules/getrip.modules";
 import { useParams } from "react-router-dom";
@@ -19,14 +19,14 @@ const ServiceAttributes = (props:Props) => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   useEffect(() => {
-    Getattributesbysid(props.id).then((res) => setAttributes(res.data));
+    GetFeilds().then((res) => setAttributes(res.data));
   }, []);
   const Attributeform = useFormik<ServiceAttributeDTO>({
     initialValues: new ServiceAttributeDTO(),
     validateOnChange: true,
     onSubmit: () => {
     Attributeform.values.serviceTypeId = props.id
-    AddAttributeToSt(Attributeform.values);
+    AddFeilds(Attributeform.values);
       setShow(false);
     },
   });
@@ -36,7 +36,7 @@ const ServiceAttributes = (props:Props) => {
     validateOnChange: true,
     onSubmit: () => {
     AttributeformEdit.values.serviceTypeId = props.id
-    UpdateAttributeToSt(AttributeformEdit.values);
+    UpdateFeilds(AttributeformEdit.values);
       setShowEdit(false);
     },
   });
@@ -45,7 +45,6 @@ const ServiceAttributes = (props:Props) => {
     AttributeformEdit.setValues({
       id: rowData.id,
       name: rowData.name,
-      value: rowData.value
     });
   };
 
@@ -69,7 +68,7 @@ const ServiceAttributes = (props:Props) => {
     <div>
       <div>
         <Button
-          label="Add New Attribute"
+          label="Add New Field"
           onClick={() => setShow(true)}
           size="small"
           className="mt-4 ml-5 pr_btn"
@@ -94,11 +93,6 @@ const ServiceAttributes = (props:Props) => {
         >
           <Column field="name" sortable header="Name"></Column>
           <Column
-            field="value"
-            sortable
-            header="value"
-          ></Column>
-          <Column
             field=""
             sortable
             header="Actions"
@@ -107,7 +101,7 @@ const ServiceAttributes = (props:Props) => {
         </DataTable>
         <></>
         <Dialog
-          header="Add New Attribute"
+          header="Add New Field"
           visible={show}
           className="md:w-50 lg:w-50"
           onHide={() => setShow(false)}
@@ -138,7 +132,7 @@ const ServiceAttributes = (props:Props) => {
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
-                Attribute Name{" "}
+                Field Name{" "}
               </label>
               <InputText
                 name="name"
@@ -148,26 +142,11 @@ const ServiceAttributes = (props:Props) => {
                 }
               />
             </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Value{" "}
-                </label>
-              </div>
-              <InputText
-                name="value"
-                value={Attributeform.values.value}
-                onChange={(e) =>
-                  Attributeform.setFieldValue("value", e.target.value)
-                }
-              />
-            </div>
           </div>
         </Dialog>
         <></>
         <Dialog
-          header="Edit Attribute"
+          header="Edit Field"
           visible={showEdit}
           className="md:w-50 lg:w-50"
           onHide={() => setShowEdit(false)}
@@ -198,28 +177,13 @@ const ServiceAttributes = (props:Props) => {
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
-                Attribute Name{" "}
+                Field Name{" "}
               </label>
               <InputText
                 name="name"
                 value={AttributeformEdit.values.name}
                 onChange={(e) =>
                     AttributeformEdit.setFieldValue("name", e.target.value)
-                }
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Value{" "}
-                </label>
-              </div>
-              <InputText
-                name="value"
-                value={AttributeformEdit.values.value}
-                onChange={(e) =>
-                    AttributeformEdit.setFieldValue("value", e.target.value)
                 }
               />
             </div>
