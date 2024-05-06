@@ -10,6 +10,15 @@ const api = axios.create({
     }`,
   },
 });
+const apiForm = axios.create({
+  baseURL: "https://getrip.azurewebsites.net",
+  headers: {
+    "Content-Type": "multipart/form-data",
+    Authorization: `Bearer ${
+      typeof window !== "undefined" ? localStorage.getItem("token") : ""
+    }`,
+  },
+});
 // Auth
 export const authRegister = async (registerData: any) => {
   try {
@@ -22,7 +31,7 @@ export const authRegister = async (registerData: any) => {
 
 export const authLogin = async (loginData: any) => {
   try {
-    const response = await api.post("/login", loginData);
+    const response = await api.post("/loginuser", loginData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -382,7 +391,7 @@ export const GetAllMakers = async () => {
 // Photos 
 export const AddImageToPlace = async (imageData:any) => {
   try {
-    const response = await api.post(`/addimagetoplace`, imageData);
+    const response = await apiForm.post(`/addimagetoplace`, imageData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -392,7 +401,7 @@ export const AddImageToPlace = async (imageData:any) => {
 export const AddResidence = async (residenceData:any) => {
   try {
     const response = await api.post(`/addresidence`, residenceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -401,7 +410,7 @@ export const AddResidence = async (residenceData:any) => {
 export const AddResidenceType = async (residenceData:any) => {
   try {
     const response = await api.post(`/addresidencetype`, residenceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -410,7 +419,7 @@ export const AddResidenceType = async (residenceData:any) => {
 export const UpdateResidenceType = async (residenceData:any) => {
   try {
     const response = await api.put(`/updateresidencetype`, residenceData);
-    return handleResponse(response);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -418,7 +427,7 @@ export const UpdateResidenceType = async (residenceData:any) => {
 export const UpdateResidence = async (residenceData:any) => {
   try {
     const response = await api.put(`/updateresidence`, residenceData);
-    return handleResponse(response);
+    return handleResponse(response, 'Post');
   } catch (error) {
     handleError(error);
   }

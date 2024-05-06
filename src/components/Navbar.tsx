@@ -178,10 +178,10 @@ const NavBar = () => {
 
             <InputText
               placeholder="Email"
-              name="email"
+              name="username"
               className="mt-2 w-24rem	"
-              value={loginform?.values?.email}
-              onChange={(e) => loginform.setFieldValue("email", e.target.value)}
+              value={loginform?.values?.username}
+              onChange={(e) => loginform.setFieldValue("username", e.target.value)}
             />
           </div>
           <div className="col ml-3">

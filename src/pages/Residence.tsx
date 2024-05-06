@@ -4,23 +4,17 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
-import { Editor } from "primereact/editor";
-import { FileUpload } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
 import {
   AddResidenceType,
-  GetAllPlaces,
   GetResidenceType,
   UpdateResidenceType,
 } from "../Services";
-import { ResidenceDTO, ResidenceTypeDTO } from "../modules/getrip.modules";
+import { ResidenceTypeDTO } from "../modules/getrip.modules";
 import { useFormik } from "formik";
 
-const Residence = () => {
+const ResidenceType = () => {
   const [residenceType, setresidenceType] = useState();
-  const [residence, setresidence] = useState();
-  const [places, setPlaces] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -53,8 +47,6 @@ const Residence = () => {
       .catch((error) => {
         setLoading(false);
       });
-
-    GetAllPlaces().then((res) => setPlaces(res.data));
   }, []);
 
   const ShowUser = (rowData: any) => {
@@ -220,4 +212,4 @@ const Residence = () => {
   );
 };
 
-export default Residence;
+export default ResidenceType;

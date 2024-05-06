@@ -5,21 +5,26 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddImageToPlace, AddPlace, GetAllCities, GetAllPlaces, UpdatePlace } from "../Services";
+import {
+  AddImageToPlace,
+  AddPlace,
+  GetAllCities,
+  GetAllPlaces,
+  UpdatePlace,
+} from "../Services";
 import { useFormik } from "formik";
 import { PlaceDTO, PlaceImageDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
 import Activites from "./Activites";
-import { Image } from 'primereact/image';
+import { Image } from "primereact/image";
 import { FileUpload } from "primereact/fileupload";
-import p1 from '../Assets/place1.avif'
-import p2 from '../Assets/istanbul-36h-basilica.jpg'
-import p3 from '../Assets/istanbul.jpg'
-import p4 from '../Assets/is.jpg'
-import p5 from '../Assets/is2.jpg'
-
+import p1 from "../Assets/place1.avif";
+import p2 from "../Assets/istanbul-36h-basilica.jpg";
+import p3 from "../Assets/istanbul.jpg";
+import p4 from "../Assets/is.jpg";
+import p5 from "../Assets/is2.jpg";
 
 const Places = () => {
   const [places, setPlaces] = useState();
@@ -31,20 +36,20 @@ const Places = () => {
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
   const [file, setFile] = useState<any>();
 
-
   useEffect(() => {
     setLoading(true);
-    GetAllPlaces().then((res) =>{
-      setPlaces(res.data)
-      setLoading(false);
-    }
-  ).catch((error) => {
-    setLoading(false);
-  });
+    GetAllPlaces()
+      .then((res) => {
+        setPlaces(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
 
- GetAllCities().then((res) => setCities(res.data));
+    GetAllCities().then((res) => setCities(res.data));
   }, []);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const Placeform = useFormik<PlaceDTO>({
     initialValues: new PlaceDTO(),
     validateOnChange: true,
@@ -67,9 +72,14 @@ const Places = () => {
     initialValues: new PlaceImageDTO(),
     validateOnChange: true,
     onSubmit: () => {
-      AddImageToPlace(ImagePlaceform.values);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("ObjectId", JSON.stringify(currentPlaceId));
+      AddImageToPlace(formData);
     },
   });
+  console.log(file);
+  console.log(currentPlaceId);
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     PlaceformEdit.setValues({
@@ -81,23 +91,18 @@ const Places = () => {
       lot: rowData.lot,
       googleMapsUrl: rowData.googleMapsUrl,
     });
-    setCurrentPlaceId(rowData.id); 
+    setCurrentPlaceId(rowData.id);
   };
   const imageArray = [p1, p2, p3, p4, p5];
-  const imageBodyTemplate = () => {
-   
-  return   <Image  src={imageArray[0]} width="80" height="40" preview />
-   
-};
-const handleOnChange = (e: any) => {
-  setFile(e.files[0]);
-  console.log(e.files[0])
-  const File = e.files?.[0];
-  const objectURL = URL.createObjectURL(File);
-  ImagePlaceform.values.imagePath= objectURL
-  ImagePlaceform.values.placeId = currentPlaceId
-  ImagePlaceform.handleSubmit()
-};
+  const imageBodyTemplate = (row: any) => {
+    return (
+      <Image src={row.photos[5]?.imagePath} width="80" height="40" preview />
+    );
+  };
+  const handleOnChange = (e: any) => {
+    setFile(e.files?.[0]);
+  };
+
   const truncateText = (text: any, wordCount: any) => {
     const words = text?.split(" ");
     if (words?.length <= wordCount) {
@@ -106,9 +111,23 @@ const handleOnChange = (e: any) => {
     const truncated = words?.slice(0, wordCount)?.join(" ");
     return `${truncated}...`;
   };
-  const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
-  const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
-  const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+  const chooseOptions = {
+    icon: "pi pi-fw pi-images",
+    iconOnly: true,
+    className: "custom-choose-btn p-button-rounded p-button-outlined",
+  };
+  const uploadOptions = {
+    icon: "pi pi-fw pi-cloud-upload",
+    iconOnly: true,
+    className:
+      "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
+  };
+  const cancelOptions = {
+    icon: "pi pi-fw pi-times",
+    iconOnly: true,
+    className:
+      "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
+  };
 
   const BodyTemplate = (rowData: any) => {
     return (
@@ -126,8 +145,8 @@ const handleOnChange = (e: any) => {
         <i
           className="pi pi-bold pi-info-circle"
           onClick={() => {
-            setCurrentPlaceId(rowData.id); 
-            setShowAct(true); 
+            setCurrentPlaceId(rowData.id);
+            setShowAct(true);
           }}
           style={{
             fontSize: "1.2rem",
@@ -141,332 +160,348 @@ const handleOnChange = (e: any) => {
   };
   return (
     <div>
-     { loading ? <LoadingComponent/> : <div>
-        <Button
-          label="Add New Place"
-          onClick={() => setShow(true)}
-          size="small"
-          className="mt-4 ml-5 pr_btn"
-        ></Button>
-        <DataTable
-          value={places}
-          stripedRows
-          showGridlines
-          className=" p-5"
-          tableStyle={{ minWidth: "50rem" }}
-          size="small"
-          style={{ fontSize: "1.2rem", padding: "16px" }}
-          resizableColumns
-          rows={5}
-          rowsPerPageOptions={[10, 15, 20, 50]}
-          // filters={filters.value}
-          filterDisplay="menu"
-          globalFilterFields={["global"]}
-          paginator
-          rowHover
-          sortMode="multiple"
-        >
-          <Column sortable body={imageBodyTemplate} header="photos" ></Column>
-          <Column field="name" sortable header="Place Name"></Column>
-          <Column
-            field="description"
-            sortable
-            header="Description"
-            body={(row) => (
-              <div style={{ textWrap: "wrap" }}>
-                {truncateText(row.description, 10)}
-              </div>
-            )} // Use the truncate function
-          ></Column>
-          <Column
-            field=""
-            sortable
-            header="Actions"
-            body={BodyTemplate}
-          ></Column>
-        </DataTable>
-        <></>
-        <Dialog
-          header="Add New Activity"
-          visible={showAct}
-          className="md:w-50 lg:w-50"
-          onHide={() => setShowAct(false)}
-        >
-         <Activites id={currentPlaceId}/>
-        </Dialog>
-        <></>
-        <Dialog
-          header="Add New Place"
-          visible={show}
-          className="md:w-50 lg:w-50"
-          onHide={() => setShow(false)}
-          footer={
-            <>
-              <div>
-                <Button
-                  label="Save"
-                  size="small"
-                  severity="warning"
-                  outlined
-                  onClick={() => Placeform.handleSubmit()}
-                  className="mt-4"
-                ></Button>
-                <Button
-                  label="Cancel"
-                  severity="danger"
-                  outlined
-                  size="small"
-                  onClick={() => setShow(false)}
-                  className="mt-4"
-                ></Button>
-              </div>
-            </>
-          }
-        >
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                City Name{" "}
-              </label>
-              <Dropdown
-                placeholder="Select a City"
-                options={cities}
-                optionLabel="name"
-                optionValue="id"
-                name="cityId"
-                className="w-full"
-                value={Placeform?.values?.cityId}
-                onChange={(e) => Placeform.setFieldValue("cityId", e.value)}
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
+      {loading ? (
+        <LoadingComponent />
+      ) : (
+        <div>
+          <Button
+            label="Add New Place"
+            onClick={() => setShow(true)}
+            size="small"
+            className="mt-4 ml-5 pr_btn"
+          ></Button>
+          <DataTable
+            value={places}
+            stripedRows
+            showGridlines
+            className=" p-5"
+            tableStyle={{ minWidth: "50rem" }}
+            size="small"
+            style={{ fontSize: "1.2rem", padding: "16px" }}
+            resizableColumns
+            rows={5}
+            rowsPerPageOptions={[10, 15, 20, 50]}
+            // filters={filters.value}
+            filterDisplay="menu"
+            globalFilterFields={["global"]}
+            paginator
+            rowHover
+            sortMode="multiple"
+          >
+            <Column sortable body={imageBodyTemplate} header="photos"></Column>
+            <Column field="name" sortable header="Place Name"></Column>
+            <Column
+              field="description"
+              sortable
+              header="Description"
+              body={(row) => (
+                <div style={{ textWrap: "wrap" }}>
+                  {truncateText(row.description, 10)}
+                </div>
+              )} // Use the truncate function
+            ></Column>
+            <Column
+              field=""
+              sortable
+              header="Actions"
+              body={BodyTemplate}
+            ></Column>
+          </DataTable>
+          <></>
+          <Dialog
+            header="Add New Activity"
+            visible={showAct}
+            className="md:w-50 lg:w-50"
+            onHide={() => setShowAct(false)}
+          >
+            <Activites id={currentPlaceId} />
+          </Dialog>
+          <></>
+          <Dialog
+            header="Add New Place"
+            visible={show}
+            className="md:w-50 lg:w-50"
+            onHide={() => setShow(false)}
+            footer={
+              <>
+                <div>
+                  <Button
+                    label="Save"
+                    size="small"
+                    severity="warning"
+                    outlined
+                    onClick={() => Placeform.handleSubmit()}
+                    className="mt-4"
+                  ></Button>
+                  <Button
+                    label="Cancel"
+                    severity="danger"
+                    outlined
+                    size="small"
+                    onClick={() => setShow(false)}
+                    className="mt-4"
+                  ></Button>
+                </div>
+              </>
+            }
+          >
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
+                <label className="mb-2" htmlFor="Status">
                   {" "}
-                  Place Name{" "}
+                  City Name{" "}
                 </label>
+                <Dropdown
+                  placeholder="Select a City"
+                  options={cities}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="cityId"
+                  className="w-full"
+                  value={Placeform?.values?.cityId}
+                  onChange={(e) => Placeform.setFieldValue("cityId", e.value)}
+                />
               </div>
-              <InputText
-                name="name"
-                value={Placeform.values.name}
-                onChange={(e) =>
-                  Placeform.setFieldValue("name", e.target.value)
-                }
-              />
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Place Name{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="name"
+                  value={Placeform.values.name}
+                  onChange={(e) =>
+                    Placeform.setFieldValue("name", e.target.value)
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <div>
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className="mb-2" htmlFor="Status">
+                    {" "}
+                    Description{" "}
+                  </label>
+                </div>
+                <Editor
+                  name="description"
+                  value={Placeform.values.description}
+                  onTextChange={(e) => {
+                    Placeform.setFieldValue("description", e.textValue);
+                  }}
+                  style={{ height: "220px" }}
+                />
+              </div>
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Google Maps Url{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="googleMapsUrl"
+                  value={Placeform.values.googleMapsUrl}
+                  onChange={(e) =>
+                    Placeform.setFieldValue("googleMapsUrl", e.target.value)
+                  }
+                  className="md:w-25rem lg:w-25rem"
+                />
+              </div>
+            </div>
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className="mb-2" htmlFor="Status">
+                    {" "}
+                    Lang{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="lang"
+                  value={Placeform.values.lang}
+                  onChange={(e) =>
+                    Placeform.setFieldValue("lang", e.target.value)
+                  }
+                />
+              </div>
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Lot{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="lot"
+                  value={Placeform.values.lot}
+                  onChange={(e) =>
+                    Placeform.setFieldValue("lot", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          </Dialog>
+          <></>
+          <Dialog
+            header="Edit Place"
+            visible={showEdit}
+            className="md:w-50 lg:w-50"
+            onHide={() => setShowEdit(false)}
+            footer={
+              <>
+                <div>
+                  <Button
+                    label="Save"
+                    size="small"
+                    severity="warning"
+                    outlined
+                    onClick={() => PlaceformEdit.handleSubmit()}
+                    className="mt-4"
+                  ></Button>
+                  <Button
+                    label="Cancel"
+                    severity="danger"
+                    outlined
+                    size="small"
+                    onClick={() => setShowEdit(false)}
+                    className="mt-4"
+                  ></Button>
+                </div>
+              </>
+            }
+          >
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
+                <label className="mb-2" htmlFor="Status">
+                  {" "}
+                  City Name{" "}
+                </label>
+                <Dropdown
+                  placeholder="Select a City"
+                  options={cities}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="cityId"
+                  className="w-full"
+                  value={PlaceformEdit?.values?.cityId}
+                  onChange={(e) =>
+                    PlaceformEdit.setFieldValue("cityId", e.value)
+                  }
+                />
+              </div>
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  {" "}
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Place Name{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="name"
+                  value={PlaceformEdit.values.name}
+                  onChange={(e) =>
+                    PlaceformEdit.setFieldValue("name", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
                 <label className="mb-2" htmlFor="Status">
                   {" "}
                   Description{" "}
                 </label>
+                <Editor
+                  name="description"
+                  value={PlaceformEdit.values.description}
+                  onTextChange={(e) => {
+                    PlaceformEdit.setFieldValue("description", e.textValue);
+                  }}
+                  style={{ height: "220px" }}
+                />
               </div>
-              <Editor
-                name="description"
-                value={Placeform.values.description}
-                onTextChange={(e) => {
-                  Placeform.setFieldValue("description", e.textValue);
-                }}
-                style={{ height: "220px" }}
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Google Maps Url{" "}
-                </label>
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Google Maps Url{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="googleMapsUrl"
+                  value={PlaceformEdit.values.googleMapsUrl}
+                  onChange={(e) =>
+                    PlaceformEdit.setFieldValue("googleMapsUrl", e.target.value)
+                  }
+                  className="md:w-25rem lg:w-25rem"
+                />
               </div>
-              <InputText
-                name="googleMapsUrl"
-                value={Placeform.values.googleMapsUrl}
-                onChange={(e) =>
-                  Placeform.setFieldValue("googleMapsUrl", e.target.value)
-                }
-                className="md:w-25rem lg:w-25rem"
-              />
             </div>
-          </div>
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <div>
-                <label className="mb-2" htmlFor="Status">
-                  {" "}
-                  Lang{" "}
-                </label>
+            <div className="grid mt-3">
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className="mb-2" htmlFor="Status">
+                    {" "}
+                    Lang{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="lang"
+                  value={PlaceformEdit.values.lang}
+                  onChange={(e) =>
+                    PlaceformEdit.setFieldValue("lang", e.target.value)
+                  }
+                />
               </div>
-              <InputText
-                name="lang"
-                value={Placeform.values.lang}
-                onChange={(e) =>
-                  Placeform.setFieldValue("lang", e.target.value)
-                }
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Lot{" "}
-                </label>
+              <div className="md:col-5 lg:col-5">
+                <div>
+                  <label className="mb-2" htmlFor="">
+                    {" "}
+                    Lot{" "}
+                  </label>
+                </div>
+                <InputText
+                  name="lot"
+                  value={PlaceformEdit.values.lot}
+                  onChange={(e) =>
+                    PlaceformEdit.setFieldValue("lot", e.target.value)
+                  }
+                />
               </div>
-              <InputText
-                name="lot"
-                value={Placeform.values.lot}
-                onChange={(e) => Placeform.setFieldValue("lot", e.target.value)}
-              />
             </div>
-          </div>
-        </Dialog>
-        <></>
-        <Dialog
-          header="Edit Place"
-          visible={showEdit}
-          className="md:w-50 lg:w-50"
-          onHide={() => setShowEdit(false)}
-          footer={
-            <>
-              <div>
-                <Button
-                  label="Save"
-                  size="small"
-                  severity="warning"
-                  outlined
-                  onClick={() => PlaceformEdit.handleSubmit()}
-                  className="mt-4"
-                ></Button>
-                <Button
-                  label="Cancel"
-                  severity="danger"
-                  outlined
-                  size="small"
-                  onClick={() => setShowEdit(false)}
-                  className="mt-4"
-                ></Button>
+            <div className="mt-4 grid gap-4">
+              <div className="col-8">
+                <FileUpload
+                  name="imagePath"
+                  multiple
+                  accept="image/*"
+                  onSelect={handleOnChange}
+                  maxFileSize={1000000}
+                  emptyTemplate={
+                    <p className="m-0">
+                      Drag and drop files to here to upload.
+                    </p>
+                  }
+                  chooseOptions={chooseOptions}
+                  uploadOptions={uploadOptions}
+                  cancelOptions={cancelOptions}
+                  customUpload
+                  uploadHandler={() => ImagePlaceform.handleSubmit()}
+                />
               </div>
-            </>
-          }
-        >
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                City Name{" "}
-              </label>
-              <Dropdown
-                placeholder="Select a City"
-                options={cities}
-                optionLabel="name"
-                optionValue="id"
-                name="cityId"
-                className="w-full"
-                value={PlaceformEdit?.values?.cityId}
-                onChange={(e) => PlaceformEdit.setFieldValue("cityId", e.value)}
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                {" "}
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Place Name{" "}
-                </label>
+              <div className="mt-3">
+                <Image src={imageArray[0]} width="300" height="200" preview />
               </div>
-              <InputText
-                name="name"
-                value={PlaceformEdit.values.name}
-                onChange={(e) =>
-                  PlaceformEdit.setFieldValue("name", e.target.value)
-                }
-              />
             </div>
-          </div>
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                Description{" "}
-              </label>
-              <Editor
-                name="description"
-                value={PlaceformEdit.values.description}
-                onTextChange={(e) => {
-                  PlaceformEdit.setFieldValue("description", e.textValue);
-                }}
-                style={{ height: "220px" }}
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Google Maps Url{" "}
-                </label>
-              </div>
-              <InputText
-                name="googleMapsUrl"
-                value={PlaceformEdit.values.googleMapsUrl}
-                onChange={(e) =>
-                  PlaceformEdit.setFieldValue("googleMapsUrl", e.target.value)
-                }
-                className="md:w-25rem lg:w-25rem"
-              />
-            </div>
-          </div>
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <div>
-                <label className="mb-2" htmlFor="Status">
-                  {" "}
-                  Lang{" "}
-                </label>
-              </div>
-              <InputText
-                name="lang"
-                value={PlaceformEdit.values.lang}
-                onChange={(e) =>
-                  PlaceformEdit.setFieldValue("lang", e.target.value)
-                }
-              />
-            </div>
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Lot{" "}
-                </label>
-              </div>
-              <InputText
-                name="lot"
-                value={PlaceformEdit.values.lot}
-                onChange={(e) =>
-                  PlaceformEdit.setFieldValue("lot", e.target.value)
-                }
-              />
-            </div>
-          </div>
-          <div className="mt-4 grid gap-4">
-          <div className="col-8">
-          <FileUpload 
-           name="imagePath"
-            multiple accept="image/*"
-            onSelect={handleOnChange}
-            maxFileSize={1000000} emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
-            chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions}
-            />
-            </div>
-            <div className="mt-3">
-          <Image  src={imageArray[0]} width="300" height="200" preview />
-          </div>
-
-          </div>
-          <div className="mt-5 ml-2">
-          </div>
-        </Dialog>
-      </div>}
+            <div className="mt-5 ml-2"></div>
+          </Dialog>
+        </div>
+      )}
     </div>
   );
 };

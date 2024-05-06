@@ -1,6 +1,6 @@
 
 export class LoginDTO {
-  email: string = "";
+  username: string = "";
   password: string = "";
 }
 
@@ -92,10 +92,14 @@ export class ServiceAttributeDTO{
   serviceTypeId?:number=0;
 }
 
+export type File = {
+  filename: string;
+  data:string;
+}
+
 export class PlaceImageDTO{
-  id?: number = 0;
-  imagePath: string = '';
-  placeId?:number=0;
+  objectId?: number = 0;
+  file?: any;
 }
 
 export class ResidenceDTO{
@@ -110,14 +114,6 @@ export type PhotosDTO={
   imagePath: string 
   imageData: string
   residenceId:number
-}
-export class UpdateResidenceDTO{
-  id?: number = 0;
-  name: string = '';
-  description: string = '';
-  placeId?:number=0;
-  residenceTypeId?:number=0;
-  photos?:PhotosDTO
 }
 
 export class ResidenceTypeDTO{

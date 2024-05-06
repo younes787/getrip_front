@@ -8,7 +8,7 @@ import React, {
 import { authLogin } from "../Services";
   
   type User = {
-    email: string;
+    username: string;
     password: string;
   };
   
@@ -31,14 +31,14 @@ import { authLogin } from "../Services";
       try {
         const response = await authLogin(userData);
         console.log(response)
-        const accessToken = response.accessToken;
+        const accessToken = response.data.token;
         localStorage.setItem("token", accessToken);
         localStorage.setItem("user", JSON.stringify(response));
         setUser(localStorage.getItem("user") as any);
       } catch (e) {
         console.log(e);
       } finally {
-         window.location.href = "/dashboard";
+        //  window.location.href = "/dashboard";
       }
     };
   
