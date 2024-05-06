@@ -413,6 +413,15 @@ export const GetAllMakers = async () => {
   }
 };
 
+export const GetAllMakersWithvehicles = async () => {
+  try {
+    const response = await api.get(`/getmakerswithvehicles`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 // Photos 
 export const AddImageToPlace = async (imageData:any) => {
   try {
