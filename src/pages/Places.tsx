@@ -25,6 +25,7 @@ import p2 from "../Assets/istanbul-36h-basilica.jpg";
 import p3 from "../Assets/istanbul.jpg";
 import p4 from "../Assets/is.jpg";
 import p5 from "../Assets/is2.jpg";
+import { FilterMatchMode } from "primereact/api";
 
 const Places = () => {
   const [places, setPlaces] = useState();
@@ -35,7 +36,18 @@ const Places = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
   const [file, setFile] = useState<any>();
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    description: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+  });
   useEffect(() => {
     setLoading(true);
     GetAllPlaces()
@@ -158,6 +170,31 @@ const Places = () => {
       </div>
     );
   };
+  const onGlobalFilterChange = (e: any) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+
+    setFilters(_filters);
+    setGlobalFilterValue(value);
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          />
+        </span>
+      </div>
+    );
+  };
+  const header = renderHeader();
   return (
     <div>
       {loading ? (
@@ -181,18 +218,18 @@ const Places = () => {
             resizableColumns
             rows={5}
             rowsPerPageOptions={[10, 15, 20, 50]}
-            // filters={filters.value}
-            filterDisplay="menu"
-            globalFilterFields={["global"]}
+            filters={filters}
+            header={header}
             paginator
             rowHover
             sortMode="multiple"
           >
             <Column sortable body={imageBodyTemplate} header="photos"></Column>
-            <Column field="name" sortable header="Place Name"></Column>
+            <Column field="name" filter sortable header="Place Name"></Column>
             <Column
               field="description"
               sortable
+              filter
               header="Description"
               body={(row) => (
                 <div style={{ textWrap: "wrap" }}>

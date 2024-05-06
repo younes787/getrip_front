@@ -12,6 +12,7 @@ import { Editor } from "primereact/editor";
 import { InputNumber } from "primereact/inputnumber";
 import { Checkbox } from "primereact/checkbox";
 import LoadingComponent from "../components/Loading";
+import { FilterMatchMode } from "primereact/api";
 
 const Vehicle = () => {
   const [vehicle, setVehicle] = useState();
@@ -19,7 +20,22 @@ const Vehicle = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [makers, setMakers] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    model: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    passengersCount: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    isVip: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+  });
   useEffect(() => {
     setLoading(true);
     GetAllVehicles().then((res) =>{ setVehicle(res.data)
@@ -73,6 +89,31 @@ const Vehicle = () => {
       </div>
     );
   };
+  const onGlobalFilterChange = (e: any) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+
+    setFilters(_filters);
+    setGlobalFilterValue(value);
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          />
+        </span>
+      </div>
+    );
+  };
+  const header = renderHeader();
   return (
     <div>
      { loading ? <LoadingComponent/> : <div>
@@ -93,22 +134,21 @@ const Vehicle = () => {
           resizableColumns
           rows={5}
           rowsPerPageOptions={[10, 15, 20, 50]}
-          // filters={filters.value}
-          filterDisplay="menu"
-          globalFilterFields={["global"]}
+          filters={filters}
+          header={header}
           paginator
           rowHover
           sortMode="multiple"
         >
-          <Column field="model" sortable header="Model"></Column>
+          <Column field="model" filter sortable header="Model"></Column>
           <Column
             field="passengersCount"
-            sortable
+            sortable filter
             header="Passengers Count"
           ></Column>
           <Column
             field="isVip"
-            sortable
+            sortable filter
             header="is Vip"
             body={(rowData)=> rowData.isVip === true ? 'Yes' : 'No'}
           ></Column>

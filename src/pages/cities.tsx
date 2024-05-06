@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { AddCity, GetAllCities, GetAllProvinces, GetCitiesbyid, UpdateCity } from "../Services";
 import { useFormik } from "formik";
 import { CitiesDTO } from "../modules/getrip.modules";
-import SideBar from "../components/SideBar";
 import LoadingComponent from "../components/Loading";
+import { FilterMatchMode } from "primereact/api";
 
 const Cites = () => {
   const [cities, setcities] = useState();
@@ -17,7 +17,18 @@ const Cites = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [provinces , setProvinces] = useState<any>()
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    description: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+  });
   useEffect(() => {
     setLoading(true);
     GetAllCities().then((res) => {setcities(res.data)
@@ -69,6 +80,31 @@ const Cites = () => {
       </div>
     );
   };
+  const onGlobalFilterChange = (e: any) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+
+    setFilters(_filters);
+    setGlobalFilterValue(value);
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          />
+        </span>
+      </div>
+    );
+  };
+  const header = renderHeader();
   return (
     <div>
    {loading ? <LoadingComponent/> : <div>
@@ -89,15 +125,14 @@ const Cites = () => {
         resizableColumns
         rows={5}
         rowsPerPageOptions={[10, 15, 20, 50]}
-        // filters={filters.value}
-        filterDisplay="menu"
-        globalFilterFields={['global']}
+        filters={filters}
+        header={header}
         paginator
         rowHover
         sortMode="multiple"
       >
-        <Column field="name" sortable header="City Name"></Column>
-        <Column field="description" sortable  header="Description"></Column>
+        <Column field="name" filter sortable header="City Name"></Column>
+        <Column field="description" filter sortable  header="Description"></Column>
         <Column field="" header="Actions" body={BodyTemplate}></Column>
       </DataTable>
       <></>

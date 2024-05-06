@@ -16,6 +16,7 @@ import {
   UpdateUser,
 } from "../Services";
 import LoadingComponent from "../components/Loading";
+import { FilterMatchMode } from "primereact/api";
 
 const Users = () => {
   const [UsersList, setUsersList] = useState<any>();
@@ -23,7 +24,17 @@ const Users = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [RolesList, setRolesList] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    lastname: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    business: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    role: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+  });
   const getUsers = () => {
     setLoading(true);
     GetAllUsers().then((res) => {
@@ -74,6 +85,32 @@ const Users = () => {
   useEffect(() => {
     getUsers()
   }, []);
+  const onGlobalFilterChange = (e: any) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+
+    setFilters(_filters);
+    setGlobalFilterValue(value);
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          />
+        </span>
+      </div>
+    );
+  };
+  const header = renderHeader();
+
   const DeleteUsers = (Email: string) => {
     DeleteUser(Email);
   };
@@ -133,11 +170,13 @@ const Users = () => {
         rowsPerPageOptions={[10, 15, 20, 50]}
         paginator
         rowHover
+        filters={filters}
+        header={header}
       >
-        <Column field="lastname" sortable body={(rowData)=>(<div> {rowData.name + ' ' + rowData.lastname}</div>) } header="Full Name"></Column>
-        <Column field="business" sortable header="Business"></Column>
-        <Column field="email" sortable header="Email"></Column>
-        <Column field="role" sortable header="Role"></Column>
+        <Column field="lastname" filter sortable body={(rowData)=>(<div> {rowData.name + ' ' + rowData.lastname}</div>) } header="Full Name"></Column>
+        <Column field="business" filter sortable header="Business"></Column>
+        <Column field="email" filter sortable header="Email"></Column>
+        <Column field="role" filter sortable header="Role"></Column>
         <Column field="" header="Actions" sortable body={BodyTemplate}></Column>
       </DataTable>
       <></>

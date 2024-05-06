@@ -8,6 +8,7 @@ import { AddMaker, GetAllMakers, UpdateMaker } from "../Services";
 import { useFormik } from "formik";
 import { MakerDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
+import { FilterMatchMode } from "primereact/api";
 
 
 const Maker = () => {
@@ -15,7 +16,18 @@ const Maker = () => {
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    description: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+  });
   useEffect(() => {
     setLoading(true);
     GetAllMakers().then((res) => {setMaker(res.data)
@@ -66,6 +78,31 @@ const Maker = () => {
       </div>
     );
   };
+  const onGlobalFilterChange = (e: any) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters["global"].value = value;
+
+    setFilters(_filters);
+    setGlobalFilterValue(value);
+  };
+
+  const renderHeader = () => {
+    return (
+      <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={globalFilterValue}
+            onChange={onGlobalFilterChange}
+            placeholder="Keyword Search"
+          />
+        </span>
+      </div>
+    );
+  };
+  const header = renderHeader();
   return (
     <div>
       {loading ? <LoadingComponent/>: <div>
@@ -86,17 +123,17 @@ const Maker = () => {
           resizableColumns
           rows={5}
           rowsPerPageOptions={[10, 15, 20, 50]}
-          // filters={filters.value}
-          filterDisplay="menu"
-          globalFilterFields={["global"]}
+          filters={filters}
+          header={header}
           paginator
           rowHover
           sortMode="multiple"
         >
-          <Column field="name" sortable header="Name"></Column>
+          <Column field="name" sortable header="Name"filter ></Column>
           <Column
             field="description"
             sortable
+            filter
             header="Description"
           ></Column>
           <Column
