@@ -5,21 +5,24 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddPlace, AddVehicle, GetAllCities, GetAllMakers, GetAllPlaces, GetAllVehicles, UpdatePlace, UpdateVehicle } from "../Services";
+import { AddImageToVihcles, AddVehicle, GetAllMakers, GetAllVehicles, UpdateVehicle } from "../Services";
 import { useFormik } from "formik";
-import { PlaceDTO, VehicleDTO } from "../modules/getrip.modules";
-import { Editor } from "primereact/editor";
+import { ImageDTO, VehicleDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Checkbox } from "primereact/checkbox";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
+import { Image } from "primereact/image";
+import { FileUpload } from "primereact/fileupload";
 
 const Vehicle = () => {
-  const [vehicle, setVehicle] = useState();
+  const [vehicle, setVehicle] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [makers, setMakers] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentVehicleId, setCurrentVehicleId] = useState<number>(0);
+  const [file, setFile] = useState<any>();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -53,7 +56,16 @@ const Vehicle = () => {
       setShow(false);
     },
   });
-
+  const ImagePlaceform = useFormik<ImageDTO>({
+    initialValues: new ImageDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("ObjectId", JSON.stringify(currentVehicleId));
+      AddImageToVihcles(formData);
+    },
+  });
   const VehicleformEdit = useFormik<VehicleDTO>({
     initialValues: new VehicleDTO(),
     validateOnChange: true,
@@ -62,6 +74,23 @@ const Vehicle = () => {
       setShowEdit(false);
     },
   });
+  const chooseOptions = {
+    icon: "pi pi-fw pi-images",
+    iconOnly: true,
+    className: "custom-choose-btn p-button-rounded p-button-outlined",
+  };
+  const uploadOptions = {
+    icon: "pi pi-fw pi-cloud-upload",
+    iconOnly: true,
+    className:
+      "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
+  };
+  const cancelOptions = {
+    icon: "pi pi-fw pi-times",
+    iconOnly: true,
+    className:
+      "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
+  };
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     VehicleformEdit.setValues({
@@ -71,6 +100,7 @@ const Vehicle = () => {
       isVip: rowData.isVip,
       passengersCount: rowData.passengersCount,
     });
+    setCurrentVehicleId(rowData.id);
   };
 
   const BodyTemplate = (rowData: any) => {
@@ -88,6 +118,14 @@ const Vehicle = () => {
         ></i>
       </div>
     );
+  };
+  const imageBodyTemplate = (row: any) => {
+    return (
+      <Image src={Array.isArray( row?.photos)? row?.photos[0]?.imagePath : ''} width="80" height="40" preview />
+    );
+  };
+  const handleOnChange = (e: any) => {
+    setFile(e.files?.[0]);
   };
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
@@ -140,6 +178,7 @@ const Vehicle = () => {
           rowHover
           sortMode="multiple"
         >
+         <Column sortable body={imageBodyTemplate} header="photos"></Column>
           <Column field="model" filter sortable header="Model"></Column>
           <Column
             field="passengersCount"
@@ -346,6 +385,37 @@ const Vehicle = () => {
               />
             </div>
           </div>
+          <div className="mt-4 grid gap-4">
+              <div className="col-8">
+                <FileUpload
+                  name="imagePath"
+                  multiple
+                  accept="image/*"
+                  onSelect={handleOnChange}
+                  maxFileSize={1000000}
+                  emptyTemplate={
+                    <p className="m-0">
+                      Drag and drop files to here to upload.
+                    </p>
+                  }
+                  chooseOptions={chooseOptions}
+                  uploadOptions={uploadOptions}
+                  cancelOptions={cancelOptions}
+                  customUpload
+                  uploadHandler={() => ImagePlaceform.handleSubmit()}
+                />
+              </div>
+              <div className="mt-3">
+                {vehicle?.map((p: any) => (
+                  <Image
+                    src={Array.isArray(p?.photos) ? p?.photos[0]?.imagePath : ''}
+                    width="300"
+                    height="200"
+                    preview
+                  />
+                ))}{" "}
+              </div>
+            </div>
         </Dialog>
       </div>}
     </div>

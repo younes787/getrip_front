@@ -397,6 +397,14 @@ export const AddImageToPlace = async (imageData:any) => {
     handleError(error);
   }
 };
+export const AddImageToVihcles = async (imageData:any) => {
+  try {
+    const response = await apiForm.post(`/addimagetovehicle`, imageData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Residence
 export const AddResidence = async (residenceData:any) => {
   try {

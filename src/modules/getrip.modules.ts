@@ -97,7 +97,7 @@ export type File = {
   data:string;
 }
 
-export class PlaceImageDTO{
+export class ImageDTO{
   objectId?: number = 0;
   file?: any;
 }
@@ -108,12 +108,6 @@ export class ResidenceDTO{
   description: string = '';
   placeId?:number=0;
   residenceTypeId?:number=0;
-}
-export type PhotosDTO={
-  id?: number 
-  imagePath: string 
-  imageData: string
-  residenceId:number
 }
 
 export class ResidenceTypeDTO{

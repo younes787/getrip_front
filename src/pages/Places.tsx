@@ -13,7 +13,7 @@ import {
   UpdatePlace,
 } from "../Services";
 import { useFormik } from "formik";
-import { PlaceDTO, PlaceImageDTO } from "../modules/getrip.modules";
+import { PlaceDTO, ImageDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
 import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
@@ -75,8 +75,8 @@ const Places = () => {
     },
   });
 
-  const ImagePlaceform = useFormik<PlaceImageDTO>({
-    initialValues: new PlaceImageDTO(),
+  const ImagePlaceform = useFormik<ImageDTO>({
+    initialValues: new ImageDTO(),
     validateOnChange: true,
     onSubmit: () => {
       const formData = new FormData();
