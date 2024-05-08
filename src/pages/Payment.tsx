@@ -2,14 +2,12 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
-import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
 import { AddCurrency, GetCurrency, UpdateCurrency } from "../Services";
 import { useFormik } from "formik";
 import { ImageDTO, CurrencyDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
-import { Checkbox } from "primereact/checkbox";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
 
@@ -22,18 +20,22 @@ const Payment = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    model: {
+    price: {
       value: null,
       matchMode: FilterMatchMode.STARTS_WITH,
     },
-    passengersCount: {
+    apiKey: {
       value: null,
       matchMode: FilterMatchMode.STARTS_WITH,
     },
-    isVip: {
+    apiUrl: {
       value: null,
       matchMode: FilterMatchMode.STARTS_WITH,
     },
+    name: {
+        value: null,
+        matchMode: FilterMatchMode.STARTS_WITH,
+      },
   });
   useEffect(() => {
     setLoading(true);
