@@ -41,7 +41,7 @@ export const authLogin = async (loginData: any) => {
 export const CreateUser = async (userData: any) => {
   try {
     const response = await api.post("/createuser", userData);
-    return handleResponse(response, "Post");
+    return handleResponse(response, "");
   } catch (error) {
     handleError(error);
   }

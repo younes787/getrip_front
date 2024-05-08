@@ -12,7 +12,14 @@ export class RegisterDTO {
   lastname: string = '';
   role: string = '';
   business: string = '';
-
+  position:string ='';
+  address:string ='';
+  language:string ='';
+  country:string ='';
+  city:string ='';
+  zipCode:string ='';
+  taxNumber:string ='';
+  phone:string ='';
 }
 
 export class UsersDTO {

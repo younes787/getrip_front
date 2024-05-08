@@ -23,6 +23,7 @@ const NavBar = () => {
   const menuLeft = useRef<any>(null);
   const [show, setshow] = useState<boolean>(false);
   const [showsign, setshowsign] = useState<boolean>(false);
+  const [showsignPartner, setshowsignPartner] = useState<boolean>(false);
   const { login } = useAuth();
   const { logout } = useAuth();
   const { user } = useAuth();
@@ -47,6 +48,17 @@ const NavBar = () => {
       setLoading(true)
       setshow(false)
       await login(loginform.values).then((res:any)=> setLoading(false)).catch((error:any) => {
+        setLoading(false);
+      });
+    },
+  });
+  const Partneregister = useFormik<RegisterDTO>({
+    initialValues: new RegisterDTO(),
+    validateOnChange: true,
+    onSubmit: async () => {
+      setLoading(true)
+      Partneregister.values.role = "Service Provider";
+      await CreateUser(Partneregister.values).then((res)=> setLoading(false)).catch((error) => {
         setLoading(false);
       });
     },
@@ -126,6 +138,7 @@ const NavBar = () => {
         label="Become A Partner"
         outlined
         className="outline_btn"
+        onClick={() => setshowsignPartner(true)}
       />}
       {user ? (
         <>
@@ -367,6 +380,289 @@ const NavBar = () => {
             className="mr-1 font-bold"
             onClick={() => {
               setshowsign(false);
+              setshow(true);
+            }}
+          >
+            {" "}
+            Sign In{" "}
+          </a>{" "}
+          <span> with your account</span>
+        </span>
+        <span className="flex justify-content-center ml-5 mt-3">
+          By continuing, you agree to the Terms of Service and acknowledge
+          you’ve read our Privacy Policy.
+        </span>
+      </Dialog>
+      <></>
+      <Dialog
+        header={
+          <span className="ml-6 text-2xl get-rp flex justify-content-center">
+            Ge<span className="secondery">t</span>rip
+          </span>
+        }
+        visible={showsignPartner}
+        className="md:w-30rem lg:w-30rem card-container"
+        onHide={() => setshowsignPartner(false)}
+      >
+        <span className="primary flex justify-content-center">
+          {" "}
+          Join to become a partner
+        </span>
+        <div className=" mt-4">
+          <div className="col ml-3 ">
+            <div>
+              <label className="primary" htmlFor="Wallet">
+                {" "}
+                First Name{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="First Name"
+              name="name"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.name}
+              onChange={(e) => Partneregister.setFieldValue("name", e.target.value)}
+            />
+          </div>
+          <div className="col ml-3 ">
+            <div>
+              <label className="primary" htmlFor="Wallet">
+                {" "}
+                Last Name{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Last Name"
+              name="lastname"
+              value={Partneregister?.values?.lastname}
+              className="mt-2 w-24rem	"
+              onChange={(e) =>
+                Partneregister.setFieldValue("lastname", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className="primary" htmlFor="Status">
+                {" "}
+                Business{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Business"
+              name="business"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.business}
+              onChange={(e) =>
+                Partneregister.setFieldValue("business", e.target.value)
+              }
+            />
+
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Position{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Position"
+              name="position"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.position}
+              onChange={(e) =>
+                Partneregister.setFieldValue("position", e.target.value)
+              }
+            />
+          </div>   
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Address{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Address"
+              name="address"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.address}
+              onChange={(e) =>
+                Partneregister.setFieldValue("address", e.target.value)
+              }
+            />
+          </div>   
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Country{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Country"
+              name="country"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.country}
+              onChange={(e) =>
+                Partneregister.setFieldValue("country", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                City{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="City"
+              name="city"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.city}
+              onChange={(e) =>
+                Partneregister.setFieldValue("city", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Zip Code{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Zip Code"
+              name="zipCode"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.zipCode}
+              onChange={(e) =>
+                Partneregister.setFieldValue("zipCode", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Language{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Language"
+              name="language"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.language}
+              onChange={(e) =>
+                Partneregister.setFieldValue("language", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Tax Number{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Tax Number"
+              name="taxNumber"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.taxNumber}
+              onChange={(e) =>
+                Partneregister.setFieldValue("taxNumber", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Phone{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Phone"
+              name="phone"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.phone}
+              onChange={(e) =>
+                Partneregister.setFieldValue("phone", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="">
+                {" "}
+                Username{" "}
+              </label>
+            </div>
+            <InputText
+              placeholder="Username"
+              name="username"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.username}
+              onChange={(e) =>
+                Partneregister.setFieldValue("username", e.target.value)
+              }
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className=" primary" htmlFor="Email">
+                Email
+              </label>
+            </div>
+
+            <InputText
+              placeholder="Email"
+              name="email"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.email}
+              onChange={(e) => Partneregister.setFieldValue("email", e.target.value)}
+            />
+          </div>
+          <div className="col ml-3">
+            <div>
+              <label className="mb-2 primary" htmlFor="Password">
+                Password
+              </label>
+            </div>
+
+            <InputText
+              placeholder="Password"
+              name="password"
+              type="password"
+              className="mt-2 w-24rem	"
+              value={Partneregister?.values?.password}
+              onChange={(e) =>
+                Partneregister.setFieldValue("password", e.target.value)
+              }
+            />
+          </div>
+        </div>
+        <div className="flex justify-content-center">
+          <Button
+            rounded
+            label="Create Account"
+            className="pr_btn w-11 mt-3 "
+            onClick={() => Partneregister.handleSubmit()}
+          />
+        </div>
+        <div className="line-container">
+          <hr className="line" />
+          <span className="line-text">Already a member?</span>
+        </div>
+        <span className="flex justify-content-center primary">
+          <a
+            className="mr-1 font-bold"
+            onClick={() => {
+              setshowsignPartner(false);
               setshow(true);
             }}
           >
