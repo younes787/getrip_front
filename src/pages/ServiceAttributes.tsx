@@ -4,7 +4,7 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddAttributeToSt, AddFeilds, GetFeilds, Getattributesbysid, UpdateAttributeToSt, UpdateFeilds} from "../Services";
+import { AddAttributeToSt, AddFeilds, GetFeilds, GetFeildsbysid, Getattributesbysid, UpdateAttributeToSt, UpdateFeilds} from "../Services";
 import { useFormik } from "formik";
 import { ServiceAttributeDTO } from "../modules/getrip.modules";
 import { useParams } from "react-router-dom";
@@ -19,7 +19,7 @@ const ServiceAttributes = (props:Props) => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   useEffect(() => {
-    GetFeilds().then((res) => setAttributes(res.data));
+    GetFeildsbysid(props.id).then((res) => setAttributes(res.data));
   }, []);
   const Attributeform = useFormik<ServiceAttributeDTO>({
     initialValues: new ServiceAttributeDTO(),

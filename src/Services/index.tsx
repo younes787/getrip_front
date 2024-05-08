@@ -329,7 +329,7 @@ export const Getattributesbyvid = async (vid: number) => {
 export const AddFeilds = async (FeildsData: any) => {
   try {
     const response = await api.post("/addservicetypefield", FeildsData);
-    return handleResponse(response , '');
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -337,7 +337,7 @@ export const AddFeilds = async (FeildsData: any) => {
 export const UpdateFeilds = async (FeildsData: any) => {
   try {
     const response = await api.put("/updateservicetypefield", FeildsData);
-    return handleResponse(response , '');
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }
@@ -345,6 +345,14 @@ export const UpdateFeilds = async (FeildsData: any) => {
 export const GetFeilds = async () => {
   try {
     const response = await api.get("/getallservicetypefield");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetFeildsbysid = async (sid: number) => {
+  try {
+    const response = await api.get(`/getfieldsbyservicetypeid/${sid}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
