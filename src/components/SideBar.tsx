@@ -31,13 +31,13 @@ const SideBar = () => {
           ></i>{" "}
           Manage Services{" "}
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => navigate("/currency")}>
           {" "}
           <i
             className="pi pi-wallet mr-4"
             style={{ fontSize: "1.3rem" }}
           ></i>{" "}
-          Manage Payments{" "}
+          Manage Currency{" "}
         </MenuItem>
         <SubMenu
           label={

@@ -113,3 +113,11 @@ export class ResidenceTypeDTO{
   id?: number = 0;
   name: string = '';
 }
+
+export class CurrencyDTO{
+  id?: number = 0;
+  name: string = '';
+  price: number = 0;
+  apiUrl?:string='';
+  apiKey?:string='';
+}

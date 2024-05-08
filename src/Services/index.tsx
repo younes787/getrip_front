@@ -498,5 +498,32 @@ export const GetResidenceType = async () => {
     handleError(error);
   }
 };
+// Currency
+export const AddCurrency = async (CurrencyData: any) => {
+  try {
+    const response = await api.post(`/createcurrency` , CurrencyData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetCurrency = async () => {
+  try {
+    const response = await api.get(`/getcurrencies`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};  
+
+export const UpdateCurrency = async (CurrencyData:any) => {
+  try {
+    const response = await api.put(`/updatecurrency`,CurrencyData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export default api;

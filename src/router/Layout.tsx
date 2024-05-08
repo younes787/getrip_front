@@ -22,6 +22,7 @@ import Activites from "../pages/Activites";
 import ServiceAttributes from "../pages/ServiceAttributes";
 import ResidenceType from "../pages/Residence";
 import Residence from "../pages/Residencemain";
+import Payment from "../pages/Payment";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -58,6 +59,7 @@ const Layout = () => {
           <Route path="/makers" element={<Maker />} />
           <Route path="/residence-type" element={<ResidenceType />} />
           <Route path="/residence" element={<Residence />} />
+          <Route path="/currency" element={<Payment />} />
         </Route>
         <Route path="/" element={<Home />}></Route>
         </>
