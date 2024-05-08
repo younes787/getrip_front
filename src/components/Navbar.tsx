@@ -104,6 +104,7 @@ const NavBar = () => {
         {
           label: "My Profile",
           icon: "pi pi-user",
+          command: ()=> navigate('/profile'),
         },
         {
           label: "Dashboard",

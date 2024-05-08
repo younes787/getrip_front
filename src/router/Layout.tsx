@@ -23,6 +23,7 @@ import ServiceAttributes from "../pages/ServiceAttributes";
 import ResidenceType from "../pages/Residence";
 import Residence from "../pages/Residencemain";
 import Payment from "../pages/Payment";
+import Profile from "../pages/Profile";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -62,6 +63,7 @@ const Layout = () => {
           <Route path="/currency" element={<Payment />} />
         </Route>
         <Route path="/" element={<Home />}></Route>
+        <Route path="/profile" element={<Profile />} />
         </>
         ) : (
           <>
