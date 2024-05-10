@@ -29,7 +29,8 @@ const NavBar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const User = JSON.parse(localStorage?.getItem('user') as any) 
+  const role = User?.data?.role
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
@@ -127,29 +128,30 @@ console.log(e)
           icon: "pi pi-user",
           command: ()=> navigate('/profile'),
         },
-        {
+      {
           label: "Dashboard",
           icon: "pi pi-chart-bar",
           command: ()=> navigate('/dashboard'),
+          condition :  role === 'Administrator'
         },
         {
           label: "Log Out",
           icon: "pi pi-sign-out",
           command: () => logout(),
         },
-      ],
+      ].filter((c)=> c.condition === undefined ? true : c.condition),
     },
   ];
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
-      {user ? <></> :<Button
+      {user?.isSuccess === true ? <></> :<Button
         rounded
         label="Become A Partner"
         outlined
         className="outline_btn"
         onClick={() => setshowsignPartner(true)}
       />}
-      {user ? (
+      {user?.isSuccess === true ? (
         <>
           <i
             className="pi pi-bold pi-bell mx-2 "

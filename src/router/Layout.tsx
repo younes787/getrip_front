@@ -18,8 +18,6 @@ import Provinces from "../pages/provinces";
 import Places from "../pages/Places";
 import Vehicle from "../pages/Vehicle";
 import Maker from "../pages/Maker";
-import Activites from "../pages/Activites";
-import ServiceAttributes from "../pages/ServiceAttributes";
 import ResidenceType from "../pages/Residence";
 import Residence from "../pages/Residencemain";
 import Payment from "../pages/Payment";
@@ -27,7 +25,8 @@ import Profile from "../pages/Profile";
 
 const Layout = () => {
   const { user } = useAuth();
-
+  const User = JSON.parse(localStorage?.getItem('user') as any) 
+  const role = User?.data?.role
   return (
     <div>
       <NavBar />
@@ -48,7 +47,7 @@ const Layout = () => {
       <Routes>
         {user  ? (
           <>
-          <Route element={<LayoutWithSidebar />}>
+        { role === 'Administrator' ? <Route element={<LayoutWithSidebar />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/services-type" element={<Services />} />
@@ -61,7 +60,7 @@ const Layout = () => {
           <Route path="/residence-type" element={<ResidenceType />} />
           <Route path="/residence" element={<Residence />} />
           <Route path="/currency" element={<Payment />} />
-        </Route>
+        </Route> :<></>}
         <Route path="/" element={<Home />}></Route>
         <Route path="/profile" element={<Profile />} />
         </>
