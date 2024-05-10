@@ -30,6 +30,7 @@ const NavBar = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
 
+
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
     validateOnChange: true,
@@ -45,11 +46,18 @@ const NavBar = () => {
     initialValues: new LoginDTO(),
     validateOnChange: true,
     onSubmit: async () => {
-      setLoading(true)
-      setshow(false)
-      await login(loginform.values).then((res:any)=> setLoading(false)).catch((error:any) => {
-        setLoading(false);
-      });
+      try{
+        setLoading(true)
+        setshow(false)
+        await login(loginform.values).then((res:any)=> {
+          setLoading(false)
+        }).catch((error:any) => {
+          setLoading(false);
+        });
+      }
+     catch(e){
+console.log(e)
+     }
     },
   });
   const Partneregister = useFormik<RegisterDTO>({
@@ -87,6 +95,7 @@ const NavBar = () => {
       <span className="mx-2">{item.label}</span>
     </a>
   );
+  console.log(user)
   const items = [
     {
       label: "Air Flights",

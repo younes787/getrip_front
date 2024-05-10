@@ -13,7 +13,7 @@ import { authLogin } from "../Services";
   };
   
   type AuthContextType = {
-    user: User | null;
+    user: User | any;
     login: (userData: User) => any;
     logout: () => void;
   };
@@ -23,25 +23,30 @@ import { authLogin } from "../Services";
   const AuthContext = createContext<AuthContextType | undefined>(undefined);
   
   export const AuthProvider: any = ({ children }: AuthProviderProps) => {
-    const [user, setUser] = useState<User | null>(() => {
+    const [user, setUser] = useState<any>(() => {
       const storedUser = localStorage.getItem("user");
       return storedUser ? JSON.parse(storedUser) : null;
     });
     const login = async (userData: User) => {
       try {
         const response = await authLogin(userData);
-        console.log(response)
         const accessToken = response.data.token;
         localStorage.setItem("token", accessToken);
         localStorage.setItem("user", JSON.stringify(response));
-        setUser(localStorage.getItem("user") as any);
+        setUser(JSON.parse(localStorage.getItem("user") as any).isSuccess);
+        if (response.data.role === 'Administrator') {
+          window.location.href = "/dashboard";
+        } else if (response.data.role === 'Client' || response.data.role === 'Service Provider') {
+          window.location.href = "/profile";
+        } else {
+          
+        }
       } catch (e) {
         console.log(e);
-      } finally {
-        //  window.location.href = "/dashboard";
+        window.location.href = "/";
       }
     };
-  
+    console.log( user?.data?.role === 'Administrator' )
     const logout = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");

@@ -20,6 +20,7 @@ export class RegisterDTO {
   zipCode:string ='';
   taxNumber:string ='';
   phone:string ='';
+  authorized: boolean = true;
 }
 
 export class UsersDTO {
