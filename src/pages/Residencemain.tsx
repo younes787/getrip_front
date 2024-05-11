@@ -7,15 +7,20 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import {
+  AddImageToResidence,
   AddResidence,
   GetAllPlaces,
   GetResidence,
   GetResidenceType,
+  GetimagesByResidanceid,
   UpdateResidence,
 } from "../Services";
-import { ResidenceDTO } from "../modules/getrip.modules";
+import { ImageDTO, ResidenceDTO } from "../modules/getrip.modules";
 import { useFormik } from "formik";
 import { FilterMatchMode } from "primereact/api";
+import { Image } from "primereact/image";
+import { FileUpload } from "primereact/fileupload";
+
 
 const Residence = () => {
   const [residence, setresidence] = useState();
@@ -25,6 +30,8 @@ const Residence = () => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
+  const [residenceimage, setresidenceimage] = useState<any>();
+  const [file, setFile] = useState<any>();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -45,7 +52,16 @@ const Residence = () => {
       setShow(false);
     },
   });
-
+  const ImagePlaceform = useFormik<ImageDTO>({
+    initialValues: new ImageDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("ObjectId", JSON.stringify(currentPlaceId));
+      AddImageToResidence(formData);
+    },
+  });
   const ResidenceformEdit = useFormik<ResidenceDTO>({
     initialValues: new ResidenceDTO(),
     validateOnChange: true,
@@ -79,6 +95,8 @@ const Residence = () => {
       residenceTypeId: rowData.residenceTypeId,
     });
     setCurrentPlaceId(rowData.id);
+    GetimagesByResidanceid(rowData.id).then((res)=>setresidenceimage(res?.data))
+
   };
   const BodyTemplate = (rowData: any) => {
     return (
@@ -95,6 +113,31 @@ const Residence = () => {
         ></i>
       </div>
     );
+  };
+  const chooseOptions = {
+    icon: "pi pi-fw pi-images",
+    iconOnly: true,
+    className: "custom-choose-btn p-button-rounded p-button-outlined",
+  };
+  const uploadOptions = {
+    icon: "pi pi-fw pi-cloud-upload",
+    iconOnly: true,
+    className:
+      "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
+  };
+  const cancelOptions = {
+    icon: "pi pi-fw pi-times",
+    iconOnly: true,
+    className:
+      "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
+  };
+  const imageBodyTemplate = (row: any) => {
+    return (
+      <Image src={Array.isArray( row?.photos)? row?.photos[0]?.imagePath : ''} width="80" height="40" preview />
+    );
+  };
+  const handleOnChange = (e: any) => {
+    setFile(e.files?.[0]);
   };
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
@@ -150,6 +193,7 @@ const Residence = () => {
             rowHover
             sortMode="multiple"
           >
+            <Column sortable body={imageBodyTemplate} header="photos"></Column>
             <Column field="name" filter sortable header="Residence Name"></Column>
             <Column field="description" filter sortable header="Description"></Column>
             <Column
@@ -367,6 +411,37 @@ const Residence = () => {
                     ResidenceformEdit.setFieldValue("residenceTypeId", e.value)
                   }
                 />
+              </div>
+            </div>
+            <div className="mt-4 grid gap-4">
+              <div className="col-8">
+                <FileUpload
+                  name="imagePath"
+                  multiple
+                  accept="image/*"
+                  onSelect={handleOnChange}
+                  maxFileSize={1000000}
+                  emptyTemplate={
+                    <p className="m-0">
+                      Drag and drop files to here to upload.
+                    </p>
+                  }
+                  chooseOptions={chooseOptions}
+                  uploadOptions={uploadOptions}
+                  cancelOptions={cancelOptions}
+                  customUpload
+                  uploadHandler={() => ImagePlaceform.handleSubmit()}
+                />
+              </div>
+              <div className="mt-3">
+                {residenceimage?.map((p: any) => (
+                  <Image
+                    src={Array.isArray(p?.photos) ? p?.photos[0]?.imagePath : ''}
+                    width="300"
+                    height="200"
+                    preview
+                  />
+                ))}{" "}
               </div>
             </div>
           </Dialog>

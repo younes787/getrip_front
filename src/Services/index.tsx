@@ -469,9 +469,25 @@ export const AddImageToVihcles = async (imageData:any) => {
     handleError(error);
   }
 };
+export const AddImageToResidence = async (imageData:any) => {
+  try {
+    const response = await apiForm.post(`/addimagetoresidence`, imageData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 export const GetimagesByPlaceid = async (pid:any) => {
   try {
     const response = await apiForm.get(`/getimagesbyplaceid/${pid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetimagesByResidanceid = async (pid:any) => {
+  try {
+    const response = await apiForm.get(`/getimagesbyresidenceid/${pid}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
