@@ -80,6 +80,12 @@ export class VehicleDTO {
   makerId?: number = 0;
 }
 
+export class VehicleTypeDTO {
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+}
+
 export class MakerDTO{
   id?: number = 0;
   name: string = '';

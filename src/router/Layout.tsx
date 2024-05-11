@@ -22,6 +22,7 @@ import ResidenceType from "../pages/Residence";
 import Residence from "../pages/Residencemain";
 import Payment from "../pages/Payment";
 import Profile from "../pages/Profile";
+import VehicleType from "../pages/VehicleType";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -56,6 +57,7 @@ const Layout = () => {
           <Route path="/provinces" element={<Provinces />} />
           <Route path="/places" element={<Places />} />
           <Route path="/vehicle" element={<Vehicle />} />
+          <Route path="/vehicle-type" element={<VehicleType />} />
           <Route path="/makers" element={<Maker />} />
           <Route path="/residence-type" element={<ResidenceType />} />
           <Route path="/residence" element={<Residence />} />

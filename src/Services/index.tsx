@@ -367,6 +367,14 @@ export const AddVehicle = async (VehicleData: any) => {
     handleError(error);
   }
 };
+export const AddVehicleType = async (VehicleData: any) => {
+  try {
+    const response = await api.post("/addvehicletype", VehicleData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
 export const UpdateVehicle = async (VehicleData: any) => {
   try {
     const response = await api.put("/updatevehicle", VehicleData);
@@ -375,7 +383,14 @@ export const UpdateVehicle = async (VehicleData: any) => {
     handleError(error);
   }
 };
-
+export const UpdateVehicleType = async (VehicleData: any) => {
+  try {
+    const response = await api.put("/updatevehicletype", VehicleData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
 export const GetVehiclesbyid = async (mid: number) => {
   try {
     const response = await api.get(`/getvehiclebymid/${mid}`);
@@ -393,7 +408,14 @@ export const GetAllVehicles = async () => {
     handleError(error);
   }
 };
-
+export const GetAllVehiclesTypes = async () => {
+  try {
+    const response = await api.get(`/getallvehicletypes`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Maker
 export const AddMaker = async (MakerData: any) => {
   try {

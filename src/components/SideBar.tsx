@@ -129,6 +129,14 @@ const SideBar = () => {
             </div>
           }
         >
+          <MenuItem onClick={() => navigate("/vehicle-type")}>
+            {" "}
+            <i
+              className="pi pi-car mr-4"
+              style={{ fontSize: "1.3rem" }}
+            ></i>{" "}
+            Vichels Type{" "}
+          </MenuItem>
           <MenuItem onClick={() => navigate("/vehicle")}>
             {" "}
             <i
