@@ -10,6 +10,7 @@ import {
   AddPlace,
   GetAllCities,
   GetAllPlaces,
+  GetimagesByPlaceid,
   UpdatePlace,
 } from "../Services";
 import { useFormik } from "formik";
@@ -30,6 +31,7 @@ const Places = () => {
   const [cities, setCities] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
+  const [ placeImage, setPlaceImage] = useState<any>();
   const [file, setFile] = useState<any>();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
@@ -98,6 +100,7 @@ const Places = () => {
       googleMapsUrl: rowData.googleMapsUrl,
     });
     setCurrentPlaceId(rowData.id);
+    GetimagesByPlaceid(rowData?.id).then((res)=>setPlaceImage(res?.data)) 
   };
   const imageBodyTemplate = (row: any) => {
     return (
@@ -525,9 +528,9 @@ const Places = () => {
                 />
               </div>
               <div className="mt-3">
-                {places?.map((p: any) => (
+                {placeImage?.map((p: any) => (
                   <Image
-                    src={p.photos[0]?.imagePath}
+                    src={p.imagePath}
                     width="300"
                     height="200"
                     preview

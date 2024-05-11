@@ -447,6 +447,14 @@ export const AddImageToVihcles = async (imageData:any) => {
     handleError(error);
   }
 };
+export const GetimagesByPlaceid = async (pid:any) => {
+  try {
+    const response = await apiForm.get(`/getimagesbyplaceid/${pid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Residence
 export const AddResidence = async (residenceData:any) => {
   try {
