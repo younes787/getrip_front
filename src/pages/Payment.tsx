@@ -216,6 +216,7 @@ const Payment = () => {
                 onChange={(e) =>
                   Currencyform.setFieldValue("price", e.value)
                 }
+                mode="decimal" minFractionDigits={2} maxFractionDigits={5}
               />
             </div>
           </div>
@@ -306,6 +307,7 @@ const Payment = () => {
                 onChange={(e) =>
                     CurrencyformEdit.setFieldValue("price", e.value)
                 }
+                mode="decimal" minFractionDigits={2} maxFractionDigits={5}
               />
             </div>
           </div>
