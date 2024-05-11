@@ -78,6 +78,7 @@ export class VehicleDTO {
   isVip: boolean = false; 
   passengersCount: number = 0;
   makerId?: number = 0;
+  vehicleTypeId: number =0;
 }
 
 export class VehicleTypeDTO {

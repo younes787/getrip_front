@@ -5,7 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddImageToVihcles, AddVehicle, GetAllMakers, GetAllVehicles, UpdateVehicle } from "../Services";
+import { AddImageToVihcles, AddVehicle, GetAllMakers, GetAllVehicles, GetAllVehiclesTypes, UpdateVehicle } from "../Services";
 import { useFormik } from "formik";
 import { ImageDTO, VehicleDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
@@ -20,6 +20,7 @@ const Vehicle = () => {
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [makers, setMakers] = useState<any>();
+  const [vehicleType, setVehicleType] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [currentVehicleId, setCurrentVehicleId] = useState<number>(0);
   const [file, setFile] = useState<any>();
@@ -47,6 +48,7 @@ const Vehicle = () => {
       setLoading(false);
     });
     GetAllMakers().then((res) => setMakers(res.data));
+    GetAllVehiclesTypes().then((res)=>setVehicleType(res?.data))
   }, []);
   const Vehicleform = useFormik<VehicleDTO>({
     initialValues: new VehicleDTO(),
@@ -99,6 +101,7 @@ const Vehicle = () => {
       model: rowData.model,
       isVip: rowData.isVip,
       passengersCount: rowData.passengersCount,
+      vehicleTypeId: rowData.vehicleTypeId
     });
     setCurrentVehicleId(rowData.id);
   };
@@ -228,6 +231,22 @@ const Vehicle = () => {
           }
         >
           <div className="grid mt-3">
+          <div className="md:col-6 lg:col-6">
+              <label className="mb-2" htmlFor="Status">
+                {" "}
+                vehicle type{" "}
+              </label>
+              <Dropdown
+                placeholder="Select a vehicle type"
+                options={vehicleType}
+                optionLabel="name"
+                optionValue="id"
+                name="vehicleTypeId"
+                className="w-full"
+                value={Vehicleform?.values?.vehicleTypeId}
+                onChange={(e) => Vehicleform.setFieldValue("vehicleTypeId", e.value)}
+              />
+            </div>
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
@@ -244,7 +263,9 @@ const Vehicle = () => {
                 onChange={(e) => Vehicleform.setFieldValue("makerId", e.value)}
               />
             </div>
-            <div className="md:col-5 lg:col-5">
+          </div>
+          <div className="grid mt-3">
+          <div className="md:col-5 lg:col-5">
               <div>
                 <label className="mb-2" htmlFor="">
                   {" "}
@@ -257,10 +278,9 @@ const Vehicle = () => {
                 onChange={(e) =>
                   Vehicleform.setFieldValue("model", e.target.value)
                 }
+                className="ml-0"
               />
             </div>
-          </div>
-          <div className="grid mt-3">
             <div className="md:col-6 lg:col-6">
               <div>
                 <label className="mb-2" htmlFor="Status">
@@ -322,6 +342,22 @@ const Vehicle = () => {
           }
         >
           <div className="grid mt-3">
+          <div className="md:col-6 lg:col-6">
+              <label className="mb-2" htmlFor="Status">
+                {" "}
+                vehicle type{" "}
+              </label>
+              <Dropdown
+                placeholder="Select a vehicle type"
+                options={vehicleType}
+                optionLabel="name"
+                optionValue="id"
+                name="vehicleTypeId"
+                className="w-full"
+                value={VehicleformEdit?.values?.vehicleTypeId}
+                onChange={(e) => VehicleformEdit.setFieldValue("vehicleTypeId", e.value)}
+              />
+            </div>
             <div className="md:col-6 lg:col-6">
               <label className="mb-2" htmlFor="Status">
                 {" "}
@@ -338,7 +374,9 @@ const Vehicle = () => {
                 onChange={(e) => VehicleformEdit.setFieldValue("makerId", e.value)}
               />
             </div>
-            <div className="md:col-5 lg:col-5">
+          </div>
+          <div className="grid mt-3">
+          <div className="md:col-5 lg:col-5">
               <div>
                 <label className="mb-2" htmlFor="">
                   {" "}
@@ -353,8 +391,6 @@ const Vehicle = () => {
                 }
               />
             </div>
-          </div>
-          <div className="grid mt-3">
             <div className="md:col-6 lg:col-6">
               <div>
                 <label className="mb-2" htmlFor="Status">
