@@ -41,7 +41,7 @@ const Profile = ()=>{
                 <TabPanel
                   header={
                     <div>
-                     Payments
+                     My Services
                     </div>
                   }
                 >
@@ -50,10 +50,11 @@ const Profile = ()=>{
                 <TabPanel
                   header={
                     <div>
-                      Add Service Type
+                      Add Services
                     </div>
                   }
                 > 
+                
                 </TabPanel>
                 <TabPanel
                   header={

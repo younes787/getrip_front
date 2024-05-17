@@ -131,6 +131,15 @@ export const GetAllCountries = async () => {
     handleError(error);
   }
 };
+
+export const GetProvincebyCid = async (cid:number) => {
+  try {
+    const response = await api.get(`/getprovincesbycid/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Cites
 export const AddCity = async (CityData: any) => {
   try {

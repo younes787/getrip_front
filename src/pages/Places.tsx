@@ -291,6 +291,7 @@ const Places = () => {
                   optionValue="id"
                   name="cityId"
                   className="w-full"
+                  filter
                   value={Placeform?.values?.cityId}
                   onChange={(e) => Placeform.setFieldValue("cityId", e.value)}
                 />
@@ -419,6 +420,7 @@ const Places = () => {
                   optionLabel="name"
                   optionValue="id"
                   name="cityId"
+                  filter
                   className="w-full"
                   value={PlaceformEdit?.values?.cityId}
                   onChange={(e) =>

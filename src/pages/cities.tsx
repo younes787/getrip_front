@@ -5,7 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddCity, GetAllCities, GetAllProvinces, GetCitiesbyid, UpdateCity } from "../Services";
+import { AddCity, GetAllCities, GetAllCountries, GetAllProvinces, GetCitiesbyid, GetProvincebyCid, UpdateCity } from "../Services";
 import { useFormik } from "formik";
 import { CitiesDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
@@ -16,7 +16,10 @@ const Cites = () => {
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [provinces , setProvinces] = useState<any>()
+  const [provincesEdit , setProvincesEdit] = useState<any>()
   const [loading, setLoading] = useState<boolean>(false);
+  const [countries, setCountries] = useState<any>();
+  const [countreyValue, setcountreyValue] = useState<any>();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -36,7 +39,9 @@ const Cites = () => {
     }).catch((error) => {
       setLoading(false);
     });
-    GetAllProvinces().then((res) => setProvinces(res.data));
+    GetAllCountries().then((res) => setCountries(res.data));
+    GetAllProvinces().then((res) => setProvincesEdit(res.data));
+
   }, []);
   const Cityform = useFormik<CitiesDTO>({
     initialValues: new CitiesDTO(),
@@ -55,6 +60,7 @@ const Cites = () => {
       setShowEdit(false);
     },
   });
+  console.log(countreyValue)
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     CityformEdit.setValues({
@@ -105,6 +111,10 @@ const Cites = () => {
     );
   };
   const header = renderHeader();
+  const handleChange = (e:any) =>{
+    setcountreyValue(e.value)
+    GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
+  }
   return (
     <div>
    {loading ? <LoadingComponent/> : <div>
@@ -168,6 +178,24 @@ const Cites = () => {
         <div className="md:col-6 lg:col-6">
         <label className="mb-2" htmlFor="Status">
               {" "}
+              Country Name{" "}
+            </label>
+        <Dropdown
+            placeholder="Select a Country"
+            options={countries as any}
+            optionLabel="name"
+            optionValue="id"
+            name="provinceId"
+            filter
+            className="w-full"
+            value={countreyValue}
+            onChange={(e) => handleChange(e)
+            }
+          />
+        </div>
+        <div className="md:col-6 lg:col-6">
+        <label className="mb-2" htmlFor="Status">
+              {" "}
               Province Name{" "}
             </label>
         <Dropdown
@@ -177,6 +205,7 @@ const Cites = () => {
             optionValue="id"
             name="provinceId"
             className="w-full"
+            filter
             value={Cityform?.values?.provinceId}
             onChange={(e) => Cityform.setFieldValue("provinceId", e.target.value)
             }
@@ -248,11 +277,12 @@ const Cites = () => {
             </label>
           <Dropdown
             placeholder="Select a Province"
-            options={provinces as any}
+            options={provincesEdit as any}
             optionLabel="name"
             optionValue="id"
             name="provinceId"
             className="w-full"
+            filter
             value={CityformEdit?.values?.provinceId}
             onChange={(e) =>     CityformEdit.setFieldValue("provinceId", e.target.value)
           }
