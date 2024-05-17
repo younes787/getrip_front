@@ -278,6 +278,7 @@ const Residence = () => {
                   optionLabel="name"
                   optionValue="id"
                   name="placeId"
+                  filter
                   className="w-full"
                   value={Residenceform?.values?.placeId}
                   onChange={(e) =>
@@ -299,6 +300,7 @@ const Residence = () => {
                   optionValue="id"
                   name="residenceTypeId"
                   className="w-full"
+                  filter
                   value={Residenceform?.values?.residenceTypeId}
                   onChange={(e) =>
                     Residenceform.setFieldValue("residenceTypeId", e.value)
@@ -385,6 +387,7 @@ const Residence = () => {
                   optionLabel="name"
                   optionValue="id"
                   name="placeId"
+                  filter
                   className="w-full"
                   value={ResidenceformEdit?.values?.placeId}
                   onChange={(e) =>
@@ -405,6 +408,7 @@ const Residence = () => {
                   optionLabel="name"
                   optionValue="id"
                   name="residenceTypeId"
+                  filter
                   className="w-full"
                   value={ResidenceformEdit?.values?.residenceTypeId}
                   onChange={(e) =>

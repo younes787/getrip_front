@@ -305,6 +305,7 @@ const Users = () => {
             optionLabel="label"
             optionValue="value"
             name="role"
+            filter
             className="w-full"
             value={Usersform?.values?.role}
             onChange={(e) => Usersform.setFieldValue("role", e.target.value)}
@@ -443,6 +444,7 @@ const Users = () => {
             optionLabel="label"
             optionValue="value"
             name="role"
+            filter
             className="w-full"
             value={UsersformEdit?.values?.role}
             onChange={(e) =>

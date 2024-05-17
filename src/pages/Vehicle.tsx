@@ -242,6 +242,7 @@ const Vehicle = () => {
                 optionLabel="name"
                 optionValue="id"
                 name="vehicleTypeId"
+                filter
                 className="w-full"
                 value={Vehicleform?.values?.vehicleTypeId}
                 onChange={(e) => Vehicleform.setFieldValue("vehicleTypeId", e.value)}
@@ -258,6 +259,7 @@ const Vehicle = () => {
                 optionLabel="name"
                 optionValue="id"
                 name="makerId"
+                filter
                 className="w-full"
                 value={Vehicleform?.values?.makerId}
                 onChange={(e) => Vehicleform.setFieldValue("makerId", e.value)}
@@ -354,6 +356,7 @@ const Vehicle = () => {
                 optionValue="id"
                 name="vehicleTypeId"
                 className="w-full"
+                filter
                 value={VehicleformEdit?.values?.vehicleTypeId}
                 onChange={(e) => VehicleformEdit.setFieldValue("vehicleTypeId", e.value)}
               />
@@ -369,6 +372,7 @@ const Vehicle = () => {
                 optionLabel="name"
                 optionValue="id"
                 name="makerId"
+                filter
                 className="w-full"
                 value={VehicleformEdit?.values?.makerId}
                 onChange={(e) => VehicleformEdit.setFieldValue("makerId", e.value)}

@@ -181,6 +181,7 @@ const Provinces = () => {
                 optionLabel="name"
                 optionValue="id"
                 name="countryId"
+                filter
                 className="w-full"
                 value={Provincesform?.values?.countryId}
                 onChange={(e) =>
