@@ -409,6 +409,15 @@ export const GetVehiclesbyid = async (mid: number) => {
   }
 };
 
+export const GetVehiclesbytid = async (tid: number) => {
+  try {
+    const response = await api.get(`/getvehiclebytypeid/${tid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const GetAllVehicles = async () => {
   try {
     const response = await api.get(`/getallvehicles`);
@@ -553,6 +562,14 @@ export const GetResidenceType = async () => {
     handleError(error);
   }
 };
+export const GetResidencebyType = async (tid:number) => {
+  try {
+    const response = await api.get(`/getresidencebytypeid/${tid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 // Currency
 export const AddCurrency = async (CurrencyData: any) => {
   try {
@@ -580,5 +597,6 @@ export const UpdateCurrency = async (CurrencyData:any) => {
     handleError(error);
   }
 };
+
 
 export default api;

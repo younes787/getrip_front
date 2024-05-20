@@ -2,6 +2,9 @@ import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { TabPanel, TabView } from "primereact/tabview";
 import AvatarImage from "../Assets/Ellipse.png";
+import { Fragment, useState } from "react";
+import StepWizard from "react-step-wizard";
+import Wizard from "../components/Wizard";
 
 
 
@@ -9,6 +12,7 @@ const Profile = ()=>{
  const User = JSON.parse(localStorage?.getItem('user') as any) 
  const name = User?.data?.name + ' ' + User?.data?.lastname
  const email = User?.data?.email
+
     return(
         <>
          <div id="imageContainer1">
@@ -54,7 +58,7 @@ const Profile = ()=>{
                     </div>
                   }
                 > 
-                
+             <Wizard/>     
                 </TabPanel>
                 <TabPanel
                   header={
