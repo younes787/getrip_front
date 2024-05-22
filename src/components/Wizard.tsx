@@ -6,9 +6,10 @@ import {
   GetAllCities,
   GetAllPlaces,
   GetAllService,
+  GetAllYachts,
   GetFeildsbysid,
   GetPlacesbyid,
-  GetResidencebyType,
+  GetResidencebyCottages,
   GetVehiclesbytid,
 } from "../Services";
 import { Dropdown } from "primereact/dropdown";
@@ -63,7 +64,7 @@ const Wizard = () => {
   const handleChange = (e: any) => {
     setServiceValue(e.target.value);
     GetFeildsbysid(e.target.value.id).then((res) => setFeildsType(res.data));
-    GetVehiclesbytid(e.target.value.id).then((res) => setVehicle(res.data));
+    GetAllYachts().then((res) => setVehicle(res.data));
   };
 
   const handleCityChange = (e: any) => {
@@ -72,7 +73,7 @@ const Wizard = () => {
   };
   const handlePlaceChange = (e: any) => {
     setPvalue(e.value);
-    GetResidencebyType(serviceValue?.id).then((res) => setResidence(res.data));
+    GetResidencebyCottages(e.value).then((res) => setResidence(res.data));
   };
   const Stats = ({
     currentStep,
@@ -86,28 +87,13 @@ const Wizard = () => {
   }: any) => (
     <div>
       <div className="flex">
-        <Button
-          className="btn btn-block btn-default"
-          size="small"
-          rounded
-          onClick={firstStep}
-        >
-          First Step
-        </Button>
-        <Button
-          className="btn btn-block btn-default mr-3 ml-3"
-          size="small"
-          rounded
-          onClick={lastStep}
-        >
-          Last Step
-        </Button>
         {step > 1 && (
           <Button
             className="btn btn-default btn-block mr-3"
             size="small"
             rounded
             onClick={previousStep}
+            severity="danger"
           >
             Go Back
           </Button>
@@ -156,6 +142,8 @@ const Wizard = () => {
   const First = (props: any) => {
     return (
       <div>
+        <div className="wizard-border">
+          <h2 className="primary"> First Step</h2>
         <div className="grid gap-4">
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
@@ -174,18 +162,12 @@ const Wizard = () => {
           </div>
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
-              Type
-            </label>
-            <InputText placeholder="Type" name="description" />
-          </div>
-        </div>
-        <div className="grid gap-4 mt-3 mb-3">
-          <div className="md:col-4 lg:col-4">
-            <label className="mb-2" htmlFor="Wallet">
               Title
             </label>
             <InputText placeholder="Title" name="description" />
           </div>
+        </div>
+        <div className="grid gap-4 mt-3 mb-3">
           <div className="md:col-4 lg:col-4">
             <label className="mb-2" htmlFor="Wallet">
               Description
@@ -193,6 +175,8 @@ const Wizard = () => {
             <InputText placeholder="Description" name="description" />
           </div>
         </div>
+        </div>
+       
         <Stats step={1} {...props} />
       </div>
     );
@@ -204,6 +188,8 @@ const Wizard = () => {
     };
     return (
       <div>
+          <div className="wizard-border">
+          <h2 className="primary"> Second Step</h2>
         {FeildsType?.map((f: any) => (
           <div className=" mb-3">
             <div>
@@ -213,6 +199,7 @@ const Wizard = () => {
             <InputText placeholder={f?.name} />
           </div>
         ))}
+        </div>
         <Stats step={2} {...props} previousStep={validate} />
       </div>
     );
@@ -225,6 +212,8 @@ const Wizard = () => {
 
     return (
       <div>
+          <div className="wizard-border">
+          <h2 className="primary"> Last Step</h2>
         <div className="grid gap-4 mb-2">
           <div className="md:col-5 lg:col-5">
             <div>
@@ -277,6 +266,7 @@ const Wizard = () => {
             </div>
           )}
         </div>
+        </div>
         <Stats step={5} {...props} nextStep={submit} />
       </div>
     );
@@ -285,6 +275,8 @@ const Wizard = () => {
   const Fourth = (props: any) => {
     return (
       <div>
+          <div className="wizard-border">
+          <h2 className="primary"> Third Step</h2>
         {serviceValue?.name === "Cottages" ? (
           <div>
             <div className="grid mt-3 gap-2">
@@ -383,7 +375,7 @@ const Wizard = () => {
               <Dropdown
                 placeholder="Select a Vehicle"
                 options={vehicle}
-                optionLabel="name"
+                optionLabel="vehicleTypeName"
                 optionValue="id"
                 name="cityId"
                 filter
@@ -420,6 +412,7 @@ const Wizard = () => {
         ) : (
           <></>
         )}
+        </div>
         <Stats step={3} {...props} />
       </div>
     );

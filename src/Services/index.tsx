@@ -562,9 +562,9 @@ export const GetResidenceType = async () => {
     handleError(error);
   }
 };
-export const GetResidencebyType = async (tid:number) => {
+export const GetResidencebyCottages = async (tid:number) => {
   try {
-    const response = await api.get(`/getresidencebytypeid/${tid}`);
+    const response = await api.get(`/getcottagesbyplaceid/${tid}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -597,6 +597,14 @@ export const UpdateCurrency = async (CurrencyData:any) => {
     handleError(error);
   }
 };
-
+ // yout
+ export const GetAllYachts = async () => {
+  try {
+    const response = await api.get(`/getallyachts`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export default api;
