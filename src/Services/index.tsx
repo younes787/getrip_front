@@ -346,7 +346,7 @@ export const AddFeilds = async (FeildsData: any) => {
 export const UpdateFeilds = async (FeildsData: any) => {
   try {
     const response = await api.put("/updateservicetypefield", FeildsData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }
@@ -362,6 +362,14 @@ export const GetFeilds = async () => {
 export const GetFeildsbysid = async (sid: number) => {
   try {
     const response = await api.get(`/getfieldsbyservicetypeid/${sid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const GetFeildType = async () => {
+  try {
+    const response = await api.get(`/getfieldtypes`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -602,6 +610,17 @@ export const UpdateCurrency = async (CurrencyData:any) => {
   try {
     const response = await api.get(`/getallyachts`);
     return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+//service
+
+export const AddService = async (ServiceData: any) => {
+  try {
+    const response = await api.post(`/addservice` , ServiceData);
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }

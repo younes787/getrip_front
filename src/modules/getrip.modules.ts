@@ -105,6 +105,7 @@ export class ServiceAttributeDTO{
   id?: number = 0;
   name: string = '';
   serviceTypeId?:number=0;
+  fieldTypeId?:number=0;
 }
 
 export type File = {
@@ -136,4 +137,69 @@ export class CurrencyDTO{
   price: number = 0;
   apiUrl?:string='';
   apiKey?:string='';
+}
+export class FildsDTO{
+  id?: number = 0;
+  value: string = '';
+  serviceTypeFieldId: number = 0;
+  serviceId: number = 0;
+}
+export class StepsDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  cityId: number = 0;
+  stepCount: number = 0;
+  placeId: number = 0;
+  serviceId: number = 0;
+  hasNewPlace: boolean = false;
+  newPLaceName: string ='';
+  arrivalTime?: any
+  departureTime?: any
+}
+export class stepsActivitiesDTO{
+  id?: number = 0;
+  newActivityName: string = '';
+  stepId: number = 0;
+  activityId: number = 0;
+  hasNewActivity : boolean = true;
+}
+export class placeNewActivitiesDTO{
+  pLaceId?: number = 0;
+  name: string = '';
+}
+export class TagsDTO{
+  id?: number = 0;
+  name: string = '';
+  serviceId: number = 0;
+}
+export class ServiceDTO{
+  id?: number = 0;
+  name: string = '';
+  description: string = '';
+  typeId?: any ;
+  cityId?: number = 0;
+  placeId?: number ;
+  accountId:number=0;
+  vehicleTypeId:number=0;
+  residenceTypeId?:number;
+  price:number=0;
+  currencyId:number=0;
+  isTrip:boolean= false;
+  placeHasNewActivities:boolean= false;
+  hasNewRentalPlace :boolean= false;
+  isRental:boolean= false;
+  isActive:boolean= false;
+  isArchived:boolean= false;
+  isApproved:boolean= false;
+  isYacht:boolean= false;
+  isCruise:boolean= false;
+  isVehicle:boolean= false;
+  isResidence:boolean= false;
+  rentalPlaceName:string= '';
+  fields?: FildsDTO;
+  steps?: StepsDTO;
+  stepsActivities?: stepsActivitiesDTO;
+  placeNewActivities?: placeNewActivitiesDTO;
+  tags?: TagsDTO;
 }

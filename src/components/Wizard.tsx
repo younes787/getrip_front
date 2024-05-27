@@ -3,10 +3,11 @@ import { InputText } from "primereact/inputtext";
 import { Fragment, useEffect, useState } from "react";
 import StepWizard from "react-step-wizard";
 import {
+  AddService,
   GetAllCities,
-  GetAllPlaces,
   GetAllService,
   GetAllYachts,
+  GetCurrency,
   GetFeildsbysid,
   GetPlacesbyid,
   GetResidencebyCottages,
@@ -17,27 +18,33 @@ import { Checkbox } from "primereact/checkbox";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
 import Residence from "../pages/Residencemain";
+import { InputSwitch } from "primereact/inputswitch";
+import { useFormik } from "formik";
+import { ServiceDTO } from "../modules/getrip.modules";
+import { InputNumber } from "primereact/inputnumber";
 
 const Wizard = () => {
   const [state, updateState] = useState<any>({
     form: {},
   });
   const [serviceType, setServiceType] = useState<any>();
-  const [serviceValue, setServiceValue] = useState<any>();
   const [FeildsType, setFeildsType] = useState<any>();
   const [cities, setCities] = useState<any>();
-  const [Cvalue, setCvalue] = useState<any>();
-  const [Rvalue, setRvalue] = useState<any>();
-  const [Vvalue, setVvalue] = useState<any>();
-  const [Pvalue, setPvalue] = useState<any>();
-  const [isDaily, setisDaily] = useState<any>();
-  const [isHourly, setisHourly] = useState<any>();
   const [places, setPlaces] = useState();
   const [residence, setResidence] = useState();
   const [vehicle, setVehicle] = useState();
   const [show, setshow] = useState<boolean>(false);
   const [showR, setshowR] = useState<boolean>(false);
+  const [currency, setCurrency] = useState();
 
+  const Serviceform = useFormik<ServiceDTO>({
+    initialValues: new ServiceDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      AddService(Serviceform.values);
+    },
+  });
+  
   const updateForm = (key: any, value: any) => {
     const { form } = state;
 
@@ -50,8 +57,9 @@ const Wizard = () => {
   useEffect(() => {
     GetAllService().then((res) => setServiceType(res?.data));
     GetAllCities().then((res) => setCities(res.data));
+    GetCurrency().then((res) => setCurrency(res.data));
+
   }, []);
-  console.log(serviceValue);
   const onStepChange = (stats: any) => {};
 
   const setInstance = (SW: any) =>
@@ -62,17 +70,17 @@ const Wizard = () => {
 
   const { SW, demo } = state;
   const handleChange = (e: any) => {
-    setServiceValue(e.target.value);
+    Serviceform.setFieldValue("typeId", e.target.value)
     GetFeildsbysid(e.target.value.id).then((res) => setFeildsType(res.data));
     GetAllYachts().then((res) => setVehicle(res.data));
   };
 
   const handleCityChange = (e: any) => {
-    setCvalue(e.value);
+    Serviceform.setFieldValue("cityId", e.value)
     GetPlacesbyid(e.value).then((res) => setPlaces(res.data));
   };
   const handlePlaceChange = (e: any) => {
-    setPvalue(e.value);
+    Serviceform.setFieldValue("placeId", e.value)
     GetResidencebyCottages(e.value).then((res) => setResidence(res.data));
   };
   const Stats = ({
@@ -156,15 +164,18 @@ const Wizard = () => {
               // optionValue="id"
               className="w-full"
               filter
-              value={serviceValue}
+              value={Serviceform.values.typeId}
               onChange={(e) => handleChange(e)}
             />
           </div>
-          <div className="md:col-4 lg:col-4">
+          <div className="md:col-4 lg:col-4 ml-3">
             <label className="mb-2" htmlFor="Wallet">
               Title
             </label>
-            <InputText placeholder="Title" name="description" />
+            <InputText placeholder="Title" name="name"
+             value={Serviceform.values.name}
+             onChange={(e)=>Serviceform.setFieldValue("name", e.target.value)}
+            />
           </div>
         </div>
         <div className="grid gap-4 mt-3 mb-3">
@@ -172,9 +183,38 @@ const Wizard = () => {
             <label className="mb-2" htmlFor="Wallet">
               Description
             </label>
-            <InputText placeholder="Description" name="description" />
+            <InputText placeholder="Description" name="description"
+             value={Serviceform.values.description}
+             onChange={(e)=>Serviceform.setFieldValue("description", e.target.value)}
+            />
+          </div>
+          <div className="md:col-4 lg:col-4 ml-3">
+            <label className="mb-2" htmlFor="Wallet">
+              Price
+            </label>
+            <InputNumber placeholder="Price" name="price"
+             value={Serviceform.values.price}
+             onChange={(e)=>Serviceform.setFieldValue("price", e.value)}
+            />
           </div>
         </div>
+        <div className="grid gap-4">
+        <div className="md:col-4 lg:col-4">
+            <label className="mb-2" htmlFor="Wallet">
+            Currency
+            </label>
+            <Dropdown
+              placeholder="Select a currency"
+              options={currency}
+              optionLabel="name"
+              optionValue="id"
+              className="w-full"
+              filter
+              value={Serviceform.values.currencyId}
+              onChange={(e) => Serviceform.setFieldValue("currencyId", e.value)}
+            />
+          </div>
+</div>
         </div>
        
         <Stats step={1} {...props} />
@@ -190,15 +230,23 @@ const Wizard = () => {
       <div>
           <div className="wizard-border">
           <h2 className="primary"> Second Step</h2>
+          <div className="flex gap-4">
         {FeildsType?.map((f: any) => (
           <div className=" mb-3">
             <div>
               {" "}
               <label> {f?.name}</label>
             </div>
-            <InputText placeholder={f?.name} />
+            {/* <InputSwitch checked={Serviceform.values.isActive} placeholder={f?.name} 
+            onChange={(e)=>Serviceform.setFieldValue('isActive' , e.value)}
+            /> */}
+            <InputText 
+            placeholder={f?.name} 
+            value={Serviceform.values.fields?.value}
+            onChange={(e)=>Serviceform.setFieldValue('fields.value' , e.target.value)} />
           </div>
         ))}
+        </div>
         </div>
         <Stats step={2} {...props} previousStep={validate} />
       </div>
@@ -207,216 +255,248 @@ const Wizard = () => {
 
   const Last = (props: any) => {
     const submit = () => {
-      alert("You did it! Yay!"); // eslint-disable-line
+      Serviceform.values.typeId =  Serviceform.values.typeId?.id
+      Serviceform.handleSubmit()
     };
 
     return (
       <div>
-          <div className="wizard-border">
-          <h2 className="primary"> Last Step</h2>
-        <div className="grid gap-4 mb-2">
-          <div className="md:col-5 lg:col-5">
-            <div>
-              <label className="mb-2" htmlFor="">
-                {" "}
-                is Daily{" "}
-              </label>
-            </div>
-            <Checkbox
-              name="isDaily"
-              checked={isDaily}
-              onChange={(e: any) => setisDaily(e.checked)}
-            />
-          </div>
-          <div className="md:col-5 lg:col-5">
-            <div>
-              <label className="mb-2" htmlFor="">
-                {" "}
-                is Hourly{" "}
-              </label>
-            </div>
-            <Checkbox
-              name="isHourly"
-              checked={isHourly}
-              onChange={(e: any) => setisHourly(e.checked)}
-            />
-          </div>
-        </div>
-        <div className="grid gap-4 mb-2">
-          {isDaily && (
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Price Per Day{" "}
-                </label>
-              </div>
-              <InputText placeholder="Price Per Day" />
-            </div>
-          )}
-          {isHourly && (
-            <div className="md:col-5 lg:col-5">
-              <div>
-                <label className="mb-2" htmlFor="">
-                  {" "}
-                  Price Per Hour{" "}
-                </label>
-              </div>
-              <InputText placeholder="Price Per Hour" />
-            </div>
-          )}
-        </div>
-        </div>
-        <Stats step={5} {...props} nextStep={submit} />
-      </div>
-    );
-  };
-
-  const Fourth = (props: any) => {
-    return (
+      <div className="wizard-border">
+      <h2 className="primary"> Third Step</h2>
+    {Serviceform.values.typeId?.name === "Cottages" ? (
       <div>
-          <div className="wizard-border">
-          <h2 className="primary"> Third Step</h2>
-        {serviceValue?.name === "Cottages" ? (
-          <div>
-            <div className="grid mt-3 gap-2">
-              <div className="md:col-5 lg:col-5">
-                <label className="mb-2" htmlFor="Status">
+        <div className="grid mt-3 gap-2">
+          <div className="md:col-5 lg:col-5">
+            <label className="mb-2" htmlFor="Status">
+              {" "}
+              City Name{" "}
+            </label>
+            <Dropdown
+              placeholder="Select a City"
+              options={cities}
+              optionLabel="name"
+              optionValue="id"
+              name="cityId"
+              filter
+              className="w-full"
+              value={Serviceform.values.cityId}
+              onChange={(e) => handleCityChange(e)}
+            />
+          </div>
+          {Serviceform.values.cityId && (
+            <div className="md:col-6 lg:col-6">
+              <div>
+                <label className="mb-2" htmlFor="">
                   {" "}
-                  City Name{" "}
+                  Place Name{" "}
                 </label>
-                <Dropdown
-                  placeholder="Select a City"
-                  options={cities}
-                  optionLabel="name"
-                  optionValue="id"
-                  name="cityId"
-                  filter
-                  className="w-full"
-                  value={Cvalue}
-                  onChange={(e) => handleCityChange(e)}
-                />
               </div>
-              {Cvalue && (
-                <div className="md:col-6 lg:col-6">
-                  <div>
-                    <label className="mb-2" htmlFor="">
-                      {" "}
-                      Place Name{" "}
-                    </label>
-                  </div>
-                  <Dropdown
-                    placeholder="Select a Place"
-                    options={places}
-                    optionLabel="name"
-                    optionValue="id"
-                    name="placeId"
-                    filter
-                    className="w-full"
-                    value={Pvalue}
-                    onChange={(e) => handlePlaceChange(e)}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="grid mt-3 gap-2">
-              {serviceValue && Pvalue && (
-                <div className="md:col-5 lg:col-5">
-                  <label className="mb-2" htmlFor="Status">
-                    {" "}
-                    Residence Name{" "}
-                  </label>
-                  <Dropdown
-                    placeholder="Select a Residence"
-                    options={residence}
-                    optionLabel="name"
-                    optionValue="id"
-                    //   name="cityId"
-                    filter
-                    className="w-full"
-                    value={Rvalue}
-                    onChange={(e) => setRvalue(e.value)}
-                  />
-                </div>
-              )}
-            </div>
-            <div>
-              <h4>
-                If You don't find Residence in options you can add it here and
-                rechoose it in Residence name{" "}
-              </h4>
-              <Button
-                rounded
-                label="Add Residence"
-                icon="pi pi-home"
-                onClick={() => setshowR(true)}
-                className=" mb-3 mt-2 ml-2"
-                severity="warning"
+              <Dropdown
+                placeholder="Select a Place"
+                options={places}
+                optionLabel="name"
+                optionValue="id"
+                name="placeId"
+                filter
+                className="w-full"
+                value={Serviceform.values.placeId}
+                onChange={(e) => handlePlaceChange(e)}
               />
             </div>
-            <>
-              <Dialog
-                header={"Add Residence"}
-                visible={showR}
-                className="md:w-40rem lg:w-40rem"
-                onHide={() => setshowR(false)}
-              >
-                <Residence />
-              </Dialog>
-            </>
-          </div>
-        ) : serviceValue?.name === "Yacht Bookings" ? (
-          <div>
+          )}
+        </div>
+        <div className="grid mt-3 gap-2">
+          {Serviceform.values.typeId && Serviceform.values.placeId && (
             <div className="md:col-5 lg:col-5">
               <label className="mb-2" htmlFor="Status">
                 {" "}
-                Vehicle Name{" "}
+                Residence Name{" "}
               </label>
               <Dropdown
-                placeholder="Select a Vehicle"
-                options={vehicle}
-                optionLabel="vehicleTypeName"
+                placeholder="Select a Residence"
+                options={residence}
+                optionLabel="name"
                 optionValue="id"
-                name="cityId"
+                  name="residenceTypeId"
                 filter
                 className="w-full"
-                value={Vvalue}
-                onChange={(e) => setVvalue(e.value)}
+                value={Serviceform.values.residenceTypeId}
+                onChange={ (e)=>   Serviceform.setFieldValue("cityId", e.value)
+              }
               />
             </div>
-            <div>
-              <h4>
-                If You don't find Vehicle in options you can add it here and
-                rechoose it in Vehicle name{" "}
-              </h4>
-              <Button
-                rounded
-                label="Add Vehicle"
-                icon="pi pi-car"
-                onClick={() => setshow(true)}
-                className=" mb-3 mt-2 ml-2"
-                severity="warning"
-              />
-            </div>
-            <>
-              <Dialog
-                header={"Add Vehicle"}
-                visible={show}
-                className="md:w-40rem lg:w-40rem"
-                onHide={() => setshow(false)}
-              >
-                <Vehicle />
-              </Dialog>
-            </>
-          </div>
-        ) : (
-          <></>
-        )}
+          )}
         </div>
-        <Stats step={3} {...props} />
+        <>
+          <Dialog
+            header={"Add Residence"}
+            visible={showR}
+            className="md:w-40rem lg:w-40rem"
+            onHide={() => setshowR(false)}
+          >
+            <Residence />
+          </Dialog>
+        </>
       </div>
+    ) : Serviceform.values.typeId?.name === "Yacht Bookings" ? (
+      <div>
+        <div className="md:col-5 lg:col-5">
+          <label className="mb-2" htmlFor="Status">
+            {" "}
+            Vehicle Name{" "}
+          </label>
+          <Dropdown
+            placeholder="Select a Vehicle"
+            options={vehicle}
+            optionLabel="vehicleTypeName"
+            optionValue="id"
+            name="vehicleTypeId"
+            filter
+            className="w-full"
+            value={Serviceform.values.vehicleTypeId}
+            onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
+          }
+          />
+        </div>
+        <>
+          <Dialog
+            header={"Add Vehicle"}
+            visible={show}
+            className="md:w-40rem lg:w-40rem"
+            onHide={() => setshow(false)}
+          >
+            <Vehicle />
+          </Dialog>
+        </>
+      </div>
+    ) : (
+      <></>
+    )}
+    </div>
+    <Stats step={5} {...props} nextStep={submit} />
+  </div>
     );
   };
+
+  // const Fourth = (props: any) => {
+  //   return (
+  //     <div>
+  //         <div className="wizard-border">
+  //         <h2 className="primary"> Third Step</h2>
+  //       {Serviceform.values.typeId?.name === "Cottages" ? (
+  //         <div>
+  //           <div className="grid mt-3 gap-2">
+  //             <div className="md:col-5 lg:col-5">
+  //               <label className="mb-2" htmlFor="Status">
+  //                 {" "}
+  //                 City Name{" "}
+  //               </label>
+  //               <Dropdown
+  //                 placeholder="Select a City"
+  //                 options={cities}
+  //                 optionLabel="name"
+  //                 optionValue="id"
+  //                 name="cityId"
+  //                 filter
+  //                 className="w-full"
+  //                 value={Serviceform.values.cityId}
+  //                 onChange={(e) => handleCityChange(e)}
+  //               />
+  //             </div>
+  //             {Serviceform.values.cityId && (
+  //               <div className="md:col-6 lg:col-6">
+  //                 <div>
+  //                   <label className="mb-2" htmlFor="">
+  //                     {" "}
+  //                     Place Name{" "}
+  //                   </label>
+  //                 </div>
+  //                 <Dropdown
+  //                   placeholder="Select a Place"
+  //                   options={places}
+  //                   optionLabel="name"
+  //                   optionValue="id"
+  //                   name="placeId"
+  //                   filter
+  //                   className="w-full"
+  //                   value={Serviceform.values.placeId}
+  //                   onChange={(e) => handlePlaceChange(e)}
+  //                 />
+  //               </div>
+  //             )}
+  //           </div>
+  //           <div className="grid mt-3 gap-2">
+  //             {Serviceform.values.typeId && Serviceform.values.placeId && (
+  //               <div className="md:col-5 lg:col-5">
+  //                 <label className="mb-2" htmlFor="Status">
+  //                   {" "}
+  //                   Residence Name{" "}
+  //                 </label>
+  //                 <Dropdown
+  //                   placeholder="Select a Residence"
+  //                   options={residence}
+  //                   optionLabel="name"
+  //                   optionValue="id"
+  //                     name="residenceTypeId"
+  //                   filter
+  //                   className="w-full"
+  //                   value={Serviceform.values.residenceTypeId}
+  //                   onChange={ (e)=>   Serviceform.setFieldValue("cityId", e.value)
+  //                 }
+  //                 />
+  //               </div>
+  //             )}
+  //           </div>
+  //           <>
+  //             <Dialog
+  //               header={"Add Residence"}
+  //               visible={showR}
+  //               className="md:w-40rem lg:w-40rem"
+  //               onHide={() => setshowR(false)}
+  //             >
+  //               <Residence />
+  //             </Dialog>
+  //           </>
+  //         </div>
+  //       ) : Serviceform.values.typeId?.name === "Yacht Bookings" ? (
+  //         <div>
+  //           <div className="md:col-5 lg:col-5">
+  //             <label className="mb-2" htmlFor="Status">
+  //               {" "}
+  //               Vehicle Name{" "}
+  //             </label>
+  //             <Dropdown
+  //               placeholder="Select a Vehicle"
+  //               options={vehicle}
+  //               optionLabel="vehicleTypeName"
+  //               optionValue="id"
+  //               name="vehicleTypeId"
+  //               filter
+  //               className="w-full"
+  //               value={Serviceform.values.vehicleTypeId}
+  //               onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
+  //             }
+  //             />
+  //           </div>
+  //           <>
+  //             <Dialog
+  //               header={"Add Vehicle"}
+  //               visible={show}
+  //               className="md:w-40rem lg:w-40rem"
+  //               onHide={() => setshow(false)}
+  //             >
+  //               <Vehicle />
+  //             </Dialog>
+  //           </>
+  //         </div>
+  //       ) : (
+  //         <></>
+  //       )}
+  //       </div>
+  //       <Stats step={3} {...props} />
+  //     </div>
+  //   );
+  // };
 
   return (
     <>
@@ -432,7 +512,7 @@ const Wizard = () => {
               >
                 <First hashKey={"FirstStep"} update={updateForm} />
                 <Second form={state.form} />
-                <Fourth />
+                {/* <Fourth /> */}
                 <Last hashKey={"TheEnd!"} />
               </StepWizard>
             </div>

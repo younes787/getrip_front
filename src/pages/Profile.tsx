@@ -33,10 +33,10 @@ const Profile = ()=>{
         </div>
         <div className="grid justify-content-center	mt-4">
         <TabView>
-                <TabPanel
+        <TabPanel
                   header={
                     <div>
-                     My Info
+                     My Services
                     </div>
                   }
                 >
@@ -45,7 +45,7 @@ const Profile = ()=>{
                 <TabPanel
                   header={
                     <div>
-                     My Services
+                     My Info
                     </div>
                   }
                 >

@@ -4,11 +4,12 @@ import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { AddAttributeToSt, AddFeilds, GetFeilds, GetFeildsbysid, Getattributesbysid, UpdateAttributeToSt, UpdateFeilds} from "../Services";
+import { AddAttributeToSt, AddFeilds, GetFeildType, GetFeilds, GetFeildsbysid, Getattributesbysid, UpdateAttributeToSt, UpdateFeilds} from "../Services";
 import { useFormik } from "formik";
 import { ServiceAttributeDTO } from "../modules/getrip.modules";
 import { useParams } from "react-router-dom";
 import { Type } from "react-toastify/dist/utils";
+import { Dropdown } from "primereact/dropdown";
 
 type Props ={
   id : number
@@ -17,9 +18,11 @@ const ServiceAttributes = (props:Props) => {
   const [attributes, setAttributes] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
+  const [fieldType, setFieldType] = useState();
 
   useEffect(() => {
     GetFeildsbysid(props.id).then((res) => setAttributes(res.data));
+    GetFeildType().then((res)=> setFieldType(res?.data))
   }, []);
   const Attributeform = useFormik<ServiceAttributeDTO>({
     initialValues: new ServiceAttributeDTO(),
@@ -45,6 +48,7 @@ const ServiceAttributes = (props:Props) => {
     AttributeformEdit.setValues({
       id: rowData.id,
       name: rowData.name,
+      fieldTypeId:rowData.fieldTypeId
     });
   };
 
@@ -142,6 +146,24 @@ const ServiceAttributes = (props:Props) => {
                 }
               />
             </div>
+            <div className="md:col-6 lg:col-6">
+              <label className="mb-2" htmlFor="Status">
+                {" "}
+                Field Type{" "}
+              </label>
+              <Dropdown
+            placeholder="Select a field Type"
+            options={fieldType}
+            optionLabel="name"
+            optionValue="id"
+            name="fieldTypeId"
+            filter
+            className="w-full"
+            value={Attributeform.values.fieldTypeId}
+            onChange={(e) =>
+              Attributeform.setFieldValue("fieldTypeId", e.target.value)}
+          />
+            </div>
           </div>
         </Dialog>
         <></>
@@ -186,6 +208,24 @@ const ServiceAttributes = (props:Props) => {
                     AttributeformEdit.setFieldValue("name", e.target.value)
                 }
               />
+            </div>
+            <div className="md:col-6 lg:col-6">
+              <label className="mb-2" htmlFor="Status">
+                {" "}
+                Field Type{" "}
+              </label>
+            <Dropdown
+            placeholder="Select a field Type"
+            options={fieldType}
+            optionLabel="name"
+            optionValue="id"
+            name="fieldTypeId"
+            filter
+            className="w-full"
+            value={AttributeformEdit.values.fieldTypeId}
+            onChange={(e) =>
+              AttributeformEdit.setFieldValue("fieldTypeId", e.target.value)}
+          />
             </div>
           </div>
         </Dialog>
