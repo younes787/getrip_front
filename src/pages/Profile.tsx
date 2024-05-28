@@ -8,6 +8,7 @@ import Wizard from "../components/Wizard";
 import { GetAllServices } from "../Services";
 import { Card } from "primereact/card";
 import { Image } from "primereact/image";
+import LoadingComponent from "../components/Loading";
 
 
 
@@ -16,9 +17,16 @@ const Profile = ()=>{
  const name = User?.data?.name + ' ' + User?.data?.lastname
  const email = User?.data?.email
  const [services, setServices] = useState<any>();
+ const [loading, setLoading] = useState<boolean>(false);
 
  useEffect(()=>{
-   GetAllServices().then((res)=> setServices(res?.data))
+  setLoading(true);
+   GetAllServices().then((res)=> 
+    {setServices(res?.data)
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
  },[])
     return(
         <>
@@ -47,7 +55,7 @@ const Profile = ()=>{
                     </div>
                   }
                 >
-                            <div className="card grid gap-3 ">
+                {loading ? <LoadingComponent/> : <div className="card grid gap-3 ">
                 {services?.map((s:any)=>(
  <Card
  title={s.name}
@@ -68,7 +76,7 @@ const Profile = ()=>{
  </div>
 </Card>
            ))} 
-           </div>
+           </div>}
                 </TabPanel>
                 <TabPanel
                   header={
