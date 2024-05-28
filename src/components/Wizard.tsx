@@ -47,9 +47,7 @@ const Wizard = () => {
     initialValues: new ServiceDTO(),
     validateOnChange: true,
     onSubmit: (values) => {
-      Serviceform.values.typeId?.id === 8 ||  Serviceform.values.typeId?.id === 9 
-      || Serviceform.values.typeId?.id === 12 
-      ? Serviceform.values.isRental = true :  Serviceform.values.isRental = false
+       Serviceform.values.isRental = true 
       Serviceform.values.typeId?.id === 9 ? Serviceform.values.isYacht = true : Serviceform.values.isYacht = false
       Serviceform.values.typeId?.id === 12 ? Serviceform.values.isVehicle = true : Serviceform.values.isVehicle = false
       Serviceform.values.accountId = user?.data?.accountId
@@ -66,7 +64,7 @@ const Wizard = () => {
       }));
       values.tags = formattedTags //9
       values.fields = formattedFields
-      Serviceform.values.typeId?.id === 8 ? Serviceform.values.residenceTypeId = 1 : Serviceform.values.residenceTypeId = 0
+    Serviceform.values.residenceTypeId = 1
       AddService(Serviceform.values);
     },
   });
