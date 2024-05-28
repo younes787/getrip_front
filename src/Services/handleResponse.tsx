@@ -20,7 +20,7 @@ export const handleResponse = (response: any, requestType?: string) => {
 };
 
 export const handleError = (error: any) => {
-  toast(error?.response.data.title, {
+  toast(error?.response?.data?.title, {
     position: "top-right",
     autoClose: 5000,
     hideProgressBar: false,

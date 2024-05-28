@@ -19,6 +19,18 @@ const apiForm = axios.create({
     }`,
   },
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+    return Promise.reject(error);
+  }
+);
 // Auth
 export const authRegister = async (registerData: any) => {
   try {
@@ -91,6 +103,15 @@ export const CreateServiceType = async (ServicesData: any) => {
 export const GetAllService = async () => {
   try {
     const response = await api.get("/getallservicetypes");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllServices = async () => {
+  try {
+    const response = await api.get("/getallservices");
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -498,6 +519,14 @@ export const AddImageToVihcles = async (imageData:any) => {
 export const AddImageToResidence = async (imageData:any) => {
   try {
     const response = await apiForm.post(`/addimagetoresidence`, imageData);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+export const AddImageToService = async (imageData:any) => {
+  try {
+    const response = await apiForm.post(`/addimagetoservice`, imageData);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

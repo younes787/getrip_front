@@ -18,8 +18,13 @@ import "../styles/Searchbar.scss";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Image } from "primereact/image";
 import { Card } from "primereact/card";
+import { useEffect, useState } from "react";
+import { GetAllServices } from "../Services";
 const Home = () => {
-  const header = <img alt="Card" src={imgcard2} />;
+  const [services, setServices] = useState<any>();
+  useEffect(()=>{
+    GetAllServices().then((res)=> setServices(res?.data))
+  },[])
   const header2 = <img alt="Card" src={imgcard3} />;
   const header3 = <img alt="Card" src={imgcard4} />;
   const header4 = <img alt="Card" src={imgcard5} />;
@@ -374,78 +379,27 @@ const Home = () => {
         <div className="md:ml-7 lg:ml-7 card-container">
           <h2 className="black">Last-minute weekend deals</h2>
           <div className="card grid gap-3 ">
-            <Card
-              title="Grand Bosphorus Hotel"
-              subTitle="Sultanahmet District"
-              header={header}
-              className="md:w-21rem"
-            >
-              <div className="grid mb-0">
-                <div className="col-8">
-                  <p>9.0/10</p>
-                  <p>(900 REVIEWS)</p>
-                </div>
-                <div className="col-4">
-                  <p>Per Night</p>
-                  <h3>$199</h3>
-                  <p>($244)</p>
-                </div>
-              </div>
-            </Card>
-            <Card
-              title="Blue Mosque Suites"
-              subTitle="Old City, near the Blue Mosque"
-              header={header2}
-              className="md:w-21rem"
-            >
-              <div className="grid mb-0">
-                <div className="col-8">
-                  <p>9.0/10</p>
-                  <p>(900 REVIEWS)</p>
-                </div>
-                <div className="col-4">
-                  <p>Per Night</p>
-                  <h3>$199</h3>
-                  <p>($244)</p>
-                </div>
-              </div>
-            </Card>
-            <Card
-              title="Golden Horn Inn"
-              subTitle="Sultanahmet District"
-              header={header3}
-              className="md:w-21rem"
-            >
-              <div className="grid mb-0">
-                <div className="col-8">
-                  <p>9.0/10</p>
-                  <p>(900 REVIEWS)</p>
-                </div>
-                <div className="col-4">
-                  <p>Per Night</p>
-                  <h3>$199</h3>
-                  <p>($244)</p>
-                </div>
-              </div>
-            </Card>
-            <Card
-              title="Ottoman Palace Taksim"
-              subTitle="Sultanahmet District"
-              header={header4}
-              className="md:w-21rem"
-            >
-              <div className="grid mb-0">
-                <div className="col-8">
-                  <p>9.0/10</p>
-                  <p>(900 REVIEWS)</p>
-                </div>
-                <div className="col-4">
-                  <p>Per Night</p>
-                  <h3>$199</h3>
-                  <p>($244)</p>
-                </div>
-              </div>
-            </Card>
+           {services?.map((s:any)=>(
+ <Card
+ title={s.name}
+ subTitle={s.description}
+ header={ <Image  src={s?.photos[0]?.imagePath && s?.photos[0]?.imagePath } alt={s.photos}  preview />
+}
+ className="md:w-21rem"
+>
+ <div className="grid mb-0">
+   <div className="col-8">
+     <p>9.0/10</p>
+     <p>(900 REVIEWS)</p>
+     <Button icon="pi pi-info" rounded outlined aria-label="Filter"  size="small" severity="info"/>
+   </div>
+   <div className="col-4">
+     <h3>{s?.price}</h3>
+   </div>
+ </div>
+</Card>
+           ))}
+            
           </div>
           <h2 className="black mt-7 mb-5">
             Explore your travel opportunities with GETIP!

@@ -96,7 +96,6 @@ console.log(e)
       <span className="mx-2">{item.label}</span>
     </a>
   );
-  console.log(user)
   const items = [
     {
       label: "Air Flights",

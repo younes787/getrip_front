@@ -2,7 +2,6 @@ import React, {
     ReactNode,
     createContext,
     useContext,
-    useEffect,
     useState,
   } from "react";
 import { authLogin } from "../Services";
@@ -42,18 +41,15 @@ import { authLogin } from "../Services";
           
         }
       } catch (e) {
-        console.log(e);
         window.location.href = "/";
       }
     };
-    console.log( user?.data?.role === 'Administrator' )
     const logout = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setUser(null);
       window.location.href = "/";
     };
-  
     return (
       <AuthContext.Provider value={{ user, login, logout }}>
         {children}

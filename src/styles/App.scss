@@ -126,4 +126,8 @@ html body {
   border-radius: 15px;
   margin-bottom: 15px;
 }
-
+.tabView{
+  .p-component .tabView .p-tabview{
+    width: 100% !important;
+  }
+}

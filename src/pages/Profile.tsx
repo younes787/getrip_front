@@ -2,9 +2,12 @@ import { Avatar } from "primereact/avatar";
 import { Button } from "primereact/button";
 import { TabPanel, TabView } from "primereact/tabview";
 import AvatarImage from "../Assets/Ellipse.png";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import StepWizard from "react-step-wizard";
 import Wizard from "../components/Wizard";
+import { GetAllServices } from "../Services";
+import { Card } from "primereact/card";
+import { Image } from "primereact/image";
 
 
 
@@ -12,7 +15,11 @@ const Profile = ()=>{
  const User = JSON.parse(localStorage?.getItem('user') as any) 
  const name = User?.data?.name + ' ' + User?.data?.lastname
  const email = User?.data?.email
+ const [services, setServices] = useState<any>();
 
+ useEffect(()=>{
+   GetAllServices().then((res)=> setServices(res?.data))
+ },[])
     return(
         <>
          <div id="imageContainer1">
@@ -31,8 +38,8 @@ const Profile = ()=>{
             </div>
           </div>
         </div>
-        <div className="grid justify-content-center	mt-4">
-        <TabView>
+        <div className="p-5	mt-4">
+        <TabView className="tabView">
         <TabPanel
                   header={
                     <div>
@@ -40,7 +47,28 @@ const Profile = ()=>{
                     </div>
                   }
                 >
-                 
+                            <div className="card grid gap-3 ">
+                {services?.map((s:any)=>(
+ <Card
+ title={s.name}
+ subTitle={s.description}
+ header={ <Image  src={s?.photos[0]?.imagePath && s?.photos[0]?.imagePath } alt={s.photos}  preview />
+}
+ className="md:w-21rem"
+>
+ <div className="grid mb-0">
+   <div className="col-8">
+     <p>9.0/10</p>
+     <p>(900 REVIEWS)</p>
+     <Button icon="pi pi-info" rounded outlined aria-label="Filter"  size="small" severity="info"/>
+   </div>
+   <div className="col-4">
+     <h3>{s?.price}</h3>
+   </div>
+ </div>
+</Card>
+           ))} 
+           </div>
                 </TabPanel>
                 <TabPanel
                   header={

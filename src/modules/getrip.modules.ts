@@ -140,7 +140,7 @@ export class CurrencyDTO{
 }
 export class FildsDTO{
   id?: number = 0;
-  value: string = '';
+  value: any = '';
   serviceTypeFieldId: number = 0;
   serviceId: number = 0;
 }
@@ -170,7 +170,7 @@ export class placeNewActivitiesDTO{
 }
 export class TagsDTO{
   id?: number = 0;
-  name: string = '';
+  name: any = '';
   serviceId: number = 0;
 }
 export class ServiceDTO{
@@ -197,9 +197,9 @@ export class ServiceDTO{
   isVehicle:boolean= false;
   isResidence:boolean= false;
   rentalPlaceName:string= '';
-  fields?: FildsDTO;
+  fields?: any;
   steps?: StepsDTO;
   stepsActivities?: stepsActivitiesDTO;
   placeNewActivities?: placeNewActivitiesDTO;
-  tags?: TagsDTO;
+  tags?: TagsDTO | any;
 }
