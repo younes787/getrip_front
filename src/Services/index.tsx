@@ -1,24 +1,25 @@
 import axios from "axios";
 import { handleResponse, handleError } from "./handleResponse";
 
-const api = axios.create({
-  baseURL: "https://getrip.azurewebsites.net",
-  headers: {
-    "Content-Type": "application/json",
+const createAxiosInstance = (contentType: string) => {
+  const headers = {
+    "Content-Type": contentType,
     Authorization: `Bearer ${
-      typeof window !== "undefined" ? localStorage.getItem("token") : ""
+      typeof window !== "undefined" && window.localStorage
+        ? localStorage.getItem("token")
+        : ""
     }`,
-  },
-});
-const apiForm = axios.create({
-  baseURL: "https://getrip.azurewebsites.net",
-  headers: {
-    "Content-Type": "multipart/form-data",
-    Authorization: `Bearer ${
-      typeof window !== "undefined" ? localStorage.getItem("token") : ""
-    }`,
-  },
-});
+  };
+
+  return axios.create({
+    baseURL: "https://getrip.azurewebsites.net",
+    headers,
+  });
+};
+
+
+const api = createAxiosInstance("application/json");
+const apiForm = createAxiosInstance("multipart/form-data");
 
 api.interceptors.response.use(
   (response) => response,
@@ -31,7 +32,7 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// Auth
+
 export const authRegister = async (registerData: any) => {
   try {
     const response = await api.post("/register", registerData);
@@ -49,7 +50,7 @@ export const authLogin = async (loginData: any) => {
     handleError(error);
   }
 };
-// Users
+
 export const CreateUser = async (userData: any) => {
   try {
     const response = await api.post("/createuser", userData);
@@ -58,6 +59,7 @@ export const CreateUser = async (userData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateUser = async (userData: any) => {
   try {
     const response = await api.put("/updateuser", userData);
@@ -66,6 +68,7 @@ export const UpdateUser = async (userData: any) => {
     handleError(error);
   }
 };
+
 export const DeleteUser = async (email: any) => {
   try {
     const response = await api.delete(`/deleteuser/${email}`);
@@ -74,6 +77,7 @@ export const DeleteUser = async (email: any) => {
     handleError(error);
   }
 };
+
 export const GetAllUsers = async () => {
   try {
     const response = await api.get("/getallusers");
@@ -82,6 +86,7 @@ export const GetAllUsers = async () => {
     handleError(error);
   }
 };
+
 export const GetAllRoles = async () => {
   try {
     const response = await api.get("/getallroles");
@@ -90,7 +95,7 @@ export const GetAllRoles = async () => {
     handleError(error);
   }
 };
-// Services
+
 export const CreateServiceType = async (ServicesData: any) => {
   try {
     const response = await api.post("/createservicetype", ServicesData);
@@ -126,7 +131,7 @@ export const UpdateService = async (ServicesData: any) => {
     handleError(error);
   }
 };
-// Logistics
+
 export const CreateCountry = async (CountryData: any) => {
   try {
     const response = await api.post("/createcountry", CountryData);
@@ -135,6 +140,7 @@ export const CreateCountry = async (CountryData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateCountry = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecountry", CountryData);
@@ -161,7 +167,7 @@ export const GetProvincebyCid = async (cid:number) => {
     handleError(error);
   }
 };
-// Cites
+
 export const AddCity = async (CityData: any) => {
   try {
     const response = await api.post("/addcity", CityData);
@@ -170,6 +176,7 @@ export const AddCity = async (CityData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateCity = async (CountryData: any) => {
   try {
     const response = await api.put("/updatecity", CountryData);
@@ -197,7 +204,6 @@ export const GetAllCities = async () => {
   }
 };
 
-// Province
 export const AddProvince = async (ProvinceData: any) => {
   try {
     const response = await api.post("/addprovince", ProvinceData);
@@ -206,6 +212,7 @@ export const AddProvince = async (ProvinceData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateProvince = async (ProvinceData: any) => {
   try {
     const response = await api.put("/updateprovince", ProvinceData);
@@ -233,7 +240,6 @@ export const GetAllProvinces = async () => {
   }
 };
 
-// places
 export const AddPlace = async (PlaceData: any) => {
   try {
     const response = await api.post("/addplace", PlaceData);
@@ -242,6 +248,7 @@ export const AddPlace = async (PlaceData: any) => {
     handleError(error);
   }
 };
+
 export const UpdatePlace = async (PlaceData: any) => {
   try {
     const response = await api.put("/updateplace", PlaceData);
@@ -269,7 +276,6 @@ export const GetAllPlaces = async () => {
   }
 };
 
-// activity
 export const AddActivity = async (ActivityData: any) => {
   try {
     const response = await api.post("/addactivity", ActivityData);
@@ -278,6 +284,7 @@ export const AddActivity = async (ActivityData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateActivity = async (ActivityData: any) => {
   try {
     const response = await api.put("/updateactivity", ActivityData);
@@ -305,8 +312,6 @@ export const GetAllActivities = async () => {
   }
 };
 
-//Attributes
-
 export const AddAttributeToSt = async (AttributeData: any) => {
   try {
     const response = await api.post("/addatributetost", AttributeData);
@@ -315,6 +320,7 @@ export const AddAttributeToSt = async (AttributeData: any) => {
     handleError(error);
   }
 };
+
 export const AddAttributeToV = async (AttributeData: any) => {
   try {
     const response = await api.post("/addatributetov", AttributeData);
@@ -323,6 +329,7 @@ export const AddAttributeToV = async (AttributeData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateAttributeToSt = async (AttributeData: any) => {
   try {
     const response = await api.put("/updateattributetost", AttributeData);
@@ -331,6 +338,7 @@ export const UpdateAttributeToSt = async (AttributeData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateAttributeToV = async (AttributeData: any) => {
   try {
     const response = await api.put("/updatteatributetov", AttributeData);
@@ -339,6 +347,7 @@ export const UpdateAttributeToV = async (AttributeData: any) => {
     handleError(error);
   }
 };
+
 export const Getattributesbysid = async (sid: number) => {
   try {
     const response = await api.get(`/getattributesbystid/${sid}`);
@@ -347,6 +356,7 @@ export const Getattributesbysid = async (sid: number) => {
     handleError(error);
   }
 };
+
 export const Getattributesbyvid = async (vid: number) => {
   try {
     const response = await api.get(`/getattributesbyvid/${vid}`);
@@ -355,7 +365,7 @@ export const Getattributesbyvid = async (vid: number) => {
     handleError(error);
   }
 };
-// Feilds
+
 export const AddFeilds = async (FeildsData: any) => {
   try {
     const response = await api.post("/addservicetypefield", FeildsData);
@@ -364,6 +374,7 @@ export const AddFeilds = async (FeildsData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateFeilds = async (FeildsData: any) => {
   try {
     const response = await api.put("/updateservicetypefield", FeildsData);
@@ -372,6 +383,7 @@ export const UpdateFeilds = async (FeildsData: any) => {
     handleError(error);
   }
 };
+
 export const GetFeilds = async () => {
   try {
     const response = await api.get("/getallservicetypefield");
@@ -380,6 +392,7 @@ export const GetFeilds = async () => {
     handleError(error);
   }
 };
+
 export const GetFeildsbysid = async (sid: number) => {
   try {
     const response = await api.get(`/getfieldsbyservicetypeid/${sid}`);
@@ -388,6 +401,7 @@ export const GetFeildsbysid = async (sid: number) => {
     handleError(error);
   }
 };
+
 export const GetFeildType = async () => {
   try {
     const response = await api.get(`/getfieldtypes`);
@@ -396,7 +410,7 @@ export const GetFeildType = async () => {
     handleError(error);
   }
 };
-// Vehicle
+
 export const AddVehicle = async (VehicleData: any) => {
   try {
     const response = await api.post("/addvehicle", VehicleData);
@@ -405,6 +419,7 @@ export const AddVehicle = async (VehicleData: any) => {
     handleError(error);
   }
 };
+
 export const AddVehicleType = async (VehicleData: any) => {
   try {
     const response = await api.post("/addvehicletype", VehicleData);
@@ -413,6 +428,7 @@ export const AddVehicleType = async (VehicleData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateVehicle = async (VehicleData: any) => {
   try {
     const response = await api.put("/updatevehicle", VehicleData);
@@ -421,6 +437,7 @@ export const UpdateVehicle = async (VehicleData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateVehicleType = async (VehicleData: any) => {
   try {
     const response = await api.put("/updatevehicletype", VehicleData);
@@ -429,6 +446,7 @@ export const UpdateVehicleType = async (VehicleData: any) => {
     handleError(error);
   }
 };
+
 export const GetVehiclesbyid = async (mid: number) => {
   try {
     const response = await api.get(`/getvehiclebymid/${mid}`);
@@ -455,6 +473,7 @@ export const GetAllVehicles = async () => {
     handleError(error);
   }
 };
+
 export const GetAllVehiclesTypes = async () => {
   try {
     const response = await api.get(`/getallvehicletypes`);
@@ -463,7 +482,7 @@ export const GetAllVehiclesTypes = async () => {
     handleError(error);
   }
 };
-// Maker
+
 export const AddMaker = async (MakerData: any) => {
   try {
     const response = await api.post("/createmaker", MakerData);
@@ -472,6 +491,7 @@ export const AddMaker = async (MakerData: any) => {
     handleError(error);
   }
 };
+
 export const UpdateMaker = async (MakerData: any) => {
   try {
     const response = await api.put("/updatemaker", MakerData);
@@ -499,7 +519,6 @@ export const GetAllMakersWithvehicles = async () => {
   }
 };
 
-// Photos 
 export const AddImageToPlace = async (imageData:any) => {
   try {
     const response = await apiForm.post(`/addimagetoplace`, imageData);
@@ -508,6 +527,7 @@ export const AddImageToPlace = async (imageData:any) => {
     handleError(error);
   }
 };
+
 export const AddImageToVihcles = async (imageData:any) => {
   try {
     const response = await apiForm.post(`/addimagetovehicle`, imageData);
@@ -516,6 +536,7 @@ export const AddImageToVihcles = async (imageData:any) => {
     handleError(error);
   }
 };
+
 export const AddImageToResidence = async (imageData:any) => {
   try {
     const response = await apiForm.post(`/addimagetoresidence`, imageData);
@@ -524,6 +545,7 @@ export const AddImageToResidence = async (imageData:any) => {
     handleError(error);
   }
 };
+
 export const AddImageToService = async (imageData:any) => {
   try {
     const response = await apiForm.post(`/addimagetoservice`, imageData);
@@ -532,6 +554,7 @@ export const AddImageToService = async (imageData:any) => {
     handleError(error);
   }
 };
+
 export const GetimagesByPlaceid = async (pid:any) => {
   try {
     const response = await apiForm.get(`/getimagesbyplaceid/${pid}`);
@@ -540,6 +563,7 @@ export const GetimagesByPlaceid = async (pid:any) => {
     handleError(error);
   }
 };
+
 export const GetimagesByResidanceid = async (pid:any) => {
   try {
     const response = await apiForm.get(`/getimagesbyresidenceid/${pid}`);
@@ -548,7 +572,7 @@ export const GetimagesByResidanceid = async (pid:any) => {
     handleError(error);
   }
 };
-// Residence
+
 export const AddResidence = async (residenceData:any) => {
   try {
     const response = await api.post(`/addresidence`, residenceData);
@@ -575,6 +599,7 @@ export const UpdateResidenceType = async (residenceData:any) => {
     handleError(error);
   }
 };
+
 export const UpdateResidence = async (residenceData:any) => {
   try {
     const response = await api.put(`/updateresidence`, residenceData);
@@ -583,6 +608,7 @@ export const UpdateResidence = async (residenceData:any) => {
     handleError(error);
   }
 };
+
 export const GetResidence = async () => {
   try {
     const response = await api.get(`/getallresidences`);
@@ -591,6 +617,7 @@ export const GetResidence = async () => {
     handleError(error);
   }
 };
+
 export const GetResidenceType = async () => {
   try {
     const response = await api.get(`/getallresidencetypes`);
@@ -599,6 +626,7 @@ export const GetResidenceType = async () => {
     handleError(error);
   }
 };
+
 export const GetResidencebyCottages = async (tid:number) => {
   try {
     const response = await api.get(`/getcottagesbyplaceid/${tid}`);
@@ -607,7 +635,7 @@ export const GetResidencebyCottages = async (tid:number) => {
     handleError(error);
   }
 };
-// Currency
+
 export const AddCurrency = async (CurrencyData: any) => {
   try {
     const response = await api.post(`/createcurrency` , CurrencyData);
@@ -624,7 +652,7 @@ export const GetCurrency = async () => {
   } catch (error) {
     handleError(error);
   }
-};  
+};
 
 export const UpdateCurrency = async (CurrencyData:any) => {
   try {
@@ -634,8 +662,8 @@ export const UpdateCurrency = async (CurrencyData:any) => {
     handleError(error);
   }
 };
- // yout
- export const GetAllYachts = async () => {
+
+export const GetAllYachts = async () => {
   try {
     const response = await api.get(`/getallyachts`);
     return handleResponse(response);
@@ -644,12 +672,10 @@ export const UpdateCurrency = async (CurrencyData:any) => {
   }
 };
 
-//service
-
 export const AddService = async (ServiceData: any) => {
   try {
     const response = await api.post(`/addservice` , ServiceData);
-    return handleResponse(response , '');
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }

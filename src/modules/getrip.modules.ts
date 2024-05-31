@@ -67,7 +67,7 @@ export class PlaceDTO {
   id?: number = 0;
   name: string = '';
   description: string = '';
-  googleMapsUrl: string = ''; 
+  googleMapsUrl: string = '';
   lang: string = '';
   lot: string = '';
   cityId: number = 0;
@@ -76,7 +76,7 @@ export class PlaceDTO {
 export class VehicleDTO {
   id?: number = 0;
   model: string = '';
-  isVip: boolean = false; 
+  isVip: boolean = false;
   passengersCount: number = 0;
   makerId?: number = 0;
   vehicleTypeId: number =0;
@@ -186,6 +186,7 @@ export class ServiceDTO{
   price:number=0;
   currencyId:number=0;
   isTrip:boolean= false;
+  photos?: any[];
   placeHasNewActivities:boolean= false;
   hasNewRentalPlace :boolean= false;
   isRental:boolean= false;
