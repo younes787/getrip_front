@@ -33,7 +33,8 @@
     "react-toastify": "^10.0.5",
     "sass": "^1.71.1",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yup": "^1.4.0"
   },
   "scripts": {
     "start": "react-scripts start",

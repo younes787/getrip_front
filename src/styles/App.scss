@@ -113,12 +113,12 @@ html body {
   background-color: $primary_color;
   box-shadow: 3px 3px 3px rgb(194, 194, 194);
   color: white;
-  width: 80%; 
-  max-width: 400px; 
+  width: 80%;
+  max-width: 400px;
   height: auto;
   min-height: 210px;
-  border-radius: 10px; 
-  transition: width 0.3s, height 0.3s; 
+  border-radius: 10px;
+  transition: width 0.3s, height 0.3s;
 }
 .wizard-border{
   border: 1px solid #c8c7c7;
@@ -130,4 +130,14 @@ html body {
   .p-component .tabView .p-tabview{
     width: 100% !important;
   }
+}
+
+.p-menuitem-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+.p-megamenu .p-menuitem:not(.p-highlight):not(.p-disabled) > .p-menuitem-content:hover {
+  color: #fff;
+  background: transparent;
 }

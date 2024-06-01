@@ -17,7 +17,6 @@ const createAxiosInstance = (contentType: string) => {
   });
 };
 
-
 const api = createAxiosInstance("application/json");
 const apiForm = createAxiosInstance("multipart/form-data");
 
@@ -105,7 +104,7 @@ export const CreateServiceType = async (ServicesData: any) => {
   }
 };
 
-export const GetAllService = async () => {
+export const GetServiceTypes = async () => {
   try {
     const response = await api.get("/getallservicetypes");
     return handleResponse(response);
@@ -117,6 +116,15 @@ export const GetAllService = async () => {
 export const GetAllServices = async () => {
   try {
     const response = await api.get("/getallservices");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetMyServices = async (aid: number, pn: number, ps: number) => {
+  try {
+    const response = await api.get(`/getpaginatedservicesbyaccountid/${aid}/${pn}/${ps}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

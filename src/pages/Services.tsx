@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CreateServiceType, GetAllService, UpdateService } from "../Services";
+import { CreateServiceType, GetServiceTypes, UpdateService } from "../Services";
 import { Card } from "primereact/card";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -39,7 +39,7 @@ const Services = () => {
   });
   useEffect(() => {
     setLoading(true);
-    GetAllService()
+    GetServiceTypes()
       .then((res) => {
         setServiceType(res.data);
         setLoading(false);
@@ -48,7 +48,7 @@ const Services = () => {
         setLoading(false);
       });
   }, []);
-  
+
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     ServicesformEdit.setValues({
@@ -59,7 +59,7 @@ const Services = () => {
   const footer = (s:any) => (
     <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button label="Update" size="small" icon="pi pi-pencil" onClick={() => ShowUser(s)} />
-        <Button label="Fields" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }} 
+        <Button label="Fields" size="small" severity="secondary" icon="pi pi-info-circle" style={{ marginLeft: '0.5em' }}
          onClick={() => {
           setCurrentServiceId(s.id); // Set the current service ID
           setShowAtt(true); // Show the dialog
@@ -78,7 +78,7 @@ const Services = () => {
         onHide={() => setShowAtt(false)}
         footer={
           <>
-           
+
           </>
         }
       >
@@ -211,7 +211,7 @@ const Services = () => {
             title={
               <div>
                 {s?.name}{" "}
-              
+
               </div>
             }
             subTitle={<div style={{ color: "white" }}> {s?.serviceTypeFields.map((a: any) => (
@@ -222,7 +222,7 @@ const Services = () => {
             footer={footer(s)}
             style={{ display: "flex", flexDirection: "column", height: "100%" }}
           >
- <div style={{ paddingBottom: "40px" }}> 
+ <div style={{ paddingBottom: "40px" }}>
     {s?.description}
   </div>          </Card>
         ))}

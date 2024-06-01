@@ -1,8 +1,7 @@
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { Fragment, useEffect, useState } from "react";
-import StepWizard from "react-step-wizard";
-import { AddImageToService, AddService, GetAllCities, GetServiceTypes, GetAllYachts, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages} from "../Services";
+import { useEffect, useState } from "react";
+import { AddImageToService, AddService, GetAllCities, GetServiceTypes, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages} from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
@@ -15,8 +14,9 @@ import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FileUpload } from "primereact/fileupload";
 import { useNavigate } from "react-router-dom";
+import { MegaMenu } from "primereact/megamenu";
 
-const Wizard = ({ onPassServiceData }: any) => {
+const Panel = ({ onPassServiceData }: any) => {
   const [fileimg, setFileimg] = useState<any>();
   const [serviceType, setServiceType] = useState<any[]>([]);
   const [FeildsType, setFeildsType] = useState<any>();
@@ -30,12 +30,10 @@ const Wizard = ({ onPassServiceData }: any) => {
   const [tags, setTags] = useState([{ name: '' }]);
   const { user } = useAuth();
   const [state, updateState] = useState<any>({form: {}});
-  const onStepChange = (stats: any) => {};
-  const setInstance = (SW: any) => updateState({...state, SW});
-  const { SW, demo } = state;
   const handleImgChange = (e: any) => { setFileimg(e.files?.[0]); };
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState('');
+  const [activeStep, setActiveStep] = useState(1);
 
   const ImageServiceform = useFormik<ImageDTO>({
     initialValues: new ImageDTO(),
@@ -93,13 +91,6 @@ const Wizard = ({ onPassServiceData }: any) => {
     }
   };
 
-  const updateForm = (key: any, value: any) => {
-    const { form } = state;
-    form[key] = value;
-
-    updateState({ ...state, form,});
-  };
-
   useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
       Serviceform.setFieldValue('isRental', [8, 9, 12].includes(Serviceform.values.typeId.id));
@@ -118,8 +109,8 @@ const Wizard = ({ onPassServiceData }: any) => {
   }, []);
 
   const handleChange = (e: any) => {
-    Serviceform.setFieldValue("typeId", e.target.value);
-    GetFeildsbysid(e.target.value.id).then((res) => setFeildsType(res.data));
+    Serviceform.setFieldValue("typeId", e);
+    GetFeildsbysid(e.id).then((res) => setFeildsType(res.data));
     // GetAllYachts().then((res) => setVehicle(res.data));
   };
 
@@ -144,72 +135,16 @@ const Wizard = ({ onPassServiceData }: any) => {
     Serviceform.setFieldValue('tags', newTags);
   };
 
-  const chooseOptions = {
-    icon: "pi pi-fw pi-images",
-    iconOnly: true,
-    className: "custom-choose-btn p-button-rounded p-button-outlined",
-  };
-
-  const uploadOptions = {
-    icon: "pi pi-fw pi-cloud-upload",
-    iconOnly: true,
-    className: "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
-  };
-
-  const cancelOptions = {
-    icon: "pi pi-fw pi-times",
-    iconOnly: true,
-    className: "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
-  };
-
-  const Stats = ({ currentStep, firstStep, goToStep, lastStep, nextStep, previousStep, totalSteps, step}: any) => (
-    <div>
-      <div className="flex">
-        {step > 1 && (
-          <Button className="btn btn-default btn-block mr-3" size="small" rounded onClick={previousStep} severity="danger">Go Back</Button>
-        )}
-        {step < totalSteps ? (
-          <Button className="mr-3" size="small" rounded onClick={nextStep}>Continue</Button>
-        ) : (
-          <Button className="btn btn-success btn-block mr-3" size="small" rounded onClick={nextStep}>Finish</Button>
-        )}
-      </div>
-    </div>
-  );
-
-  const InstanceDemo = ({ SW }: any) => (
-    <Fragment>
-      <h4>Control from outside component</h4>
-      <Button className={"btn btn-secondary"} size="small" rounded onClick={SW.previousStep}>Previous Step</Button>
-      &nbsp;
-      <Button className={"btn btn-secondary"} size="small" rounded onClick={SW.nextStep}>Next Step</Button>
-    </Fragment>
-  );
-
   const handleInputFocus = (field: string) => {
     setFocusedField(field);
   };
 
-
-  const First = (props: any) => {
+  const Component = () => {
     return (
       <div className="wizard-border">
-        <h2 className="primary">First Step</h2>
-        <div className="grid gap-6 w-full">
-          <div className="md:col-3 lg:col-3">
-            <label htmlFor="Wallet">Service Type</label>
-            <Dropdown
-              placeholder="Select a Service Type"
-              options={serviceType}
-              optionLabel="name"
-              className="w-full mt-1"
-              filter
-              value={Serviceform.values.typeId}
-              onChange={(e) => handleChange(e)}
-            />
-          </div>
-
-          <div className="md:col-3 lg:col-3">
+        <h2 className="primary">{Serviceform.values?.typeId?.name ?? ''}</h2>
+        <div className="grid gap-1 grid-cols-12 m-auto">
+          <div className="md:col-5 lg:col-5">
             <label htmlFor="Wallet">Service Name</label>
             <InputText
               placeholder="Service Name"
@@ -222,7 +157,7 @@ const Wizard = ({ onPassServiceData }: any) => {
             />
           </div>
 
-          <div className="md:col-3 lg:col-3">
+          <div className="md:col-5 lg:col-5">
             <label htmlFor="Wallet">Service Description</label>
             <InputText
               placeholder="Description"
@@ -235,46 +170,7 @@ const Wizard = ({ onPassServiceData }: any) => {
             />
           </div>
 
-          <div className="md:col-3 lg:col-3">
-            <label htmlFor="Wallet">Service Price</label>
-            <InputNumber
-              placeholder="Price"
-              name="price"
-              className="w-full mt-1"
-              value={Serviceform.values.price}
-              autoFocus={focusedField === 'price'}
-              onInput={() => handleInputFocus('price')}
-              onChange={(e) => Serviceform.setFieldValue('price', e.value )}
-            />
-          </div>
-
-          <div className="md:col-3 lg:col-3">
-            <label htmlFor="Wallet">Service Currency</label>
-            <Dropdown
-              placeholder="Select a currency"
-              options={currency}
-              optionLabel="name"
-              optionValue="id"
-              className="w-full mt-1"
-              filter
-              value={Serviceform.values.currencyId}
-              onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
-            />
-          </div>
-        </div>
-        <Stats step={1} {...props} />
-      </div>
-    );
-  };
-
-  const Second = (props: any) => {
-    const validate = () => { props.previousStep(); };
-
-    return (
-      <div>
-        <div className="wizard-border">
-          <h2 className="primary"> Second Step</h2>
-          <div className="flex gap-4">
+          <div className="md:col-5 lg:col-5">
             {FeildsType?.map((f:any) => (
               <div className="mb-3" key={f.name}>
                 <div>
@@ -320,40 +216,6 @@ const Wizard = ({ onPassServiceData }: any) => {
             }
           </div>
 
-          <div className="col">
-                  <FileUpload
-                    name="imagePath"
-                    accept="image/*"
-                    onSelect={handleImgChange}
-                    emptyTemplate={
-                      <p className="m-0">
-                        Drag and drop files to here to upload.
-                      </p>
-                    }
-                    chooseOptions={chooseOptions}
-                    uploadOptions={uploadOptions}
-                    cancelOptions={cancelOptions}
-                    customUpload
-                    uploadHandler={() => ImageServiceform.handleSubmit()}
-                  />
-          </div>
-        </div>
-        <Stats step={2} {...props} previousStep={validate} />
-      </div>
-    );
-  };
-
-  const Last = (props: any) => {
-    const submit = () => {
-      Serviceform.values.typeId =  Serviceform.values.typeId?.id
-      Serviceform.handleSubmit()
-    };
-
-    return (
-      <div>
-        <div className="wizard-border">
-          <h2 className="primary"> Third Step</h2>
-
           <div className="md:col-5 lg:col-5">
                 <label className="mb-2" htmlFor="Status">{" "}City Name{" "}</label>
                 <Dropdown
@@ -369,101 +231,103 @@ const Wizard = ({ onPassServiceData }: any) => {
                 />
           </div>
 
-          {Serviceform.values.typeId?.name === "Cottages" ? (
-            <div>
-              <div className="grid mt-3 gap-2">
-                {(Serviceform.values.cityId !== 0) ?? (
-                  <div className="md:col-6 lg:col-6">
-                    <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
-                    <Dropdown
-                      placeholder="Select a Place"
-                      options={places}
-                      optionLabel="name"
-                      optionValue="id"
-                      name="placeId"
-                      filter
+          <div className="md:col-5 lg:col-5">
+            {Serviceform.values.typeId?.name === "Cottages" ? (
+              <div>
+                <div className="grid mt-3 gap-2">
+                  {(Serviceform.values.cityId !== 0) ?? (
+                    <div className="md:col-6 lg:col-6">
+                      <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
+                      <Dropdown
+                        placeholder="Select a Place"
+                        options={places}
+                        optionLabel="name"
+                        optionValue="id"
+                        name="placeId"
+                        filter
+                        className="w-full"
+                        value={Serviceform.values.placeId}
+                        onChange={(e) => handlePlaceChange(e)}
+                      />
+                    </div>
+                  )}
+                  <div className="md:col-5 lg:col-5">
+                    <label className="mb-2" htmlFor="Status">{" "}New Place Name{" "}</label>
+                    <InputText
+                      placeholder="New Place"
+                      name="rentalPlaceName"
                       className="w-full"
-                      value={Serviceform.values.placeId}
-                      onChange={(e) => handlePlaceChange(e)}
+                      autoFocus={focusedField === 'rentalPlaceName'}
+                      onInput={() => handleInputFocus('rentalPlaceName')}
+                      value={Serviceform.values.rentalPlaceName}
+                      onChange={(e) => Serviceform.setFieldValue('rentalPlaceName',e.target.value )}
                     />
                   </div>
-                )}
+                </div>
+
+                <div className="grid mt-3 gap-2">
+                  {Serviceform.values.typeId && Serviceform.values.placeId && (
+                    <div className="md:col-5 lg:col-5">
+                      <label className="mb-2" htmlFor="Status">{" "}Residence Name{" "}</label>
+                      <Dropdown
+                        placeholder="Select a Residence"
+                        options={residence}
+                        optionLabel="name"
+                        optionValue="id"
+                        name="residenceTypeId"
+                        filter
+                        className="w-full"
+                        value={Serviceform.values.residenceTypeId}
+                        onChange={ (e)=>   Serviceform.setFieldValue("cityId", e.value)
+                      }
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <>
+                  <Dialog
+                    header={"Add Residence"}
+                    visible={showR}
+                    className="md:w-40rem lg:w-40rem"
+                    onHide={() => setshowR(false)}
+                  >
+                    <Residence />
+                  </Dialog>
+                </>
+              </div>
+            ) : Serviceform.values.typeId?.name === "Yacht Bookings" ? (
+              <div>
                 <div className="md:col-5 lg:col-5">
-                  <label className="mb-2" htmlFor="Status">{" "}New Place Name{" "}</label>
-                  <InputText
-                    placeholder="New Place"
-                    name="rentalPlaceName"
+                  <label className="mb-2" htmlFor="Status">{" "}Vehicle Name{" "}</label>
+                  <Dropdown
+                    placeholder="Select a Vehicle"
+                    options={vehicle}
+                    optionLabel="vehicleTypeName"
+                    optionValue="id"
+                    name="vehicleTypeId"
+                    filter
                     className="w-full"
-                    autoFocus={focusedField === 'rentalPlaceName'}
-                    onInput={() => handleInputFocus('rentalPlaceName')}
-                    value={Serviceform.values.rentalPlaceName}
-                    onChange={(e) => Serviceform.setFieldValue('rentalPlaceName',e.target.value )}
+                    value={Serviceform.values.vehicleTypeId}
+                    onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
+                  }
                   />
                 </div>
+                <>
+                  <Dialog
+                    header={"Add Vehicle"}
+                    visible={show}
+                    className="md:w-40rem lg:w-40rem"
+                    onHide={() => setshow(false)}
+                  >
+                    <Vehicle />
+                  </Dialog>
+                </>
               </div>
-
-              <div className="grid mt-3 gap-2">
-                {Serviceform.values.typeId && Serviceform.values.placeId && (
-                  <div className="md:col-5 lg:col-5">
-                    <label className="mb-2" htmlFor="Status">{" "}Residence Name{" "}</label>
-                    <Dropdown
-                      placeholder="Select a Residence"
-                      options={residence}
-                      optionLabel="name"
-                      optionValue="id"
-                      name="residenceTypeId"
-                      filter
-                      className="w-full"
-                      value={Serviceform.values.residenceTypeId}
-                      onChange={ (e)=>   Serviceform.setFieldValue("cityId", e.value)
-                    }
-                    />
-                  </div>
-                )}
-              </div>
-
-              <>
-                <Dialog
-                  header={"Add Residence"}
-                  visible={showR}
-                  className="md:w-40rem lg:w-40rem"
-                  onHide={() => setshowR(false)}
-                >
-                  <Residence />
-                </Dialog>
-              </>
-            </div>
-          ) : Serviceform.values.typeId?.name === "Yacht Bookings" ? (
-            <div>
-              <div className="md:col-5 lg:col-5">
-                <label className="mb-2" htmlFor="Status">{" "}Vehicle Name{" "}</label>
-                <Dropdown
-                  placeholder="Select a Vehicle"
-                  options={vehicle}
-                  optionLabel="vehicleTypeName"
-                  optionValue="id"
-                  name="vehicleTypeId"
-                  filter
-                  className="w-full"
-                  value={Serviceform.values.vehicleTypeId}
-                  onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
-                }
-                />
-              </div>
-              <>
-                <Dialog
-                  header={"Add Vehicle"}
-                  visible={show}
-                  className="md:w-40rem lg:w-40rem"
-                  onHide={() => setshow(false)}
-                >
-                  <Vehicle />
-                </Dialog>
-              </>
-            </div>
-          ) : (
-            <></>
-          )}
+            ) : (
+              <></>
+            )}
+          </div>
 
           <div className="md:col-5 lg:col-5">
               {tags.map((tag, index) => (
@@ -482,35 +346,90 @@ const Wizard = ({ onPassServiceData }: any) => {
               }
               <Button icon='pi pi-plus' label="Add Tag" onClick={handleAddTag} rounded severity="info" size="small" className="mt-2" />
           </div>
+
+          <div className="md:col-5 lg:col-5">
+            <label htmlFor="Wallet">Service Price</label>
+            <InputNumber
+              placeholder="Price"
+              name="price"
+              className="w-full mt-1"
+              value={Serviceform.values.price}
+              autoFocus={focusedField === 'price'}
+              onInput={() => handleInputFocus('price')}
+              onChange={(e) => Serviceform.setFieldValue('price', e.value )}
+            />
+          </div>
+
+          <div className="md:col-5 lg:col-5">
+            <label htmlFor="Wallet">Service Currency</label>
+            <Dropdown
+              placeholder="Select a currency"
+              options={currency}
+              optionLabel="name"
+              optionValue="id"
+              className="w-full mt-1"
+              filter
+              value={Serviceform.values.currencyId}
+              onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
+            />
+          </div>
+
+          <div className="md:col-8 lg:col-8">
+                  <FileUpload
+                    name="imagePath"
+                    accept="image/*"
+                    onSelect={handleImgChange}
+                    emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
+                    chooseOptions={{
+                      icon: "pi pi-fw pi-images",
+                      iconOnly: true,
+                      className: "custom-choose-btn p-button-rounded p-button-outlined",
+                    }}
+                    uploadOptions={{style: { display: 'none'}}}
+                    cancelOptions={{
+                      icon: "pi pi-fw pi-times",
+                      iconOnly: true,
+                      className: "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
+                    }}
+                    customUpload
+                    uploadHandler={() => ImageServiceform.handleSubmit()}
+                  />
+          </div>
+
+          <div className="md:col-8 lg:col-8">
+            <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add service"  onClick={() => {
+                Serviceform.values.typeId =  Serviceform.values.typeId?.id
+                Serviceform.handleSubmit()
+            }}/>
+          </div>
         </div>
-        <Stats step={3} {...props} nextStep={submit} />
       </div>
     );
-  };
+  }
+
+  const items: any = [];
+  serviceType.map((fn) => {
+    items.push({
+        label: fn.name,
+        style: activeStep === fn.id ? { backgroundColor: '#FA7070'} : {},
+        command: () => {
+          handleChange(fn)
+          setActiveStep(fn.id)
+        }
+    })
+  })
 
   return (
     <>
-      <div className="container">
-        <div className={"jumbotron"}>
-          <div className="row">
-            <div className={`col-12 col-sm-6 offset-sm-3`}>
-              <StepWizard
-                onStepChange={onStepChange}
-                isHashEnabled
-                transitions={state.transitions}
-                instance={setInstance}
-              >
-                <First hashKey={"FirstStep"} update={updateForm} />
-                <Second hashKey={"SecondStep"} form={state.form} />
-                <Last hashKey={"TheEnd!"} />
-              </StepWizard>
-            </div>
+      <div className="grid gap-2 grid-cols-12 m-auto">
+          <div className="md:col-2 lg:col-2">
+            <MegaMenu model={items} orientation="vertical" breakpoint="960px" style={{backgroundColor: '#EE4E4E'}}/>
           </div>
-        </div>
-        {demo && SW && <InstanceDemo SW={SW} />}
+
+          <div className="md:col-9 lg:col-9"><Component /></div>
       </div>
     </>
   );
 };
 
-export default Wizard;
+export default Panel;

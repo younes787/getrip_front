@@ -3,12 +3,13 @@ import { Button } from "primereact/button";
 import { TabPanel, TabView } from "primereact/tabview";
 import AvatarImage from "../Assets/Ellipse.png";
 import { useEffect, useState } from "react";
-import Wizard from "../components/Wizard";
-import { GetAllServices } from "../Services";
+import PanelMenu from "../components/PanelMenu";
+import { GetMyServices } from "../Services";
 import { Card } from "primereact/card";
 import { Image } from "primereact/image";
 import LoadingComponent from "../components/Loading";
 import { ServiceDTO } from "../modules/getrip.modules";
+import MyInfo from "../components/MyInfo";
 
 const Profile = ()=>{
  const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -21,8 +22,13 @@ const Profile = ()=>{
   useEffect(()=>{
     setLoading(true);
 
-    GetAllServices().then((res)=> {
-      setServices(res?.data);
+    GetMyServices(User?.data?.accountId, 1, 50).then((res)=> {
+      console.log(res);
+
+      // pageNumber
+      // pageSize
+      // totalItems
+      setServices(res?.data?.items);
       setLoading(false);
     }).catch((error) => {
       setLoading(false);
@@ -58,6 +64,7 @@ const Profile = ()=>{
 
         <div className="p-5	mt-4">
         <TabView className="tabView" activeIndex={activeIndex} onTabChange={(e) => setActiveIndex(e.index)}>
+          <TabPanel header={<div> My Info </div>}><MyInfo /></TabPanel>
           <TabPanel header={<div>My Services</div>}>
               {loading ? <LoadingComponent/> :
                 <div className="card grid gap-3 ">
@@ -85,10 +92,7 @@ const Profile = ()=>{
                 </div>
               }
           </TabPanel>
-
-          {/* <TabPanel header={<div> My Info </div>}></TabPanel> */}
-          <TabPanel header={<div>Add Services</div>}> <Wizard onPassServiceData={handlePassDataWhenAddService} /> </TabPanel>
-          {/* <TabPanel header={<div>Saved List</div>}> </TabPanel> */}
+          <TabPanel header={<div>Add Services</div>}><PanelMenu onPassServiceData={handlePassDataWhenAddService} /></TabPanel>
         </TabView>
         </div>
       </>
