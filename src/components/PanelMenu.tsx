@@ -35,7 +35,7 @@ const Panel = ({ onPassServiceData }: any) => {
   const handleImgChange = (e: any) => { setFileimg(e.files?.[0]); };
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState('');
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
   const [newTag, setNewTag] = useState<string>('');
   const nonEmptyTags = tags.filter(tag => tag.name.trim() !== '');
 
@@ -234,6 +234,7 @@ const Panel = ({ onPassServiceData }: any) => {
           </Fieldset>
 
           <Fieldset legend="Input Type" className="md:col-12 lg:col-12 mb-3" toggleable>
+            {FeildsType && FeildsType.length > 0 ?
             <div className="grid grid-cols-12">
                 {FeildsType?.map((f: any, index: number) => (
                   <div key={f.name} className="md:col-6 lg:col-6">
@@ -278,6 +279,7 @@ const Panel = ({ onPassServiceData }: any) => {
                   ))
                 }
             </div>
+            : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
           <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable>
@@ -443,7 +445,7 @@ const Panel = ({ onPassServiceData }: any) => {
             <MegaMenu model={items} orientation="vertical" breakpoint="960px" style={{backgroundColor: '#EE4E4E'}}/>
           </div>
 
-          <div className="md:col-7 lg:col-7"><Component /></div>
+          {activeStep > 0 && <div className="md:col-7 lg:col-7"><Component /></div>}
       </div>
     </>
   );
