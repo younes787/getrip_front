@@ -132,12 +132,12 @@ html body {
   }
 }
 
-.p-menuitem-text {
+.m-panel .p-menuitem-text {
   color: #fff;
   font-weight: 600;
 }
 
-.p-megamenu .p-menuitem:not(.p-highlight):not(.p-disabled) > .p-menuitem-content:hover {
+.m-panel .p-megamenu .p-menuitem:not(.p-highlight):not(.p-disabled) > .p-menuitem-content:hover {
   color: #fff;
   background: transparent;
 }
