@@ -182,33 +182,6 @@ const Panel = ({ onPassServiceData }: any) => {
               </div>
 
               <div className="md:col-6 lg:col-6">
-                <label htmlFor="Wallet">Service Price</label>
-                <InputNumber
-                  placeholder="Price"
-                  name="price"
-                  className="w-full mt-1"
-                  value={Serviceform.values.price}
-                  autoFocus={focusedField === 'price'}
-                  onInput={() => handleInputFocus('price')}
-                  onChange={(e) => Serviceform.setFieldValue('price', e.value )}
-                />
-              </div>
-
-              <div className="md:col-6 lg:col-6">
-                <label htmlFor="Wallet">Service Currency</label>
-                <Dropdown
-                  placeholder="Select a currency"
-                  options={currency}
-                  optionLabel="name"
-                  optionValue="id"
-                  className="w-full mt-1"
-                  filter
-                  value={Serviceform.values.currencyId}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
-                />
-              </div>
-
-              <div className="md:col-6 lg:col-6">
                 <label htmlFor="Wallet">Service Image</label>
                   <FileUpload
                     name="imagePath"
@@ -316,7 +289,7 @@ const Panel = ({ onPassServiceData }: any) => {
                       onChange={(e) => handlePlaceChange(e)} />
                   </div>
 
-                  {Serviceform.values.typeId && Serviceform.values.placeId && (
+                  {/* {Serviceform.values.typeId && Serviceform.values.placeId && (
                     <div className="md:col-6 lg:col-6">
                       <label className="mb-2" htmlFor="Status">{" "}Residence Name{" "}</label>
                       <Dropdown
@@ -346,12 +319,12 @@ const Panel = ({ onPassServiceData }: any) => {
                         onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
                       }
                       />
-                    </div>
+                    </div> */}
 
                     <div className="md:col-12 lg:col-12 mt-2 p-0">
-                      <Button icon="pi pi-plus" label="Add Residence" onClick={() => setshowResidence(true)} rounded severity="info" size="small" className="m-2"/>
+                      {/* <Button icon="pi pi-plus" label="Add Residence" onClick={() => setshowResidence(true)} rounded severity="info" size="small" className="m-2"/> */}
                       <Button icon="pi pi-plus" label="Add Place" onClick={() => setshowPlace(true)} rounded severity="info" size="small" className="m-2"/>
-                      <Button icon="pi pi-plus" label="Add Vehicle" onClick={() => setshowVehicle(true)} rounded severity="info" size="small" className="m-2"/>
+                      {/* <Button icon="pi pi-plus" label="Add Vehicle" onClick={() => setshowVehicle(true)} rounded severity="info" size="small" className="m-2"/> */}
                     </div>
 
 
@@ -411,6 +384,48 @@ const Panel = ({ onPassServiceData }: any) => {
                   size="small"
                   className="mt-2 col-span-12"
                 />
+              </div>
+            </div>
+          </Fieldset>
+
+          <Fieldset legend="Price" className="md:col-12 lg:col-12 mb-3" toggleable>
+            <div className="grid grid-cols-12">
+              <div className="md:col-6 lg:col-6">
+                <label htmlFor="Wallet">Service Price</label>
+                <InputNumber
+                  placeholder="Price"
+                  name="price"
+                  className="w-full mt-1"
+                  value={Serviceform.values.price}
+                  autoFocus={focusedField === 'price'}
+                  onInput={() => handleInputFocus('price')}
+                  onChange={(e) => Serviceform.setFieldValue('price', e.value )}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <label htmlFor="Wallet">Service Currency</label>
+                  <InputText
+                    placeholder="currency"
+                    name="currency"
+                    className="w-full mt-1"
+                    disabled
+                    value={'USD'}
+                    autoFocus={focusedField === 'currency'}
+                    onInput={() => handleInputFocus('currency')}
+                    onChange={(e) => Serviceform.setFieldValue('currencyId', 1)}
+                  />
+
+                {/* <Dropdown
+                  placeholder="Select a currency"
+                  options={currency}
+                  optionLabel="name"
+                  optionValue="id"
+                  className="w-full mt-1"
+                  filter
+                  value={Serviceform.values.currencyId}
+                  onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
+                /> */}
               </div>
             </div>
           </Fieldset>
