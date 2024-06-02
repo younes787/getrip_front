@@ -13,6 +13,7 @@ export const handleResponse = (response: any, requestType?: string) => {
     if (requestType === "Post" || requestType === "Delete") {
       window.location?.replace(window.location?.href);
     }
+
     return response.data;
   } else {
     handleError(response.response.data.errors);

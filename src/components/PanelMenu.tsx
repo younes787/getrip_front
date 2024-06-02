@@ -257,7 +257,6 @@ const Panel = ({ onPassServiceData }: any) => {
 
           <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">
-
               <div className="md:col-6 lg:col-6">
                     <label className="mb-2" htmlFor="Status">{" "}City Name{" "}</label>
                     <Dropdown
@@ -352,7 +351,7 @@ const Panel = ({ onPassServiceData }: any) => {
 
                     </>
               ): <></>}
-              </div>
+            </div>
           </Fieldset>
 
           <Fieldset legend="Tags" className="md:col-12 lg:col-12 mb-3" toggleable>
