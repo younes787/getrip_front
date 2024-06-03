@@ -21,7 +21,27 @@ import { Image } from 'primereact/image';
 import LoadingComponent from "./Loading";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
-const validationSchema = Yup.object({});
+const validationSchema = Yup.object({
+  name: Yup.string().required('Service Name is required'),
+  description: Yup.string().required('Service Description is required'),
+  // imagePath: Yup.mixed().required('Service Image is required'),
+  price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
+  cityId: Yup.number().required('City is required'),
+  // placeId: Yup.number().required('Place is required'),
+  // rentalPlaceName: Yup.string(),
+  // fields: Yup.object().shape({
+  //   someFieldName: Yup.string().required('This field is required')
+  // }),
+  // photos: Yup.object().shape({
+  //   imagePath: Yup.string().required('This Image is required')
+  // }),
+  // tags: Yup.array().of(
+  //   Yup.object().shape({
+  //     name: Yup.string().required('Tag name is required')
+  //   })
+  // ),
+  currencyId: Yup.number().required('Currency is required'),
+});
 
 const FormUseType = () => {
   const [fileimg, setFileimg] = useState<any>();
@@ -59,6 +79,7 @@ const FormUseType = () => {
 
   const Serviceform = useFormik<ServiceDTO>({
     initialValues: new ServiceDTO(),
+    validationSchema,
     validateOnChange: true,
     onSubmit: (values) => {
       Serviceform.values.isRental = true
@@ -97,6 +118,9 @@ const FormUseType = () => {
             message: 'Service added successfully.',
             icon: 'pi pi-check-circle',
             defaultFocus: 'accept',
+            content: (props) => (
+              <CustomConfirmDialogContent {...props} resetForm={Serviceform.resetForm} />
+            ),
           });
       }
     } catch (error) {
@@ -187,7 +211,17 @@ const FormUseType = () => {
     setFocusedField(field);
   };
 
-  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate }: any) => {
+  const renderError = (error: any) => {
+    if (typeof error === 'string') {
+      return <div className="text-red-500 mt-2">{error}</div>;
+    }
+    if (Array.isArray(error)) {
+      return error.map((err, index) => <div key={index} className="text-red-500 mt-2">{err}</div>);
+    }
+    return null;
+  };
+
+  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate, resetForm }: any) => {
     return (
       <div className="flex flex-column align-items-center p-5 surface-overlay border-round custom-widht">
         <div className="border-circle bg-green-500 text-white inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
@@ -196,7 +230,7 @@ const FormUseType = () => {
         <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
         <p className="mb-0">{message.message}</p>
         <div className="grid align-items-center gap-3 mt-4" >
-          <Button label="Continue adding services" onClick={(event) => { hide(event); }} className="w-full bg-green-500 border-green-500"></Button>
+          <Button label="Continue adding services" onClick={(event) => { hide(event); resetForm(); }} className="w-full bg-green-500 border-green-500"></Button>
           <Button label="Go home" outlined onClick={(event) => { hide(event); navigate('/') }} className="w-full text-green border-green-500 text-green-500"></Button>
         </div>
       </div>
@@ -230,6 +264,7 @@ const FormUseType = () => {
                   autoFocus={focusedField === 'name'}
                   onInput={() => handleInputFocus('name')}
                   onChange={(e) => Serviceform.setFieldValue('name', e.target.value)} />
+                  {renderError(Serviceform.errors.name)}
               </div>
 
               <div className="md:col-6 lg:col-6">
@@ -242,6 +277,7 @@ const FormUseType = () => {
                   autoFocus={focusedField === 'description'}
                   onInput={() => handleInputFocus('description')}
                   onChange={(e) => Serviceform.setFieldValue('description', e.target.value)} />
+                  {renderError(Serviceform.errors.description)}
               </div>
 
               <div className="md:col-6 lg:col-6">
@@ -264,6 +300,7 @@ const FormUseType = () => {
                   }}
                   customUpload
                   uploadHandler={() => ImageServiceform.handleSubmit()} />
+                  {renderError(Serviceform.errors.photos)}
               </div>
             </div>
           </Fieldset>
@@ -306,6 +343,7 @@ const FormUseType = () => {
                         onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.target.value)}
                         placeholder={f.name} />
                     )}
+                    {renderError(Serviceform.errors.fields)}
                   </div>
                 ))}
               </div>
@@ -326,6 +364,7 @@ const FormUseType = () => {
                   className="w-full"
                   value={Serviceform.values.cityId}
                   onChange={(e) => handleCityChange(e)} />
+                  {renderError(Serviceform.errors.cityId)}
               </div>
 
               {Serviceform.values.typeId?.name !== "VIP transfers" ? (
@@ -344,6 +383,7 @@ const FormUseType = () => {
                       tooltipOptions={{ event: 'both', position: 'left', showDelay: 100 }}
                       value={Serviceform.values.placeId ?? otherPlace?.value}
                       onChange={(e) => handlePlaceChange(e)} />
+                      {renderError(Serviceform.errors.placeId)}
                   </div>
 
                   {/* {Serviceform.values.typeId && Serviceform.values.placeId && (
@@ -400,6 +440,7 @@ const FormUseType = () => {
                         onInput={() => handleInputFocus('rentalPlaceName')}
                         value={Serviceform.values.rentalPlaceName}
                         onChange={(e) => Serviceform.setFieldValue('rentalPlaceName', e.target.value)} />
+                        {renderError(Serviceform.errors.rentalPlaceName)}
                     </div>
 
                     <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => setshowPlace(false)} />
@@ -433,6 +474,7 @@ const FormUseType = () => {
                   autoFocus={focusedField === 'tags.name'}
                   onInput={() => handleInputFocus('tags.name')}
                   onChange={(e) => setNewTag(e.target.value)} />
+                  {/* {renderError(Serviceform.errors.tags)} */}
                 <Button
                   icon="pi pi-plus"
                   label="Add Tag"
@@ -457,6 +499,7 @@ const FormUseType = () => {
                   autoFocus={focusedField === 'price'}
                   onInput={() => handleInputFocus('price')}
                   onChange={(e) => Serviceform.setFieldValue('price', e.value)} />
+                  {renderError(Serviceform.errors.price)}
               </div>
 
               <div className="md:col-6 lg:col-6">
@@ -470,29 +513,30 @@ const FormUseType = () => {
                   autoFocus={focusedField === 'currency'}
                   onInput={() => handleInputFocus('currency')}
                   onChange={(e) => Serviceform.setFieldValue('currencyId', 1)} />
+                  {renderError(Serviceform.errors.currencyId)}
 
                 {/* <Dropdown
-    placeholder="Select a currency"
-    options={currency}
-    optionLabel="name"
-    optionValue="id"
-    className="w-full mt-1"
-    filter
-    value={Serviceform.values.currencyId}
-    onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
-  /> */}
+                  placeholder="Select a currency"
+                  options={currency}
+                  optionLabel="name"
+                  optionValue="id"
+                  className="w-full mt-1"
+                  filter
+                  value={Serviceform.values.currencyId}
+                  onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
+                /> */}
               </div>
             </div>
           </Fieldset>
 
           <div className="md:col-12 lg:col-12">
-            <Button rounded icon='pi pi-plus' type="button" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />
+            <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />
           </div>
         </div>
       </>}
 
       <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
-        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} />
+        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Serviceform.resetForm} />
       )}/>
     </div>
   );
