@@ -28,7 +28,8 @@ const MyServices = () => {
       <div className="">
           {loading ? <LoadingComponent/> :
             <div className="grid grid-cols-12 m-3">
-              {services?.map((service: ServiceDTO, index: number) => (
+               {services.length > 0 ? (
+              services?.map((service: ServiceDTO, index: number) => (
                 <div className="md:col-3 lg:col-3 my-2">
                   <Card
                       key={index}
@@ -49,8 +50,10 @@ const MyServices = () => {
                     </div>
                   </Card>
                 </div>
-                ))
-              }
+              ))
+              ) : (
+                <span className="w-full text-center flex justify-content-center align-items-center text-red-500 text-xl italic mt-4">You don't have services</span>
+              )}
             </div>
           }
       </div>
