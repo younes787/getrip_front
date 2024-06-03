@@ -11,7 +11,7 @@ import LoadingComponent from "../components/Loading";
 import { ServiceDTO } from "../modules/getrip.modules";
 import MyInfo from "../components/MyInfo";
 
-const Profile = ()=>{
+const Profile = () => {
  const User = JSON.parse(localStorage?.getItem('user') as any)
  const name = User?.data?.name + ' ' + User?.data?.lastname
  const email = User?.data?.email
@@ -23,24 +23,14 @@ const Profile = ()=>{
     setLoading(true);
 
     GetMyServices(User?.data?.accountId, 1, 50).then((res)=> {
-      console.log(res);
-
-      // pageNumber
-      // pageSize
-      // totalItems
       setServices(res?.data?.items);
       setLoading(false);
     }).catch((error) => {
       setLoading(false);
+    }).finally(() => {
+      setLoading(false);
     });
   },[]);
-
-  const handlePassDataWhenAddService = (service: ServiceDTO) => {
-    if(service) {
-      setServices((prevService) => [...prevService, service]);
-      setActiveIndex(0);
-    }
-  };
 
     return(
       <>
@@ -92,7 +82,7 @@ const Profile = ()=>{
                 </div>
               }
           </TabPanel>
-          <TabPanel header={<div>Add Services</div>}><PanelMenu onPassServiceData={handlePassDataWhenAddService} /></TabPanel>
+          <TabPanel header={<div>Add Services</div>}><PanelMenu /></TabPanel>
         </TabView>
         </div>
       </>

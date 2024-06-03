@@ -1,11 +1,6 @@
 import { Menubar } from "primereact/menubar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCar,
-  faPlane,
-  faTaxi,
-  faTree,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCar, faPlane, faTaxi, faTree} from "@fortawesome/free-solid-svg-icons";
 import { Menu } from "primereact/menu";
 import { useRef, useState } from "react";
 import { Button } from "primereact/button";
@@ -19,6 +14,7 @@ import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
 import AvatarImage from "../Assets/Ellipse.png";
 import LoadingComponent from "./Loading";
+
 const NavBar = () => {
   const menuLeft = useRef<any>(null);
   const [show, setshow] = useState<boolean>(false);
@@ -29,7 +25,7 @@ const NavBar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-  const User = JSON.parse(localStorage?.getItem('user') as any) 
+  const User = JSON.parse(localStorage?.getItem('user') as any)
   const role = User?.data?.role
 
   const register = useFormik<RegisterDTO>({
@@ -43,6 +39,7 @@ const NavBar = () => {
       });
     },
   });
+
   const loginform = useFormik<LoginDTO>({
     initialValues: new LoginDTO(),
     validateOnChange: true,
@@ -57,10 +54,11 @@ const NavBar = () => {
         });
       }
      catch(e){
-console.log(e)
+      console.error(e)
      }
     },
   });
+
   const Partneregister = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
     validateOnChange: true,
@@ -72,30 +70,35 @@ console.log(e)
       });
     },
   });
+
   const itemRenderer = (item: any) => (
     <a className="flex align-items-center p-menuitem-link">
       <FontAwesomeIcon icon={faCar} />
       <span className="mx-2">{item.label}</span>
     </a>
   );
+
   const PlaneRender = (item: any) => (
     <a className="flex align-items-center p-menuitem-link">
       <FontAwesomeIcon icon={faPlane} />
       <span className="mx-2">{item.label}</span>
     </a>
   );
+
   const TaxiRender = (item: any) => (
     <a className="flex align-items-center p-menuitem-link">
       <FontAwesomeIcon icon={faTaxi} />
       <span className="mx-2">{item.label}</span>
     </a>
   );
+
   const TreeRender = (item: any) => (
     <a className="flex align-items-center p-menuitem-link">
       <FontAwesomeIcon icon={faTree} />
       <span className="mx-2">{item.label}</span>
     </a>
   );
+
   const items = [
     {
       label: "Air Flights",
@@ -118,6 +121,7 @@ console.log(e)
       template: TreeRender,
     },
   ];
+
   const Menuitems = [
     {
       label: "User Menu",
@@ -141,6 +145,7 @@ console.log(e)
       ].filter((c)=> c.condition === undefined ? true : c.condition),
     },
   ];
+
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
       {user?.isSuccess === true ? <></> :<Button
@@ -176,6 +181,7 @@ console.log(e)
       )}
     </div>
   );
+
   return (
     <div className="card">
       <Dialog
@@ -485,7 +491,7 @@ console.log(e)
                 Partneregister.setFieldValue("position", e.target.value)
               }
             />
-          </div>   
+          </div>
           <div className="col ml-3">
             <div>
               <label className=" primary" htmlFor="">
@@ -502,7 +508,7 @@ console.log(e)
                 Partneregister.setFieldValue("address", e.target.value)
               }
             />
-          </div>   
+          </div>
           <div className="col ml-3">
             <div>
               <label className=" primary" htmlFor="">

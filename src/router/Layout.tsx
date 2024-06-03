@@ -23,28 +23,31 @@ import Residence from "../pages/Residencemain";
 import Payment from "../pages/Payment";
 import Profile from "../pages/Profile";
 import VehicleType from "../pages/VehicleType";
+import FormUseType from "../components/FormUseType";
 
 const Layout = () => {
   const { user } = useAuth();
-  const User = JSON.parse(localStorage?.getItem('user') as any) 
-  const role = User?.data?.role
+  const User = JSON.parse(localStorage?.getItem('user') as any)
+  const role = User?.data?.role;
+
   return (
     <div>
       <NavBar />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition={Bounce}
-      />
-      <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+        />
+        <ToastContainer />
+
       <Routes>
         {user  ? (
           <>
@@ -65,6 +68,7 @@ const Layout = () => {
         </Route> :<></>}
         <Route path="/" element={<Home />}></Route>
         <Route path="/profile" element={<Profile />} />
+        <Route path="/form-use-type" element={<FormUseType />} />
         </>
         ) : (
           <>

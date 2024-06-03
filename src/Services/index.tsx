@@ -683,7 +683,7 @@ export const GetAllYachts = async () => {
 export const AddService = async (ServiceData: any) => {
   try {
     const response = await api.post(`/addservice` , ServiceData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }

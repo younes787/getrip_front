@@ -1,7 +1,7 @@
 import '../styles/loading.scss'
 
 type Props = {
-loading : boolean
+  loading : boolean
 }
 
 const LoadingComponent = () => {

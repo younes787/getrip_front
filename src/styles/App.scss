@@ -141,3 +141,33 @@ html body {
   color: #fff;
   background: transparent;
 }
+
+.getrip-shadow-none {
+  box-shadow: none !important;
+}
+
+.getrip-card-image {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.getrip-card-image img {
+  width: 35%;
+}
+
+.px-10 {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.px-12 {
+  padding-left: 4rem;
+  padding-right: 4rem;
+}
+
+.custom-widht{
+  width: 500px;
+}
