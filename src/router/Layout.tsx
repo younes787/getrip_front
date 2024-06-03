@@ -24,6 +24,8 @@ import Payment from "../pages/Payment";
 import Profile from "../pages/Profile";
 import VehicleType from "../pages/VehicleType";
 import FormUseType from "../components/FormUseType";
+import MyServices from "../pages/MyServices";
+import AddServices from "../pages/AddServices";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -66,9 +68,11 @@ const Layout = () => {
           <Route path="/residence" element={<Residence />} />
           <Route path="/currency" element={<Payment />} />
         </Route> :<></>}
-        <Route path="/" element={<Home />}></Route>
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/form-use-type" element={<FormUseType />} />
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-services" element={<MyServices />} />
+          <Route path="/add-services" element={<AddServices />} />
+          <Route path="/form-use-type" element={<FormUseType />} />
         </>
         ) : (
           <>

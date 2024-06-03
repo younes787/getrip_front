@@ -4,7 +4,7 @@ import { GetServiceTypes} from "../Services";
 import { Card } from "primereact/card";
 import { useNavigate } from "react-router-dom";
 
-const Panel = () => {
+const AddServices = () => {
   const [serviceType, setServiceType] = useState<any[]>([]);
   const navigate = useNavigate();
 
@@ -43,4 +43,4 @@ const Panel = () => {
   );
 };
 
-export default Panel;
+export default AddServices;

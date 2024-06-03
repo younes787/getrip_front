@@ -127,14 +127,26 @@ const NavBar = () => {
       label: "User Menu",
       items: [
         {
+          label: "Dashboard",
+          icon: "pi pi-chart-bar",
+          command: ()=> navigate('/dashboard'),
+          condition :  role === 'Administrator'
+        },
+        {
           label: "My Profile",
           icon: "pi pi-user",
           command: ()=> navigate('/profile'),
         },
-      {
-          label: "Dashboard",
-          icon: "pi pi-chart-bar",
-          command: ()=> navigate('/dashboard'),
+        {
+          label: "My services",
+          icon: "pi pi-list",
+          command: ()=> navigate('/my-services'),
+          condition :  role === 'Administrator'
+        },
+        {
+          label: "Add services",
+          icon: "pi pi-plus",
+          command: ()=> navigate('/add-services'),
           condition :  role === 'Administrator'
         },
         {
@@ -155,6 +167,7 @@ const NavBar = () => {
         className="outline_btn"
         onClick={() => setshowsignPartner(true)}
       />}
+
       {user?.isSuccess === true ? (
         <>
           <i
@@ -263,6 +276,7 @@ const NavBar = () => {
           you’ve read our Privacy Policy
         </span>
       </Dialog>
+
       <></>
       <Dialog
         header={
@@ -409,6 +423,7 @@ const NavBar = () => {
           you’ve read our Privacy Policy.
         </span>
       </Dialog>
+
       <></>
       <Dialog
         header={
@@ -692,16 +707,16 @@ const NavBar = () => {
           you’ve read our Privacy Policy.
         </span>
       </Dialog>
+
       <Menu model={Menuitems} popup ref={menuLeft} className="popup-left" />
-      {loading ? <LoadingComponent/>: <Menubar
-        end={end}
-        start={
-          <span className=" text-2xl get-rp" style={{marginLeft:'100px'}} onClick={()=>navigate('/')}>
-            Ge<span className="secondery">t</span>rip
-          </span>
-        }
-        className="navbar"
-      />}
+      {loading ? <LoadingComponent/> :
+        <Menubar end={end} start={
+            <span className="text-2xl get-rp" style={{marginLeft:'100px'}} onClick={()=>navigate('/')}>
+              Ge<span className="secondery">t</span>rip
+            </span>}
+          className="navbar"
+        />
+      }
     </div>
   );
 };
