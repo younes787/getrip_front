@@ -33,7 +33,7 @@ const Layout = () => {
   const role = User?.data?.role;
 
   return (
-    <div>
+    <div className="h-full">
       <NavBar />
         <ToastContainer
           position="top-right"

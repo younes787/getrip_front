@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddImageToService, AddService, GetAllCities, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts} from "../Services";
+import { AddImageToService, AddService, GetAllCities, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes} from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
@@ -64,6 +64,7 @@ const FormUseType = () => {
   const nonEmptyTags = tags.filter(tag => tag.name.trim() !== '');
   const location = useLocation();
   const [loading, setLoading] = useState<boolean>(false);
+  const [pricingTypes, setPricingTypes] = useState<any>();
 
   const ImageServiceform = useFormik<ImageDTO>({
     initialValues: new ImageDTO(),
@@ -172,6 +173,11 @@ const FormUseType = () => {
       }
     };
 
+    GetAllPricingTypes().then((res) => {
+      const filteredData = res?.data.filter((item: any) => item.serviceTypeId === location.state.id);
+      setPricingTypes(filteredData);
+    });
+
     fetchData();
   }, [location, navigate]);
 
@@ -237,12 +243,14 @@ const FormUseType = () => {
     );
   };
 
+  console.log(pricingTypes);
+
   return (
     <div className="container mx-auto px-12">
       {loading ? <LoadingComponent/> : <>
         <div className="grid grid-cols-12 mt-3 mb-5">
           <div className="back md:col-1 lg:col-1 flex justify-content-start align-items-center">
-            <Button icon="pi pi-angle-left" onClick={() => navigate('/profile')} />
+            <Button icon="pi pi-angle-left" label="back" onClick={() => navigate('/add-services')} />
           </div>
 
           <div className="md:col-11 lg:col-11 getrip-type text-center flex justify-content-center align-items-center">
@@ -386,45 +394,6 @@ const FormUseType = () => {
                       {renderError(Serviceform.errors.placeId)}
                   </div>
 
-                  {/* {Serviceform.values.typeId && Serviceform.values.placeId && (
-                    <div className="md:col-6 lg:col-6">
-                      <label className="mb-2" htmlFor="Status">{" "}Residence Name{" "}</label>
-                      <Dropdown
-                        placeholder="Select a Residence"
-                        options={residence}
-                        optionLabel="name"
-                        optionValue="id"
-                        name="residenceTypeId"
-                        filter
-                        className="w-full"
-                        value={Serviceform.values.residenceTypeId}
-                        onChange={(e) => Serviceform.setFieldValue("cityId", e.value)} />
-                    </div>
-                  )}
-
-                  <div className="md:col-6 lg:col-6">
-                      <label className="mb-2" htmlFor="Status">{" "}Vehicle Name{" "}</label>
-                      <Dropdown
-                        placeholder="Select a Vehicle"
-                        options={vehicle}
-                        optionLabel="vehicleTypeName"
-                        optionValue="id"
-                        name="vehicleTypeId"
-                        filter
-                        className="w-full"
-                        value={Serviceform.values.vehicleTypeId}
-                        onChange={(e) => Serviceform.setFieldValue("vehicleTypeId", e.value)
-                      }
-                      />
-                    </div> */}
-
-                  <div className="md:col-12 lg:col-12 mt-2 p-0">
-                    {/* <Button icon="pi pi-plus" label="Add Residence" onClick={() => setshowResidence(true)} rounded severity="info" size="small" className="m-2"/> */}
-                    {/* <Button icon="pi pi-plus" label="Add Place" onClick={() => setshowPlace(true)} rounded severity="info" size="small" className="m-2"/> */}
-                    {/* <Button icon="pi pi-plus" label="Add Vehicle" onClick={() => setshowVehicle(true)} rounded severity="info" size="small" className="m-2"/> */}
-                  </div>
-
-
                   <Dialog header={"Add Residence"} visible={showResidence} className="md:w-40rem lg:w-40rem" onHide={() => setshowResidence(false)}>
                     <Residence />
                   </Dialog>
@@ -512,24 +481,30 @@ const FormUseType = () => {
                   value={'USD'}
                   autoFocus={focusedField === 'currency'}
                   onInput={() => handleInputFocus('currency')}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', 1)} />
+                  onChange={(e) => Serviceform.setFieldValue('currencyId', location.state.currencyId)} />
                   {renderError(Serviceform.errors.currencyId)}
-
-                {/* <Dropdown
-                  placeholder="Select a currency"
-                  options={currency}
-                  optionLabel="name"
-                  optionValue="id"
-                  className="w-full mt-1"
-                  filter
-                  value={Serviceform.values.currencyId}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', e.value )}
-                /> */}
               </div>
+
+              {pricingTypes && pricingTypes.length > 0 &&
+              <div className="md:col-6 lg:col-6">
+                {pricingTypes?.map((pricingType: any, index: number) => (
+                    <>
+                    <label htmlFor={pricingType.name}>{pricingType.name}</label>
+                    <InputNumber
+                      autoFocus={focusedField === pricingType.name}
+                      onInput={() => handleInputFocus(pricingType.name)}
+                      value={Serviceform.values.fields?.[pricingType.name]}
+                      className="w-full mt-1"
+                      onValueChange={(e) => Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value)}
+                      placeholder={pricingType.name} />
+                    </>
+                ))}
+              </div>}
+
             </div>
           </Fieldset>
 
-          <div className="md:col-12 lg:col-12">
+          <div className="md:col-12 lg:col-12 mb-8 flex align-items-center justify-content-end">
             <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />
           </div>
         </div>

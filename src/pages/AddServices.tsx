@@ -1,15 +1,16 @@
 import { Button } from "primereact/button";
 import { useEffect, useState } from "react";
-import { GetServiceTypes} from "../Services";
+import { GetAssignedServiceTypeByAccountId} from "../Services";
 import { Card } from "primereact/card";
 import { useNavigate } from "react-router-dom";
 
 const AddServices = () => {
+  const User = JSON.parse(localStorage?.getItem('user') as any)
   const [serviceType, setServiceType] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    GetServiceTypes().then((res) => setServiceType(res?.data));
+    GetAssignedServiceTypeByAccountId(User?.data?.accountId).then((res) => setServiceType(res?.data));
   }, []);
 
   return (

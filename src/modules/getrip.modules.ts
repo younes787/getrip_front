@@ -34,13 +34,30 @@ export class UsersDTO {
   role: string = '';
 }
 
-export class ServicesDTO {
+export class ServicesTypeDTO {
+  id?: number = 0;
+  name: string = '';
   description: string = '';
+  currencyId: number = 0;
+  isRental: boolean = false;
+  isTrip: boolean = false;
+  isResidence: boolean = false;
+  isVehicle: boolean = false;
+  isCruise: boolean = false;
+  isYacht: boolean = false;
+  residenceTypeId?: number;
+  vehicleTypeId?: number;
+}
+
+export class PricingDTO {
+  serviceTypeId: number = 0;
+  id?: number = 0;
   name: string = '';
 }
 
 export class CountriesDTO {
-  id?: number = 0
+  id?: number = 0;
+  taxRate: number = 0;
   countryCode: string = '';
   name: string = '';
 }

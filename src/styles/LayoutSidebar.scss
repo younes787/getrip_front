@@ -1,16 +1,18 @@
 .layout-with-sidebar {
-    display: flex;
-    background-color: whitesmoke;
-  }
+  height: calc(100% - 5rem);
+  overflow: 'hidden';
+  display: flex;
+  background-color: whitesmoke;
+}
 
-  .content {
-    flex: 1;
-    padding: 20px;
-  }
+.content {
+  flex: 1;
+  padding: 20px;
+}
 
-  .content-with-offset {
-    // margin-left: 250px;  /* Same as the sidebar width */
-    padding: 20px;  /* Optional padding */
-    flex: 1;
-
-  }
+.content-with-offset {
+  // height: calc(100% - 5rem);
+  overflow: hidden;
+  padding: 20px;
+  flex: 1;
+}

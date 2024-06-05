@@ -1,36 +1,39 @@
 import axios from "axios";
 import { handleResponse, handleError } from "./handleResponse";
 
+const getToken = () => {
+  return typeof window !== "undefined" && window.localStorage ? localStorage.getItem("token") : "";
+};
+
 const createAxiosInstance = (contentType: string) => {
   const headers = {
     "Content-Type": contentType,
-    Authorization: `Bearer ${
-      typeof window !== "undefined" && window.localStorage
-        ? localStorage.getItem("token")
-        : ""
-    }`,
+    Authorization: `Bearer ${getToken()}`,
   };
 
-  return axios.create({
+  const instance = axios.create({
     baseURL: "https://getrip.azurewebsites.net",
     headers,
   });
+
+  instance.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/";
+      }
+    }
+  );
+
+  return instance;
 };
 
 const api = createAxiosInstance("application/json");
 const apiForm = createAxiosInstance("multipart/form-data");
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/";
-    }
-    return Promise.reject(error);
-  }
-);
 
 export const authRegister = async (registerData: any) => {
   try {
@@ -131,6 +134,15 @@ export const GetMyServices = async (aid: number, pn: number, ps: number) => {
   }
 };
 
+export const GetAssignedServiceTypeByAccountId = async (aid: number) => {
+  try {
+    const response = await api.get(`/getassignedservicetypebyaccountid/${aid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const UpdateService = async (ServicesData: any) => {
   try {
     const response = await api.put("/updateservicetype", ServicesData);
@@ -144,6 +156,33 @@ export const CreateCountry = async (CountryData: any) => {
   try {
     const response = await api.post("/createcountry", CountryData);
     return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const CreatePricingType = async (PricingTypeData: any) => {
+  try {
+    const response = await api.post("/createpricingtype", PricingTypeData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdatePricingType = async (PricingTypeData: any) => {
+  try {
+    const response = await api.put("/updatepricingtype", PricingTypeData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllPricingTypes = async () => {
+  try {
+    const response = await api.get("/getallpricingtypes");
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }
