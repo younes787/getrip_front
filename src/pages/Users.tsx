@@ -29,16 +29,20 @@ const Users = () => {
       setRolesList(res.data)
       setRolesName(res.data[0].name);
     }).finally(() => {
-      if(rolesName) {
-        GetUsersInRole(rolesName).then((res) => {
-          setUsersList(res?.data);
-          setLoading(false);
-        }).catch((error) => {
-          setLoading(false);
-        });
-      }
+      fetchUsersList();
     });
   }, []);
+
+  const fetchUsersList = () => {
+    if(rolesName) {
+      GetUsersInRole(rolesName).then((res) => {
+        setUsersList(res?.data);
+        setLoading(false);
+      }).catch((error) => {
+        setLoading(false);
+      });
+    }
+  };
 
   const onTabChange = (e: any) => {
     setLoading(true);
