@@ -29,12 +29,14 @@ const Users = () => {
       setRolesList(res.data)
       setRolesName(res.data[0].name);
     }).finally(() => {
-      GetUsersInRole(rolesName).then((res) => {
-        setUsersList(res?.data);
-        setLoading(false);
-      }).catch((error) => {
-        setLoading(false);
-      });
+      if(rolesName) {
+        GetUsersInRole(rolesName).then((res) => {
+          setUsersList(res?.data);
+          setLoading(false);
+        }).catch((error) => {
+          setLoading(false);
+        });
+      }
     });
   }, []);
 
