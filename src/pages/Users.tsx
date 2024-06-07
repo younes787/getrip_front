@@ -31,7 +31,7 @@ const Users = () => {
     }).finally(() => {
       fetchUsersList();
     });
-  }, []);
+  }, [rolesName]);
 
   const fetchUsersList = () => {
     if(rolesName) {
