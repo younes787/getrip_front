@@ -1,6 +1,6 @@
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
@@ -22,38 +22,55 @@ const Users = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
 
-  useEffect(() => {
-    setLoading(true);
-
-    GetAllRoles().then((res) => {
-      setRolesList(res.data)
+  const fetchRoles = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await GetAllRoles();
+      setRolesList(res.data);
       setRolesName(res.data[0].name);
-    }).finally(() => {
-      fetchUsersList();
-    });
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUsersList = useCallback(async () => {
+    if (rolesName) {
+      try {
+        setLoading(true);
+        const res = await GetUsersInRole(rolesName);
+        setUsersList(res?.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   }, [rolesName]);
 
-  const fetchUsersList = () => {
-    if(rolesName) {
-      GetUsersInRole(rolesName).then((res) => {
-        setUsersList(res?.data);
-        setLoading(false);
-      }).catch((error) => {
-        setLoading(false);
-      });
-    }
-  };
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
 
-  const onTabChange = (e: any) => {
+  useEffect(() => {
+    fetchUsersList();
+  }, [rolesName, fetchUsersList]);
+
+  const onTabChange = async (e: any) => {
     setLoading(true);
-    setRolesName(rolesList[e.index].name);
+    setUsersList(null);
+    const newRoleName = rolesList[e.index].name;
+    setRolesName(newRoleName);
     setActiveIndex(e.index);
-    GetUsersInRole(rolesList[e.index].name).then((res) => {
+    try {
+      const res = await GetUsersInRole(newRoleName);
       setUsersList(res?.data);
+    } catch (error) {
+      console.error('Error fetching users on tab change:', error);
+    } finally {
       setLoading(false);
-    }).catch((error) => {
-      setLoading(false);
-    });
+    }
   };
 
   const [filters, setFilters] = useState({
@@ -138,8 +155,6 @@ const Users = () => {
     );
   };
 
-  const header = renderHeader();
-
   const DeleteUsers = (Email: string) => {
     DeleteUser(Email);
   };
@@ -203,7 +218,7 @@ const Users = () => {
                   paginator
                   rowHover
                   filters={filters}
-                  header={header}
+                  header={renderHeader()}
                 >
                   <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
                   <Column field="business" filter sortable header="Business"></Column>
