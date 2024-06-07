@@ -56,7 +56,7 @@ export const authLogin = async (loginData: any) => {
 export const CreateUser = async (userData: any) => {
   try {
     const response = await api.post("/createuser", userData);
-    return handleResponse(response, "");
+    return handleResponse(response, "Post");
   } catch (error) {
     handleError(error);
   }
@@ -92,6 +92,15 @@ export const GetAllUsers = async () => {
 export const GetAllRoles = async () => {
   try {
     const response = await api.get("/getallroles");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetUsersInRole = async (role: string) => {
+  try {
+    const response = await api.get(`/usersinrole/${role}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

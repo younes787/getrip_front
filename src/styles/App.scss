@@ -76,12 +76,49 @@ html body {
   background-position: center;
 }
 
+.home {
+  .p-tabview {
+    background-color: #fff;
+  }
+
+  .p-tabview .p-tabview-nav .p-tabview-ink-bar {
+    background-color: $secondery_color;
+    color: $secondery_color;
+    border-color: $secondery_color;
+  }
+
+  .p-tabview-nav-container, .p-tabview-panels {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  li.p-highlight {
+    border-color: $secondery_color;
+  }
+
+  .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: $secondery_color;
+    border-color: $secondery_color;
+  }
+}
+
+.home-card {
+  .p-carousel .p-carousel-content .p-carousel-prev, .p-carousel .p-carousel-content .p-carousel-next {
+    border: 1px solid $primary_color;
+    color: $primary_color;
+    font-weight: 900;
+    font-size: 20px;
+  }
+}
+
 .black {
   color: $black;
 }
 
 .get-rp {
-  font-size: 2.3rem;
+  font-size: 3rem;
   font-weight: 500;
   color: $primary_color !important;
 }

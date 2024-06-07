@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { CreateUser, authRegister } from "../Services";
+import { CreateUser } from "../Services";
 import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
@@ -160,6 +160,14 @@ const NavBar = () => {
 
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
+
+    <div className="menu-items mr-7">
+      <Button label="Expolre" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button label="Support" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button label="EN. $" icon={'pi pi-fw pi-globe'} className="border-none primary bg-transparent outline-0 shadow-none"/>
+    </div>
+
       {user?.isSuccess === true ? <></> :<Button
         rounded
         label="Become A Partner"
@@ -709,11 +717,14 @@ const NavBar = () => {
       </Dialog>
 
       <Menu model={Menuitems} popup ref={menuLeft} className="popup-left" />
+
       {loading ? <LoadingComponent/> :
-        <Menubar end={end} start={
-            <span className="text-2xl get-rp" style={{marginLeft:'100px'}} onClick={()=>navigate('/')}>
+        <Menubar start={
+            <span className="text-2xl get-rp cursor-pointer" style={{marginLeft:'100px'}} onClick={() => navigate('/')}>
               Ge<span className="secondery">t</span>rip
-            </span>}
+            </span>
+          }
+          end={end}
           className="navbar"
         />
       }

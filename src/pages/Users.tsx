@@ -6,50 +6,78 @@ import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { Dropdown } from "primereact/dropdown";
 import { UsersDTO } from "../modules/getrip.modules";
-import { CreateUser, DeleteUser, GetAllRoles, GetAllUsers, UpdateUser} from "../Services";
+import { CreateUser, DeleteUser, GetAllRoles, GetUsersInRole, UpdateUser} from "../Services";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
+import { TabPanel, TabView } from "primereact/tabview";
 
 const Users = () => {
   const [UsersList, setUsersList] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
-  const [RolesList, setRolesList] = useState<any>();
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [rolesList, setRolesList] = useState<any>();
+  const [rolesName, setRolesName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
 
-  const [filters, setFilters] = useState({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    lastname: {
-      value: null,
-      matchMode: FilterMatchMode.STARTS_WITH,
-    },
-    business: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    role: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-  });
-
-  const getUsers = () => {
+  useEffect(() => {
     setLoading(true);
-    GetAllUsers().then((res) => {
-      if (res !== undefined) {
+
+    GetAllRoles().then((res) => {
+      setRolesList(res.data)
+      setRolesName(res.data[0].name);
+    }).finally(() => {
+      GetUsersInRole(rolesName).then((res) => {
         setUsersList(res?.data);
-      }
+        setLoading(false);
+      }).catch((error) => {
+        setLoading(false);
+      });
+    });
+  }, []);
+
+  const onTabChange = (e: any) => {
+    setLoading(true);
+    setRolesName(rolesList[e.index].name);
+    setActiveIndex(e.index);
+    GetUsersInRole(rolesList[e.index].name).then((res) => {
+      setUsersList(res?.data);
       setLoading(false);
     }).catch((error) => {
       setLoading(false);
     });
-    GetAllRoles().then((res) => setRolesList(res.data));
   };
 
-  const options = Array.isArray(RolesList) ? RolesList?.map((role: any) => ({ label: role.name, value: role.name})) : "";
+  const [filters, setFilters] = useState({
+    global: {
+      value: null,
+      matchMode: FilterMatchMode.CONTAINS
+    },
+    lastname: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH,
+    },
+    business: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH
+    },
+    email: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH
+    },
+    role: {
+      value: null,
+      matchMode: FilterMatchMode.STARTS_WITH
+    },
+  });
 
   const Usersform = useFormik<UsersDTO>({
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
+      Usersform.values.role = rolesName;
       CreateUser(Usersform.values);
       setShow(false);
     },
@@ -59,6 +87,7 @@ const Users = () => {
     initialValues: new UsersDTO(),
     validateOnChange: true,
     onSubmit: () => {
+      UsersformEdit.values.role = rolesName;
       UpdateUser(UsersformEdit.values);
       setShowEdit(false);
     },
@@ -66,6 +95,7 @@ const Users = () => {
 
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
+
     UsersformEdit.setValues({
       username: rowData.username,
       name: rowData.name,
@@ -76,10 +106,6 @@ const Users = () => {
       role: rowData.role,
     });
   };
-
-  useEffect(() => {
-    getUsers()
-  }, []);
 
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
@@ -152,328 +178,178 @@ const Users = () => {
     <div> {loading ? <LoadingComponent/> :
       <div>
         <ConfirmDialog />
-        <Button
-          label="Add New User"
-          onClick={() => setShow(true)}
-          size="small"
-          className="mt-4 ml-5 pr_btn"
-        ></Button>
 
-        <DataTable
-          value={UsersList}
-          stripedRows
-          showGridlines
-          className=" p-5"
-          tableStyle={{ minWidth: "50rem" }}
-          sortMode="multiple"
-          rows={5}
-          rowsPerPageOptions={[10, 15, 20, 50]}
-          paginator
-          rowHover
-          filters={filters}
-          header={header}
-        >
-          <Column field="lastname" filter sortable body={(rowData)=>(<div> {rowData.name + ' ' + rowData.lastname}</div>) } header="Full Name"></Column>
-          <Column field="business" filter sortable header="Business"></Column>
-          <Column field="email" filter sortable header="Email"></Column>
-          <Column field="role" filter sortable header="Role"></Column>
-          <Column field="" header="Actions" sortable body={BodyTemplate}></Column>
-        </DataTable>
-        <></>
+        <TabView className="p-5" onTabChange={onTabChange} activeIndex={activeIndex}>
+          {rolesList && rolesList.length > 0 &&
+            rolesList.map((role: any, index: number) => (
+              <TabPanel key={index} header={role.name}>
+                <Button label="Add New User" onClick={() => setShow(true)} size="small" className="pr_btn"></Button>
 
-        <Dialog
-          header="Add New User"
-          visible={show}
-          style={{ width: "50vw" }}
-          onHide={() => setShow(false)}
-          footer={
-            <>
-              <div>
-                <Button
-                  label="Save"
-                  size="small"
-                  severity="warning"
-                  outlined
-                  onClick={() => Usersform.handleSubmit()}
+                <DataTable
+                  value={UsersList}
+                  stripedRows
+                  showGridlines
                   className="mt-4"
-                ></Button>
-                <Button
-                  label="Cancel"
-                  severity="danger"
-                  outlined
-                  size="small"
-                  onClick={() => setShow(false)}
-                  className="mt-4"
-                ></Button>
-              </div>
-            </>
+                  tableStyle={{ minWidth: "50rem" }}
+                  sortMode="multiple"
+                  rows={5}
+                  rowsPerPageOptions={[10, 15, 20, 50]}
+                  paginator
+                  rowHover
+                  filters={filters}
+                  header={header}
+                >
+                  <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
+                  <Column field="business" filter sortable header="Business"></Column>
+                  <Column field="email" filter sortable header="Email"></Column>
+                  <Column field="" header="Actions" sortable body={BodyTemplate}></Column>
+                </DataTable>
+              </TabPanel>
+            ))
           }
-        >
-          <div className="grid gap-4">
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                UserName{" "}
-              </label>
+        </TabView>
 
-              <InputText
-                placeholder="UserName"
-                name="username"
-                value={Usersform?.values?.username}
-                onChange={(e) =>
-                  Usersform.setFieldValue("username", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                First Name{" "}
-              </label>
-
-              <InputText
-                placeholder="First Name"
-                name="name"
-                value={Usersform?.values?.name}
-                onChange={(e) => Usersform.setFieldValue("name", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 mt-2">
-            <div className="md:col-4 lg:col-4 ">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Last Name{" "}
-              </label>
-              <InputText
-                placeholder="Last Name"
-                name="lastname"
-                value={Usersform?.values?.lastname}
-                onChange={(e) =>
-                  Usersform.setFieldValue("lastname", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                Business{" "}
-              </label>
-              <InputText
-                placeholder="Business"
-                name="business"
-                value={Usersform?.values?.business}
-                onChange={(e) =>
-                  Usersform.setFieldValue("business", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Password{" "}
-              </label>
-              <InputText
-                placeholder="Password"
-                name="password"
-                value={Usersform?.values?.password}
-                onChange={(e) =>
-                  Usersform.setFieldValue("password", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Email{" "}
-              </label>
-              <InputText
-                placeholder="Email"
-                name="email"
-                value={Usersform?.values?.email}
-                onChange={(e) => Usersform.setFieldValue("email", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="md:col-4 lg:col-4">
-            <div>
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Role{" "}
-              </label>
-            </div>
-
-            <Dropdown
-              placeholder="Role"
-              options={options as any}
-              optionLabel="label"
-              optionValue="value"
-              name="role"
-              filter
-              className="w-full"
-              value={Usersform?.values?.role}
-              onChange={(e) => Usersform.setFieldValue("role", e.target.value)}
-            />
-          </div>
-        </Dialog>
-        <></>
-
-        <Dialog
-          header="Edit User"
-          visible={showEdit}
-          style={{ width: "50vw" }}
-          onHide={() => setShowEdit(false)}
-          footer={
-            <>
+          <Dialog
+            header="Add New User"
+            visible={show}
+            style={{ width: "50vw" }}
+            onHide={() => setShow(false)}
+            footer={<>
               <div>
-                <Button
-                  label="Edit"
-                  outlined
-                  severity="warning"
-                  size="small"
-                  onClick={() => UsersformEdit.handleSubmit()}
-                  className="mt-4"
-                ></Button>
-
-                <Button
-                  label="Cancel"
-                  severity="danger"
-                  outlined
-                  size="small"
-                  onClick={() => setShowEdit(false)}
-                  className="mt-4"
-                ></Button>
+                <Button label="Save" size="small" severity="warning" outlined onClick={() => Usersform.handleSubmit()} className="mt-4"></Button>
+                <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShow(false)} className="mt-4"></Button>
               </div>
-            </>
-          }
-        >
-          <div className="grid gap-4">
-            <div className="md:col-4 lg:col-4 ">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                UserName{" "}
-              </label>
-              <InputText
-                placeholder="UserName"
-                name="username"
-                value={UsersformEdit?.values?.username}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("username", e.target.value)
-                }
-                readOnly
-              />
+            </>}
+          >
+            <div className="grid gap-4 mt-2">
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Status">UserName</label>
+                <InputText
+                  placeholder="UserName"
+                  name="username"
+                  value={Usersform?.values?.username}
+                  onChange={(e) => Usersform.setFieldValue("username", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">First Name</label>
+                <InputText
+                  placeholder="First Name"
+                  name="name"
+                  value={Usersform?.values?.name}
+                  onChange={(e) => Usersform.setFieldValue("name", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4 ">
+                <label className="mb-2" htmlFor="Wallet">Last Name</label>
+                <InputText
+                  placeholder="Last Name"
+                  name="lastname"
+                  value={Usersform?.values?.lastname}
+                  onChange={(e) => Usersform.setFieldValue("lastname", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Status">Business</label>
+                <InputText
+                  placeholder="Business"
+                  name="business"
+                  value={Usersform?.values?.business}
+                  onChange={(e) => Usersform.setFieldValue("business", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">Password</label>
+                <InputText
+                  placeholder="Password"
+                  name="password"
+                  value={Usersform?.values?.password}
+                  onChange={(e) => Usersform.setFieldValue("password", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">Email</label>
+                <InputText
+                  placeholder="Email"
+                  name="email"
+                  value={Usersform?.values?.email}
+                  onChange={(e) => Usersform.setFieldValue("email", e.target.value)} />
+              </div>
             </div>
+          </Dialog>
 
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                First Name{" "}
-              </label>
-              <InputText
-                placeholder="First Name"
-                name="name"
-                value={UsersformEdit?.values?.name}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("name", e.target.value)
-                }
-              />
+          <Dialog
+            header="Edit User"
+            visible={showEdit}
+            style={{ width: "50vw" }}
+            onHide={() => setShowEdit(false)}
+            footer={<>
+              <div>
+                <Button label="Edit" outlined severity="warning" size="small" onClick={() => UsersformEdit.handleSubmit()} className="mt-4"></Button>
+                <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowEdit(false)} className="mt-4"></Button>
+              </div>
+            </>}
+          >
+
+            <div className="grid gap-4 mt-2">
+              <div className="md:col-4 lg:col-4 ">
+                <label className="mb-2" htmlFor="Status">UserName</label>
+                <InputText
+                  placeholder="UserName"
+                  name="username"
+                  value={UsersformEdit?.values?.username}
+                  onChange={(e) => UsersformEdit.setFieldValue("username", e.target.value)}
+                  readOnly />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">First Name</label>
+                <InputText
+                  placeholder="First Name"
+                  name="name"
+                  value={UsersformEdit?.values?.name}
+                  onChange={(e) => UsersformEdit.setFieldValue("name", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">Last Name</label>
+                <InputText
+                  placeholder="Last Name"
+                  name="lastname"
+                  value={UsersformEdit?.values?.lastname}
+                  onChange={(e) => UsersformEdit.setFieldValue("lastname", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4 ">
+                <label className="mb-2" htmlFor="Status">Business</label>
+                <InputText
+                  placeholder="Business"
+                  name="business"
+                  value={UsersformEdit?.values?.business}
+                  onChange={(e) => UsersformEdit.setFieldValue("business", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">Password</label>
+                <InputText
+                  placeholder="Password"
+                  name="password"
+                  value={UsersformEdit?.values?.password}
+                  onChange={(e) => UsersformEdit.setFieldValue("password", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <label className="mb-2" htmlFor="Wallet">Email</label>
+                <InputText
+                  placeholder="Email"
+                  name="email"
+                  value={UsersformEdit?.values?.email}
+                  onChange={(e) => UsersformEdit.setFieldValue("email", e.target.value)}
+                  readOnly />
+              </div>
             </div>
-          </div>
-
-          <div className="grid gap-4 mt-2">
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Last Name{" "}
-              </label>
-
-              <InputText
-                placeholder="Last Name"
-                name="lastname"
-                value={UsersformEdit?.values?.lastname}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("lastname", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4 ">
-              <label className="mb-2" htmlFor="Status">
-                {" "}
-                Business{" "}
-              </label>
-              <InputText
-                placeholder="Business"
-                name="business"
-                value={UsersformEdit?.values?.business}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("business", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Password{" "}
-              </label>
-              <InputText
-                placeholder="Password"
-                name="password"
-                value={UsersformEdit?.values?.password}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("password", e.target.value)
-                }
-              />
-            </div>
-
-            <div className="md:col-4 lg:col-4">
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Email{" "}
-              </label>
-              <InputText
-                placeholder="Email"
-                name="email"
-                value={UsersformEdit?.values?.email}
-                onChange={(e) =>
-                  UsersformEdit.setFieldValue("email", e.target.value)
-                }
-                readOnly
-              />
-            </div>
-          </div>
-
-          <div className="md:col-4 lg:col-4">
-            <div>
-              <label className="mb-2" htmlFor="Wallet">
-                {" "}
-                Role{" "}
-              </label>
-            </div>
-
-            <Dropdown
-              placeholder="Role"
-              options={options as any}
-              optionLabel="label"
-              optionValue="value"
-              name="role"
-              filter
-              className="w-full"
-              value={UsersformEdit?.values?.role}
-              onChange={(e) =>
-                UsersformEdit.setFieldValue("role", e.target.value)
-              }
-            />
-          </div>
-        </Dialog>
-      </div>
+          </Dialog>
+        </div>
     }
     </div>
   );
