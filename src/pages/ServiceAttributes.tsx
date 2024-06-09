@@ -75,7 +75,7 @@ const ServiceAttributes = (props:Props) => {
           label="Add New Field"
           onClick={() => setShow(true)}
           size="small"
-          className="mt-4 ml-5 pr_btn"
+          className="mt-4 ml-5 primary_btn"
         ></Button>
         <DataTable
           value={attributes}

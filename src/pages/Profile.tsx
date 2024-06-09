@@ -41,7 +41,7 @@ const formik = useFormik<UsersDTO>({
 
   return(
     <>
-      <div id="imageContainer1">
+      <div id="image-container-profile">
         <div className="flex">
           <div className="mt-4 ml-6">
             <Avatar

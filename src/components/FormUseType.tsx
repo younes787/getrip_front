@@ -243,8 +243,6 @@ const FormUseType = () => {
     );
   };
 
-  console.log(pricingTypes);
-
   return (
     <div className="container mx-auto px-12">
       {loading ? <LoadingComponent/> : <>
@@ -481,7 +479,7 @@ const FormUseType = () => {
                   value={'USD'}
                   autoFocus={focusedField === 'currency'}
                   onInput={() => handleInputFocus('currency')}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', location.state.currencyId)} />
+                  onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
                   {renderError(Serviceform.errors.currencyId)}
               </div>
 

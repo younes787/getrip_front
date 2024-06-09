@@ -22,7 +22,7 @@ const AddServices = () => {
               className="md:col-4 lg:col-4 !border-0 getrip-shadow-none"
               footer={
                 <Button
-                  className="pr_btn border-none"
+                  className="primary_btn border-none"
                   label="Choose"
                   severity="warning"
                   icon="pi pi-chevron-circle-right"

@@ -60,7 +60,7 @@ const Cites = () => {
       setShowEdit(false);
     },
   });
-  console.log(countreyValue)
+
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
     CityformEdit.setValues({
@@ -122,7 +122,7 @@ const Cites = () => {
         label="Add New City"
         onClick={() => setShow(true)}
         size="small"
-        className="mt-4 ml-5 pr_btn"
+        className="mt-4 ml-5 primary_btn"
       ></Button>
       <DataTable
         value={cities}
@@ -216,7 +216,7 @@ const Cites = () => {
               {" "}
               City Name{" "}
             </label>
-            <InputText 
+            <InputText
           name="name"
           value={Cityform.values.name}
           onChange={(e)=> Cityform.setFieldValue('name' , e.target.value)} />
@@ -293,7 +293,7 @@ const Cites = () => {
               {" "}
               City Name{" "}
             </label>
-          <InputText 
+          <InputText
           name="name"
           value={CityformEdit.values.name}
           onChange={(e)=> CityformEdit.setFieldValue('name' , e.target.value)} />

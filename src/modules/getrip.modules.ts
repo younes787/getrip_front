@@ -16,8 +16,8 @@ export class RegisterDTO {
   position:string ='';
   address:string ='';
   language:string ='';
-  country:string ='';
-  city:string ='';
+  countryId: number = 0;
+  cityId: number = 0;
   zipCode:string ='';
   taxNumber:string ='';
   phone:string ='';
@@ -32,13 +32,13 @@ export class UsersDTO {
   password: string = '';
   email: string = '';
   role: string = '';
+  currencyId: number = 0;
 }
 
 export class ServicesTypeDTO {
   id?: number = 0;
   name: string = '';
   description: string = '';
-  currencyId: number = 0;
   isRental: boolean = false;
   isTrip: boolean = false;
   isResidence: boolean = false;

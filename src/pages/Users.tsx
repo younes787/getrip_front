@@ -7,20 +7,25 @@ import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { UsersDTO } from "../modules/getrip.modules";
-import { CreateUser, DeleteUser, GetAllRoles, GetUsersInRole, UpdateUser} from "../Services";
+import { AssignServiceTypeListToAccount, CreateUser, DeleteUser, GetAllRoles, GetAssignedServiceTypeByAccountId, GetCurrency, GetServiceTypes, GetUsersInRole, UpdateUser} from "../Services";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
 import { TabPanel, TabView } from "primereact/tabview";
+import { Checkbox } from "primereact/checkbox";
+import { Dropdown } from "primereact/dropdown";
 
 const Users = () => {
   const [UsersList, setUsersList] = useState<any>();
   const [show, setShow] = useState<boolean>(false);
+  const [syncServiceType, setShowSyncServiceType] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [rolesList, setRolesList] = useState<any>();
   const [rolesName, setRolesName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+  const [serviceType, setServiceType] = useState<any>();
+  const [currency, setCurrency] = useState();
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -52,6 +57,18 @@ const Users = () => {
   useEffect(() => {
     fetchRoles();
   }, [fetchRoles]);
+
+  useEffect(() => {
+    setLoading(true);
+    GetServiceTypes().then((res) => {
+      setServiceType(res.data);
+      setLoading(false);
+    }).catch((error) => {
+      setLoading(false);
+    });
+
+    GetCurrency().then((res) => setCurrency(res.data))
+  }, []);
 
   useEffect(() => {
     fetchUsersList();
@@ -106,6 +123,20 @@ const Users = () => {
     },
   });
 
+  const syncServiceTypeform = useFormik<any>({
+    initialValues: {accountId: null, serviceTypeIds: []},
+    validateOnChange: true,
+    onSubmit: () => {
+      const requestData = syncServiceTypeform.values.serviceTypeIds.map((serviceTypeId: number) => ({
+        serviceTypeId,
+        accountId: syncServiceTypeform.values.accountId,
+      }));
+
+      AssignServiceTypeListToAccount(requestData);
+      setShowSyncServiceType(false);
+    },
+  });
+
   const UsersformEdit = useFormik<UsersDTO>({
     initialValues: new UsersDTO(),
     validateOnChange: true,
@@ -127,6 +158,23 @@ const Users = () => {
       password: rowData.password,
       email: rowData.email,
       role: rowData.role,
+      currencyId: rowData.currencyId,
+    });
+  };
+
+  const showSyncServiceType = (rowData: any) => {
+    setShowSyncServiceType(true);
+    setLoading(true);
+    GetAssignedServiceTypeByAccountId(rowData.accountId).then((res) => {
+      const assignedServiceTypeIds = res?.data.map((item: any) => item.id) || [];
+      syncServiceTypeform.setValues({
+        accountId: rowData.accountId,
+        serviceTypeIds: assignedServiceTypeIds,
+      });
+
+      if(res.isSuccess) {
+        setLoading(false);
+      }
     });
   };
 
@@ -176,21 +224,11 @@ const Users = () => {
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
-        <i
-          className="pi pi-bold pi-pencil"
-          onClick={() => ShowUser(rowData)}
-          style={{
-            fontSize: "1.2rem",
-            color: "slateblue",
-            padding: "7px",
-            cursor: "pointer",
-          }}
-        ></i>
-        <i
-          className="pi pi-bold pi-trash"
-          onClick={() => confirm(rowData?.email)}
-          style={{ fontSize: "1.2rem", color: "red", cursor: "pointer" }}
-        ></i>
+        {rolesName !== 'Client' &&
+          <i className="pi pi-bold pi-plus-circle mx-2" onClick={() => showSyncServiceType(rowData)} style={{ fontSize: "1.2rem", color: "slateblue", padding: "7px", cursor: "pointer"}}></i>
+        }
+        <i className="pi pi-bold pi-user-edit mx-2" onClick={() => ShowUser(rowData)} style={{ fontSize: "1.2rem", color: "slateblue", padding: "7px", cursor: "pointer"}}></i>
+        <i className="pi pi-bold pi-trash mx-2" onClick={() => confirm(rowData?.email)} style={{ fontSize: "1.2rem", color: "red", cursor: "pointer" }}></i>
       </div>
     );
   };
@@ -204,7 +242,7 @@ const Users = () => {
           {rolesList && rolesList.length > 0 &&
             rolesList.map((role: any, index: number) => (
               <TabPanel key={index} header={role.name}>
-                <Button label="Add New User" onClick={() => setShow(true)} size="small" className="pr_btn"></Button>
+                <Button label="Add New User" onClick={() => setShow(true)} size="small" className="primary_btn"></Button>
 
                 <DataTable
                   value={UsersList}
@@ -229,6 +267,43 @@ const Users = () => {
             ))
           }
         </TabView>
+
+          <Dialog
+            header="Sync service type"
+            visible={syncServiceType}
+            style={{ width: "50vw" }}
+            onHide={() => setShowSyncServiceType(false)}
+            footer={<>
+              <div>
+                <Button label="Save" size="small" severity="warning" outlined onClick={() => syncServiceTypeform.handleSubmit()} className="mt-4"></Button>
+                <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowSyncServiceType(false)} className="mt-4"></Button>
+              </div>
+            </>}
+          >
+            <div className="grid gap-4 mt-2">
+                {serviceType?.map((service_type: any) => (
+                  <div className="md:col-4 lg:col-4">
+                    <Checkbox
+                      name={service_type.name}
+                      checked={syncServiceTypeform.values.serviceTypeIds.includes(service_type.id)}
+                      onChange={(e) => {
+                        const selectedIds = [...syncServiceTypeform.values.serviceTypeIds];
+                        if (e.checked) {
+                          selectedIds.push(service_type.id);
+                        } else {
+                          const index = selectedIds.indexOf(service_type.id);
+                          if (index > -1) {
+                            selectedIds.splice(index, 1);
+                          }
+                        }
+                        syncServiceTypeform.setFieldValue('serviceTypeIds', selectedIds);
+                      }}
+                    />
+                    <label className="m-2" htmlFor="Status">{service_type.name}</label>
+                  </div>
+                ))}
+            </div>
+          </Dialog>
 
           <Dialog
             header="Add New User"
@@ -295,6 +370,23 @@ const Users = () => {
                   name="email"
                   value={Usersform?.values?.email}
                   onChange={(e) => Usersform.setFieldValue("email", e.target.value)} />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <div>
+                  <label className="mb-2" htmlFor="">Currency</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a currency"
+                  options={currency}
+                  optionLabel="name"
+                  optionValue="id"
+                  className="w-full"
+                  filter
+                  value={Usersform.values.currencyId}
+                  onChange={(e) => Usersform.setFieldValue('currencyId', e.value )}
+                />
               </div>
             </div>
           </Dialog>
@@ -367,6 +459,23 @@ const Users = () => {
                   value={UsersformEdit?.values?.email}
                   onChange={(e) => UsersformEdit.setFieldValue("email", e.target.value)}
                   readOnly />
+              </div>
+
+              <div className="md:col-4 lg:col-4">
+                <div>
+                  <label className="mb-2" htmlFor="">Currency</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a currency"
+                  options={currency}
+                  optionLabel="name"
+                  optionValue="id"
+                  className="w-full"
+                  filter
+                  value={UsersformEdit.values.currencyId}
+                  onChange={(e) => UsersformEdit.setFieldValue('currencyId', e.value )}
+                />
               </div>
             </div>
           </Dialog>

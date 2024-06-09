@@ -35,7 +35,6 @@ const Services = () => {
   const [selectedRadioOptionsPrimary, setSelectedRadioOptionsPrimary] = useState<RadioOptionPrimary | null>(null);
   const [selectedRadioOptionsSecondary, setSelectedRadioOptionsSecondary] = useState<RadioOptionSecondary | null>(null);
   const [residenceType, setResidenceType] = useState();
-  const [currency, setCurrency] = useState();
   const [vehicleType, setVehicleType] = useState<any>();
 
   const radioOptionsPrimary: RadioOptionPrimary[] = [
@@ -107,7 +106,6 @@ const Services = () => {
       setLoading(false);
     });
 
-    GetCurrency().then((res) => setCurrency(res.data))
     GetResidenceType().then((res) => setResidenceType(res.data));
     GetAllVehiclesTypes().then((res)=> setVehicleType(res.data))
   }, []);
@@ -129,7 +127,6 @@ const Services = () => {
       id: serviceType.id,
       description: serviceType.description,
       name: serviceType.name,
-      currencyId: serviceType.currencyId,
       isRental: serviceType.isRental,
       isTrip: serviceType.isTrip,
       isResidence: serviceType.isResidence,
@@ -252,23 +249,6 @@ const Services = () => {
               className="w-full"
               value={ServicesForm?.values?.description}
               onChange={(e) => ServicesForm.setFieldValue("description", e.target.value)}
-            />
-          </div>
-
-          <div className="md:col-12 lg:col-6">
-            <div>
-              <label className="mb-2" htmlFor="">Currency</label>
-            </div>
-
-            <Dropdown
-              placeholder="Select a currency"
-              options={currency}
-              optionLabel="name"
-              optionValue="id"
-              className="w-full"
-              filter
-              value={ServicesForm.values.currencyId}
-              onChange={(e) => ServicesForm.setFieldValue('currencyId', e.value )}
             />
           </div>
 
@@ -402,23 +382,6 @@ const Services = () => {
               className="w-full"
               value={ServicesFormUpdate?.values?.description}
               onChange={(e) => ServicesFormUpdate.setFieldValue("description", e.target.value)}
-            />
-          </div>
-
-          <div className="md:col-12 lg:col-6">
-            <div>
-              <label className="mb-2" htmlFor="">Currency</label>
-            </div>
-
-            <Dropdown
-              placeholder="Select a currency"
-              options={currency}
-              optionLabel="name"
-              optionValue="id"
-              className="w-full"
-              filter
-              value={ServicesFormUpdate.values.currencyId}
-              onChange={(e) => ServicesFormUpdate.setFieldValue('currencyId', e.value )}
             />
           </div>
 

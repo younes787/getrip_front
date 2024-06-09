@@ -123,7 +123,7 @@ const Payment = () => {
           label="Add New Currency"
           onClick={() => setShow(true)}
           size="small"
-          className="mt-4 ml-5 pr_btn"
+          className="mt-4 ml-5 primary_btn"
         ></Button>
         <DataTable
           value={payment}

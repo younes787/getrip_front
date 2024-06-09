@@ -100,7 +100,7 @@ const Places = () => {
       googleMapsUrl: rowData.googleMapsUrl,
     });
     setCurrentPlaceId(rowData.id);
-    GetimagesByPlaceid(rowData?.id).then((res)=>setPlaceImage(res?.data)) 
+    GetimagesByPlaceid(rowData?.id).then((res)=>setPlaceImage(res?.data))
   };
   const imageBodyTemplate = (row: any) => {
     return (
@@ -201,7 +201,7 @@ const Places = () => {
             label="Add New Place"
             onClick={() => setShow(true)}
             size="small"
-            className="mt-4 ml-5 pr_btn"
+            className="mt-4 ml-5 primary_btn"
           ></Button>
           <DataTable
             value={places}

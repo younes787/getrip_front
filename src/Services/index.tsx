@@ -22,8 +22,7 @@ const createAxiosInstance = (contentType: string) => {
     },
     (error) => {
       if (error.response && error.response.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        localStorage.clear();
         window.location.href = "/";
       }
     }
@@ -34,6 +33,15 @@ const createAxiosInstance = (contentType: string) => {
 
 const api = createAxiosInstance("application/json");
 const apiForm = createAxiosInstance("multipart/form-data");
+
+export const Getlogged = async (email: string) => {
+  try {
+    const response = await api.get(`/getlogged/${email}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export const authRegister = async (registerData: any) => {
   try {
@@ -152,10 +160,37 @@ export const GetAssignedServiceTypeByAccountId = async (aid: number) => {
   }
 };
 
+export const AssignServiceTypeListToAccount = async (ServiceData: any) => {
+  try {
+    const response = await api.post(`/assignservicetypelisttoaccount`, ServiceData);
+    return handleResponse(response, 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddService = async (ServiceData: any) => {
+  try {
+    const response = await api.post(`/addservice` , ServiceData);
+    return handleResponse(response , '');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const UpdateService = async (ServicesData: any) => {
   try {
     const response = await api.put("/updateservicetype", ServicesData);
     return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddImageToService = async (imageData:any) => {
+  try {
+    const response = await apiForm.post(`/addimagetoservice`, imageData);
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }
@@ -602,15 +637,6 @@ export const AddImageToResidence = async (imageData:any) => {
   }
 };
 
-export const AddImageToService = async (imageData:any) => {
-  try {
-    const response = await apiForm.post(`/addimagetoservice`, imageData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
-};
-
 export const GetimagesByPlaceid = async (pid:any) => {
   try {
     const response = await apiForm.get(`/getimagesbyplaceid/${pid}`);
@@ -728,10 +754,10 @@ export const GetAllYachts = async () => {
   }
 };
 
-export const AddService = async (ServiceData: any) => {
+export const GetAllLanguages = async () => {
   try {
-    const response = await api.post(`/addservice` , ServiceData);
-    return handleResponse(response , '');
+    const response = await api.get(`/getalllanguages`);
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }

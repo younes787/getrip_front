@@ -24,7 +24,7 @@ html body {
   border: 1px solid rgb(205, 205, 205);
 }
 
-.pr_btn {
+.primary_btn {
   background-color: $primary_color;
 }
 
@@ -59,7 +59,7 @@ html body {
   }
 }
 
-#imageContainer {
+#image-container-home {
   background-image: url("../Assets/First.png");
   background-size: cover;
   background-repeat: no-repeat;
@@ -67,7 +67,7 @@ html body {
   box-sizing: border-box;
 }
 
-#imageContainer1 {
+#image-container-profile {
   background-image: url("../Assets/First.png");
   background-size: cover;
   background-repeat: no-repeat;
@@ -176,6 +176,7 @@ html body {
   border-radius: 15px;
   margin-bottom: 15px;
 }
+
 .tabView{
   .p-component .tabView .p-tabview{
     width: 100% !important;
@@ -220,4 +221,47 @@ html body {
 
 .custom-widht{
   width: 500px;
+}
+
+.footer {
+  background-color: #0e274b;
+  color: #ffffff;
+  padding: 20px;
+  text-align: center;
+}
+
+.footer-top {
+  background-color: #0e274b;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.location {
+  font-weight: bold;
+}
+
+.footer-middle {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  text-align: start;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-column a {
+  color: #ffffff;
+  text-decoration: none;
+  margin-bottom: 13px;
+}
+
+.footer-column a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  font-size: 14px;
 }

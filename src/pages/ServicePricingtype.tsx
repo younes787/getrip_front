@@ -66,7 +66,7 @@ const ServicePricingtype = (props: Props) => {
   return (
     <div>
       <div>
-        <Button label="Add New Pricing Types" onClick={() => setShowPricingTypes(true)} size="small" className="mt-4 ml-5 pr_btn"></Button>
+        <Button label="Add New Pricing Types" onClick={() => setShowPricingTypes(true)} size="small" className="mt-4 ml-5 primary_btn"></Button>
 
         <DataTable
           value={pricingTypes}
