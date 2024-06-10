@@ -24,6 +24,8 @@ const createAxiosInstance = (contentType: string) => {
       if (error.response && error.response.status === 401) {
         localStorage.clear();
         window.location.href = "/";
+      } else {
+        handleError(error);
       }
     }
   );

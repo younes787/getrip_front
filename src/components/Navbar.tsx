@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { CreateUser, GetAllCities, GetAllCountries, GetAllLanguages, GetCurrency } from "../Services";
+import { CreateUser, GetAllCities, GetAllCountries, GetAllLanguages, GetAllProvinces, GetCurrency } from "../Services";
 import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
@@ -15,6 +15,10 @@ import { useNavigate } from "react-router-dom";
 import AvatarImage from "../Assets/Ellipse.png";
 import LoadingComponent from "./Loading";
 import { Dropdown } from "primereact/dropdown";
+import * as Yup from 'yup';
+import { Fieldset } from "primereact/fieldset";
+
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
 const NavBar = () => {
   const menuLeft = useRef<any>(null);
@@ -22,8 +26,11 @@ const NavBar = () => {
   const [showsign, setshowsign] = useState<boolean>(false);
   const [showSelectLang, setshowSelectLang] = useState<boolean>(false);
   const [showsignPartner, setshowsignPartner] = useState<boolean>(false);
+  const [provinces, setProvinces] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [countryCode, setCountryCode] = useState<string>('');
   const [countries, setCountries] = useState<any>();
+  const [selectedCountry, setSelectedCountry] = useState<any>();
   const [cities, setCities] = useState<any>();
   const [languages, setLanguages] = useState<any>();
   const [currencies, setCurrencies] = useState<any>();
@@ -45,10 +52,23 @@ const NavBar = () => {
 
   useEffect(() => {
     GetAllLanguages().then((res) => setLanguages(res.data));
+    GetAllProvinces().then((res) => setProvinces(res.data));
     GetCurrency().then((res) => setCurrencies(res.data));
     GetAllCountries().then((res) => setCountries(res.data));
     GetAllCities().then((res) => setCities(res.data));
   }, []);
+
+  useEffect(() => {
+    if(selectedCountry && countries) {
+      const foundCountries = countries.find((country: any) => country.id === selectedCountry);
+      setCountryCode(foundCountries.countryCode ?? countries[0].countryCode);
+    }
+  }, [selectedCountry, setCountryCode]);
+
+  const handlePhoneChange = (e: any) => {
+    const phone = e.target.value.replace(countryCode + ' ', '');
+    Partneregister.setFieldValue('phone', phone);
+  };
 
   const handleSelectionChange = (name: any, value: any) => {
     setExternalDataToLocalStorage((prevState: any) => ({
@@ -64,6 +84,11 @@ const NavBar = () => {
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+        .required('Password is required'),
+    }),
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true)
@@ -76,6 +101,11 @@ const NavBar = () => {
 
   const loginform = useFormik<LoginDTO>({
     initialValues: new LoginDTO(),
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+        .required('Password is required'),
+    }),
     validateOnChange: true,
     onSubmit: async () => {
       try{
@@ -95,6 +125,11 @@ const NavBar = () => {
 
   const Partneregister = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+        .required('Password is required'),
+    }),
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true)
@@ -212,7 +247,7 @@ const NavBar = () => {
 
       {user?.isSuccess === true ? <></> :<Button
         rounded
-        label="Become A Partner"
+        label="Become Our Partner"
         outlined
         className="outline_btn"
         onClick={() => setshowsignPartner(true)}
@@ -288,6 +323,8 @@ const NavBar = () => {
                 loginform.setFieldValue("password", e.target.value)
               }
             />
+
+            {loginform.touched.password && loginform.errors.password ? ( <div className="p-error mt-2 text-sm">{loginform.errors.password}</div>) : null}
           </div>
         </div>
         <div className="flex justify-content-center">
@@ -376,23 +413,7 @@ const NavBar = () => {
               }
             />
           </div>
-          <div className="col ml-3">
-            <div>
-              <label className=" primary" htmlFor="">
-                {" "}
-                Username{" "}
-              </label>
-            </div>
-            <InputText
-              placeholder="Username"
-              name="username"
-              className="mt-2 w-24rem	"
-              value={register?.values?.username}
-              onChange={(e) =>
-                register.setFieldValue("username", e.target.value)
-              }
-            />
-          </div>
+
           <div className="col ml-3">
             <div>
               <label className=" primary" htmlFor="Email">
@@ -425,6 +446,7 @@ const NavBar = () => {
                 register.setFieldValue("password", e.target.value)
               }
             />
+              {register.touched.password && register.errors.password ? ( <div className="p-error mt-2 text-sm">{register.errors.password}</div>) : null}
           </div>
         </div>
         <div className="flex justify-content-center" style={{ cursor: "pointer"}}>
@@ -459,222 +481,241 @@ const NavBar = () => {
         style={{ width: "50vw" }}
         onHide={() => setshowsignPartner(false)}
       >
-        <h4 className="primary flex justify-content-center">Join to become a partner</h4>
+        <h4 className="primary flex justify-content-center">Join to become Our partner</h4>
 
-        <div className="grid grid-cols-12 my-5">
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className="primary" htmlFor="Wallet">First Name</label>
+        <div className="grid grid-cols-12 my-5 our-partner">
+          <Fieldset legend="Base Info" className="md:col-12 lg:col-12 mb-3">
+            <div className="grid grid-cols-12">
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className="primary" htmlFor="Wallet">First Name</label>
+                  </div>
+                  <InputText
+                    placeholder="First Name"
+                    name="name"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.name}
+                    onChange={(e) => Partneregister.setFieldValue("name", e.target.value)}
+                  />
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className="primary" htmlFor="Wallet">Last Name</label>
+                  </div>
+                  <InputText
+                    placeholder="Last Name"
+                    name="lastname"
+                    value={Partneregister?.values?.lastname}
+                    className="mt-2	w-full"
+                    onChange={(e) =>
+                      Partneregister.setFieldValue("lastname", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className=" primary" htmlFor="Email">Email</label>
+                  </div>
+
+                  <InputText
+                    placeholder="Email"
+                    name="email"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.email}
+                    onChange={(e) => Partneregister.setFieldValue("email", e.target.value)}
+                  />
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className="mb-2 primary" htmlFor="Password">Password</label>
+                  </div>
+
+                  <InputText
+                    placeholder="Password"
+                    name="password"
+                    type="password"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.password}
+                    onChange={(e) => Partneregister.setFieldValue("password", e.target.value)}
+                  />
+                  {Partneregister.touched.password && Partneregister.errors.password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.password}</div>) : null}
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className="primary" htmlFor="Status">Business Name</label>
+                  </div>
+                  <InputText
+                    placeholder="Business Name"
+                    name="business"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.business}
+                    onChange={(e) =>
+                      Partneregister.setFieldValue("business", e.target.value)
+                    }
+                  />
+
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className=" primary" htmlFor="">Position</label>
+                  </div>
+                  <InputText
+                    placeholder="Position"
+                    name="position"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.position}
+                    onChange={(e) =>
+                      Partneregister.setFieldValue("position", e.target.value)
+                    }
+                  />
+                </div>
             </div>
-            <InputText
-              placeholder="First Name"
-              name="name"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.name}
-              onChange={(e) => Partneregister.setFieldValue("name", e.target.value)}
-            />
-          </div>
+          </Fieldset>
 
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className="primary" htmlFor="Wallet">Last Name</label>
+          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3">
+            <div className="grid grid-cols-12">
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Country</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Country"
+                  options={countries}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="countryId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.countryId}
+                  onChange={(e) => {
+                    setSelectedCountry(e.value);
+                    Partneregister.setFieldValue("countryId", e.value)
+                  }}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Provinces</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Provincy"
+                  options={provinces}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="provincyId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.provincyId}
+                  onChange={(e) => Partneregister.setFieldValue("provincyId", e.value)}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">City</label>
+                </div>
+                <Dropdown
+                  placeholder="Select a City"
+                  options={cities}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="cityId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister.values.cityId}
+                  onChange={(e) => Partneregister.setFieldValue("cityId", e.value)}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Address</label>
+                </div>
+                <InputText
+                  placeholder="Address"
+                  name="address"
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.address}
+                  onChange={(e) =>
+                    Partneregister.setFieldValue("address", e.target.value)
+                  }
+                />
+              </div>
             </div>
-            <InputText
-              placeholder="Last Name"
-              name="lastname"
-              value={Partneregister?.values?.lastname}
-              className="mt-2	w-full"
-              onChange={(e) =>
-                Partneregister.setFieldValue("lastname", e.target.value)
-              }
-            />
-          </div>
+          </Fieldset>
 
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Username</label>
+          <Fieldset legend="Other Info" className="md:col-12 lg:col-12 mb-3">
+            <div className="grid grid-cols-12">
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Zip Code</label>
+                </div>
+                <InputText
+                  placeholder="Zip Code"
+                  name="zipCode"
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.zipCode}
+                  onChange={(e) =>
+                    Partneregister.setFieldValue("zipCode", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Language</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Languages"
+                  options={languages}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="language"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.language}
+                  onChange={(e) => Partneregister.setFieldValue('language', e.value)}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Tax Number</label>
+                </div>
+                <InputText
+                  placeholder="Tax Number"
+                  name="taxNumber"
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.taxNumber}
+                  onChange={(e) =>
+                    Partneregister.setFieldValue("taxNumber", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Phone</label>
+                </div>
+                <InputText
+                  placeholder="Phone"
+                  name="phone"
+                  className="mt-2	w-full"
+                  value={`(${countryCode}) ${Partneregister.values.phone}`}
+                  onChange={handlePhoneChange}
+                />
+              </div>
             </div>
-            <InputText
-              placeholder="Username"
-              name="username"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.username}
-              onChange={(e) =>
-                Partneregister.setFieldValue("username", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="Email">Email</label>
-            </div>
-
-            <InputText
-              placeholder="Email"
-              name="email"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.email}
-              onChange={(e) => Partneregister.setFieldValue("email", e.target.value)}
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className="primary" htmlFor="Status">Business</label>
-            </div>
-            <InputText
-              placeholder="Business"
-              name="business"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.business}
-              onChange={(e) =>
-                Partneregister.setFieldValue("business", e.target.value)
-              }
-            />
-
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Position</label>
-            </div>
-            <InputText
-              placeholder="Position"
-              name="position"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.position}
-              onChange={(e) =>
-                Partneregister.setFieldValue("position", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Address</label>
-            </div>
-            <InputText
-              placeholder="Address"
-              name="address"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.address}
-              onChange={(e) =>
-                Partneregister.setFieldValue("address", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Country</label>
-            </div>
-            <Dropdown
-              placeholder="Select a Country"
-              options={countries}
-              optionLabel="name"
-              optionValue="id"
-              name="countryId"
-              filter
-              className="mt-2	w-full"
-              value={Partneregister?.values?.countryId}
-              onChange={(e) => Partneregister.setFieldValue("countryId", e.value)}
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">City</label>
-            </div>
-            <Dropdown
-              placeholder="Select a City"
-              options={cities}
-              optionLabel="name"
-              optionValue="id"
-              name="cityId"
-              filter
-              className="mt-2	w-full"
-              value={Partneregister.values.cityId}
-              onChange={(e) => Partneregister.setFieldValue("cityId", e.value)}
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Zip Code</label>
-            </div>
-            <InputText
-              placeholder="Zip Code"
-              name="zipCode"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.zipCode}
-              onChange={(e) =>
-                Partneregister.setFieldValue("zipCode", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Language</label>
-            </div>
-            <InputText
-              placeholder="Language"
-              name="language"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.language}
-              onChange={(e) =>
-                Partneregister.setFieldValue("language", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Tax Number</label>
-            </div>
-            <InputText
-              placeholder="Tax Number"
-              name="taxNumber"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.taxNumber}
-              onChange={(e) =>
-                Partneregister.setFieldValue("taxNumber", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className=" primary" htmlFor="">Phone</label>
-            </div>
-            <InputText
-              placeholder="Phone"
-              name="phone"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.phone}
-              onChange={(e) =>
-                Partneregister.setFieldValue("phone", e.target.value)
-              }
-            />
-          </div>
-
-          <div className="md:col-6 lg:col-6">
-            <div>
-              <label className="mb-2 primary" htmlFor="Password">Password</label>
-            </div>
-
-            <InputText
-              placeholder="Password"
-              name="password"
-              type="password"
-              className="mt-2	w-full"
-              value={Partneregister?.values?.password}
-              onChange={(e) =>
-                Partneregister.setFieldValue("password", e.target.value)
-              }
-            />
-          </div>
+          </Fieldset>
         </div>
 
         <div className="flex justify-content-center" style={{ cursor: "pointer"}}>
@@ -775,11 +816,9 @@ const NavBar = () => {
 
       <Menu model={Menuitems} popup ref={menuLeft} className="popup-left" />
       {loading ? <LoadingComponent/> :
-        <Menubar start={
-            <span className="text-2xl get-rp cursor-pointer" style={{marginLeft:'100px'}} onClick={() => navigate('/')}>
+        <Menubar start={<span className="text-2xl get-rp cursor-pointer" style={{marginLeft:'100px'}} onClick={() => navigate('/')}>
               Ge<span className="secondery">t</span>rip
-            </span>
-          }
+          </span>}
           end={end}
           className="navbar"
         />

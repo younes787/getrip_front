@@ -10,11 +10,11 @@ import { UpdateUser } from "../Services";
 
 const validationSchema = Yup.object({
   username: Yup.string().required('Username is required'),
-  name: Yup.string().required('Name is required'),
+  name:     Yup.string().required('Name is required'),
   lastname: Yup.string().required('Lastname is required'),
   business: Yup.string().required('Business is required'),
   password: Yup.string().required('Password is required'),
-  email: Yup.string().email('Invalid email format').required('Email is required'),
+  email:    Yup.string().email('Invalid email format').required('Email is required'),
 });
 
 const Profile = () => {

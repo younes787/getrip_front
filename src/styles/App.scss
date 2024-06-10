@@ -223,6 +223,15 @@ html body {
   width: 500px;
 }
 
+.our-partner {
+  .p-fieldset .p-fieldset-legend {
+    padding: 0 10px 0;
+    border: none;
+    color: #374151;
+    background: #f9fafb;
+  }
+}
+
 .footer {
   background-color: #0e274b;
   color: #ffffff;

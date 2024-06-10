@@ -18,6 +18,7 @@ export class RegisterDTO {
   language:string ='';
   countryId: number = 0;
   cityId: number = 0;
+  provincyId: number = 0;
   zipCode:string ='';
   taxNumber:string ='';
   phone:string ='';
@@ -196,6 +197,8 @@ export class ServiceDTO{
   description: string = '';
   typeId?: any ;
   cityId?: number = 0;
+  countryId?: number = 0;
+  provincyId?: number = 0;
   placeId?: number ;
   accountId:number=0;
   vehicleTypeId:number=0;

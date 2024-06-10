@@ -5,12 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import {
-  AddProvince,
-  GetAllCountries,
-  GetAllProvinces,
-  UpdateProvince,
-} from "../Services";
+import { AddProvince, GetAllCountries, GetAllProvinces, UpdateProvince} from "../Services";
 import { useFormik } from "formik";
 import { EditProvincesDTO, ProvincesDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";

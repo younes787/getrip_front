@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddImageToService, AddService, GetAllCities, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes} from "../Services";
+import { AddImageToService, AddService, GetAllCities, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetAllProvinces} from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
@@ -65,6 +65,8 @@ const FormUseType = () => {
   const location = useLocation();
   const [loading, setLoading] = useState<boolean>(false);
   const [pricingTypes, setPricingTypes] = useState<any>();
+  const [provinces, setProvinces] = useState<any>();
+  const [countries, setCountries] = useState<any>();
 
   const ImageServiceform = useFormik<ImageDTO>({
     initialValues: new ImageDTO(),
@@ -159,11 +161,15 @@ const FormUseType = () => {
           setVehicle(vehicleRes.data);
         }
 
-        const [citiesRes, currencyRes] = await Promise.all([
+        const [provincesRes, countriesRes, citiesRes, currencyRes] = await Promise.all([
+          GetAllProvinces(),
+          GetAllCountries(),
           GetAllCities(),
-          GetCurrency()
+          GetCurrency(),
         ]);
 
+        setProvinces(provincesRes.data);
+        setCountries(countriesRes.data);
         setCities(citiesRes.data);
         setCurrency(currencyRes.data);
       } catch (error) {
@@ -358,6 +364,43 @@ const FormUseType = () => {
 
           <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Country</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Country"
+                  options={countries}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="countryId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Serviceform?.values?.countryId}
+                  onChange={(e) => Serviceform.setFieldValue("countryId", e.value)}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Provinces</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Provincy"
+                  options={provinces}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="provincyId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Serviceform?.values?.provincyId}
+                  onChange={(e) => Serviceform.setFieldValue("provincyId", e.value)}
+                />
+              </div>
+
               <div className="md:col-6 lg:col-6">
                 <label className="mb-2" htmlFor="Status">{" "}City Name{" "}</label>
                 <Dropdown
@@ -373,7 +416,9 @@ const FormUseType = () => {
                   {renderError(Serviceform.errors.cityId)}
               </div>
 
-              {Serviceform.values.typeId?.name !== "VIP transfers" ? (
+              {Serviceform.values.typeId?.name !== "VIP transfers" &&
+                Serviceform.values.typeId?.name !== 'Transfers' &&
+                Serviceform.values.typeId?.name !== 'transfers' ? (
                 <>
                   <div className="md:col-6 lg:col-6">
                     <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
