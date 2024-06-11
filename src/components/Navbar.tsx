@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { CreateUser, GetAllCities, GetAllCountries, GetAllLanguages, GetAllProvinces, GetCurrency } from "../Services";
+import { CreateUser, GetCitiesbyid, GetAllCountries, GetAllLanguages, GetProvincebyCid, GetCurrency } from "../Services";
 import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
@@ -30,7 +30,8 @@ const NavBar = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string>('');
   const [countries, setCountries] = useState<any>();
-  const [selectedCountry, setSelectedCountry] = useState<any>();
+  const [selectedCountry, setSelectedCountry] = useState<number>(0);
+  const [selectedProvince, setSelectedProvince] = useState<number>(0);
   const [cities, setCities] = useState<any>();
   const [languages, setLanguages] = useState<any>();
   const [currencies, setCurrencies] = useState<any>();
@@ -50,13 +51,24 @@ const NavBar = () => {
     };
   });
 
+  const validationSchema = Yup.object({
+    password: Yup.string()
+    .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
+    .min(8, 'Password must be at least 8 characters long')
+    .required('Password is required'),
+  });
+
   useEffect(() => {
     GetAllLanguages().then((res) => setLanguages(res.data));
-    GetAllProvinces().then((res) => setProvinces(res.data));
     GetCurrency().then((res) => setCurrencies(res.data));
+
     GetAllCountries().then((res) => setCountries(res.data));
-    GetAllCities().then((res) => setCities(res.data));
   }, []);
+
+  useEffect(() => {
+    GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));
+    GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
+  }, [selectedCountry, selectedProvince]);
 
   useEffect(() => {
     if(selectedCountry && countries) {
@@ -84,12 +96,9 @@ const NavBar = () => {
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
-    validationSchema: Yup.object({
-      password: Yup.string()
-        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
-        .required('Password is required'),
-    }),
+    validationSchema,
     validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async () => {
       setLoading(true)
       register.values.role = "Client";
@@ -101,12 +110,9 @@ const NavBar = () => {
 
   const loginform = useFormik<LoginDTO>({
     initialValues: new LoginDTO(),
-    validationSchema: Yup.object({
-      password: Yup.string()
-        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
-        .required('Password is required'),
-    }),
+    validationSchema,
     validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async () => {
       try{
         setLoading(true)
@@ -125,11 +131,7 @@ const NavBar = () => {
 
   const Partneregister = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
-    validationSchema: Yup.object({
-      password: Yup.string()
-        .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
-        .required('Password is required'),
-    }),
+    validationSchema,
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true)
@@ -319,9 +321,8 @@ const NavBar = () => {
               type="password"
               className="mt-2 w-24rem	"
               value={loginform?.values?.password}
-              onChange={(e) =>
-                loginform.setFieldValue("password", e.target.value)
-              }
+              onChange={(e) => loginform.setFieldValue("password", e.target.value)}
+              onBlur={loginform.handleBlur}
             />
 
             {loginform.touched.password && loginform.errors.password ? ( <div className="p-error mt-2 text-sm">{loginform.errors.password}</div>) : null}
@@ -442,6 +443,7 @@ const NavBar = () => {
               type="password"
               className="mt-2 w-24rem	"
               value={register?.values?.password}
+              onBlur={register.handleBlur}
               onChange={(e) =>
                 register.setFieldValue("password", e.target.value)
               }
@@ -539,6 +541,7 @@ const NavBar = () => {
                     type="password"
                     className="mt-2	w-full"
                     value={Partneregister?.values?.password}
+                    onBlur={Partneregister.handleBlur}
                     onChange={(e) => Partneregister.setFieldValue("password", e.target.value)}
                   />
                   {Partneregister.touched.password && Partneregister.errors.password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.password}</div>) : null}
@@ -614,7 +617,10 @@ const NavBar = () => {
                   filter
                   className="mt-2	w-full"
                   value={Partneregister?.values?.provincyId}
-                  onChange={(e) => Partneregister.setFieldValue("provincyId", e.value)}
+                  onChange={(e) => {
+                    setSelectedProvince(e.value)
+                    Partneregister.setFieldValue("provincyId", e.value)
+                  }}
                 />
               </div>
 

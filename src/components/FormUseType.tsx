@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddImageToService, AddService, GetAllCities, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetAllProvinces} from "../Services";
+import { AddImageToService, AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid} from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
@@ -67,6 +67,8 @@ const FormUseType = () => {
   const [pricingTypes, setPricingTypes] = useState<any>();
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
+  const [selectedCountry, setSelectedCountry] = useState<number>(0);
+  const [selectedProvince, setSelectedProvince] = useState<number>(0);
 
   const ImageServiceform = useFormik<ImageDTO>({
     initialValues: new ImageDTO(),
@@ -161,16 +163,12 @@ const FormUseType = () => {
           setVehicle(vehicleRes.data);
         }
 
-        const [provincesRes, countriesRes, citiesRes, currencyRes] = await Promise.all([
-          GetAllProvinces(),
+        const [countriesRes, currencyRes] = await Promise.all([
           GetAllCountries(),
-          GetAllCities(),
           GetCurrency(),
         ]);
 
-        setProvinces(provincesRes.data);
         setCountries(countriesRes.data);
-        setCities(citiesRes.data);
         setCurrency(currencyRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -186,6 +184,11 @@ const FormUseType = () => {
 
     fetchData();
   }, [location, navigate]);
+
+  useEffect(() => {
+    GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));
+    GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
+  }, [selectedCountry, selectedProvince]);
 
   const handleCityChange = (e: any) => {
     Serviceform.setFieldValue("cityId", e.value)
@@ -379,7 +382,10 @@ const FormUseType = () => {
                   filter
                   className="mt-2	w-full"
                   value={Serviceform?.values?.countryId}
-                  onChange={(e) => Serviceform.setFieldValue("countryId", e.value)}
+                  onChange={(e) => {
+                    setSelectedCountry(e.value);
+                    Serviceform.setFieldValue("countryId", e.value)
+                  }}
                 />
               </div>
 
@@ -397,7 +403,10 @@ const FormUseType = () => {
                   filter
                   className="mt-2	w-full"
                   value={Serviceform?.values?.provincyId}
-                  onChange={(e) => Serviceform.setFieldValue("provincyId", e.value)}
+                  onChange={(e) => {
+                    setSelectedProvince(e.value);
+                    Serviceform.setFieldValue("provincyId", e.value)
+                  }}
                 />
               </div>
 
