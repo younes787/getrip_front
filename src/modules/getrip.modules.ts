@@ -18,11 +18,40 @@ export class RegisterDTO {
   language:string ='';
   countryId: number = 0;
   cityId: number = 0;
-  provincyId: number = 0;
   zipCode:string ='';
   taxNumber:string ='';
   phone:string ='';
   authorized: boolean = true;
+}
+
+export class RegisterServiceProviderDTO {
+  name: string = "";
+  lastname: string = "";
+  password: string = "";
+  email: string = "";
+  business: string = "";
+  position: string = "";
+  countryId: number = 0;
+  provincId: number = 0;
+  cityId: number = 0;
+  address: string  = "";
+  zipCode: string = "";
+  languageId: number = 0;
+  phone: string = "";
+  taxNumber: string = "";
+  currencyId: number = 0;
+  accountId: number = 0;
+  token: string = "";
+  expiration: string = "";
+  authorized: boolean = true;
+  role: string = "";
+  allowedServiceTypes: AllowedServiceTypesDTO[] = []
+}
+
+export class AllowedServiceTypesDTO {
+  id?: number = 0;
+  serviceTypeId?: number = 0;
+  accountId: string = '';
 }
 
 export class UsersDTO {
@@ -100,10 +129,27 @@ export class VehicleDTO {
   vehicleTypeId: number =0;
 }
 
+export class FacilityDTO {
+  id?: number = 0;
+  name: string = '';
+  categoryId: number = 0;
+}
+
 export class VehicleTypeDTO {
   id?: number = 0;
   name: string = '';
   description: string = '';
+}
+
+export class AssignFaciliesToServiceTypeDTO {
+  id?: number = 0;
+  serviceTypeId: number = 0;
+  facilityId: number = 0;
+}
+
+export class FacilityCategotiesDTO {
+  id?: number = 0;
+  name: string = '';
 }
 
 export class MakerDTO{

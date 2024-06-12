@@ -7,8 +7,8 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { CreateUser, GetCitiesbyid, GetAllCountries, GetAllLanguages, GetProvincebyCid, GetCurrency } from "../Services";
-import { LoginDTO, RegisterDTO } from "../modules/getrip.modules";
+import { CreateUser, GetCitiesbyid, GetAllCountries, GetAllLanguages, GetProvincebyCid, GetCurrency, RegisterServiceProvider, GetServiceTypes } from "../Services";
+import { LoginDTO, RegisterDTO, RegisterServiceProviderDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ import LoadingComponent from "./Loading";
 import { Dropdown } from "primereact/dropdown";
 import * as Yup from 'yup';
 import { Fieldset } from "primereact/fieldset";
+import { Checkbox } from "primereact/checkbox";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
@@ -33,6 +34,7 @@ const NavBar = () => {
   const [selectedCountry, setSelectedCountry] = useState<number>(0);
   const [selectedProvince, setSelectedProvince] = useState<number>(0);
   const [cities, setCities] = useState<any>();
+  const [serviceType, setServiceType] = useState<any>();
   const [languages, setLanguages] = useState<any>();
   const [currencies, setCurrencies] = useState<any>();
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -61,7 +63,7 @@ const NavBar = () => {
   useEffect(() => {
     GetAllLanguages().then((res) => setLanguages(res.data));
     GetCurrency().then((res) => setCurrencies(res.data));
-
+    GetServiceTypes().then((res) => setServiceType(res.data));
     GetAllCountries().then((res) => setCountries(res.data));
   }, []);
 
@@ -78,7 +80,7 @@ const NavBar = () => {
   }, [selectedCountry, setCountryCode]);
 
   const handlePhoneChange = (e: any) => {
-    const phone = e.target.value.replace(countryCode + ' ', '');
+     const phone = e.target.value.replace(`(${countryCode}) `, '');
     Partneregister.setFieldValue('phone', phone);
   };
 
@@ -129,14 +131,21 @@ const NavBar = () => {
     },
   });
 
-  const Partneregister = useFormik<RegisterDTO>({
-    initialValues: new RegisterDTO(),
+  const Partneregister = useFormik<RegisterServiceProviderDTO>({
+    initialValues: new RegisterServiceProviderDTO(),
     validationSchema,
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true)
       Partneregister.values.role = "Service Provider";
-      await CreateUser(Partneregister.values).then((res)=> setLoading(false)).catch((error) => {
+      Partneregister.values.accountId = user?.data?.accountId;
+
+      // Partneregister.values.allowedServiceTypes = []
+      //   'serviceTypeId':  serviceTypeId,
+      //   'accountId':  Partneregister.values.accountId,
+      // ];
+
+      await RegisterServiceProvider(Partneregister.values).then((res)=> setLoading(false)).catch((error) => {
         setLoading(false);
       });
     },
@@ -243,43 +252,61 @@ const NavBar = () => {
     <div className="menu-items mr-7">
       <Button label="Expolre" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
       <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
-      <Button label="Support" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      {/* <Button label="Support" className="border-none primary bg-transparent outline-0 shadow-none px-5"/> */}
       <Button label="EN. $" icon={'pi pi-fw pi-globe'} className="border-none primary bg-transparent outline-0 shadow-none" onClick={() => setshowSelectLang(true)}/>
     </div>
 
-      {user?.isSuccess === true ? <></> :<Button
-        rounded
-        label="Become Our Partner"
-        outlined
-        className="outline_btn"
-        onClick={() => setshowsignPartner(true)}
-      />}
+      {user?.isSuccess === true ? <></> : <Button rounded label="Become Our Partner" outlined className="outline_btn" onClick={() => setshowsignPartner(true)}/>}
 
       {user?.isSuccess === true ? (
         <>
-          <i
-            className="pi pi-bold pi-bell mx-2 "
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/notifications")}
-          ></i>
-          <Avatar
-            image={AvatarImage}
-            className="mx-2"
-            onClick={(event) => menuLeft.current.toggle(event)}
-            shape="circle"
-            style={{ cursor: "pointer" }}
-          />
+          <i className="pi pi-bold pi-bell mx-2 " style={{ cursor: "pointer" }} onClick={() => navigate("/notifications")}></i>
+          <Avatar image={AvatarImage} className="mx-2" onClick={(event) => menuLeft.current.toggle(event)} shape="circle" style={{ cursor: "pointer" }}/>
         </>
       ) : (
-        <Button
-          rounded
-          label="Account"
-          icon="pi pi-user"
-          onClick={() => setshow(true)}
-          className="primary_btn"
-        />
+        <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn"/>
       )}
     </div>
+  );
+
+  const ServiceTypeFieldset = ({ serviceTypes, formik }: any) => (
+    <Fieldset legend="Service Types" className="md:col-12 lg:col-12 mb-3">
+      <div className="grid grid-cols-12">
+        {serviceTypes?.map((service_type: any) => (
+          <div className="md:col-4 lg:col-4" key={service_type.id}>
+            <div
+              className="mb-2 rounded-full overflow-hidden flex justify-content-center align-items-center p-2"
+              style={{
+                width: '50px',
+                height: '50px',
+                maxWidth: '100px',
+                maxHeight: '100px',
+                backgroundImage: `url(${service_type?.photos[0]?.imagePath})`,
+                backgroundSize: 'cover'
+               }}>
+            </div>
+
+            <Checkbox
+              name={service_type.name}
+              checked={formik.values.allowedServiceTypes.some((st: any) => st.serviceTypeId === service_type.id)}
+              onChange={(e) => {
+                const selectedServiceTypes = [...formik.values.allowedServiceTypes];
+                if (e.checked) {
+                  selectedServiceTypes.push({ serviceTypeId: service_type.id, accountId: formik.values.accountId });
+                } else {
+                  const index = selectedServiceTypes.findIndex(st => st.serviceTypeId === service_type.id);
+                  if (index > -1) {
+                    selectedServiceTypes.splice(index, 1);
+                  }
+                }
+                formik.setFieldValue('allowedServiceTypes', selectedServiceTypes);
+              }}
+            />
+            <label className="m-2" htmlFor="Status">{service_type.name}</label>
+          </div>
+        ))}
+      </div>
+    </Fieldset>
   );
 
   return (
@@ -486,7 +513,7 @@ const NavBar = () => {
         <h4 className="primary flex justify-content-center">Join to become Our partner</h4>
 
         <div className="grid grid-cols-12 my-5 our-partner">
-          <Fieldset legend="Base Info" className="md:col-12 lg:col-12 mb-3">
+          <Fieldset legend="Register Info" className="md:col-12 lg:col-12 mb-3">
             <div className="grid grid-cols-12">
                 <div className="md:col-6 lg:col-6">
                   <div>
@@ -546,42 +573,42 @@ const NavBar = () => {
                   />
                   {Partneregister.touched.password && Partneregister.errors.password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.password}</div>) : null}
                 </div>
-
-                <div className="md:col-6 lg:col-6">
-                  <div>
-                    <label className="primary" htmlFor="Status">Business Name</label>
-                  </div>
-                  <InputText
-                    placeholder="Business Name"
-                    name="business"
-                    className="mt-2	w-full"
-                    value={Partneregister?.values?.business}
-                    onChange={(e) =>
-                      Partneregister.setFieldValue("business", e.target.value)
-                    }
-                  />
-
-                </div>
-
-                <div className="md:col-6 lg:col-6">
-                  <div>
-                    <label className=" primary" htmlFor="">Position</label>
-                  </div>
-                  <InputText
-                    placeholder="Position"
-                    name="position"
-                    className="mt-2	w-full"
-                    value={Partneregister?.values?.position}
-                    onChange={(e) =>
-                      Partneregister.setFieldValue("position", e.target.value)
-                    }
-                  />
-                </div>
             </div>
           </Fieldset>
 
-          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3">
+          <Fieldset legend="Business" className="md:col-12 lg:col-12 mb-3">
             <div className="grid grid-cols-12">
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className="primary" htmlFor="Status">Business Name</label>
+                </div>
+                <InputText
+                  placeholder="Business Name"
+                  name="business"
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.business}
+                  onChange={(e) =>
+                    Partneregister.setFieldValue("business", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Position</label>
+                </div>
+                <InputText
+                  placeholder="Position"
+                  name="position"
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.position}
+                  onChange={(e) =>
+                    Partneregister.setFieldValue("position", e.target.value)
+                  }
+                />
+              </div>
+
               <div className="md:col-6 lg:col-6">
                 <div>
                   <label className=" primary" htmlFor="">Country</label>
@@ -605,21 +632,21 @@ const NavBar = () => {
 
               <div className="md:col-6 lg:col-6">
                 <div>
-                  <label className=" primary" htmlFor="">Provinces</label>
+                  <label className=" primary" htmlFor="">Provinc</label>
                 </div>
 
                 <Dropdown
-                  placeholder="Select a Provincy"
+                  placeholder="Select a Provinc"
                   options={provinces}
                   optionLabel="name"
                   optionValue="id"
-                  name="provincyId"
+                  name="provincId"
                   filter
                   className="mt-2	w-full"
-                  value={Partneregister?.values?.provincyId}
+                  value={Partneregister?.values?.provincId}
                   onChange={(e) => {
                     setSelectedProvince(e.value)
-                    Partneregister.setFieldValue("provincyId", e.value)
+                    Partneregister.setFieldValue("provincId", e.value)
                   }}
                 />
               </div>
@@ -655,11 +682,7 @@ const NavBar = () => {
                   }
                 />
               </div>
-            </div>
-          </Fieldset>
 
-          <Fieldset legend="Other Info" className="md:col-12 lg:col-12 mb-3">
-            <div className="grid grid-cols-12">
               <div className="md:col-6 lg:col-6">
                 <div>
                   <label className=" primary" htmlFor="">Zip Code</label>
@@ -672,24 +695,6 @@ const NavBar = () => {
                   onChange={(e) =>
                     Partneregister.setFieldValue("zipCode", e.target.value)
                   }
-                />
-              </div>
-
-              <div className="md:col-6 lg:col-6">
-                <div>
-                  <label className=" primary" htmlFor="">Language</label>
-                </div>
-
-                <Dropdown
-                  placeholder="Select a Languages"
-                  options={languages}
-                  optionLabel="name"
-                  optionValue="id"
-                  name="language"
-                  filter
-                  className="mt-2	w-full"
-                  value={Partneregister?.values?.language}
-                  onChange={(e) => Partneregister.setFieldValue('language', e.value)}
                 />
               </div>
 
@@ -720,8 +725,43 @@ const NavBar = () => {
                   onChange={handlePhoneChange}
                 />
               </div>
+
+              <div className="md:col-6 lg:col-6">
+                <label className="primary" htmlFor="">Currency</label>
+                <Dropdown
+                  placeholder="Select a Currency"
+                  options={currencies}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="currencyId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.currencyId}
+                  onChange={(e) =>  Partneregister.setFieldValue("currencyId", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-6 lg:col-6">
+                <div>
+                  <label className=" primary" htmlFor="">Language</label>
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Languages"
+                  options={languages}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="languageId"
+                  filter
+                  className="mt-2	w-full"
+                  value={Partneregister?.values?.languageId}
+                  onChange={(e) => Partneregister.setFieldValue('languageId', e.value)}
+                />
+              </div>
             </div>
           </Fieldset>
+
+          <ServiceTypeFieldset serviceTypes={serviceType} formik={Partneregister} />
         </div>
 
         <div className="flex justify-content-center" style={{ cursor: "pointer"}}>

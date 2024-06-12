@@ -72,6 +72,15 @@ export const CreateUser = async (userData: any) => {
   }
 };
 
+export const RegisterServiceProvider = async (Data: any) => {
+  try {
+    const response = await api.post("/registerserviceprovider", Data);
+    return handleResponse(response, "Post");
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const UpdateUser = async (userData: any) => {
   try {
     const response = await api.put("/updateuser", userData);
@@ -120,7 +129,7 @@ export const GetUsersInRole = async (role: string) => {
 export const CreateServiceType = async (ServicesData: any) => {
   try {
     const response = await api.post("/createservicetype", ServicesData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }
@@ -183,7 +192,7 @@ export const AddService = async (ServiceData: any) => {
 export const UpdateService = async (ServicesData: any) => {
   try {
     const response = await api.put("/updateservicetype", ServicesData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }
@@ -760,6 +769,87 @@ export const GetAllLanguages = async () => {
   try {
     const response = await api.get(`/getalllanguages`);
     return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetFacilityCategories = async () => {
+  try {
+    const response = await api.get(`/getfacilitycategoties`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetFacilities = async () => {
+  try {
+    const response = await api.get(`/getfacilities`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetFacilitiesByCategoryId = async (cid: number) => {
+  try {
+    const response = await api.get(`/getfacilitiesbycategoryid/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddFacilityCategory = async (FacilityData: any) => {
+  try {
+    const response = await api.post(`/addfacilitycategory` , FacilityData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdateFacilityCategory = async (FacilityData: any) => {
+  try {
+    const response = await api.put(`/updatefacilitycategory`,FacilityData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddFacility = async (FacilityData: any) => {
+  try {
+    const response = await api.post(`/addfacility` , FacilityData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdateFacility = async (FacilityData: any) => {
+  try {
+    const response = await api.put(`/updatefacility`,FacilityData);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAssignedFacilitiesByServiceTypeId = async (sid: number) => {
+  try {
+    const response = await api.get(`/getassignedfacilitiesbyservicetypeid/${sid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AssignFaciliesToServiceType = async (Data: any) => {
+  try {
+    const response = await api.post(`/assignfaciliestoservicetype` , Data);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }

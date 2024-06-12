@@ -26,6 +26,8 @@ import VehicleType from "../pages/VehicleType";
 import FormUseType from "../components/FormUseType";
 import MyServices from "../pages/MyServices";
 import AddServices from "../pages/AddServices";
+import FacilityCategories from "../pages/FacilityCategories";
+import Facility from "../pages/Facility";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -63,6 +65,8 @@ const Layout = () => {
           <Route path="/places" element={<Places />} />
           <Route path="/vehicle" element={<Vehicle />} />
           <Route path="/vehicle-type" element={<VehicleType />} />
+          <Route path="/facility-categories" element={<FacilityCategories />} />
+          <Route path="/facility" element={<Facility />} />
           <Route path="/makers" element={<Maker />} />
           <Route path="/residence-type" element={<ResidenceType />} />
           <Route path="/residence" element={<Residence />} />
