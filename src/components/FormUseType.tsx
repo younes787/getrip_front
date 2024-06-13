@@ -3,13 +3,13 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddImageToService, AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid} from "../Services";
+import { AddImageToService, AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory} from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
 import Residence from "../pages/Residencemain";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ImageDTO, ServiceDTO, TagsDTO } from "../modules/getrip.modules";
+import { FildsDTO, ImageDTO, ServiceDTO, ServiceFacilitiesDTO, TagsDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -46,6 +46,7 @@ const validationSchema = Yup.object({
 const FormUseType = () => {
   const [fileimg, setFileimg] = useState<any>();
   const [FeildsType, setFeildsType] = useState<any>();
+  const [assignedFacilitiesByServiceTypeIdWithCategory, setAssignedFacilitiesByServiceTypeIdWithCategory] = useState<any>();
   const [cities, setCities] = useState<any>();
   const [places, setPlaces] = useState<any>([]);
   const [residence, setResidence] = useState();
@@ -107,8 +108,19 @@ const FormUseType = () => {
         serviceId: 0
       }));
 
+      const serviceFacilities: ServiceFacilitiesDTO[] = values.serviceFacilities
+      ?.filter((serviceFacility: any) => serviceFacility !== undefined)
+      .map((serviceFacility: any) => ({
+        name: '',
+        serviceId: 0,
+        serviceTypeFacilityId: serviceFacility.serviceTypeFacilityId,
+        isPrimary: serviceFacility.isPrimary ?? false,
+        isAdditionalCharges: serviceFacility.isAdditionalCharges ?? false,
+      })) || [];
+
       values.tags = formattedTags;
       values.fields = formattedFields;
+      values.serviceFacilities = serviceFacilities;
       Serviceform.values.residenceTypeId = 1;
       handleAddService();
     },
@@ -161,6 +173,12 @@ const FormUseType = () => {
 
           setFeildsType(feildsTypeRes.data);
           setVehicle(vehicleRes.data);
+
+          const [getAssignedFacilitiesByServiceTypeIdWithCategoryRes] = await Promise.all([
+            GetAssignedFacilitiesByServiceTypeIdWithCategory(location.state.id),
+          ]);
+
+          setAssignedFacilitiesByServiceTypeIdWithCategory(getAssignedFacilitiesByServiceTypeIdWithCategoryRes.data);
         }
 
         const [countriesRes, currencyRes] = await Promise.all([
@@ -537,10 +555,9 @@ const FormUseType = () => {
                   {renderError(Serviceform.errors.currencyId)}
               </div>
 
-              {pricingTypes && pricingTypes.length > 0 &&
-              <div className="md:col-6 lg:col-6">
+              {pricingTypes && pricingTypes.length > 0 && <>
                 {pricingTypes?.map((pricingType: any, index: number) => (
-                    <>
+                    <div className=" md:col-6 lg:col-6my-2">
                     <label htmlFor={pricingType.name}>{pricingType.name}</label>
                     <InputNumber
                       autoFocus={focusedField === pricingType.name}
@@ -549,11 +566,64 @@ const FormUseType = () => {
                       className="w-full mt-1"
                       onValueChange={(e) => Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value)}
                       placeholder={pricingType.name} />
-                    </>
+                    </div>
                 ))}
-              </div>}
+              </>}
 
             </div>
+          </Fieldset>
+
+          <Fieldset legend="Facilities" className="md:col-12 lg:col-12 mb-3 field-set-facilities" toggleable>
+            {assignedFacilitiesByServiceTypeIdWithCategory && assignedFacilitiesByServiceTypeIdWithCategory.length > 0 ? (
+              <div className="grid grid-cols-12 gap-4">
+                {assignedFacilitiesByServiceTypeIdWithCategory.map((category: any, index: number) => (
+                  <div key={index} className="col-span-12 py-2 px-4 border-1 border-gray-300 rounded-md" style={{borderRadius: '15px'}}>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold">- {category.categoryName}</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {category.facilities.map((facility: any, _index: number) => (
+                        <div key={facility.serviceTypeFacilityId} className="p-2 border-1 border-gray-200 rounded-md" style={{borderRadius: '15px'}}>
+                          <h4 className="text-md font-medium">*{facility.name}</h4>
+                          <div className="flex items-center mt-2">
+                            <label className="mr-2">Primary</label>
+                            <InputSwitch
+                               className="mr-4"
+                               name={`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`}
+                               checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isPrimary || false}
+                               onChange={(e) => {
+                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, e.value)
+                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                if (e.value) {
+                                  Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, false);
+                                }
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex items-center mt-2">
+                            <label className="mr-2">Additional Charges</label>
+                            <InputSwitch
+                              className="mr-4"
+                              name={`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`}
+                              checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isAdditionalCharges || false}
+                              onChange={(e) => {
+                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, e.value);
+                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                if (e.value) {
+                                  Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, false);
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
           <div className="md:col-12 lg:col-12 mb-8 flex align-items-center justify-content-end">

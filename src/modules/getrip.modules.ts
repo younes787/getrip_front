@@ -237,6 +237,13 @@ export class TagsDTO{
   name: any = '';
   serviceId: number = 0;
 }
+export class ServiceFacilitiesDTO{
+  serviceTypeFacilityId: number = 0;
+  name?: string = '';
+  serviceId?: number = 0;
+  isPrimary: boolean = false;
+  isAdditionalCharges: boolean = false;
+}
 export class ServiceDTO{
   id?: number = 0;
   name: string = '';
@@ -269,4 +276,5 @@ export class ServiceDTO{
   stepsActivities?: stepsActivitiesDTO;
   placeNewActivities?: placeNewActivitiesDTO;
   tags?: TagsDTO | any;
+  serviceFacilities?: ServiceFacilitiesDTO[] = [];
 }

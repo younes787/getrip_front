@@ -846,6 +846,15 @@ export const GetAssignedFacilitiesByServiceTypeId = async (sid: number) => {
   }
 };
 
+export const GetAssignedFacilitiesByServiceTypeIdWithCategory = async (stid: number) => {
+  try {
+    const response = await api.get(`/getassignedfacilitiesbyservicetypeidwithcategory/${stid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const AssignFaciliesToServiceType = async (Data: any) => {
   try {
     const response = await api.post(`/assignfaciliestoservicetype` , Data);
