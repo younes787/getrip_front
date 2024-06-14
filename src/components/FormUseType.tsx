@@ -24,7 +24,7 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
   description: Yup.string().required('Service Description is required'),
-  // imagePath: Yup.mixed().required('Service Image is required'),
+  // files: Yup.mixed().required('Service Image is required'),
   price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
   cityId: Yup.number().required('City is required'),
   // placeId: Yup.number().required('Place is required'),
@@ -32,8 +32,8 @@ const validationSchema = Yup.object({
   // fields: Yup.object().shape({
   //   someFieldName: Yup.string().required('This field is required')
   // }),
-  // photos: Yup.object().shape({
-  //   imagePath: Yup.string().required('This Image is required')
+  // images: Yup.object().shape({
+  //   files: Yup.string().required('This Image is required')
   // }),
   // tags: Yup.array().of(
   //   Yup.object().shape({
@@ -58,7 +58,7 @@ const FormUseType = () => {
   const [otherPlace, setOtherPlace] = useState<any>();
   const [tags, setTags] = useState([{ name: '' }]);
   const { user } = useAuth();
-  const handleImgChange = (e: any) => { setFileimg(e.files?.[0]); };
+  const handleImgChange = (e: any) => { setFileimg(e.files); };
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState('');
   const [newTag, setNewTag] = useState<string>('');
@@ -94,6 +94,7 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
+      Serviceform.values.images =  {};
 
       const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
         id: index,
@@ -279,7 +280,7 @@ const FormUseType = () => {
           </div>
 
           <div className="md:col-11 lg:col-11 getrip-type text-center flex justify-content-center align-items-center">
-            <Image alt={Serviceform.values.typeId?.name} zoomSrc={Serviceform.values.typeId?.photos[0].imagePath} src={Serviceform.values.typeId?.photos[0].imagePath} width="90" height="90" preview />
+            <Image alt={Serviceform.values.typeId?.name} zoomSrc={Serviceform.values.typeId?.images?.files} src={Serviceform.values.typeId?.images?.files} width="90" height="90" preview />
             <span className="primary mx-2 text-xl antialiased get-rp">{Serviceform.values.typeId?.name}</span>
           </div>
         </div>
@@ -316,7 +317,7 @@ const FormUseType = () => {
               <div className="md:col-6 lg:col-6">
                 <label htmlFor="Wallet">Service Image</label>
                 <FileUpload
-                  name="imagePath"
+                  name="images"
                   accept="image/*"
                   onSelect={handleImgChange}
                   emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
@@ -333,7 +334,7 @@ const FormUseType = () => {
                   }}
                   customUpload
                   uploadHandler={() => ImageServiceform.handleSubmit()} />
-                  {renderError(Serviceform.errors.photos)}
+                  {renderError(Serviceform.errors.images)}
               </div>
             </div>
           </Fieldset>
@@ -595,9 +596,6 @@ const FormUseType = () => {
                                onChange={(e) => {
                                 Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, e.value)
                                 Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
-                                if (e.value) {
-                                  Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, false);
-                                }
                               }}
                             />
                           </div>
@@ -611,9 +609,6 @@ const FormUseType = () => {
                               onChange={(e) => {
                                 Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, e.value);
                                 Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
-                                if (e.value) {
-                                  Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, false);
-                                }
                               }}
                             />
                           </div>
