@@ -138,6 +138,7 @@ const NavBar = () => {
     onSubmit: async () => {
       setLoading(true)
       Partneregister.values.role = "Service Provider";
+      Partneregister.values.expiration = new Date();
       Partneregister.values.accountId = user?.data?.accountId;
 
       // Partneregister.values.allowedServiceTypes = []

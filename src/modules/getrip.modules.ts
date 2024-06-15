@@ -42,7 +42,7 @@ export class RegisterServiceProviderDTO {
   currencyId: number = 0;
   accountId: number = 0;
   token: string = "";
-  expiration: string = "";
+  expiration: any = "";
   authorized: boolean = true;
   role: string = "";
   allowedServiceTypes: AllowedServiceTypesDTO[] = []
