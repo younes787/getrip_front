@@ -11,7 +11,7 @@ import { CitiesDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
 
-const Cites = () => {
+const Cities = () => {
   const [cities, setcities] = useState();
   const [show, setShow] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState<boolean>(false);
@@ -319,4 +319,4 @@ const Cites = () => {
   );
 };
 
-export default Cites;
+export default Cities;

@@ -864,4 +864,40 @@ export const AssignFaciliesToServiceType = async (Data: any) => {
   }
 };
 
+export const GetPendingUsers = async () => {
+  try {
+    const response = await api.get(`/getpendingusers`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetPendingServices = async () => {
+  try {
+    const response = await api.get(`/getpendingservices`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetRejectedUsers = async () => {
+  try {
+    const response = await api.get(`/getrejectedusers`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetRejectedServices = async () => {
+  try {
+    const response = await api.get(`/getrejectedservices`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export default api;

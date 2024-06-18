@@ -45,7 +45,7 @@ const validationSchema = Yup.object({
 
 const FormUseType = () => {
   const [fileimg, setFileimg] = useState<any>();
-  const [FeildsType, setFeildsType] = useState<any>();
+  const [FeildsType, setFeildsType] = useState<any>(null);
   const [assignedFacilitiesByServiceTypeIdWithCategory, setAssignedFacilitiesByServiceTypeIdWithCategory] = useState<any>();
   const [cities, setCities] = useState<any>();
   const [places, setPlaces] = useState<any>([]);
@@ -58,7 +58,6 @@ const FormUseType = () => {
   const [otherPlace, setOtherPlace] = useState<any>();
   const [tags, setTags] = useState([{ name: '' }]);
   const { user } = useAuth();
-  const handleImgChange = (e: any) => { setFileimg(e.files); };
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState('');
   const [newTag, setNewTag] = useState<string>('');
@@ -71,18 +70,6 @@ const FormUseType = () => {
   const [selectedCountry, setSelectedCountry] = useState<number>(0);
   const [selectedProvince, setSelectedProvince] = useState<number>(0);
 
-  const ImageServiceform = useFormik<ImageDTO>({
-    initialValues: new ImageDTO(),
-    validateOnChange: true,
-    onSubmit: () => {
-      const formData = new FormData();
-      formData.append("file", fileimg);
-      formData.append("ObjectId", Serviceform.values.typeId?.id);
-
-      AddImageToService(formData);
-    },
-  });
-
   const Serviceform = useFormik<ServiceDTO>({
     initialValues: new ServiceDTO(),
     validationSchema,
@@ -94,20 +81,20 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
-      Serviceform.values.images =  {};
+      Serviceform.values.images = {};
 
       const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
         id: index,
         value: JSON.stringify(values.fields[key]),
         serviceTypeFieldId: FeildsType.find((f:any) => f.name === key)?.id || 0,
         serviceId: 0
-      }));
+      })) || [];
 
       const formattedTags: TagsDTO[] =  values.tags && values.tags.map((tag : any, index :any) => ({
         id: index,
         name: tag.name,
         serviceId: 0
-      }));
+      })) || [];
 
       const serviceFacilities: ServiceFacilitiesDTO[] = values.serviceFacilities
       ?.filter((serviceFacility: any) => serviceFacility !== undefined)
@@ -127,10 +114,23 @@ const FormUseType = () => {
     },
   });
 
+  const ImageServiceform = useFormik<ImageDTO>({
+    initialValues: new ImageDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      const formData = new FormData();
+      formData.append("file", fileimg);
+      formData.append("ObjectId", Serviceform.values.typeId);
+      AddImageToService(formData);
+    },
+  });
+
   const handleAddService = async () => {
     try {
       const addServiceResponse = await AddService(Serviceform.values);
       if (addServiceResponse.isSuccess) {
+        ImageServiceform.handleSubmit()
+
           confirmDialog({
             header: 'Success!',
             message: 'Service added successfully.',
@@ -203,6 +203,10 @@ const FormUseType = () => {
 
     fetchData();
   }, [location, navigate]);
+
+  const handleImgChange = (e: any) => {
+    setFileimg(e.files);
+  };
 
   useEffect(() => {
     GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));

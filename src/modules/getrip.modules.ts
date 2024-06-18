@@ -260,7 +260,7 @@ export class ServiceDTO{
   currencyId:number=0;
   isTrip:boolean= false;
   photos?: any[];
-  images?: any;
+  images?: {};
   placeHasNewActivities:boolean= false;
   hasNewRentalPlace :boolean= false;
   isRental:boolean= false;
