@@ -33,7 +33,7 @@ const AddServices = () => {
               }
               header={
                 <div className="getrip-card-image">
-                  <Image src={type.name} alt={type.photos[0].imagePath} />
+                  <Image alt={type.name} src={type.photos[0].imagePath} />
                 </div>
               }
             >
