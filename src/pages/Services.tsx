@@ -5,7 +5,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
-import { AssignFaciliesToServiceTypeDTO, ServicesTypeDTO } from "../modules/getrip.modules";
+import { ServicesTypeDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
 import { Tag } from "primereact/tag";
 import ServiceAttributes from "./ServiceAttributes";
@@ -14,6 +14,9 @@ import { Dropdown } from "primereact/dropdown";
 import ServicePricingtype from "./ServicePricingtype";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Checkbox } from "primereact/checkbox";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { useNavigate } from "react-router-dom";
+import { SpeedDial } from "primereact/speeddial";
 
 interface RadioOptionPrimary {
   title: string,
@@ -29,6 +32,7 @@ interface RadioOptionSecondary {
 const Services = () => {
   const [serviceType, setServiceType] = useState<any>();
   const [showServicesForm, setServicesForm] = useState<boolean>(false);
+  const [showFacilities, setShowFacilities] = useState<boolean>(false);
   const [showServicesFormUpdate, setShowServicesFormUpdate] = useState<boolean>(false);
   const [ShowPricingType, setPricingType] = useState<boolean>(false);
   const [showAtt, setShowAtt] = useState<boolean>(false);
@@ -42,6 +46,7 @@ const Services = () => {
   const [facilityCategories, setFacilityCategories] = useState<any>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [selectedAssignFaciliesToServiceType, setSelectedAssignFaciliesToServiceType] = useState<any[]>([]);
+  const navigate = useNavigate();
 
   const radioOptionsPrimary: RadioOptionPrimary[] = [
     {
@@ -76,6 +81,18 @@ const Services = () => {
       showIf: ['isRental', 'isTrip']
     },
   ];
+
+  const addFacility = async () => {
+    try {
+      const facilitiesToAssign = selectedAssignFaciliesToServiceType.map((facilityId) => ({
+        serviceTypeId: currentServiceId,
+        facilityId
+      }));
+      await AssignFaciliesToServiceType(facilitiesToAssign);
+    } catch (error) {
+      console.error('Error assigning facilities to service type:', error);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -113,12 +130,15 @@ const Services = () => {
         setSelectedRadioOptionsPrimary(null);
         setSelectedRadioOptionsSecondary(null);
 
-        if(serviceType) {
-          await AssignFaciliesToServiceType(selectedAssignFaciliesToServiceType.map((afts: any) => ({
-            serviceTypeId: serviceType.data.id,
-            facilityId: afts
-          })));
-        }
+        confirmDialog({
+          header: 'Success!',
+          message: 'Your service is under review. Thank you for waiting.',
+          icon: 'pi pi-check-circle',
+          defaultFocus: 'accept',
+          content: (props) => (
+            <CustomConfirmDialogContent {...props} resetForm={ServicesForm.resetForm} />
+          ),
+        });
 
         ServicesForm.resetForm();
         setServicesForm(false);
@@ -137,13 +157,6 @@ const Services = () => {
 
         setSelectedRadioOptionsPrimary(null);
         setSelectedRadioOptionsSecondary(null);
-
-        if(serviceType) {
-          await AssignFaciliesToServiceType(selectedAssignFaciliesToServiceType.map((afts: any) => ({
-            serviceTypeId: ServicesFormUpdate.values.id,
-            facilityId: afts
-          })));
-        }
 
         ServicesFormUpdate.resetForm();
         setShowServicesFormUpdate(false);
@@ -176,10 +189,6 @@ const Services = () => {
       setSelectedRadioOptionsSecondary(secondaryOption || null);
     }
 
-    GetAssignedFacilitiesByServiceTypeId(serviceType.id).then((res) => {
-      setSelectedAssignFaciliesToServiceType(res.data.map((fac: any) => fac.id));
-    });
-
     ServicesFormUpdate.setValues({
       id: serviceType.id,
       description: serviceType.description,
@@ -203,15 +212,53 @@ const Services = () => {
 
   const footer = (s:any) => (
     <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button label="Update" size="small" icon="pi pi-pencil" className="mx-1" onClick={() => ShowEditServiceType(s)}/>
-        <Button label="Pricing" size="small" icon="pi pi-tag" className="mx-1" onClick={() => {
-          setCurrentServiceId(s.id);
-          setPricingType(true)
-        }}/>
-        <Button label="Fields" size="small" severity="secondary" icon="pi pi-info-circle" className="mx-1" onClick={() => {
-            setCurrentServiceId(s.id);
-            setShowAtt(true);
-          }}
+        <SpeedDial
+          model={[
+              {
+                  label: 'Update',
+                  icon: 'pi pi-pencil',
+                  command: () => {
+                    ShowEditServiceType(s)
+                  }
+              },
+              {
+                  label: 'Pricing',
+                  icon: 'pi pi-tag',
+                  command: () => {
+                    setCurrentServiceId(s.id);
+                    setPricingType(true)
+                  }
+              },
+              {
+                  label: 'Fields',
+                  icon: 'pi pi-info-circle',
+                  command: () => {
+                    setCurrentServiceId(s.id);
+                    setShowAtt(true);
+                  }
+              },
+              ...(s?.isRental === true
+                ? [
+                    {
+                      label: 'Facilities',
+                      icon: 'pi pi-eject',
+                      command: () => {
+                        GetAssignedFacilitiesByServiceTypeId(s.id).then((res) => {
+                          setSelectedAssignFaciliesToServiceType(res.data.map((fac: any) => fac.id));
+                        });
+
+                        setCurrentServiceId(s.id);
+                        setShowFacilities(true);
+                      },
+                    },
+                  ]
+                : []),
+          ]}
+          radius={100}
+          style={{ top: 'calc(50% - 2rem)', left: 0 }}
+          className="speeddial-bottom-left sticky"
+          type="quarter-circle"
+          direction="up-left"
         />
     </div>
   );
@@ -232,8 +279,27 @@ const Services = () => {
     }
   };
 
+  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate, resetForm }: any) => {
+    return (
+      <div className="flex flex-column align-items-center p-5 surface-overlay border-round custom-widht">
+        <div className="border-circle bg-green-500 text-white inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+          <i className="pi pi-check-circle text-5xl"></i>
+        </div>
+        <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
+        <p className="mb-0">{message.message}</p>
+        <div className="grid align-items-center gap-3 mt-4" >
+          <Button label="Go home" outlined onClick={(event) => { hide(event); navigate('/') }} className="w-full text-green border-green-500 text-green-500"></Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
+      <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
+        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={ServicesForm.resetForm} />
+      )}/>
+
       {loading ? <LoadingComponent /> :
         <div className="grid grid-cols-12">
           {serviceType?.map((service_type: any) => (
@@ -362,30 +428,7 @@ const Services = () => {
                 ))}
             </div>
           )}
-          {selectedRadioOptionsPrimary?.value === 'isRental' && (
-            <TabView className="md:col-12 lg:col-12 !rounded-md p-0" style={{ border: '1px solid #ddd' }} onTabChange={onTabChange} activeIndex={activeIndex}>
-              {facilityCategories && facilityCategories.length > 0 && facilityCategories.map((facilityCategory: any, index: number) => (
-                <TabPanel key={index} header={facilityCategory.name}>
-                  {loading ? (
-                    <LoadingComponent />
-                  ) : (
-                    <div className="grid grid-cols-12 gap-4">
-                      {facilitiesByCategoryId && facilitiesByCategoryId.length > 0 && facilitiesByCategoryId.map((facility: any, idx: number) => (
-                        <div className="md:col-4 lg:col-4 flex items-center" key={idx}>
-                          <Checkbox
-                            name={facility.name}
-                            checked={selectedAssignFaciliesToServiceType.includes(facility.id)}
-                            onChange={() => handleCheckboxChange(facility.id)}
-                          />
-                          <label className="ml-2" htmlFor="Status">{facility.name}</label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </TabPanel>
-              ))}
-            </TabView>
-          )}
+
           {selectedRadioOptionsSecondary?.value === 'isResidence' && (
             <div className="md:col-12 lg:col-6">
               <label htmlFor="residenceTypeId" className="block mb-2">Residence Type</label>
@@ -499,30 +542,7 @@ const Services = () => {
                 ))}
             </div>
           )}
-          {selectedRadioOptionsPrimary?.value === 'isRental' && (
-            <TabView className="md:col-12 lg:col-12 !rounded-md p-0" style={{ border: '1px solid #ddd' }} onTabChange={onTabChange} activeIndex={activeIndex}>
-              {facilityCategories && facilityCategories.length > 0 && facilityCategories.map((facilityCategory: any, index: number) => (
-                <TabPanel key={index} header={facilityCategory.name}>
-                  {loading ? (
-                    <LoadingComponent />
-                  ) : (
-                    <div className="grid grid-cols-12 gap-4">
-                      {facilitiesByCategoryId && facilitiesByCategoryId.length > 0 && facilitiesByCategoryId.map((facility: any, idx: number) => (
-                        <div className="md:col-4 lg:col-4 flex items-center" key={idx}>
-                          <Checkbox
-                            name={facility.name}
-                            checked={selectedAssignFaciliesToServiceType.includes(facility.id)}
-                            onChange={() => handleCheckboxChange(facility.id)}
-                          />
-                          <label className="ml-2" htmlFor="Status">{facility.name}</label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </TabPanel>
-              ))}
-            </TabView>
-          )}
+
           {selectedRadioOptionsSecondary?.value === 'isResidence' && (
             <div className="md:col-12 lg:col-6">
               <label htmlFor="residenceTypeId" className="block mb-2">Residence Type</label>
@@ -556,6 +576,42 @@ const Services = () => {
             </div>
           )}
         </div>
+      </Dialog>
+
+      <Dialog
+        header="Add Facilities"
+        visible={showFacilities}
+        className=""
+        onHide={() => setShowFacilities(false)}
+        footer={
+          <div className="flex justify-end mt-4">
+            <Button label="Save" size="small" severity="warning" outlined onClick={addFacility} className="mr-2"></Button>
+            <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowFacilities(false)}></Button>
+          </div>
+        }
+        >
+          <TabView className="md:col-12 lg:col-12 !rounded-md p-0" style={{ border: '1px solid #ddd' }} onTabChange={onTabChange} activeIndex={activeIndex}>
+            {facilityCategories && facilityCategories.length > 0 && facilityCategories.map((facilityCategory: any, index: number) => (
+              <TabPanel key={index} header={facilityCategory.name}>
+                {loading ? (
+                  <LoadingComponent />
+                ) : (
+                  <div className="grid grid-cols-12 gap-4">
+                    {facilitiesByCategoryId && facilitiesByCategoryId.length > 0 && facilitiesByCategoryId.map((facility: any, idx: number) => (
+                      <div className="md:col-4 lg:col-4 flex items-center" key={idx}>
+                        <Checkbox
+                          name={facility.name}
+                          checked={selectedAssignFaciliesToServiceType.includes(facility.id)}
+                          onChange={() => handleCheckboxChange(facility.id)}
+                        />
+                        <label className="ml-2" htmlFor="Status">{facility.name}</label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabPanel>
+            ))}
+          </TabView>
       </Dialog>
     </div>
   );

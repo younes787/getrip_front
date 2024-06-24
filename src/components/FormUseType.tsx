@@ -25,7 +25,7 @@ const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
   description: Yup.string().required('Service Description is required'),
   // files: Yup.mixed().required('Service Image is required'),
-  price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
+  // price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
   cityId: Yup.number().required('City is required'),
   // placeId: Yup.number().required('Place is required'),
   // rentalPlaceName: Yup.string(),
@@ -533,33 +533,6 @@ const FormUseType = () => {
 
           <Fieldset legend="Price" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">
-              <div className="md:col-6 lg:col-6">
-                <label htmlFor="Wallet">Service Price</label>
-                <InputNumber
-                  placeholder="Price"
-                  name="price"
-                  className="w-full mt-1"
-                  value={Serviceform.values.price}
-                  autoFocus={focusedField === 'price'}
-                  onInput={() => handleInputFocus('price')}
-                  onChange={(e) => Serviceform.setFieldValue('price', e.value)} />
-                  {renderError(Serviceform.errors.price)}
-              </div>
-
-              <div className="md:col-6 lg:col-6">
-                <label htmlFor="Wallet">Service Currency</label>
-                <InputText
-                  placeholder="currency"
-                  name="currency"
-                  className="w-full mt-1"
-                  disabled
-                  value={'USD'}
-                  autoFocus={focusedField === 'currency'}
-                  onInput={() => handleInputFocus('currency')}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
-                  {renderError(Serviceform.errors.currencyId)}
-              </div>
-
               {pricingTypes && pricingTypes.length > 0 && <>
                 {pricingTypes?.map((pricingType: any, index: number) => (
                     <div className=" md:col-6 lg:col-6my-2">
@@ -575,6 +548,19 @@ const FormUseType = () => {
                 ))}
               </>}
 
+              <div className="md:col-6 lg:col-6">
+                <label htmlFor="Wallet">Service Currency</label>
+                <InputText
+                  placeholder="currency"
+                  name="currency"
+                  className="w-full mt-1"
+                  disabled
+                  value={'USD'}
+                  autoFocus={focusedField === 'currency'}
+                  onInput={() => handleInputFocus('currency')}
+                  onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
+                  {renderError(Serviceform.errors.currencyId)}
+              </div>
             </div>
           </Fieldset>
 

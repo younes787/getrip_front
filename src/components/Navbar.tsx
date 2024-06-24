@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { Menubar } from "primereact/menubar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faServer, faUsers} from "@fortawesome/free-solid-svg-icons";
@@ -8,7 +7,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useFormik } from "formik";
-import { CreateUser, GetCitiesbyid, GetAllCountries, GetAllLanguages, GetProvincebyCid, GetCurrency, RegisterServiceProvider, GetServiceTypes, GetPendingUsers, GetPendingServices, GetRejectedUsers, GetRejectedServices } from "../Services";
+import { CreateUser, GetCitiesbyid, GetAllCountries, GetAllLanguages, GetProvincebyCid, GetCurrency, RegisterServiceProvider, GetServiceTypes, GetPendingUsers, GetPendingServices, ApproveService, ApproveUser, RejectService, RejectUser } from "../Services";
 import { LoginDTO, RegisterDTO, RegisterServiceProviderDTO } from "../modules/getrip.modules";
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
@@ -20,7 +19,7 @@ import * as Yup from 'yup';
 import { Fieldset } from "primereact/fieldset";
 import { Checkbox } from "primereact/checkbox";
 import { Card } from "primereact/card";
-import { TabPanel, TabView } from "primereact/tabview";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
@@ -28,7 +27,7 @@ const NavBar = () => {
   const [show, setshow] = useState<boolean>(false);
   const [showsign, setshowsign] = useState<boolean>(false);
   const [showSelectLang, setshowSelectLang] = useState<boolean>(false);
-  const [showsignPartner, setshowsignPartner] = useState<boolean>(false);
+  const [showsignPartner, setShowSignPartner] = useState<boolean>(false);
   const [provinces, setProvinces] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [countryCode, setCountryCode] = useState<string>('');
@@ -44,23 +43,56 @@ const NavBar = () => {
   const { login } = useAuth();
   const { logout } = useAuth();
   const { user } = useAuth();
-  const menuManeRoutes = useRef<any>(null);
-  const [maneRoutes, setManeRoutes] = useState<any[]>([]);
+  const menuMainRoutes = useRef<any>(null);
+  const [mainRoutes, setMainRoutes] = useState<any[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<any>(null);
+  const [currentServiceId, setCurrentServiceId] = useState<any>(null);
+  const [headerRejectionReason, setHeaderRejectionReason] = useState<string>('');
+
+  const handleRejectClick = (id: number, fromUser: boolean = true) => {
+    if(fromUser) {
+      setHeaderRejectionReason('User rejection reason');
+      setCurrentUserId(id);
+    } else {
+      setHeaderRejectionReason('Service rejection reason');
+      setCurrentServiceId(id);
+    }
+
+    setShowDialog(true);
+  };
+
+  const handleRejectConfirm = () => {
+    if (currentUserId !== null) {
+      RejectUser({
+        id: currentUserId,
+        note: rejectionReason
+      });
+    }
+
+    if (currentServiceId !== null) {
+      RejectService({
+        id: currentServiceId,
+        note: rejectionReason
+      });
+    }
+
+    setShowDialog(false);
+    setRejectionReason('');
+  };
 
   const initialState = {
     users: {
       pending: [],
-      rejected: [],
       loading: false,
     },
     services: {
       pending: [],
-      rejected: [],
       loading: false,
     },
     showMenuUsersCard: false,
     showMenuServicesCard: false,
-    activeIndex: 0,
   };
 
   const reducer = (state: any, action: any) => {
@@ -74,30 +106,12 @@ const NavBar = () => {
             loading: false,
           },
         };
-      case 'SET_REJECTED_USERS':
-        return {
-          ...state,
-          users: {
-            ...state.users,
-            rejected: action.payload,
-            loading: false,
-          },
-        };
       case 'SET_PENDING_SERVICES':
         return {
           ...state,
           services: {
             ...state.services,
             pending: action.payload,
-            loading: false,
-          },
-        };
-      case 'SET_REJECTED_SERVICES':
-        return {
-          ...state,
-          services: {
-            ...state.services,
-            rejected: action.payload,
             loading: false,
           },
         };
@@ -117,22 +131,15 @@ const NavBar = () => {
             loading: true,
           },
         };
-      case 'SET_ACTIVE_INDEX':
-        return {
-          ...state,
-          activeIndex: action.payload,
-        };
       case 'SET_SHOW_MENU_USERS_CARD':
         return {
           ...state,
           showMenuUsersCard: action.payload,
-          activeIndex: 0,
         };
       case 'SET_SHOW_MENU_SERVICES_CARD':
         return {
           ...state,
           showMenuServicesCard: action.payload,
-          activeIndex: 0,
         };
       default:
         return state;
@@ -140,9 +147,9 @@ const NavBar = () => {
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { users, services, showMenuUsersCard, showMenuServicesCard, activeIndex } = state;
-  const { pending: pendingUsers, rejected: rejectedUsers, loading: loadingUsers } = users;
-  const { pending: pendingServices, rejected: rejectedServices, loading: loadingServices } = services;
+  const { users, services, showMenuUsersCard, showMenuServicesCard } = state;
+  const { pending: pendingUsers, loading: loadingUsers } = users;
+  const { pending: pendingServices, loading: loadingServices } = services;
   const role = User?.data?.role;
 
   const [externalDataToLocalStorage, setExternalDataToLocalStorage] = useState<any>(() => {
@@ -167,6 +174,14 @@ const NavBar = () => {
     GetCurrency().then((res) => setCurrencies(res.data));
     GetServiceTypes().then((res) => setServiceType(res.data));
     GetAllCountries().then((res) => setCountries(res.data));
+
+    if(user) {
+      dispatch({ type: 'SET_LOADING_USERS' });
+      fetchData('users');
+
+      dispatch({ type: 'SET_LOADING_SERVICES' });
+      fetchData('services');
+    }
   }, []);
 
   useEffect(() => {
@@ -243,9 +258,22 @@ const NavBar = () => {
       Partneregister.values.expiration = new Date();
       Partneregister.values.accountId = user?.data?.accountId;
 
-      await RegisterServiceProvider(Partneregister.values).then((res)=> setLoading(false)).catch((error) => {
+    const registerServiceProviderResponse =  await RegisterServiceProvider(Partneregister.values)
+
+      if(registerServiceProviderResponse.isSuccess) {
         setLoading(false);
-      });
+        setShowSignPartner(false);
+
+        confirmDialog({
+          header: 'Success!',
+          message: 'The account has been created successfully. The account is awaiting admin approval. Thank you.',
+          icon: 'pi pi-check-circle',
+          defaultFocus: 'accept',
+          content: (props) => (
+            <CustomConfirmDialogContent {...props} resetForm={Partneregister.resetForm} />
+          ),
+        });
+      }
     },
   });
 
@@ -297,9 +325,9 @@ const NavBar = () => {
     </Fieldset>
   );
 
-  const fetchManeRoutes = async (event: any) => {
+  const fetchmainRoutes = async (event: any) => {
     try {
-      setManeRoutes([
+      setMainRoutes([
         {
           label: "User Menu",
           items: [
@@ -315,12 +343,27 @@ const NavBar = () => {
       dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
       dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
 
-      menuManeRoutes.current.toggle(event);
+      menuMainRoutes.current.toggle(event);
     } catch (error) {
       console.error("Error fetching mane routes:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate, resetForm }: any) => {
+    return (
+      <div className="flex flex-column align-items-center p-5 surface-overlay border-round custom-widht">
+        <div className="border-circle bg-green-500 text-white inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+          <i className="pi pi-check-circle text-5xl"></i>
+        </div>
+        <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
+        <p className="mb-0">{message.message}</p>
+        <div className="grid align-items-center gap-3 mt-4" >
+          <Button label="Go home" outlined onClick={(event) => { hide(event); navigate('/') }} className="w-full text-green border-green-500 text-green-500"></Button>
+        </div>
+      </div>
+    );
   };
 
   const end = (
@@ -334,7 +377,7 @@ const NavBar = () => {
 
       {user?.isSuccess === true ?
         <></> :
-        <Button rounded label="Become Our Partner" outlined className="outline_btn" onClick={() => setshowsignPartner(true)}/>
+        <Button rounded label="Become Our Partner" outlined className="outline_btn" onClick={() => setShowSignPartner(true)}/>
       }
 
       {user?.isSuccess === true ? (
@@ -352,7 +395,10 @@ const NavBar = () => {
             <Button
               className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
               icon={<FontAwesomeIcon icon={faServer} size={"sm"} />}
-              onClick={() => dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: !showMenuServicesCard })}
+              onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: !showMenuServicesCard })
+              }}
               rounded
               style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px'}}
               size="small"
@@ -361,7 +407,10 @@ const NavBar = () => {
             <Button
               className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
               icon={<FontAwesomeIcon icon={faUsers} size={"sm"} />}
-              onClick={() => dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: !showMenuUsersCard })}
+              onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: !showMenuUsersCard })
+              }}
               rounded
               aria-controls="popup_menu_left"
               aria-haspopup
@@ -373,7 +422,7 @@ const NavBar = () => {
           <Avatar
             image={AvatarImage}
             className="mx-2"
-            onClick={fetchManeRoutes}
+            onClick={fetchmainRoutes}
             shape="circle"
             style={{ cursor: "pointer" }}
           />
@@ -384,39 +433,15 @@ const NavBar = () => {
     </div>
   );
 
-  const handleChangeIndex = (index: any) => {
-    dispatch({ type: 'SET_ACTIVE_INDEX', payload: index });
-  };
-
-  useEffect(() => {
-    if (showMenuUsersCard) {
-      dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
-      dispatch({ type: 'SET_LOADING_USERS' });
-      fetchData('users');
-    }
-  }, [showMenuUsersCard]);
-
-  useEffect(() => {
-    if (showMenuServicesCard) {
-      dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
-      dispatch({ type: 'SET_LOADING_SERVICES' });
-      fetchData('services');
-    }
-  }, [showMenuServicesCard]);
-
   const fetchData = async (dataType: any) => {
     try {
       let response;
       if (dataType === 'users') {
         response = await GetPendingUsers();
         dispatch({ type: 'SET_PENDING_USERS', payload: response.data.slice(0, 5) });
-        response = await GetRejectedUsers();
-        dispatch({ type: 'SET_REJECTED_USERS', payload: response.data.slice(0, 5) });
       } else if (dataType === 'services') {
         response = await GetPendingServices();
         dispatch({ type: 'SET_PENDING_SERVICES', payload: response.data.slice(0, 5) });
-        response = await GetRejectedServices();
-        dispatch({ type: 'SET_REJECTED_SERVICES', payload: response.data.slice(0, 5) });
       }
     } catch (error) {
       console.error(`Error fetching ${dataType}:`, error);
@@ -429,46 +454,108 @@ const NavBar = () => {
     </div>
   );
 
-  const UserList = ({ users }: any) => (
-    <ul>
-      {users.map((user: any, index: number) => (
-        <li key={index} className="my-3">{user.name}</li>
-      ))}
-    </ul>
-  );
+  const getShortName = (name: string) => {
+    if (name.length > 10) {
+        return name.substring(0, 10) + '...';
+    }
+    return name;
+  };
 
-  const ServiceList = ({ services }: any) => (
-    <ul>
-      {services.map((service: any, index: number) => (
-        <li key={index} className="my-3">{service.name}</li>
-      ))}
-    </ul>
-  );
+  const UserList = ({ users }: any) => {
+    return (
+      <ul className="py-0 pl-3 pr-1">
+        {users.map((user: any, index: number) => (
+          <li key={index} className="my-3 flex flex-wrap gap-2 align-items-center justify-content-between">
+            <span
+              className="hover:text-blue-400"
+              onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
+                navigate(`/user-details/${user.accountId}`);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              - {getShortName(user.name)}
+            </span>
 
-  const UsersTabView = ({ loading, activeIndex, onChangeIndex }: any) => (
-    <TabView activeIndex={activeIndex} onTabChange={(e) => onChangeIndex(e.index)}>
-      <TabPanel header="Pending">
-        {loading ? <LoadingOverlay /> : pendingUsers.length ? <UserList users={pendingUsers} /> : <p className="mt-3">No pending users</p>}
-      </TabPanel>
-      <TabPanel header="Rejected">
-        {loading ? <LoadingOverlay /> : rejectedUsers.length ? <UserList users={rejectedUsers} /> : <p className="mt-3">No rejected users</p>}
-      </TabPanel>
-    </TabView>
-  );
+            <div className="icons">
+              <i
+                onClick={() => ApproveUser(user.accountId)}
+                className="pi pi-check"
+                style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
+              ></i>
 
-  const ServicesTabView = ({ loading, activeIndex, onChangeIndex }: any) => (
-    <TabView activeIndex={activeIndex} onTabChange={(e) => onChangeIndex(e.index)}>
-      <TabPanel header="Pending">
-        {loading ? <LoadingOverlay /> : pendingServices.length ? <ServiceList services={pendingServices} /> : <p className="mt-3">No pending services</p>}
-      </TabPanel>
-      <TabPanel header="Rejected">
-        {loading ? <LoadingOverlay /> : rejectedServices.length ? <ServiceList services={rejectedServices} /> : <p className="mt-3">No rejected services</p>}
-      </TabPanel>
-    </TabView>
-  );
+              <i
+                onClick={() => handleRejectClick(user.accountId, true)}
+                className="pi pi-times"
+                style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
+              ></i>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const ServiceList = ({ services }: any) => {
+    return (
+      <ul className="py-0 pl-3 pr-1">
+        {services.map((service: any, index: number) => (
+          <li key={index} className="my-3 flex flex-wrap gap-2 align-items-center justify-content-between">
+            <span
+              className="hover:text-blue-400"
+              onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
+                navigate(`/service-details/${service.id}`);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              - {getShortName(service.name)}
+            </span>
+
+            <div className="icons">
+              <i
+                onClick={() => ApproveService(service.id)}
+                className="pi pi-check"
+                style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
+              ></i>
+
+              <i
+                onClick={() => handleRejectClick(service.id, false)}
+                className="pi pi-times"
+                style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
+              ></i>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <div className="card">
+      <Dialog
+        header={headerRejectionReason}
+        visible={showDialog}
+        style={{ width: '50vw' }}
+        footer={<div>
+            <Button label="Confirm" size="small" severity="warning" outlined onClick={handleRejectConfirm} className="mt-4"></Button>
+            <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowDialog(false)} className="mt-4"></Button>
+        </div>}
+        onHide={() => {if (!showDialog) return; setShowDialog(false); }}
+      >
+          <InputText
+            name="rejection_reason"
+            className="mt-2	w-full"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Enter rejection reason"
+          />
+      </Dialog>
+
+      <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
+        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Partneregister.resetForm} />
+      )}/>
+
       <Dialog
         header={header}
         visible={show}
@@ -666,7 +753,7 @@ const NavBar = () => {
         visible={showsignPartner}
         className="card-container"
         style={{ width: "50vw" }}
-        onHide={() => setshowsignPartner(false)}
+        onHide={() => setShowSignPartner(false)}
       >
         <h4 className="primary flex justify-content-center">Join to become Our partner</h4>
 
@@ -940,7 +1027,7 @@ const NavBar = () => {
           <a
             className="mr-1 font-bold"
             onClick={() => {
-              setshowsignPartner(false);
+              setShowSignPartner(false);
               setshow(true);
               }}
           >Log In</a>
@@ -1021,28 +1108,30 @@ const NavBar = () => {
 
       </Dialog>
 
-      <Menu model={maneRoutes} popup ref={menuManeRoutes} />
+      <Menu model={mainRoutes} popup ref={menuMainRoutes} />
 
       <div className="users-icon">
         {showMenuUsersCard && (
-          <Card title="Users" className="p-mt-2 menu-users">
-            <UsersTabView loading={loadingUsers} users={users} activeIndex={activeIndex} onChangeIndex={handleChangeIndex} />
+          <Card title="Pending Users" className="p-mt-2 menu-users">
+            {loadingUsers ? <LoadingOverlay /> : pendingUsers.length ? <UserList users={pendingUsers} /> : <p className="mt-3">No pending users</p>}
+
             <div className="tab-footer" onClick={() => {
               dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
               navigate("/stat-of-users")
-            }}>Viwe All</div>
+            }}>View All</div>
           </Card>
         )}
       </div>
 
       <div className="services-icon">
         {showMenuServicesCard && (
-          <Card title="Services" className="p-mt-2 menu-services">
-            <ServicesTabView loading={loadingServices} services={services} activeIndex={activeIndex} onChangeIndex={handleChangeIndex} />
+          <Card title="Pending Services" className="p-mt-2 menu-services">
+            {loadingServices ? <LoadingOverlay /> : pendingServices.length ? <ServiceList services={pendingServices} /> : <p className="mt-3">No pending services</p>}
+
             <div className="tab-footer" onClick={() => {
               dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
               navigate("/stat-of-services")
-            }}>Viwe All</div>
+            }}>View All</div>
           </Card>
         )}
       </div>

@@ -12,12 +12,15 @@ import nature3 from "../Assets/n3.png";
 import nature4 from "../Assets/n4.png";
 import "../styles/home.scss";
 import "../styles/Searchbar.scss";
-import { TabPanel, TabView } from "primereact/tabview";
 import { Image } from "primereact/image";
 import { Card } from "primereact/card";
 import { useEffect, useState } from "react";
 import { GetAllCountries, GetAllLanguages, GetAllServices, GetCurrency, Getlogged } from "../Services";
+import { TabPanel, TabView } from "primereact/tabview";
 import { Carousel } from "primereact/carousel";
+import { Dialog } from "primereact/dialog";
+import ServiceDetailsDialog from "../components/ServiceDetailsDialog";
+import { ServiceDTO } from "../modules/getrip.modules";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -25,6 +28,8 @@ const Home = () => {
   const [country, setCountry] = useState<any>();
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
+  const [selectedService, setSelectedService] = useState<any>();
+  const [showSelectedService, setShowSelectedService] = useState<boolean>(false);
 
   useEffect(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -55,22 +60,22 @@ const Home = () => {
     {
       title: "Drive Around Istanbul",
       subTitle: "Rent a car for easy exploration and flexibility during your trip",
-      header: <img alt="Card" src={icon1} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }}/>,
+      header: <Image src={icon1} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
     },
     {
       title: "Discover Dining Spots",
       subTitle: "Find the best restaurants and cafés for delightful experiences",
-      header: <img alt="Card" src={icon2} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }}/>,
+      header: <Image src={icon2} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
     },
     {
       title: "Luxury Airport Transfer",
       subTitle: "Exclusive transportation from the airport to your destination",
-      header: <img alt="Card" src={icon3} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }}/>,
+      header: <Image src={icon3} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
     },
     {
       title: "Plan Your Trip",
       subTitle: "Browse hotels and plan your Istanbul itinerary hassle-free",
-      header: <img alt="Card" src={icon4} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }}/>,
+      header: <Image src={icon4} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
     }
   ];
 
@@ -78,25 +83,25 @@ const Home = () => {
     {
       title: "Belgrad Forest",
       subTitle: "Northern Istanbul",
-      header: <img alt="Card" src={nature1} />,
+      header: <Image src={nature1} alt={'Card'} />,
       description: "Lush woodland for tranquil walks and picnics."
     },
     {
       title: "Polonezköy Nature Park",
       subTitle: "Eastern Istanbul",
-      header: <img alt="Card" src={nature2} />,
+      header: <Image src={nature2} alt={'Card'} />,
       description: "Forested area with hiking trails and horseback riding."
     },
     {
       title: "Yoros Castle and Anadolu Kavağı",
       subTitle: "Northern Istanbul, the Asian side",
-      header: <img alt="Card" src={nature3} />,
+      header: <Image src={nature3} alt={'Card'} />,
       description: "Historic castle ruins with coastal walks and seafood dining."
     },
     {
       title: "Atatürk Arboretum",
       subTitle: "Western Istanbul, in Sarıyer district",
-      header: <img alt="Card" src={nature4} />,
+      header: <Image src={nature4} alt={'Card'} />,
       description: "Botanical garden with diverse plant species for leisurely strolls."
     }
   ];
@@ -109,7 +114,11 @@ const Home = () => {
   ];
 
   const renderImage = (image: string) => {
-    return <img src={image} alt="Product" style={{width: '100%', padding: '0 10px'}}/>;
+    return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '100%'}} />;
+  };
+
+  const onServiceDetailClick = (service: any) => {
+    setSelectedService(service);
   };
 
   const renderServices = (service: any) => {
@@ -123,7 +132,10 @@ const Home = () => {
                 <div className="col-8">
                   <p>9.0/10</p>
                   <p>(900 REVIEWS)</p>
-                  <Button icon="pi pi-info" rounded outlined aria-label="Filter"  size="small" severity="info"/>
+                  <Button label="Show details" className="my-2"  rounded outlined aria-label="Filter"  size="small" severity="info" onClick={() => {
+                    setShowSelectedService(true);
+                    onServiceDetailClick(service)
+                  }}/>
                 </div>
                 <div className="col-4">
                   <h3>{service?.price}</h3>
@@ -407,15 +419,17 @@ const Home = () => {
           itemTemplate={renderImage} />
       </div>
 
-      <div className="text-xl home-card mb-5">
-        <h2 className="black mx-6">Last-minute weekend deals</h2>
-        <Carousel
-          value={services}
-          showIndicators={false}
-          numVisible={4}
-          numScroll={1}
-          itemTemplate={renderServices} />
-      </div>
+      {services && services.length > 0 &&
+        <div className="text-xl home-card mb-5">
+          <h2 className="black mx-6">Last-minute weekend deals</h2>
+          <Carousel
+            value={services}
+            showIndicators={false}
+            numVisible={4}
+            numScroll={1}
+            itemTemplate={renderServices} />
+        </div>
+      }
 
       <div className="text-xl home-card mb-5">
         <h2 className="black mx-6">Explore your travel opportunities with GETIP!</h2>
@@ -437,6 +451,12 @@ const Home = () => {
           itemTemplate={renderReconnects} />
       </div>
     </div>
+
+    <Dialog header="Service Details" visible={showSelectedService} style={{ width: '50vw' }} onHide={() => setShowSelectedService(false)}>
+        {selectedService && (
+          <ServiceDetailsDialog loading={false} serviceDetails={selectedService} />
+        )}
+    </Dialog>
 
     <Footer />
   </>);

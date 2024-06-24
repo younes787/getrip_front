@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { GetAssignedServiceTypeByAccountId} from "../Services";
 import { Card } from "primereact/card";
 import { useNavigate } from "react-router-dom";
+import { Image } from 'primereact/image';
 
 const AddServices = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -11,7 +12,7 @@ const AddServices = () => {
 
   useEffect(() => {
     GetAssignedServiceTypeByAccountId(User?.data?.accountId).then((res) => setServiceType(res?.data));
-  }, []);
+  }, [User?.data?.accountId]);
 
   return (
     <>
@@ -32,7 +33,7 @@ const AddServices = () => {
               }
               header={
                 <div className="getrip-card-image">
-                  <img alt={type.name} src={type.photos[0].imagePath} />
+                  <Image src={type.name} alt={type.photos[0].imagePath} />
                 </div>
               }
             >

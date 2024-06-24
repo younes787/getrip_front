@@ -75,7 +75,7 @@ export const CreateUser = async (userData: any) => {
 export const RegisterServiceProvider = async (Data: any) => {
   try {
     const response = await api.post("/registerserviceprovider", Data);
-    return handleResponse(response, "Post");
+    return handleResponse(response, "");
   } catch (error) {
     handleError(error);
   }
@@ -102,6 +102,15 @@ export const DeleteUser = async (email: any) => {
 export const GetAllUsers = async () => {
   try {
     const response = await api.get("/getallusers");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAccountById = async (accountId: number) => {
+  try {
+    const response = await api.get(`/getaccountbyid/${accountId}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -138,6 +147,15 @@ export const CreateServiceType = async (ServicesData: any) => {
 export const GetServiceTypes = async () => {
   try {
     const response = await api.get("/getallservicetypes");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetServiceDetailsById = async (sid: number) => {
+  try {
+    const response = await api.get(`/getservicedetailsbyid/${sid}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -858,7 +876,7 @@ export const GetAssignedFacilitiesByServiceTypeIdWithCategory = async (stid: num
 export const AssignFaciliesToServiceType = async (Data: any) => {
   try {
     const response = await api.post(`/assignfaciliestoservicetype` , Data);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }
@@ -895,6 +913,43 @@ export const GetRejectedServices = async () => {
   try {
     const response = await api.get(`/getrejectedservices`);
     return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const ApproveUser = async (spid: any) => {
+  try {
+    const response = await api.post(`/approveuser/${spid}`);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const RejectUser = async (data: any) => {
+  try {
+    const response = await api.post("/rejectuser", data);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const ApproveService = async (sid: any) => {
+  try {
+    const response = await api.post(`/approveservice/${sid}`);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+
+export const RejectService = async (data: any) => {
+  try {
+    const response = await api.post("/rejectservice", data);
+    return handleResponse(response , 'Post');
   } catch (error) {
     handleError(error);
   }

@@ -302,8 +302,8 @@ html body {
 
   .menu-users, .menu-services {
     position: absolute;
-    width: max-content;
-    height: 400px;
+    width: 250px;
+    height: 330px;
     overflow: hidden;
     top: 70px;
     right: 150px;
@@ -314,7 +314,7 @@ html body {
 
 
     .tab-footer {
-      background-color: $secondery_color;
+      background-color: $primary_color;
       display: flex;
       justify-content: end;
       align-items: center;
@@ -332,7 +332,6 @@ html body {
 
     .tab-footer:hover {
       text-decoration: none;
-      color: $black;
     }
   }
 
@@ -354,4 +353,28 @@ html body {
 .times-circle-services {
   font-size: 16px;
   color: red;
+}
+
+.p-speeddial-button.p-button.p-button-icon-only {
+  width: 3rem;
+  height: 3rem;
+}
+
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 500ms, transform 500ms;
+}
+.fade-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 500ms, transform 500ms;
 }

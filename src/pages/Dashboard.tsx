@@ -7,6 +7,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import AppUsersVisits from "../components/Circle";
 import { Accordion, AccordionTab } from "primereact/accordion";
+import { Image } from 'primereact/image';
 
 const Dashboard = () => {
   return (
@@ -22,21 +23,21 @@ const Dashboard = () => {
               title="Weekly Sales"
               total={714}
               color="success"
-              icon={<img alt="icon" src={glassBag} />}
+              icon={<Image src={glassBag} alt={`icon`}  />}
             />
 
             <AppWidgetSummary
               title="New Users"
               total={1352831}
               color="info"
-              icon={<img alt="icon" src={glassUsers} />}
+              icon={<Image src={glassUsers} alt={`icon`}  />}
             />
 
             <AppWidgetSummary
               title="Weekly Orders"
               total={1723315}
               color="warning"
-              icon={<img alt="icon" src={glassbuy} />}
+              icon={<Image src={glassbuy} alt={`icon`}  />}
             />
           </div>
           </AccordionTab>

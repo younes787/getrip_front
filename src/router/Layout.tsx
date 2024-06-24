@@ -30,6 +30,8 @@ import FacilityCategories from "../pages/FacilityCategories";
 import Facility from "../pages/Facility";
 import StatOfServices from "../pages/StatOfServices";
 import StatOfUsers from "../pages/StatOfUsers";
+import UserDetails from "../pages/UserDetails";
+import ServiceDetails from "../pages/ServiceDetails";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -79,6 +81,8 @@ const Layout = () => {
 
             <Route path="/stat-of-users" element={<StatOfUsers />} />
             <Route path="/stat-of-services" element={<StatOfServices />} />
+            <Route path="/user-details/:accountId" element={<UserDetails />} />
+            <Route path="/service-details/:serviceId" element={<ServiceDetails />} />
 
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
