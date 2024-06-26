@@ -8,6 +8,7 @@ import LoadingComponent from "../components/Loading";
 import { ApproveService, RejectService, GetPendingServices, GetRejectedServices } from "../Services";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
+import { useNavigate } from "react-router-dom";
 
 interface ServiceType {
   pending: boolean;
@@ -24,6 +25,7 @@ const StatOfServices = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentServiceId, setCurrentServiceId] = useState<any>(null);
   const [headerRejectionReason, setHeaderRejectionReason] = useState<string>('');
+  const navigate = useNavigate();
 
   const handleRejectClick = (serviceId: number) => {
     setHeaderRejectionReason('Service rejection reason');
@@ -132,17 +134,24 @@ const StatOfServices = () => {
   );
 
   const serviceColumns = [
-    { field: "name", header: "Name", sortable: true },
-    { field: "description", header: "Description", sortable: true },
     {
-      field: "fieldsAndValues",
-      header: "Fields and Values",
+      field: "name",
+      header: "Name",
+      sortable: true
+    },
+    {
+      field: "description",
+      header: "Description",
+      sortable: true
+    },
+    {
+      field: "business",
+      header: "Business",
       body: (rowData: any) => (
-        <ul>
-          {rowData.fieldsAndValues ? rowData.fieldsAndValues.map(({ fieldName, value }: any, index: number) => (
-            <li key={index}>{`Field Name: ${fieldName}, Value: ${value}`}</li>
-          )): <p className="text-center text-red-500 text-sm italic">No Data</p>}
-        </ul>
+        <span
+        className="text-blue-300 hover:text-blue-600 hover:text-blue-400 hover:underline"
+        onClick={() => {navigate(`/user-details/${rowData.accountId}`);}}
+        style={{ cursor: 'pointer' }}>{rowData.business}</span>
       ),
       sortable: false,
     },

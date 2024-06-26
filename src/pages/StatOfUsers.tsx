@@ -159,64 +159,65 @@ const StatOfServices = () => {
 
   return (
     <div className="p-5">
-     { loading ? <LoadingComponent/> : <div>
-      <TabView onTabChange={(e) => setActiveIndex(e.index)} activeIndex={activeIndex} className="p-0">
-        <TabPanel header="Pending Users">
-          <DataTable
-            value={pendingUsers}
-            stripedRows
-            showGridlines
-            className=" p-5"
-            tableStyle={{ minWidth: "50rem" }}
-            size="small"
-            style={{ fontSize: "1.2rem", padding: "6px" }}
-            resizableColumns
-            rows={5}
-            rowsPerPageOptions={[10, 15, 20, 50]}
-            filters={filters}
-            header={header}
-            paginator
-            rowHover
-            sortMode="multiple"
-          >
-            <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
-            <Column field="business" filter sortable header="Business"></Column>
-            <Column field="email" filter sortable header="Email"></Column>
-            <Column
-              header="Actions"
-              body={(rowData) => <BodyTemplate rowData={rowData} userType={{ pending: true, rejected: false }} />}
-            />
-            </DataTable>
-        </TabPanel>
+     { loading ? <LoadingComponent/> :
+      <div>
+        <TabView onTabChange={(e) => setActiveIndex(e.index)} activeIndex={activeIndex} className="p-0">
+          <TabPanel header="Pending Users">
+            <DataTable
+              value={pendingUsers}
+              stripedRows
+              showGridlines
+              className=" p-5"
+              tableStyle={{ minWidth: "50rem" }}
+              size="small"
+              style={{ fontSize: "1.2rem", padding: "6px" }}
+              resizableColumns
+              rows={5}
+              rowsPerPageOptions={[10, 15, 20, 50]}
+              filters={filters}
+              header={header}
+              paginator
+              rowHover
+              sortMode="multiple"
+            >
+              <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
+              <Column field="business" filter sortable header="Business"></Column>
+              <Column field="email" filter sortable header="Email"></Column>
+              <Column
+                header="Actions"
+                body={(rowData) => <BodyTemplate rowData={rowData} userType={{ pending: true, rejected: false }} />}
+              />
+              </DataTable>
+          </TabPanel>
 
-        <TabPanel header="Rejected Users">
-          <DataTable
-            value={rejectedUsers}
-            stripedRows
-            showGridlines
-            className=" p-5"
-            tableStyle={{ minWidth: "50rem" }}
-            size="small"
-            style={{ fontSize: "1.2rem", padding: "16px" }}
-            resizableColumns
-            rows={5}
-            rowsPerPageOptions={[10, 15, 20, 50]}
-            filters={filters}
-            header={header}
-            paginator
-            rowHover
-            sortMode="multiple"
-          >
-            <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
-            <Column field="business" filter sortable header="Business"></Column>
-            <Column field="email" filter sortable header="Email"></Column>
-            <Column
-              header="Actions"
-              body={(rowData) => <BodyTemplate rowData={rowData} userType={{ pending: false, rejected: true }} />}
-            />
-            </DataTable>
-        </TabPanel>
-      </TabView>
+          <TabPanel header="Rejected Users">
+            <DataTable
+              value={rejectedUsers}
+              stripedRows
+              showGridlines
+              className=" p-5"
+              tableStyle={{ minWidth: "50rem" }}
+              size="small"
+              style={{ fontSize: "1.2rem", padding: "16px" }}
+              resizableColumns
+              rows={5}
+              rowsPerPageOptions={[10, 15, 20, 50]}
+              filters={filters}
+              header={header}
+              paginator
+              rowHover
+              sortMode="multiple"
+            >
+              <Column field="lastname" filter sortable body={(rowData) => (<div> {rowData.name + ' ' + rowData.lastname}</div>)} header="Full Name"></Column>
+              <Column field="business" filter sortable header="Business"></Column>
+              <Column field="email" filter sortable header="Email"></Column>
+              <Column
+                header="Actions"
+                body={(rowData) => <BodyTemplate rowData={rowData} userType={{ pending: false, rejected: true }} />}
+              />
+              </DataTable>
+          </TabPanel>
+        </TabView>
       </div>}
 
       <Dialog

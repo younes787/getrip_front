@@ -945,6 +945,15 @@ export const ApproveService = async (sid: any) => {
   }
 };
 
+export const DeleteService = async (sid: any) => {
+  try {
+    const response = await api.delete(`/deleteservice/${sid}`);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 
 export const RejectService = async (data: any) => {
   try {

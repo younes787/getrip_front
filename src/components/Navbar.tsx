@@ -46,6 +46,7 @@ const NavBar = () => {
   const menuMainRoutes = useRef<any>(null);
   const [mainRoutes, setMainRoutes] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [check, setCheck] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentUserId, setCurrentUserId] = useState<any>(null);
   const [currentServiceId, setCurrentServiceId] = useState<any>(null);
@@ -253,7 +254,8 @@ const NavBar = () => {
     validationSchema,
     validateOnChange: true,
     onSubmit: async () => {
-      setLoading(true)
+      setLoading(true);
+      setCheck(true);
       Partneregister.values.role = "Service Provider";
       Partneregister.values.expiration = new Date();
       Partneregister.values.accountId = user?.data?.accountId;
@@ -274,6 +276,8 @@ const NavBar = () => {
           ),
         });
       }
+
+      setLoading(false);
     },
   });
 
@@ -552,9 +556,11 @@ const NavBar = () => {
           />
       </Dialog>
 
-      <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
-        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Partneregister.resetForm} />
-      )}/>
+      {check &&
+        <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
+          <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Partneregister.resetForm} />
+        )}/>
+      }
 
       <Dialog
         header={header}

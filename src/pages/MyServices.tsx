@@ -1,13 +1,13 @@
 import { Button } from "primereact/button";
 import { useEffect, useState } from "react";
-import { GetMyServices } from "../Services";
+import { DeleteService, GetMyServices } from "../Services";
 import { Card } from "primereact/card";
 import { Image } from "primereact/image";
 import LoadingComponent from "../components/Loading";
 import { ServiceDTO } from "../modules/getrip.modules";
-import { Dialog } from "primereact/dialog";
 import { Paginator } from "primereact/paginator";
-import ServiceDetailsDialog from "../components/ServiceDetailsDialog";
+import { useNavigate } from "react-router-dom";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 const MyServices = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any);
@@ -15,8 +15,7 @@ const MyServices = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [selectedService, setSelectedService] = useState<any>();
-  const [showSelectedService, setShowSelectedService] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -32,74 +31,79 @@ const MyServices = () => {
     });
   }, [currentPage]);
 
+  const confirm = (id: any) => {
+    confirmDialog({
+      message: "Do you want to delete this user?",
+      header: "Delete Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "reject",
+      acceptClassName: "p-button-danger py-2",
+      rejectClassName: "p-button-outlined py-2",
+      acceptLabel: "Delete",
+      rejectLabel: "Cancel",
+      accept: () => DeleteService(id),
+    });
+  };
+
   const onPageChange = (event: any) => {
     setCurrentPage(event.page + 1);
   };
 
-  const onServiceDetailClick = (service: ServiceDTO) => {
-    setSelectedService(service);
-  };
-
   return (
-    <>
-      <div className="">
-        {loading ? <LoadingComponent /> :
-          <div className="grid grid-cols-12 m-3">
-            {services.length > 0 ? (
-              <>
-                {services.map((service: ServiceDTO, index: number) => (
-                  <div key={index} className="md:col-3 lg:col-3 my-2">
-                    <Card
-                      title={service.name}
-                      subTitle={service.description}
-                      header={<Image src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} preview />}
-                    >
-                      <div className="grid mb-0">
-                        <div className="col-8">
-                          <p>9.0/10</p>
-                          <p>(900 REVIEWS)</p>
+    <div className="">
+    <ConfirmDialog />
 
-                          <Button label="Show details" className="my-2" rounded outlined aria-label="Filter" size="small" severity="info" onClick={() => {
-                             setShowSelectedService(true);
-                             onServiceDetailClick(service)
+      {loading ? <LoadingComponent /> :
+        <div className="grid grid-cols-12 m-3">
+          {services.length > 0 ? (
+            <>
+              {services.map((service: ServiceDTO, index: number) => (
+                <div key={index} className="md:col-3 lg:col-3 my-2">
+                  <Card
+                    title={service.name}
+                    subTitle={service.description}
+                    header={<Image src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} preview />}
+                  >
+                    <div className="grid mb-0">
+                      <div className="col-8">
+                        <p>9.0/10</p>
+                        <p>(900 REVIEWS)</p>
+
+                        <Button label="Show details" icon="pi pi-info" rounded outlined aria-label="Filter" size="small" severity="info" onClick={() => {
+                            navigate(`/service-details/${service.id}`);
                           }}
-                          />
-                        </div>
+                        />
 
-                        <div className="col-4">
-                          <h3>{service?.price}</h3>
-                        </div>
+                        <Button onClick={() => confirm(service.id)} icon="pi pi-times" label="Delete" className="mx-1" rounded outlined aria-label="Filter" size="small" severity="danger"/>
                       </div>
-                    </Card>
-                  </div>
-                ))}
 
-                <Paginator
-                  first={(currentPage - 1) * 10}
-                  rows={10}
-                  totalRecords={totalRecords}
-                  onPageChange={onPageChange}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}
-                />
-              </>
-            ) : (
-              <span className="w-full text-center flex justify-content-center align-items-center text-red-500 text-xl italic mt-4">You don't have services</span>
-            )}
-          </div>
-        }
-      </div>
+                      <div className="col-4">
+                        <h3>{service?.price}</h3>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ))}
 
-      <Dialog header="Service Details" visible={showSelectedService} style={{ width: '50vw' }} onHide={() => setShowSelectedService(false)}>
-        {selectedService && (
-          <ServiceDetailsDialog loading={loading} serviceDetails={selectedService} />
-        )}
-      </Dialog>
-    </>
+              <Paginator
+                first={(currentPage - 1) * 10}
+                rows={10}
+                totalRecords={totalRecords}
+                onPageChange={onPageChange}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              />
+            </>
+          ) : (
+            <span className="w-full text-center flex justify-content-center align-items-center text-red-500 text-xl italic mt-4">You don't have services</span>
+          )}
+        </div>
+      }
+    </div>
   );
 }
 

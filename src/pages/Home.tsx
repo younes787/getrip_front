@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import { Button } from "primereact/button";
 import imageCardCarouselOne from "../Assets/b.png";
 import imageCardCarouselTow from "../Assets/3.png";
@@ -18,9 +17,7 @@ import { useEffect, useState } from "react";
 import { GetAllCountries, GetAllLanguages, GetAllServices, GetCurrency, Getlogged } from "../Services";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Carousel } from "primereact/carousel";
-import { Dialog } from "primereact/dialog";
-import ServiceDetailsDialog from "../components/ServiceDetailsDialog";
-import { ServiceDTO } from "../modules/getrip.modules";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -28,8 +25,7 @@ const Home = () => {
   const [country, setCountry] = useState<any>();
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
-  const [selectedService, setSelectedService] = useState<any>();
-  const [showSelectedService, setShowSelectedService] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -117,10 +113,6 @@ const Home = () => {
     return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '100%'}} />;
   };
 
-  const onServiceDetailClick = (service: any) => {
-    setSelectedService(service);
-  };
-
   const renderServices = (service: any) => {
     return <Card
                 title={service.name}
@@ -132,10 +124,18 @@ const Home = () => {
                 <div className="col-8">
                   <p>9.0/10</p>
                   <p>(900 REVIEWS)</p>
-                  <Button label="Show details" className="my-2"  rounded outlined aria-label="Filter"  size="small" severity="info" onClick={() => {
-                    setShowSelectedService(true);
-                    onServiceDetailClick(service)
-                  }}/>
+                  <Button
+                    label="Show details"
+                    className="my-2"
+                    rounded
+                    outlined
+                    aria-label="Filter"
+                    size="small"
+                    severity="info"
+                    onClick={() => {
+                      navigate(`/service-details/${service.id}`);
+                    }}
+                  />
                 </div>
                 <div className="col-4">
                   <h3>{service?.price}</h3>
@@ -451,13 +451,6 @@ const Home = () => {
           itemTemplate={renderReconnects} />
       </div>
     </div>
-
-    <Dialog header="Service Details" visible={showSelectedService} style={{ width: '50vw' }} onHide={() => setShowSelectedService(false)}>
-        {selectedService && (
-          <ServiceDetailsDialog loading={false} serviceDetails={selectedService} />
-        )}
-    </Dialog>
-
     <Footer />
   </>);
 };
