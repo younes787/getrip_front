@@ -82,18 +82,6 @@ const ServiceDetailsDialog = ({ loading, serviceDetails }: any) => {
       { loading ? <LoadingComponent /> : <>
         {serviceDetails &&
           <div className='grid grid-cols-12'>
-            <section className='md:col-12 lg:col-12' style={{display: 'flex', justifyContent: 'end', alignItems: 'center'}}>
-              <i onClick={() => ApproveService(id)}
-                className="pi pi-check"
-                style={{ color: 'green', border: '1px solid green', fontSize: '22px', borderRadius: '50%', padding: '5px', margin: '5px', cursor: 'pointer' }}
-              ></i>
-
-              <i onClick={() => handleRejectClick(id)}
-                className="pi pi-times"
-                style={{ color: 'red', border: '1px solid red', fontSize: '22px', borderRadius: '50%', padding: '5px', margin: '5px', cursor: 'pointer' }}
-              ></i>
-            </section>
-
             <section className="md:col-8 lg:col-8" style={{ height: '100px'}}>
               <div style={{ minHeight: '100%', display: 'grid', justifyContent: 'start', alignItems: 'center', borderRadius: '7px', borderColor: '#ddd'}}>
                 <h2 className='m-2'>{name || 'No name'}</h2>
@@ -101,13 +89,16 @@ const ServiceDetailsDialog = ({ loading, serviceDetails }: any) => {
               </div>
             </section>
 
-            <section className='md:col-4 lg:col-4' style={{ height: '100px', display: 'flex', justifyContent: 'end', alignItems: 'center'}}>
-              <div className="p-1" style={{ minHeight: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '7px', borderColor: '#ddd'}}>
-                <span style={{ fontSize: '25px'}}>
-                  {price !== null ? price : 'No price'}
-                </span>
-                <i className='pi pi-money-bill mx-2' style={{ fontSize: '25px' }}></i>
-              </div>
+            <section className='md:col-4 lg:col-4' style={{display: 'flex', justifyContent: 'end', alignItems: 'center'}}>
+              <i onClick={() => ApproveService(id)}
+                className="pi pi-check"
+                style={{ color: 'green', border: '1px solid green', fontSize: '22px', borderRadius: '10%', padding: '15px', margin: '5px', cursor: 'pointer' }}
+              ></i>
+
+              <i onClick={() => handleRejectClick(id)}
+                className="pi pi-times"
+                style={{ color: 'red', border: '1px solid red', fontSize: '22px', borderRadius: '10%', padding: '15px', margin: '5px', cursor: 'pointer' }}
+              ></i>
             </section>
 
             <section className="md:col-12 lg:col-12">
@@ -121,6 +112,15 @@ const ServiceDetailsDialog = ({ loading, serviceDetails }: any) => {
                 item={itemTemplate}
                 thumbnailsPosition='top'
               />
+            </section>
+
+            <section className='md:col-12 lg:col-12' style={{ height: '100px', display: 'flex', justifyContent: 'end', alignItems: 'center'}}>
+              <div className="p-1" style={{ minHeight: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '7px', borderColor: '#ddd'}}>
+                <span style={{ fontSize: '25px'}}>
+                  {price !== null ? price : 'No price'}
+                </span>
+                <i className='pi pi-money-bill mx-2' style={{ fontSize: '25px' }}></i>
+              </div>
             </section>
 
             <Fieldset legend="Basic Information" className="md:col-12 lg:col-12 mb-3">

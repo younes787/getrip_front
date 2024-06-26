@@ -73,12 +73,12 @@ const UserDetails = () => {
           <div className="md:col-12 lg:col-12" style={{ display: 'flex', justifyContent: 'end', alignItems: 'center'}}>
               <i onClick={() => ApproveUser(accountId)}
                 className="pi pi-check"
-                style={{ color: 'green', border: '1px solid green', fontSize: '22px', borderRadius: '50%', padding: '5px', margin: '5px', cursor: 'pointer' }}
+                style={{ color: 'green', border: '1px solid green', fontSize: '22px', borderRadius: '10%', padding: '15px', margin: '5px', cursor: 'pointer' }}
               ></i>
 
               <i onClick={() => handleRejectClick(accountId)}
                 className="pi pi-times"
-                style={{ color: 'red', border: '1px solid red', fontSize: '22px', borderRadius: '50%', padding: '5px', margin: '5px', cursor: 'pointer' }}
+                style={{ color: 'red', border: '1px solid red', fontSize: '22px', borderRadius: '10%', padding: '15px', margin: '5px', cursor: 'pointer' }}
               ></i>
           </div>
 
