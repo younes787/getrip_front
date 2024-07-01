@@ -50,35 +50,39 @@ const Services = () => {
 
   const radioOptionsPrimary: RadioOptionPrimary[] = [
     {
-      title: 'Is Rental',
+      title: 'Rental',
       value: 'isRental'
     },
     {
-      title: 'Is Trip',
+      title: 'Trip',
       value: 'isTrip'
+    },
+    {
+      title: 'Other',
+      value: 'isOther'
     },
   ];
 
   const radioOptionsSecondary: RadioOptionSecondary[] = [
     {
-      title: 'Is Residence',
+      title: 'Residence',
       value: 'isResidence',
       showIf: ['isRental']
     },
     {
-      title: 'Is Vehicle',
+      title: 'Vehicle',
       value: 'isVehicle',
-      showIf: ['isRental', 'isTrip']
+      showIf: ['isRental']
     },
     {
-      title: 'Is Cruise',
+      title: 'Cruise',
       value: 'isCruise',
-      showIf: ['isRental', 'isTrip']
+      showIf: ['isTrip']
     },
     {
-      title: 'Is Yacht',
+      title: 'Yacht',
       value: 'isYacht',
-      showIf: ['isRental', 'isTrip']
+      showIf: ['isRental']
     },
   ];
 
@@ -403,7 +407,7 @@ const Services = () => {
               </div>
             ))}
           </div>
-          {selectedRadioOptionsPrimary && (
+          {selectedRadioOptionsPrimary && selectedRadioOptionsPrimary.value !== 'isOther' && (
             <div className="md:col-12 lg:col-6">
               <h3>Select a Secondary Option</h3>
               {radioOptionsSecondary
@@ -429,7 +433,7 @@ const Services = () => {
             </div>
           )}
 
-          {selectedRadioOptionsSecondary?.value === 'isResidence' && (
+          {/* {selectedRadioOptionsSecondary?.value === 'isResidence' && (
             <div className="md:col-12 lg:col-6">
               <label htmlFor="residenceTypeId" className="block mb-2">Residence Type</label>
               <Dropdown
@@ -460,7 +464,7 @@ const Services = () => {
                 onChange={(e) => ServicesForm.setFieldValue("vehicleTypeId", e.value)}
               />
             </div>
-          )}
+          )} */}
         </div>
       </Dialog>
 
@@ -517,7 +521,7 @@ const Services = () => {
               </div>
             ))}
           </div>
-          {selectedRadioOptionsPrimary && (
+          {selectedRadioOptionsPrimary && selectedRadioOptionsPrimary.value !== 'isOther' && (
             <div className="md:col-12 lg:col-6">
               <h3>Select a Secondary Option</h3>
               {radioOptionsSecondary
@@ -543,7 +547,7 @@ const Services = () => {
             </div>
           )}
 
-          {selectedRadioOptionsSecondary?.value === 'isResidence' && (
+          {/* {selectedRadioOptionsSecondary?.value === 'isResidence' && (
             <div className="md:col-12 lg:col-6">
               <label htmlFor="residenceTypeId" className="block mb-2">Residence Type</label>
               <Dropdown
@@ -558,8 +562,8 @@ const Services = () => {
                 onChange={(e) => ServicesFormUpdate.setFieldValue("residenceTypeId", e.value)}
               />
             </div>
-          )}
-          {selectedRadioOptionsSecondary?.value === 'isVehicle' && (
+          )} */}
+          {/* {selectedRadioOptionsSecondary?.value === 'isVehicle' && (
             <div className="md:col-12 lg:col-6">
               <label htmlFor="vehicleTypeId" className="block mb-2">Vehicle Type</label>
               <Dropdown
@@ -574,7 +578,7 @@ const Services = () => {
                 onChange={(e) => ServicesFormUpdate.setFieldValue("vehicleTypeId", e.value)}
               />
             </div>
-          )}
+          )} */}
         </div>
       </Dialog>
 
