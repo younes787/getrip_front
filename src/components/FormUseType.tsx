@@ -9,7 +9,7 @@ import { Dialog } from "primereact/dialog";
 import Vehicle from "../pages/Vehicle";
 import Residence from "../pages/Residencemain";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ImageDTO, ServiceDTO, ServiceFacilitiesDTO, TagsDTO } from "../modules/getrip.modules";
+import { FildsDTO, ImageDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -20,6 +20,7 @@ import { Tag } from "primereact/tag";
 import { Image } from 'primereact/image';
 import LoadingComponent from "./Loading";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import GoogleMap from "./GoogleMap";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -69,6 +70,43 @@ const FormUseType = () => {
   const [countries, setCountries] = useState<any>();
   const [selectedCountry, setSelectedCountry] = useState<number>(0);
   const [selectedProvince, setSelectedProvince] = useState<number>(0);
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: any } | null>(null);
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
+    setSelectedLocation(location);
+  };
+
+  const markerData = [
+    // { lat: 40.748817, lng: -73.985428, text: 'Marker 1' },
+  ] || [];
+  console.log(selectedLocation);
+
+  const extractLocationDetails = (selectedLocation: any): Address => {
+    const lat = selectedLocation.lat;
+    const lng = selectedLocation.lng;
+
+    let country = '';
+    let province = '';
+    let city = '';
+    let description = '';
+
+    selectedLocation.address.forEach((addr: any) => {
+      addr.address_components.forEach((component: any) => {
+        if (component.types.includes('country')) {
+          country = component.long_name;
+        }
+        if (component.types.includes('administrative_area_level_1')) {
+          province = component.long_name;
+        }
+        if (component.types.includes('locality') || component.types.includes('administrative_area_level_2')) {
+          city = component.long_name;
+        }
+      });
+      description += addr.formatted_address + '\n';
+    });
+
+    return { lat, lng, country, province, city, description };
+  };
 
   const Serviceform = useFormik<ServiceDTO>({
     initialValues: new ServiceDTO(),
@@ -82,6 +120,10 @@ const FormUseType = () => {
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
       Serviceform.values.images = {};
+
+      if (selectedLocation) {
+        Serviceform.values.address = extractLocationDetails(selectedLocation);
+      }
 
       const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
         id: index,
@@ -105,6 +147,9 @@ const FormUseType = () => {
         isPrimary: serviceFacility.isPrimary ?? false,
         isAdditionalCharges: serviceFacility.isAdditionalCharges ?? false,
       })) || [];
+
+      console.log(selectedLocation);
+
 
       values.tags = formattedTags;
       values.fields = formattedFields;
@@ -447,6 +492,29 @@ const FormUseType = () => {
                   onChange={(e) => handleCityChange(e)} />
                   {renderError(Serviceform.errors.cityId)}
               </div>
+
+            <div className="md:col-12 lg:col-12">
+              <h1>Select Your Address</h1>
+              <GoogleMap
+                markerData={markerData}
+                country={
+                  (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
+                    ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
+                    : undefined
+                }
+                province={
+                  (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
+                    ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
+                    : undefined
+                }
+                city={
+                  (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
+                    ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
+                    : undefined
+                }
+                onLocationSelect={handleLocationSelect}
+              />
+            </div>
 
               {Serviceform.values.typeId?.name !== "VIP transfers" &&
                 Serviceform.values.typeId?.name !== 'Transfers' &&

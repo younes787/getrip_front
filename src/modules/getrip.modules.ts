@@ -244,6 +244,14 @@ export class ServiceFacilitiesDTO{
   isPrimary: boolean = false;
   isAdditionalCharges: boolean = false;
 }
+export interface Address {
+  lat?: number;
+  lng?: number;
+  country?: string;
+  province?: string;
+  city?: string;
+  description?: string;
+}
 export class ServiceDTO{
   id?: number = 0;
   name: string = '';
@@ -261,6 +269,7 @@ export class ServiceDTO{
   isTrip:boolean= false;
   photos?: any[];
   images?: {};
+  address?: Address;
   placeHasNewActivities:boolean= false;
   hasNewRentalPlace :boolean= false;
   isRental:boolean= false;
