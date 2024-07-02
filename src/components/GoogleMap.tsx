@@ -62,7 +62,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
           setSelectedLocation({ lat: latitude, lng: longitude });
           setMapCenter({ lat: latitude, lng: longitude });
           fetchLocationInfo(latitude, longitude);
-
         }, (error) => {
           console.error('Error getting current location:', error);
         });

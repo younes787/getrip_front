@@ -79,7 +79,6 @@ const FormUseType = () => {
   const markerData = [
     // { lat: 40.748817, lng: -73.985428, text: 'Marker 1' },
   ] || [];
-  console.log(selectedLocation);
 
   const extractLocationDetails = (selectedLocation: any): Address => {
     const lat = selectedLocation.lat;
@@ -147,9 +146,6 @@ const FormUseType = () => {
         isPrimary: serviceFacility.isPrimary ?? false,
         isAdditionalCharges: serviceFacility.isAdditionalCharges ?? false,
       })) || [];
-
-      console.log(selectedLocation);
-
 
       values.tags = formattedTags;
       values.fields = formattedFields;
