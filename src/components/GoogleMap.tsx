@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import axios from 'axios';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { InputText } from 'primereact/inputtext';
 
 interface MarkerProps {
   lat: number;
@@ -39,6 +41,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
   const [hoverInfo, setHoverInfo] = useState<string | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  // const [AddressDescriptionValue, setAddressDescriptionValue] = useState('');
 
   useEffect(() => {
     const initializeMapCenter = async () => {
@@ -88,6 +91,8 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
       const results = response.data.results;
       if (results.length > 0) {
         const locationDetails = results[0].formatted_address;
+        setSearchQuery(locationDetails)
+
         setLocationInfo(`Location: ${locationDetails}`);
         setSelectedLocation({ lat, lng });
         setMapCenter({ lat: lat, lng: lng });
@@ -139,69 +144,73 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
 
   return (
-    <div style={{ height: '400px', width: '100%', position: 'relative', borderRadius: '15px', padding: '10px'}}>
+    <>
+      <div className="md:col-12 lg:col-12">
+        <label htmlFor="Wallet">Address description</label>
+        <InputText
+          placeholder="Address description"
+          name="name"
+          className="w-full mt-3"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            handleSearch()
+          }}
+        />
+      </div>
 
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search location"
-        style={{ position: 'absolute', top: 10, left: 10, zIndex: 1000 }}
-      />
-      <button onClick={handleSearch} style={{ position: 'absolute', top: 10, left: 220, zIndex: 1000 }}>
-        Search
-      </button>
+      <div style={{ height: '400px', width: '100%', position: 'relative', borderRadius: '15px', padding: '10px'}}>
+        <GoogleMapReact
+          onClick={( e: any ) => fetchLocationInfo(e.lat, e.lng)}
+          bootstrapURLKeys={{ key: APIKEY }}
+          center={mapCenter}
+          defaultZoom={16}
+          yesIWantToUseGoogleMapApiInternals
+          onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
+        >
 
-      <GoogleMapReact
-        onClick={( e: any ) => fetchLocationInfo(e.lat, e.lng)}
-        bootstrapURLKeys={{ key: APIKEY }}
-        center={mapCenter}
-        defaultZoom={11}
-        yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
-      >
+          {markerData.map((marker, index) => (
+            <div key={index} style={{ position: 'relative'}}>
+              <Marker
+                key={index}
+                lat={marker.lat}
+                lng={marker.lng}
+                text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
+                onClick={() => setLocationInfo(`Latitude: ${marker.lat}, Longitude: ${marker.lng}, Info: ${marker.text}`)}
+                onMouseEnter={() => handleMarkerHover(marker.lat, marker.lng)}
+                onMouseLeave={() => setHoverInfo(null)}
+              />
+            </div>
+          ))}
 
-        {markerData.map((marker, index) => (
-          <div key={index} style={{ position: 'relative'}}>
-            <Marker
-              key={index}
-              lat={marker.lat}
-              lng={marker.lng}
-              text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
-              onClick={() => setLocationInfo(`Latitude: ${marker.lat}, Longitude: ${marker.lng}, Info: ${marker.text}`)}
-              onMouseEnter={() => handleMarkerHover(marker.lat, marker.lng)}
-              onMouseLeave={() => setHoverInfo(null)}
-            />
-          </div>
-        ))}
+          {selectedLocation && (
+            <div style={{ position: 'relative'}}>
+              <Marker
+                lat={selectedLocation.lat}
+                lng={selectedLocation.lng}
+                text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
+                onClick={() => setLocationInfo(`Latitude: ${selectedLocation.lat}, Longitude: ${selectedLocation.lng}`)}
+                onMouseEnter={() => handleMarkerHover(selectedLocation.lat, selectedLocation.lng)}
+                onMouseLeave={() => setHoverInfo(null)}
+              />
+            </div>
+          )}
 
-        {selectedLocation && (
-          <div style={{ position: 'relative'}}>
-            <Marker
-              lat={selectedLocation.lat}
-              lng={selectedLocation.lng}
-              text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
-              onClick={() => setLocationInfo(`Latitude: ${selectedLocation.lat}, Longitude: ${selectedLocation.lng}`)}
-              onMouseEnter={() => handleMarkerHover(selectedLocation.lat, selectedLocation.lng)}
-              onMouseLeave={() => setHoverInfo(null)}
-            />
+        </GoogleMapReact>
+
+        {/* {locationInfo && (
+          <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
+            {locationInfo}
           </div>
         )}
 
-      </GoogleMapReact>
-
-      {locationInfo && (
-        <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
-          {locationInfo}
-        </div>
-      )}
-
-      {hoverInfo && (
-        <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
-          {hoverInfo}
-        </div>
-      )}
-    </div>
+        {hoverInfo && (
+          <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
+            {hoverInfo}
+          </div>
+        )} */}
+      </div>
+    </>
   );
 };
 

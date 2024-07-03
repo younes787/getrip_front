@@ -489,34 +489,33 @@ const FormUseType = () => {
                   {renderError(Serviceform.errors.cityId)}
               </div>
 
-            <div className="md:col-12 lg:col-12">
-              <h1>Select Your Address</h1>
-              <GoogleMap
-                markerData={markerData}
-                country={
-                  (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
-                    ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
-                    : undefined
-                }
-                province={
-                  (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
-                    ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
-                    : undefined
-                }
-                city={
-                  (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
-                    ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
-                    : undefined
-                }
-                onLocationSelect={handleLocationSelect}
-              />
-            </div>
+              <div className="md:col-12 lg:col-12">
+                <GoogleMap
+                  markerData={markerData}
+                  country={
+                    (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
+                      ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
+                      : undefined
+                  }
+                  province={
+                    (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
+                      ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
+                      : undefined
+                  }
+                  city={
+                    (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
+                      ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
+                      : undefined
+                  }
+                  onLocationSelect={handleLocationSelect}
+                />
+              </div>
 
               {Serviceform.values.typeId?.name !== "VIP transfers" &&
                 Serviceform.values.typeId?.name !== 'Transfers' &&
                 Serviceform.values.typeId?.name !== 'transfers' ? (
                 <>
-                  <div className="md:col-6 lg:col-6">
+                  {/* <div className="md:col-6 lg:col-6">
                     <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
                     <Dropdown
                       placeholder="Select a Place"
@@ -531,7 +530,7 @@ const FormUseType = () => {
                       value={Serviceform.values.placeId ?? otherPlace?.value}
                       onChange={(e) => handlePlaceChange(e)} />
                       {renderError(Serviceform.errors.placeId)}
-                  </div>
+                  </div> */}
 
                   <Dialog header={"Add Residence"} visible={showResidence} className="md:w-40rem lg:w-40rem" onHide={() => setshowResidence(false)}>
                     <Residence />
