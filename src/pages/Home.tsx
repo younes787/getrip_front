@@ -15,9 +15,11 @@ import { Image } from "primereact/image";
 import { Card } from "primereact/card";
 import { useEffect, useState } from "react";
 import { GetAllCountries, GetAllLanguages, GetAllServices, GetCurrency, Getlogged } from "../Services";
-import { TabPanel, TabView } from "primereact/tabview";
 import { Carousel } from "primereact/carousel";
 import { useNavigate } from "react-router-dom";
+import SearchBar from "../components/SearchBar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -116,31 +118,41 @@ const Home = () => {
   const renderServices = (service: any) => {
     return <Card
                 title={service.name}
-                subTitle={service.description}
-                header={ <Image  src={service?.photos[0]?.imagePath && service?.photos[0]?.imagePath } alt={service.photos}  preview />}
-                className="md:w-21rem"
+                subTitle={<span><FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />{service.description}</span>}
+                header={ <Image  src={service?.photos[0]?.imagePath && service?.photos[0]?.imagePath } imageStyle={{borderRadius: '30px 30px 0 0'}} alt={service.photos}  preview />}
+                className="md:w-21rem m-2 m-home-card relative"
               >
-              <div className="grid mb-0">
+              <div className="grid mb-3">
                 <div className="col-8">
-                  <p>9.0/10</p>
-                  <p>(900 REVIEWS)</p>
-                  <Button
-                    label="Show details"
-                    className="my-2"
-                    rounded
-                    outlined
-                    aria-label="Filter"
-                    size="small"
-                    severity="info"
-                    onClick={() => {
-                      navigate(`/service-details/${service.id}`);
-                    }}
-                  />
+                  <p className="my-1" style={{ color: '#f1881f', fontWeight: '550'}}><FontAwesomeIcon icon={faStar} size="sm" className="mr-1" /> 9.0/10</p>
+                  <p className="my-1" style={{fontSize: '14px'}}>(900 REVIEWS)</p>
                 </div>
+
                 <div className="col-4">
-                  <h3>{service?.price}</h3>
+                  <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
+                    per night
+                    <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${service?.price}</span>
+                  </p>
                 </div>
               </div>
+
+              <Button
+                className="absolute show-details"
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: '30px 0 30px 0',
+                  borderColor: '#f1881f',
+                  color: '#f1881f',
+                  padding: '10px 15px',
+                  bottom: '0px',
+                  right: '0'
+                }}
+                aria-label="Filter"
+                size="small"
+                onClick={() => navigate(`/service-details/${service.id}`)}
+              >
+                Show details
+              </Button>
             </Card>;
   };
 
@@ -149,8 +161,8 @@ const Home = () => {
               title={opportunitie.title}
               subTitle={opportunitie.subTitle}
               header={opportunitie.header}
-              className="md:w-21rem"
-              style={{ height: "17rem" }}
+              className="md:w-21rem m-2 m-home-card pt-4"
+              style={{ height: "17rem"}}
             ></Card>;
   };
 
@@ -159,8 +171,8 @@ const Home = () => {
               title={reconnect.title}
               subTitle={reconnect.subTitle}
               header={reconnect.header}
-              style={{ height: "27rem" }}
-              className="md:w-21rem"
+              style={{ height: "30rem" }}
+              className="md:w-21rem m-2 m-home-card"
             >
               <div className=" mb-0"><p>{reconnect.description}</p></div>
             </Card>;
@@ -168,7 +180,7 @@ const Home = () => {
 
   const Footer = () => {
     return (
-      <footer className="footer grid grid-cols-12">
+      <footer className="footer grid grid-cols-12 mt-5">
         <div className="footer-top md:col-3 lg:col-3">
           <div className="location">
             {country?.name} · {language?.name} ({language?.shortcut}) · {currency?.name}
@@ -209,206 +221,23 @@ const Home = () => {
 
   return (<>
     <div className="container mx-8 overflow-hidden">
-      <div id="image-container-home" className="mb-5">
-        <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
 
-          <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
-
-          <div className="md:w-7 lg:w-7 m-auto border-1" style={{ borderColor: '#ddd' }}>
-            <TabView>
-              <TabPanel header={<span><i className="pi pi-search mr-2"></i> Search All</span>}>
-                <div className="search__bar justify-content-center align-items-center">
-                  <form className="grid justify-content-center gap-4">
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className="ml-4 pi pi-map-marker"></i>
-                      </span>
-
-                      <div>
-                        <input type="text" className="mt-3" placeholder="Search By Hotel Name" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className=""></i>
-                      </span>
-                      <div>
-                        <input type="datetime-local" className="mt-3" placeholder="Date" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-last">
-                      <span>
-                        <i className="ri-group-line"></i>
-                      </span>
-                      <div>
-                        <input type="number" className="mt-4" placeholder="0" />
-                      </div>
-                    </div>
-
-                    <span className="search__icon">
-                      <Button label="Search" rounded severity="warning" className="mt-2" />
-                    </span>
-                  </form>
-                </div>
-              </TabPanel>
-
-              <TabPanel header={<span><i className="pi pi-building mr-2"></i> Yacht Bookings</span>}>
-                <div className="search__bar justify-content-center align-items-center">
-                  <form className="grid justify-content-center gap-4">
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className="ml-4 pi pi-map-marker"></i>
-                      </span>
-
-                      <div>
-                        <input type="text" className="mt-3" placeholder="Search By Hotel Name" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className=""></i>
-                      </span>
-                      <div>
-                        <input type="datetime-local" className="mt-3" placeholder="Date" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-last">
-                      <span>
-                        <i className="ri-group-line"></i>
-                      </span>
-                      <div>
-                        <input type="number" className="mt-4" placeholder="0" />
-                      </div>
-                    </div>
-
-                    <span className="search__icon">
-                      <Button label="Search" rounded severity="warning" className="mt-2" />
-                    </span>
-                  </form>
-                </div>
-              </TabPanel>
-
-              <TabPanel header={<span><i className="pi pi-building mr-2"></i> Restaurants</span>}>
-                <div className="search__bar justify-content-center align-items-center">
-                  <form className="grid justify-content-center gap-4">
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className="ml-4 pi pi-map-marker"></i>
-                      </span>
-
-                      <div>
-                        <input type="text" className="mt-3" placeholder="Search By Hotel Name" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className=""></i>
-                      </span>
-                      <div>
-                        <input type="datetime-local" className="mt-3" placeholder="Date" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-last">
-                      <span>
-                        <i className="ri-group-line"></i>
-                      </span>
-                      <div>
-                        <input type="number" className="mt-4" placeholder="0" />
-                      </div>
-                    </div>
-
-                    <span className="search__icon">
-                      <Button label="Search" rounded severity="warning" className="mt-2" />
-                    </span>
-                  </form>
-                </div>
-              </TabPanel>
-
-              <TabPanel header={<span><i className="pi pi-car mr-2"></i> Cottages</span>}>
-                <div className="search__bar justify-content-center align-items-center">
-                  <form className="grid justify-content-center gap-4">
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className="ml-4 pi pi-map-marker"></i>
-                      </span>
-
-                      <div>
-                        <input type="text" className="mt-3" placeholder="Search By Hotel Name" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className=""></i>
-                      </span>
-                      <div>
-                        <input type="datetime-local" className="mt-3" placeholder="Date" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-last">
-                      <span>
-                        <i className="ri-group-line"></i>
-                      </span>
-                      <div>
-                        <input type="number" className="mt-4" placeholder="0" />
-                      </div>
-                    </div>
-
-                    <span className="search__icon">
-                      <Button label="Search" rounded severity="warning" className="mt-2" />
-                    </span>
-                  </form>
-                </div>
-              </TabPanel>
-
-              <TabPanel header={<span><i className="pi pi-caret-down mr-2"></i> Packages</span>}>
-                <div className="search__bar justify-content-center align-items-center">
-                  <form className="grid justify-content-center gap-4">
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className="ml-4 pi pi-map-marker"></i>
-                      </span>
-
-                      <div>
-                        <input type="text" className="mt-3" placeholder="Search By Hotel Name" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-fast">
-                      <span>
-                        <i className=""></i>
-                      </span>
-                      <div>
-                        <input type="datetime-local" className="mt-3" placeholder="Date" />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 form__group form__group-last">
-                      <span>
-                        <i className="ri-group-line"></i>
-                      </span>
-                      <div>
-                        <input type="number" className="mt-4" placeholder="0" />
-                      </div>
-                    </div>
-
-                    <span className="search__icon">
-                      <Button label="Search" rounded severity="warning" className="mt-2" />
-                    </span>
-                  </form>
-                </div>
-              </TabPanel>
-            </TabView>
-          </div>
+    <div id="image-container-home">
+      <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
+        <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
+        <div className="md:w-9 lg:w-9 m-auto">
+          <SearchBar
+            SearchBarStyle={{
+              width: '100%',
+              border: '1px solid #ddd',
+              backgroundColor: '#fff',
+              padding: '15px 10px',
+              borderRadius: '2px'
+            }}
+          />
         </div>
       </div>
+    </div>
 
       <div className="home-card mb-5">
         <Carousel
@@ -420,7 +249,7 @@ const Home = () => {
       </div>
 
       {services && services.length > 0 &&
-        <div className="text-xl home-card mb-5">
+        <div className="text-xl home-card service-home-card mb-5">
           <h2 className="black mx-6">Last-minute weekend deals</h2>
           <Carousel
             value={services}
@@ -432,7 +261,7 @@ const Home = () => {
       }
 
       <div className="text-xl home-card mb-5">
-        <h2 className="black mx-6">Explore your travel opportunities with GETIP!</h2>
+        <h2 className="black mx-6">Explore your travel opportunities with GE<span className="secondery">T</span>RIP!</h2>
         <Carousel
           value={opportunities}
           showIndicators={false}

@@ -18,10 +18,48 @@ html body {
   color: $primary_color;
 }
 
+.active-tab {
+  border-color: $secondery_color !important;
+  color: $secondery_color !important;
+}
+
+#image-container-home .p-carousel-item .active-tab {
+  border-radius: 0;
+  border-bottom: 2.7px solid #f1881f !important;
+}
+
 .navbar {
   height: 5rem !important;
   background-color: #fff !important;
   border: 1px solid rgb(205, 205, 205);
+}
+
+.service-home-card {
+  .p-card .p-card-title {
+    font-size: 1.8rem;
+    font-weight: 550;
+    margin-bottom: 0.5rem;
+    text-transform: capitalize;
+    color: #000;
+  }
+}
+
+.m-home-card {
+  border-radius: 30px;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  .show-details:hover {
+    background-color: $secondery_color !important;
+    color: #fff !important;
+  }
+
+  .show-details:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.p-image-preview-container:hover > .p-image-preview-indicator {
+  border-radius: 30px 30px 0 0;
 }
 
 .primary_btn {
@@ -64,6 +102,12 @@ html body {
   background-size: cover;
   background-repeat: no-repeat;
   height: 32rem;
+  box-sizing: border-box;
+}
+#image-container-filter-result {
+  background-image: url("../Assets/First.png");
+  background-size: cover;
+  background-repeat: no-repeat;
   box-sizing: border-box;
 }
 
@@ -275,8 +319,6 @@ html body {
   font-size: 14px;
 }
 
-.field-set-facilities {}
-
 .users-icon, .services-icon {
   position: relative;
 
@@ -364,17 +406,151 @@ html body {
   opacity: 0;
   transform: translateY(10px);
 }
+
 .fade-enter-active {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 500ms, transform 500ms;
 }
+
 .fade-exit {
   opacity: 1;
   transform: translateY(0);
 }
+
 .fade-exit-active {
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 500ms, transform 500ms;
+}
+
+.service-card-content {
+  .p-rating .p-rating-item.p-focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .p-rating .p-rating-item.p-rating-item-active .p-rating-icon {
+    color: $secondery_color;
+  }
+
+  .p-card .p-card-content, .p-card .p-card-body {
+    padding: 0;
+  }
+
+  .view-details:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.service-details-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background-color: #fff;
+  .service-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  .slid-style {
+    border-radius: 25px;
+  }
+
+  .service-details-info h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+
+  .service-details-info p {
+    margin: 5px 0 0 0;
+    font-size: 15px;
+    color: #777;
+  }
+
+  .service-details-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .book-now-button {
+    background-color: $secondery_color;
+    color: #fff;
+  }
+
+  .gallery {
+    display: flex;
+    gap: 10px;
+    overflow-x: scroll;
+    margin-bottom: 20px;
+  }
+
+  .gallery img {
+    border-radius: 10px;
+  }
+
+  .tabs {
+    display: flex;
+    border: 1px solid #ccccccbd;
+    border-radius: 15px;
+    padding: 10px 30px 0px 20px;
+  }
+
+  .tab-button {
+    padding: 15px 0 20px 0;
+    border: none;
+    cursor: pointer;
+    font-size: 17px;
+    background-color: #fff;
+    flex: 1;
+    text-align: center;
+  }
+
+  .tab-button.active {
+    background-color: #fff;
+    border-bottom: 2px solid $secondery_color;
+    color: $secondery_color;
+  }
+
+  .tab-content {
+    display: flex;
+    border: 1px solid #ccccccbd;
+    border-radius: 15px;
+    padding: 10px 30px 30px 30px;
+    font-size: 17px;
+    background-color: #fff;
+  }
+
+  .sidebar{
+    border: 1px solid #ccccccbd;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-size: 17px;
+    background-color: #fff;
+  }
+
+  .tab-pane.active {
+    display: block;
+  }
+
+  .sidebar-border {
+    width: 100%;
+    border: 1px solid #ccccccbd;
+    border-radius: 15px;
+    padding: 18px;
+  }
+
+  .sidebar-info p {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+
+  .sidebar-total-fees {
+    margin-top: 25px;
+    border-top: 1px solid #ccccccbd;
+  }
 }

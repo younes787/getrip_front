@@ -5,18 +5,10 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import {
-  AddImageToPlace,
-  AddPlace,
-  GetAllCities,
-  GetAllPlaces,
-  GetimagesByPlaceid,
-  UpdatePlace,
-} from "../Services";
+import { AddImageToPlace, AddPlace, GetAllCities, GetAllPlaces, GetimagesByPlaceid, UpdatePlace } from "../Services";
 import { useFormik } from "formik";
 import { PlaceDTO, ImageDTO } from "../modules/getrip.modules";
 import { Editor } from "primereact/editor";
-import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../components/Loading";
 import Activites from "./Activites";
 import { Image } from "primereact/image";
@@ -34,6 +26,7 @@ const Places = () => {
   const [ placeImage, setPlaceImage] = useState<any>();
   const [file, setFile] = useState<any>();
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: {
@@ -45,6 +38,7 @@ const Places = () => {
       matchMode: FilterMatchMode.STARTS_WITH,
     },
   });
+
   useEffect(() => {
     setLoading(true);
     GetAllPlaces()
@@ -58,7 +52,7 @@ const Places = () => {
 
     GetAllCities().then((res) => setCities(res.data));
   }, []);
-  const navigate = useNavigate();
+
   const Placeform = useFormik<PlaceDTO>({
     initialValues: new PlaceDTO(),
     validateOnChange: true,
@@ -90,6 +84,7 @@ const Places = () => {
 
   const ShowUser = (rowData: any) => {
     setShowEdit(true);
+
     PlaceformEdit.setValues({
       name: rowData.name,
       description: rowData.description,
@@ -99,14 +94,17 @@ const Places = () => {
       lot: rowData.lot,
       googleMapsUrl: rowData.googleMapsUrl,
     });
+
     setCurrentPlaceId(rowData.id);
     GetimagesByPlaceid(rowData?.id).then((res)=>setPlaceImage(res?.data))
   };
+
   const imageBodyTemplate = (row: any) => {
     return (
       <Image src={row.photos[0]?.imagePath} width="80" height="40" preview />
     );
   };
+
   const handleOnChange = (e: any) => {
     setFile(e.files?.[0]);
   };
@@ -119,22 +117,23 @@ const Places = () => {
     const truncated = words?.slice(0, wordCount)?.join(" ");
     return `${truncated}...`;
   };
+
   const chooseOptions = {
     icon: "pi pi-fw pi-images",
     iconOnly: true,
     className: "custom-choose-btn p-button-rounded p-button-outlined",
   };
+
   const uploadOptions = {
     icon: "pi pi-fw pi-cloud-upload",
     iconOnly: true,
-    className:
-      "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
+    className: "custom-upload-btn p-button-success p-button-rounded p-button-outlined",
   };
+
   const cancelOptions = {
     icon: "pi pi-fw pi-times",
     iconOnly: true,
-    className:
-      "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
+    className: "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
   };
 
   const BodyTemplate = (rowData: any) => {
@@ -150,6 +149,7 @@ const Places = () => {
             cursor: "pointer",
           }}
         ></i>
+
         <i
           className="pi pi-bold pi-info-circle"
           onClick={() => {
@@ -166,6 +166,7 @@ const Places = () => {
       </div>
     );
   };
+
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
     let _filters = { ...filters };
@@ -181,28 +182,22 @@ const Places = () => {
       <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
-          <InputText
-            value={globalFilterValue}
-            onChange={onGlobalFilterChange}
-            placeholder="Keyword Search"
-          />
+          <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search"/>
         </span>
       </div>
     );
   };
+
   const header = renderHeader();
+
   return (
     <div>
       {loading ? (
         <LoadingComponent />
       ) : (
         <div>
-          <Button
-            label="Add New Place"
-            onClick={() => setShow(true)}
-            size="small"
-            className="mt-4 ml-5 primary_btn"
-          ></Button>
+          <Button label="Add New Place" onClick={() => setShow(true)} size="small" className="mt-4 ml-5 primary_btn"></Button>
+
           <DataTable
             value={places}
             stripedRows
@@ -222,34 +217,14 @@ const Places = () => {
           >
             <Column sortable body={imageBodyTemplate} header="photos"></Column>
             <Column field="name" filter sortable header="Place Name"></Column>
-            <Column
-              field="description"
-              sortable
-              filter
-              header="Description"
-              body={(row) => (
-                <div style={{ textWrap: "wrap" }}>
-                  {truncateText(row.description, 10)}
-                </div>
-              )} // Use the truncate function
-            ></Column>
-            <Column
-              field=""
-              sortable
-              header="Actions"
-              body={BodyTemplate}
-            ></Column>
+            <Column field="description" sortable filter header="Description" body={(row) => (<div style={{ textWrap: "wrap" }}>{truncateText(row.description, 10)}</div>)}></Column>
+            <Column field="" sortable header="Actions" body={BodyTemplate}></Column>
           </DataTable>
-          <></>
-          <Dialog
-            header="Add New Activity"
-            visible={showAct}
-            className="md:w-50 lg:w-50"
-            onHide={() => setShowAct(false)}
-          >
+
+          <Dialog header="Add New Activity" visible={showAct} className="md:w-50 lg:w-50" onHide={() => setShowAct(false)}>
             <Activites id={currentPlaceId} />
           </Dialog>
-          <></>
+
           <Dialog
             header="Add New Place"
             visible={show}
@@ -258,32 +233,15 @@ const Places = () => {
             footer={
               <>
                 <div>
-                  <Button
-                    label="Save"
-                    size="small"
-                    severity="warning"
-                    outlined
-                    onClick={() => Placeform.handleSubmit()}
-                    className="mt-4"
-                  ></Button>
-                  <Button
-                    label="Cancel"
-                    severity="danger"
-                    outlined
-                    size="small"
-                    onClick={() => setShow(false)}
-                    className="mt-4"
-                  ></Button>
+                  <Button label="Save" size="small" severity="warning" outlined onClick={() => Placeform.handleSubmit()} className="mt-4"></Button>
+                  <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShow(false)} className="mt-4"></Button>
                 </div>
               </>
             }
           >
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">
-                  {" "}
-                  City Name{" "}
-                </label>
+                <label className="mb-2" htmlFor="Status">City Name</label>
                 <Dropdown
                   placeholder="Select a City"
                   options={cities}
@@ -296,46 +254,33 @@ const Places = () => {
                   onChange={(e) => Placeform.setFieldValue("cityId", e.value)}
                 />
               </div>
+
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Place Name{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Place Name</label>
                 </div>
-                <InputText
-                  name="name"
-                  value={Placeform.values.name}
-                  onChange={(e) =>
-                    Placeform.setFieldValue("name", e.target.value)
-                  }
-                />
+                <InputText name="name" value={Placeform.values.name} onChange={(e) => Placeform.setFieldValue("name", e.target.value)}/>
               </div>
             </div>
+
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
                 <div>
-                  <label className="mb-2" htmlFor="Status">
-                    {" "}
-                    Description{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="Status">Description</label>
                 </div>
                 <Editor
                   name="description"
                   value={Placeform.values.description}
-                  onTextChange={(e) => {
-                    Placeform.setFieldValue("description", e.textValue);
-                  }}
+                  onTextChange={(e) => Placeform.setFieldValue("description", e.textValue)}
                   style={{ height: "220px" }}
                 />
               </div>
+
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Google Maps Url{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Google Maps Url</label>
                 </div>
+
                 <InputText
                   name="googleMapsUrl"
                   value={Placeform.values.googleMapsUrl}
@@ -346,13 +291,11 @@ const Places = () => {
                 />
               </div>
             </div>
+
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
                 <div>
-                  <label className="mb-2" htmlFor="Status">
-                    {" "}
-                    Lang{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="Status">Lang</label>
                 </div>
                 <InputText
                   name="lang"
@@ -364,10 +307,7 @@ const Places = () => {
               </div>
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Lot{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Lot</label>
                 </div>
                 <InputText
                   name="lot"
@@ -379,7 +319,7 @@ const Places = () => {
               </div>
             </div>
           </Dialog>
-          <></>
+
           <Dialog
             header="Edit Place"
             visible={showEdit}
@@ -388,32 +328,15 @@ const Places = () => {
             footer={
               <>
                 <div>
-                  <Button
-                    label="Save"
-                    size="small"
-                    severity="warning"
-                    outlined
-                    onClick={() => PlaceformEdit.handleSubmit()}
-                    className="mt-4"
-                  ></Button>
-                  <Button
-                    label="Cancel"
-                    severity="danger"
-                    outlined
-                    size="small"
-                    onClick={() => setShowEdit(false)}
-                    className="mt-4"
-                  ></Button>
+                  <Button label="Save" size="small" severity="warning" outlined onClick={() => PlaceformEdit.handleSubmit()} className="mt-4"></Button>
+                  <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowEdit(false)} className="mt-4"></Button>
                 </div>
               </>
             }
           >
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">
-                  {" "}
-                  City Name{" "}
-                </label>
+                <label className="mb-2" htmlFor="Status">City Name</label>
                 <Dropdown
                   placeholder="Select a City"
                   options={cities}
@@ -428,13 +351,10 @@ const Places = () => {
                   }
                 />
               </div>
+
               <div className="md:col-5 lg:col-5">
                 <div>
-                  {" "}
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Place Name{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Place Name</label>
                 </div>
                 <InputText
                   name="name"
@@ -445,12 +365,10 @@ const Places = () => {
                 />
               </div>
             </div>
+
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">
-                  {" "}
-                  Description{" "}
-                </label>
+                <label className="mb-2" htmlFor="Status">Description</label>
                 <Editor
                   name="description"
                   value={PlaceformEdit.values.description}
@@ -460,12 +378,10 @@ const Places = () => {
                   style={{ height: "220px" }}
                 />
               </div>
+
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Google Maps Url{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Google Maps Url</label>
                 </div>
                 <InputText
                   name="googleMapsUrl"
@@ -480,10 +396,7 @@ const Places = () => {
             <div className="grid mt-3">
               <div className="md:col-6 lg:col-6">
                 <div>
-                  <label className="mb-2" htmlFor="Status">
-                    {" "}
-                    Lang{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="Status">Lang</label>
                 </div>
                 <InputText
                   name="lang"
@@ -495,10 +408,7 @@ const Places = () => {
               </div>
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Lot{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Lot</label>
                 </div>
                 <InputText
                   name="lot"
@@ -517,11 +427,7 @@ const Places = () => {
                   accept="image/*"
                   onSelect={handleOnChange}
                   maxFileSize={1000000}
-                  emptyTemplate={
-                    <p className="m-0">
-                      Drag and drop files to here to upload.
-                    </p>
-                  }
+                  emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
                   chooseOptions={chooseOptions}
                   uploadOptions={uploadOptions}
                   cancelOptions={cancelOptions}
@@ -529,6 +435,7 @@ const Places = () => {
                   uploadHandler={() => ImagePlaceform.handleSubmit()}
                 />
               </div>
+
               <div className="mt-3">
                 {placeImage?.map((p: any) => (
                   <Image
@@ -537,8 +444,9 @@ const Places = () => {
                     height="200"
                     preview
                   />
-                ))}{" "}
+                ))}
               </div>
+
             </div>
             <div className="mt-5 ml-2"></div>
           </Dialog>

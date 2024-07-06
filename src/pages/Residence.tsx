@@ -5,11 +5,7 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import {
-  AddResidenceType,
-  GetResidenceType,
-  UpdateResidenceType,
-} from "../Services";
+import { AddResidenceType, GetResidenceType, UpdateResidenceType} from "../Services";
 import { ResidenceTypeDTO } from "../modules/getrip.modules";
 import { useFormik } from "formik";
 import { FilterMatchMode } from "primereact/api";
@@ -21,6 +17,7 @@ const ResidenceType = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPlaceId, setCurrentPlaceId] = useState<number>(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
+
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: {
@@ -28,6 +25,7 @@ const ResidenceType = () => {
       matchMode: FilterMatchMode.STARTS_WITH,
     },
   });
+
   const ResidenceTypeform = useFormik<ResidenceTypeDTO>({
     initialValues: new ResidenceTypeDTO(),
     validateOnChange: true,
@@ -45,6 +43,7 @@ const ResidenceType = () => {
       setShowEdit(false);
     },
   });
+
   useEffect(() => {
     setLoading(true);
     GetResidenceType()
@@ -65,6 +64,7 @@ const ResidenceType = () => {
     });
     setCurrentPlaceId(rowData.id);
   };
+
   const BodyTemplate = (rowData: any) => {
     return (
       <div className="gap-3">
@@ -81,6 +81,7 @@ const ResidenceType = () => {
       </div>
     );
   };
+
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
     let _filters = { ...filters };
@@ -105,19 +106,16 @@ const ResidenceType = () => {
       </div>
     );
   };
+
   const header = renderHeader();
+
   return (
     <div>
       {loading ? (
         <LoadingComponent />
       ) : (
         <div>
-          <Button
-            label="Add New Residence Type"
-            onClick={() => setShow(true)}
-            size="small"
-            className="mt-4 ml-5 primary_btn"
-          ></Button>
+          <Button label="Add New Residence Type" onClick={() => setShow(true)} size="small" className="mt-4 ml-5 primary_btn"></Button>
           <DataTable
             value={residenceType}
             stripedRows
@@ -136,14 +134,9 @@ const ResidenceType = () => {
             sortMode="multiple"
           >
             <Column field="name" filter sortable header="Residence Name"></Column>
-            <Column
-              field=""
-              sortable
-              header="Actions"
-              body={BodyTemplate}
-            ></Column>
+            <Column field="" sortable header="Actions" body={BodyTemplate}></Column>
           </DataTable>
-          <></>
+
           <Dialog
             header="Add New Residence Type"
             visible={show}
@@ -152,22 +145,8 @@ const ResidenceType = () => {
             footer={
               <>
                 <div>
-                  <Button
-                    label="Save"
-                    size="small"
-                    severity="warning"
-                    outlined
-                    onClick={() => ResidenceTypeform.handleSubmit()}
-                    className="mt-4"
-                  ></Button>
-                  <Button
-                    label="Cancel"
-                    severity="danger"
-                    outlined
-                    size="small"
-                    onClick={() => setShow(false)}
-                    className="mt-4"
-                  ></Button>
+                  <Button label="Save" size="small" severity="warning" outlined onClick={() => ResidenceTypeform.handleSubmit()} className="mt-4"></Button>
+                  <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShow(false)} className="mt-4"></Button>
                 </div>
               </>
             }
@@ -175,11 +154,9 @@ const ResidenceType = () => {
             <div className="grid mt-3">
               <div className="md:col-5 lg:col-5">
                 <div>
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Residence Name{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Residence Name</label>
                 </div>
+
                 <InputText
                   name="name"
                   value={ResidenceTypeform.values.name}
@@ -190,7 +167,7 @@ const ResidenceType = () => {
               </div>
             </div>
           </Dialog>
-          <></>
+
           <Dialog
             header="Edit Place"
             visible={showEdit}
@@ -199,22 +176,8 @@ const ResidenceType = () => {
             footer={
               <>
                 <div>
-                  <Button
-                    label="Save"
-                    size="small"
-                    severity="warning"
-                    outlined
-                    onClick={() => ResidenceTypeformEdit.handleSubmit()}
-                    className="mt-4"
-                  ></Button>
-                  <Button
-                    label="Cancel"
-                    severity="danger"
-                    outlined
-                    size="small"
-                    onClick={() => setShowEdit(false)}
-                    className="mt-4"
-                  ></Button>
+                  <Button label="Save" size="small" severity="warning" outlined onClick={() => ResidenceTypeformEdit.handleSubmit()} className="mt-4"></Button>
+                  <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowEdit(false)} className="mt-4"></Button>
                 </div>
               </>
             }
@@ -222,12 +185,9 @@ const ResidenceType = () => {
             <div className="grid mt-3">
               <div className="md:col-5 lg:col-5">
                 <div>
-                  {" "}
-                  <label className="mb-2" htmlFor="">
-                    {" "}
-                    Place Name{" "}
-                  </label>
+                  <label className="mb-2" htmlFor="">Place Name</label>
                 </div>
+
                 <InputText
                   name="name"
                   value={ResidenceTypeformEdit.values.name}

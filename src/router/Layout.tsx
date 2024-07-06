@@ -32,6 +32,7 @@ import StatOfServices from "../pages/StatOfServices";
 import StatOfUsers from "../pages/StatOfUsers";
 import UserDetails from "../pages/UserDetails";
 import ServiceDetails from "../pages/ServiceDetails";
+import SearchAndFilter from "../pages/SearchAndFilter";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -79,19 +80,23 @@ const Layout = () => {
               </Route>
             )}
 
+            <Route path="/" element={<Home />} />
             <Route path="/stat-of-users" element={<StatOfUsers />} />
             <Route path="/stat-of-services" element={<StatOfServices />} />
             <Route path="/user-details/:accountId" element={<UserDetails />} />
             <Route path="/service-details/:serviceId" element={<ServiceDetails />} />
-
-            <Route path="/" element={<Home />} />
+            <Route path="/search-and-filter" element={<SearchAndFilter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />
             <Route path="/form-use-type" element={<FormUseType />} />
           </>
         ) : (
-          <Route path="/" element={<Home />} />
+          <>
+            <Route path="/" element={<Home />} />
+            <Route path="/service-details/:serviceId" element={<ServiceDetails />} />
+            <Route path="/search-and-filter" element={<SearchAndFilter />} />
+          </>
         )}
       </Routes>
     </div>

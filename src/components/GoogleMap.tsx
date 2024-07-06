@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import axios from 'axios';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { InputText } from 'primereact/inputtext';
 
 interface MarkerProps {
@@ -41,7 +40,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
   const [hoverInfo, setHoverInfo] = useState<string | null>(null);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  // const [AddressDescriptionValue, setAddressDescriptionValue] = useState('');
 
   useEffect(() => {
     const initializeMapCenter = async () => {
@@ -197,18 +195,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
           )}
 
         </GoogleMapReact>
-
-        {/* {locationInfo && (
-          <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
-            {locationInfo}
-          </div>
-        )}
-
-        {hoverInfo && (
-          <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', padding: '10px', width: '300px', height: '100px', overflowWrap: 'break-word', wordWrap: 'break-word', hyphens: 'auto' }}>
-            {hoverInfo}
-          </div>
-        )} */}
       </div>
     </>
   );
