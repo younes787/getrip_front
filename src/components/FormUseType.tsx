@@ -21,6 +21,7 @@ import { Image } from 'primereact/image';
 import LoadingComponent from "./Loading";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import GoogleMap from "./GoogleMap";
+import { Editor } from "primereact/editor";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -333,7 +334,7 @@ const FormUseType = () => {
         <div className="grid grid-cols-12">
           <Fieldset legend="Base Info" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">
-              <div className="md:col-6 lg:col-6">
+              <div className="md:col-12 lg:col-12">
                 <label htmlFor="Wallet">Service Name</label>
                 <InputText
                   placeholder="Service Name"
@@ -346,20 +347,36 @@ const FormUseType = () => {
                   {renderError(Serviceform.errors.name)}
               </div>
 
-              <div className="md:col-6 lg:col-6">
+              <div className="md:col-12 lg:col-12">
                 <label htmlFor="Wallet">Service Description</label>
-                <InputText
-                  placeholder="Description"
+                <Editor
                   name="description"
-                  className="w-full mt-1"
+                  headerTemplate={
+                    <span className="ql-formats">
+                      <Button className="ql-bold"></Button>
+                      <Button className="ql-italic"></Button>
+                      <Button className="ql-underline"></Button>
+                      <Button className="ql-strike"></Button>
+                      <Button className="ql-list" value="ordered"></Button>
+                      <Button className="ql-list" value="bullet"></Button>
+                      <Button className="ql-align" value=""></Button>
+                      <Button className="ql-align" value="center"></Button>
+                      <Button className="ql-align" value="right"></Button>
+                      <Button className="ql-align" value="justify"></Button>
+                      <Button className="ql-link"></Button>
+                      <Button className="ql-clean"></Button>
+                    </span>
+                  }
                   value={Serviceform.values.description}
                   autoFocus={focusedField === 'description'}
                   onInput={() => handleInputFocus('description')}
-                  onChange={(e) => Serviceform.setFieldValue('description', e.target.value)} />
-                  {renderError(Serviceform.errors.description)}
+                  onTextChange={(e) => Serviceform.setFieldValue('description', e.textValue)}
+                  style={{ height: "220px" }}
+                />
+                {renderError(Serviceform.errors.description)}
               </div>
 
-              <div className="md:col-6 lg:col-6">
+              <div className="md:col-12 lg:col-12">
                 <label htmlFor="Wallet">Service Image</label>
                 <FileUpload
                   name="images"

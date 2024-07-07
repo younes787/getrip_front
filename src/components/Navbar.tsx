@@ -336,11 +336,12 @@ const NavBar = () => {
         {
           label: "User Menu",
           items: [
-            { label: "Dashboard", icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
-            { label: "My Profile", icon: "pi pi-user", command: () => navigate('/profile') },
-            { label: "My services", icon: "pi pi-list", command: () => navigate('/my-services') },
-            { label: "Add services", icon: "pi pi-plus", command: () => navigate('/add-services') },
-            { label: "Log Out", icon: "pi pi-sign-out", command: () => logout() }
+            { label: "Dashboard",     icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "My Profile",    icon: "pi pi-user",      command: () => navigate('/profile') },
+            { label: "My services",   icon: "pi pi-list",      command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Add services",  icon: "pi pi-plus",      command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Order History", icon: "pi pi-history",   command: () => navigate('/order-history'), condition: role === 'Client' },
+            { label: "Log Out",       icon: "pi pi-sign-out",  command: () => logout() }
           ].filter(c => c.condition === undefined || c.condition)
         }
       ]);
@@ -707,23 +708,6 @@ const NavBar = () => {
               className="mt-2 w-24rem	"
               onChange={(e) =>
                 register.setFieldValue("lastname", e.target.value)
-              }
-            />
-          </div>
-          <div className="col ml-3">
-            <div>
-              <label className="primary" htmlFor="Status">
-                {" "}
-                Business{" "}
-              </label>
-            </div>
-            <InputText
-              placeholder="Business"
-              name="business"
-              className="mt-2 w-24rem	"
-              value={register?.values?.business}
-              onChange={(e) =>
-                register.setFieldValue("business", e.target.value)
               }
             />
           </div>

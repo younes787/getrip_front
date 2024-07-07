@@ -12,7 +12,6 @@ export class RegisterDTO {
   name: string = '';
   lastname: string = '';
   role: string = '';
-  business: string = '';
   position:string ='';
   address:string ='';
   language:string ='';

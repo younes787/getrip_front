@@ -52,7 +52,12 @@ html body {
     color: #fff !important;
   }
 
-  .show-details:focus {
+  .delete-details:hover {
+    background-color: #ef4444 !important;
+    color: #fff !important;
+  }
+
+  .show-details:focus , .delete-details:focus {
     outline: none;
     box-shadow: none;
   }

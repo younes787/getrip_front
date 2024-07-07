@@ -8,6 +8,8 @@ import { ServiceDTO } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
 
 const MyServices = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any);
@@ -61,27 +63,63 @@ const MyServices = () => {
                 <div key={index} className="md:col-3 lg:col-3 my-2">
                   <Card
                     title={service.name}
-                    subTitle={service.description}
-                    header={<Image src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} preview />}
+                    subTitle={<span><FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />{service.description}</span>}
+                    header={ <Image src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} imageStyle={{borderRadius: '30px 30px 0 0'}}  preview />}
+                    className="md:w-21rem m-2 m-home-card relative"
                   >
-                    <div className="grid mb-0">
+                    <div className="grid mb-3">
                       <div className="col-8">
-                        <p>9.0/10</p>
-                        <p>(900 REVIEWS)</p>
-
-                        <Button label="Show details" icon="pi pi-info" rounded outlined aria-label="Filter" size="small" severity="info" onClick={() => {
-                            navigate(`/service-details/${service.id}`);
-                          }}
-                        />
-
-                        <Button onClick={() => confirm(service.id)} icon="pi pi-times" label="Delete" className="mx-1" rounded outlined aria-label="Filter" size="small" severity="danger"/>
+                        <p className="my-1" style={{ color: '#f1881f', fontWeight: '550'}}><FontAwesomeIcon icon={faStar} size="sm" className="mr-1" /> 9.0/10</p>
+                        <p className="my-1" style={{fontSize: '14px'}}>(900 REVIEWS)</p>
                       </div>
 
                       <div className="col-4">
-                        <h3>{service?.price}</h3>
+                        <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
+                          per night
+                          <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${service?.price}</span>
+                        </p>
                       </div>
                     </div>
-                  </Card>
+
+                    <Button
+                      className="absolute show-details"
+                      icon={<span className="pi pi-info mx-1"></span>}
+                      style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '30px 0 30px 0',
+                        borderColor: '#f1881f',
+                        color: '#f1881f',
+                        padding: '10px 15px',
+                        bottom: '0',
+                        right: '0'
+                      }}
+                      aria-label="Filter"
+                      size="small"
+                      onClick={() => navigate(`/service-details/${service.id}`)}
+                    >
+                      Show details
+                    </Button>
+
+                    <Button
+                      className="absolute delete-details"
+                      icon={<span className="pi pi-times mx-1"></span>}
+                      onClick={() => confirm(service.id)}
+                      style={{
+                        backgroundColor: '#fff',
+                        borderRadius: '0 30px 0 30px',
+                        borderColor: '#ef4444',
+                        color: '#ef4444',
+                        padding: '10px 25px',
+                        bottom: '0',
+                        left: '0'
+                      }}
+                      aria-label="Filter"
+                      size="small"
+                      severity="danger"
+                    >
+                      Delete
+                    </Button>
+                  </Card>;
                 </div>
               ))}
 

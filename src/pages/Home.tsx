@@ -28,6 +28,7 @@ const Home = () => {
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const navigate = useNavigate();
+  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<{lat: number; lng: number; country: string; province: string} | null>(null);
 
   useEffect(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -138,6 +139,7 @@ const Home = () => {
 
               <Button
                 className="absolute show-details"
+                icon={<span className="pi pi-info mx-1"></span>}
                 style={{
                   backgroundColor: '#fff',
                   borderRadius: '30px 0 30px 0',
@@ -219,6 +221,10 @@ const Home = () => {
     );
   }
 
+  const handleLocationSelectFromSearch = (location: {lat: number; lng: number; country: string; province: string}) => {
+    setSelectedLocationFromSearch(location);
+  };
+
   return (<>
     <div className="container mx-8 overflow-hidden">
 
@@ -227,6 +233,7 @@ const Home = () => {
         <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
         <div className="md:w-9 lg:w-9 m-auto">
           <SearchBar
+            onLocationSelect={handleLocationSelectFromSearch}
             SearchBarStyle={{
               width: '100%',
               border: '1px solid #ddd',

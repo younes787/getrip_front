@@ -33,6 +33,7 @@ import StatOfUsers from "../pages/StatOfUsers";
 import UserDetails from "../pages/UserDetails";
 import ServiceDetails from "../pages/ServiceDetails";
 import SearchAndFilter from "../pages/SearchAndFilter";
+import OrderHistory from "../pages/OrderHistory";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -89,6 +90,7 @@ const Layout = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />
+            <Route path="/order-history" element={<OrderHistory />} />
             <Route path="/form-use-type" element={<FormUseType />} />
           </>
         ) : (

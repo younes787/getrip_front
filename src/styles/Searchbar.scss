@@ -52,6 +52,15 @@ $black: #3c3c3c;
   border-right: 2px solid #ddd;
 }
 
+.rat-icon-filter {
+  display: inline;
+  font-weight: 550;
+
+  .p-rating-icon {
+    color: #f1881f;
+  }
+}
+
 .search__icon i , .search__bar i , .fa{
   font-size: 1.4rem;
   padding: 0.5rem;
@@ -93,8 +102,6 @@ $black: #3c3c3c;
 }
 
 .search-and-filter {
-
-
   .section-one-search-and-filter {
 
   }
@@ -162,5 +169,29 @@ $black: #3c3c3c;
     background-color: transparent;
     border: none;
     cursor: pointer;
+  }
+  .m-button-sort {
+      &:focus {
+          outline: none;
+          box-shadow: none;
+      }
+
+    .p-dropdown-label {
+      color: $black !important;
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      padding: 5px 10px 5px 0;
+      margin: 0;
+    }
+
+    .p-dropdown-trigger{
+      color: $black !important;
+      display: flex;
+      justify-content: start;
+      align-items: center;
+      padding: 5px 0 5px 10px;
+      margin: 0;
+    }
   }
 }

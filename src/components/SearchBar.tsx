@@ -8,12 +8,14 @@ import { Calendar } from 'primereact/calendar';
 import { AutoComplete } from 'primereact/autocomplete';
 import { MultiSelect } from 'primereact/multiselect';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
+  onLocationSelect: (location: {lat: number; lng: number; country: string; province: string}) => void;
 }
 
-const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle }) => {
+const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect }) => {
   const today = new Date();
   const startDate = new Date();
   startDate.setDate(today.getDate() - 30);
@@ -25,10 +27,42 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle }) => {
   const [selectedCountry, setSelectedCountry] = useState<any>(null);
   const [filteredCountries, setFilteredCountries] = useState<any>(null);
   const navigate = useNavigate();
+  const [location, setLocation] = useState<{ country: string; province: string }>({ country: '', province: '' });
 
   const [serviceType, setServiceType] = useState([
     { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
   ]);
+
+  const handleCurrandLocation = async ({latitude, longitude}: any) => {
+    try {
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyBEXkQBNQVfF3uHq7f34_9D_jH6ava1ZCY`
+      );
+
+      if (response.data.status === 'OK') {
+        const results = response.data.results;
+        let country = '';
+        let province = '';
+
+        for (const component of results[0].address_components) {
+          if (component.types.includes('country')) {
+            country = component.long_name;
+          }
+          if (component.types.includes('administrative_area_level_1')) {
+            province = component.long_name;
+          }
+        }
+
+        setLocation({ country, province });
+        setSelectedCountry(`${country}, ${province}`);
+        onLocationSelect({lat: latitude, lng: longitude, country, province })
+      } else {
+        console.error('Geocoding API error: ', response.data.status);
+      }
+    } catch (error) {
+      console.error('Error fetching geocoding data: ', error);
+    }
+  };
 
   useEffect(() => {
     GetAllCountries().then((res) => setCountries(res.data));
@@ -48,6 +82,11 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle }) => {
       ]);
     });
 
+    navigator.geolocation.getCurrentPosition((position) => {
+      handleCurrandLocation(position.coords)
+    }, (error) => {
+      console.error('Error getting current location:', error);
+    });
   }, []);
 
   const search = (event: any) => {
@@ -98,7 +137,12 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle }) => {
         <form className="grid w-full">
           <div className="form__group">
             <FontAwesomeIcon icon={faMapMarkerAlt} size={"sm"} className="fa mr-2" />
-            <AutoComplete className='failds' style={{width: '100%'}} placeholder='Choos Country' tooltip='At least one letter must be written' tooltipOptions={{position: 'bottom'}} field="name" value={selectedCountry} suggestions={filteredCountries} completeMethod={search} onChange={(e) => setSelectedCountry(e.value)} />
+            <AutoComplete className='failds' style={{width: '100%'}} placeholder='Choos Country' tooltip='At least one letter must be written' tooltipOptions={{position: 'bottom'}} field="name" value={selectedCountry} suggestions={filteredCountries} completeMethod={search}
+              onChange={(e) => {
+                onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '' });
+                setSelectedCountry(e.value);
+              }}
+            />
           </div>
 
           <div className="form__group">

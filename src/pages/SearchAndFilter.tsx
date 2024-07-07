@@ -3,31 +3,42 @@ import LoadingComponent from "../components/Loading";
 import SearchBar from "../components/SearchBar";
 import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilter, faMapLocation, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
+import { faMapLocation, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "primereact/checkbox";
-import { GetCitiesbyid, GetCurrency, GetResidence, GetResidenceType } from "../Services";
+import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
 import ServiceCard from "../components/ServiceCard";
+import { Rating } from "primereact/rating";
+import { Dropdown } from "primereact/dropdown";
+import { Dialog } from "primereact/dialog";
+import GoogleMap from "../components/GoogleMap";
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [foundLenght, setFoundLenght] = useState<number>(519);
-  const [selectedCountry, setSelectedCountry] = useState<string>('Fethiye');
+  const [foundLenght, setFoundLenght] = useState<number>(0);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
   const [cities, setCities] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const [residence, setResidence] = useState<any>();
   const [showAllCities, setShowAllCities] = useState(false);
+  const [showMapLocation, setShowMapLocation] = useState(false);
+  const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<{ lat: number; lng: number; address: any } | null>(null);
+  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<{lat: number; lng: number; country: string; province: string} | null>(null);
+  const [provinces, setProvinces] = useState<any>();
+  const [countries, setCountries] = useState<any>();
 
   useEffect(() => {
     setLoading(true);
 
     Promise.all([
-      GetCitiesbyid(44),
+      GetAllCountries(),
+      GetAllProvinces(),
       GetCurrency(),
       GetResidence(),
       GetResidenceType()
-    ]).then(([citiesRes, currencyRes, residenceRes, residenceTypeRes]) => {
-      setCities(citiesRes.data);
+    ]).then(([countriesRes, provincesRes, currencyRes, residenceRes, residenceTypeRes]) => {
+      setCountries(countriesRes.data);
+      setProvinces(provincesRes.data);
       setCurrency(currencyRes.data);
       setResidence(residenceRes.data);
       setResidenceType(residenceTypeRes.data);
@@ -38,20 +49,39 @@ const SearchAndFilter = () => {
     });
   }, []);
 
+  useEffect(() => {
+    setSelectedCountry(`${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`);
+  }, [selectedLocationFromSearch]);
+
   const rangePrices = [
-    { id: 'range1', label: '0 - 100' },
-    { id: 'range2', label: '100 - 500' },
-    { id: 'range3', label: '500 - 2000' },
-    { id: 'range4', label: 'More than 2000' },
+    { id: '0', label: '0 - 100' },
+    { id: '1', label: '100 - 500' },
+    { id: '2', label: '500 - 2000' },
+    { id: '3', label: 'More than 2000' },
+  ];
+
+  const dropDownSort = [
+    { id: '0', label: 'Lowest price' },
+    { id: '1', label: 'Highest price' },
+    { id: '2', label: 'Best sellers' },
+    { id: '3', label: 'Most reviewed' },
+    { id: '4', label: 'Highest rated' },
+    { id: '5', label: 'Discount rate' },
+    { id: '6', label: 'Newly added' },
   ];
 
   const ratings = [
-    { id: 'rating1', label: '1 star' },
-    { id: 'rating2', label: '2 stars' },
-    { id: 'rating3', label: '3 stars' },
-    { id: 'rating4', label: '4 stars' },
-    { id: 'rating5', label: '5 stars' },
-    { id: 'rating5', label: 'Unrated' },
+    { id: '1',  label: <Rating value={1}  readOnly  stars={1}  cancel={false} className="rat-icon-filter" />},
+    { id: '2',  label: <Rating value={2}  readOnly  stars={2}  cancel={false} className="rat-icon-filter" />},
+    { id: '3',  label: <Rating value={3}  readOnly  stars={3}  cancel={false} className="rat-icon-filter" />},
+    { id: '4',  label: <Rating value={4}  readOnly  stars={4}  cancel={false} className="rat-icon-filter" />},
+    { id: '5',  label: <Rating value={5}  readOnly  stars={5}  cancel={false} className="rat-icon-filter" />},
+    { id: '6',  label: <Rating value={6}  readOnly  stars={6}  cancel={false} className="rat-icon-filter" />},
+    { id: '7',  label: <Rating value={7}  readOnly  stars={7}  cancel={false} className="rat-icon-filter" />},
+    { id: '8',  label: <Rating value={8}  readOnly  stars={8}  cancel={false} className="rat-icon-filter" />},
+    { id: '9',  label: <Rating value={9}  readOnly  stars={9}  cancel={false} className="rat-icon-filter" />},
+    { id: '10', label: <Rating value={10} readOnly  stars={10} cancel={false} className="rat-icon-filter" />},
+    { id: '0',  label: 'Unrated' },
   ];
 
   const toggleShowAllCities = () => {
@@ -69,11 +99,79 @@ const SearchAndFilter = () => {
     imageUrl: 'https://as2.ftcdn.net/v2/jpg/01/03/19/25/1000_F_103192538_F7yBInvL7o3D7DgkhU6UyjXI6L8w6RLB.jpg'
   };
 
+  const handleLocationSelectFromMap = (location: { lat: number; lng: number; address: any }) => {
+    setSelectedLocationFromMap(location);
+  };
+
+  const handleLocationSelectFromSearch = (location: {lat: number; lng: number; country: string; province: string}) => {
+    setSelectedLocationFromSearch(location);
+  };
+
+  const markerData = [
+    {
+      lat: selectedLocationFromSearch?.lat ?? 0,
+      lng: selectedLocationFromSearch?.lng ?? 0,
+      text: `${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`
+    },
+  ] || [];
+
+  const fetchCitiesByProvinceId = async (provinceId: number, setCities: (cities: any) => void) => {
+    try {
+      const res = await GetCitiesbyid(provinceId);
+      setCities(res.data);
+    } catch (error) {
+      console.error('Error fetching cities: ', error);
+    }
+  };
+
+  const fetchProvincesAndCitiesByCountryId = async (countryId: number, setCities: (cities: any) => void) => {
+    try {
+      const res = await GetProvincebyCid(countryId);
+      if (res.data.length > 0 && res.data[0].id) {
+        await fetchCitiesByProvinceId(res.data[0].id, setCities);
+      }
+    } catch (error) {
+      console.error('Error fetching provinces and cities: ', error);
+    }
+  };
+
+  const findCountry = (selectedCountry: string, countries: any[]) => {
+    return countries.find((country) => country.name.toLowerCase() === selectedCountry.toLowerCase());
+  };
+
+  const findProvince = (selectedProvince: string, provinces: any[]) => {
+    const searchProvinceLower = selectedProvince.substring(0, 8).toLowerCase();
+    return provinces.find((province) => {
+      const provinceNameLower = province.name.toLowerCase();
+      return (
+        provinceNameLower.substring(0, 4) === searchProvinceLower.substring(0, 4) ||
+        provinceNameLower.substring(0, 5) === searchProvinceLower.substring(0, 5)
+      );
+    });
+  };
+
+  useEffect(() => {
+    const { country, province } = selectedLocationFromSearch || {};
+
+    if (country && countries && provinces) {
+      const foundCountry = findCountry(country, countries);
+      const foundProvince = province ? findProvince(province, provinces) : null;
+
+      if (foundProvince && foundProvince.id) {
+        fetchCitiesByProvinceId(foundProvince.id, setCities);
+      } else if (foundCountry && foundCountry.id) {
+        fetchProvincesAndCitiesByCountryId(foundCountry.id, setCities);
+      }
+    }
+  }, [selectedLocationFromSearch, countries, provinces, setCities]);
+
   return (
+    <>
     <div className="container mx-auto px-12 search-and-filter">
      { loading ? <LoadingComponent/> : <div className="m-auto">
         <div id="image-container-filter-result" className="flex align-items-center section-one-search-and-filter">
           <SearchBar
+            onLocationSelect={handleLocationSelectFromSearch}
             SearchBarStyle={{
               width: '100%',
               border: '1px solid #ddd',
@@ -225,9 +323,32 @@ const SearchAndFilter = () => {
               <p className="m-p-filter-result">{selectedCountry}: {foundLenght} properties found</p>
 
               <div className="actions">
-                <Button rounded className="m-button mx-2" icon={<FontAwesomeIcon className="fa mr-2" icon={faArrowUpShortWide} size={"sm"} />}>Sort</Button>
-                <Button rounded className="m-button mx-2" icon={<FontAwesomeIcon className="fa mr-2" icon={faFilter} size={"sm"} />}>Filters</Button>
-                <Button rounded className="m-button mx-2" icon={<FontAwesomeIcon className="fa mr-2" icon={faMapLocation} size={"sm"} />}>Map</Button>
+                <Dropdown
+                  placeholder="Sort"
+                  options={dropDownSort}
+                  optionLabel="label"
+                  optionValue="id"
+                  className="m-button m-button-sort"
+                  style={{
+                    padding: '0',
+                    borderRadius: '2rem',
+                    flexDirection: 'row-reverse'
+                  }}
+                  dropdownIcon={<FontAwesomeIcon className="fa mr-2" icon={faArrowUpShortWide} size={"sm"} />}
+                />
+
+                <Button
+                rounded
+                className="m-button mx-2"
+                icon={
+                  <FontAwesomeIcon
+                    className="fa mr-2"
+                    icon={faMapLocation}
+                    size={"sm"}
+                  />
+                }
+                onClick={() => setShowMapLocation(true)}
+                >Map</Button>
               </div>
             </div>
 
@@ -242,6 +363,43 @@ const SearchAndFilter = () => {
         </div>
       </div>}
     </div>
+
+    <Dialog
+      header="Map Location"
+      visible={showMapLocation}
+      style={{
+        minWidth: '70%',
+        minHeight: '70%',
+        padding: '0',
+        margin: '0',
+        backgroundColor: 'transparent'
+      }}
+      footer={<div>
+        <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowMapLocation(false)} className="mt-4"></Button>
+      </div>}
+      onHide={() => setShowMapLocation(false)}
+    >
+      <GoogleMap
+        markerData={markerData}
+        // country={
+        //   (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
+        //     ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
+        //     : undefined
+        // }
+        // province={
+        //   (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
+        //     ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
+        //     : undefined
+        // }
+        // city={
+        //   (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
+        //     ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
+        //     : undefined
+        // }
+        onLocationSelect={handleLocationSelectFromMap}
+      />
+    </Dialog>
+  </>
   );
 };
 
