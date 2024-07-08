@@ -57,7 +57,7 @@ $black: #3c3c3c;
   font-weight: 550;
 
   .p-rating-icon {
-    color: #f1881f;
+    color: $secondery_color;
   }
 }
 
@@ -102,9 +102,7 @@ $black: #3c3c3c;
 }
 
 .search-and-filter {
-  .section-one-search-and-filter {
-
-  }
+  .section-one-search-and-filter {}
 
   .section-tow-search-and-filter {
     background-color: #dddddd28;
@@ -143,7 +141,7 @@ $black: #3c3c3c;
   }
   .m-block-filters {
     padding: 0 25px;
-    color: #4a235a;
+    color: $primary_color;
   }
 
   .m-block-filters>div:not(:last-child) {

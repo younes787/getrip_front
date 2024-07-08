@@ -31,7 +31,7 @@ import Facility from "../pages/Facility";
 import StatOfServices from "../pages/StatOfServices";
 import StatOfUsers from "../pages/StatOfUsers";
 import UserDetails from "../pages/UserDetails";
-import ServiceDetails from "../pages/ServiceDetails";
+import ServiceDetailsPage from "../pages/ServiceDetailsPage";
 import SearchAndFilter from "../pages/SearchAndFilter";
 import OrderHistory from "../pages/OrderHistory";
 
@@ -85,7 +85,7 @@ const Layout = () => {
             <Route path="/stat-of-users" element={<StatOfUsers />} />
             <Route path="/stat-of-services" element={<StatOfServices />} />
             <Route path="/user-details/:accountId" element={<UserDetails />} />
-            <Route path="/service-details/:serviceId" element={<ServiceDetails />} />
+            <Route path="/service-details/:serviceId" element={<ServiceDetailsPage />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
@@ -96,7 +96,7 @@ const Layout = () => {
         ) : (
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/service-details/:serviceId" element={<ServiceDetails />} />
+            <Route path="/service-details/:serviceId" element={<ServiceDetailsPage />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
           </>
         )}

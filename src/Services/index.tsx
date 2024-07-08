@@ -180,6 +180,15 @@ export const GetMyServices = async (aid: number, pn: number, ps: number) => {
   }
 };
 
+export const GetPaginatedServices = async (pn: number, ps: number, _filterData: string) => {
+  try {
+    const response = await api.get(`/getpaginatedservices/${pn}/${ps}?${_filterData}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const GetAssignedServiceTypeByAccountId = async (aid: number) => {
   try {
     const response = await api.get(`/getassignedservicetypebyaccountid/${aid}`);
@@ -819,6 +828,15 @@ export const GetFacilitiesByCategoryId = async (cid: number) => {
   }
 };
 
+export const GetAssignedFacilitiesByServiceId = async (sid: number) => {
+  try {
+    const response = await api.get(`/getassignedfacilitiesbyserviceid/${sid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const AddFacilityCategory = async (FacilityData: any) => {
   try {
     const response = await api.post(`/addfacilitycategory` , FacilityData);
@@ -953,7 +971,6 @@ export const DeleteService = async (sid: any) => {
     handleError(error);
   }
 };
-
 
 export const RejectService = async (data: any) => {
   try {

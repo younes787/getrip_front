@@ -5,12 +5,14 @@ import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocation, faArrowUpShortWide } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "primereact/checkbox";
-import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
+import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetPaginatedServices, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
 import ServiceCard from "../components/ServiceCard";
 import { Rating } from "primereact/rating";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
+import { LocationFromMap, LocationFromSearch, QueryFilter, ServiceDTO, SidebarFilter } from "../modules/getrip.modules";
+import { Paginator } from "primereact/paginator";
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -18,14 +20,33 @@ const SearchAndFilter = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
   const [cities, setCities] = useState<any>();
+  const [services, setServices] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const [residence, setResidence] = useState<any>();
   const [showAllCities, setShowAllCities] = useState(false);
   const [showMapLocation, setShowMapLocation] = useState(false);
-  const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<{ lat: number; lng: number; address: any } | null>(null);
-  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<{lat: number; lng: number; country: string; province: string} | null>(null);
+  const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
+  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
+  const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [selectedItems, setSelectedItems] = useState<{residenceType: any[], residence: any[], city: any[], rangePrice: any[], rating: any[], currency: any[]}>({residenceType: [], residence: [], city: [], rangePrice: [], rating: [], currency: []});
+
+ const handleCheckboxChange = (category: any, item: any) => {
+    setSelectedItems((prevState: any) => {
+      const isSelected = prevState[category]?.some((selectedItem: any) => selectedItem.id === item.id);
+      const updatedCategory = isSelected
+        ? prevState[category].filter((selectedItem: any) => selectedItem.id !== item.id)
+        : [...prevState[category], item];
+
+      return {
+        ...prevState,
+        [category]: updatedCategory
+      };
+    });
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -54,57 +75,95 @@ const SearchAndFilter = () => {
   }, [selectedLocationFromSearch]);
 
   const rangePrices = [
-    { id: '0', label: '0 - 100' },
-    { id: '1', label: '100 - 500' },
-    { id: '2', label: '500 - 2000' },
-    { id: '3', label: 'More than 2000' },
+    { id: 0, label: '0 - 100' },
+    { id: 1, label: '100 - 500' },
+    { id: 2, label: '500 - 2000' },
+    { id: 3, label: 'More than 2000' },
   ];
 
   const dropDownSort = [
-    { id: '0', label: 'Lowest price' },
-    { id: '1', label: 'Highest price' },
-    { id: '2', label: 'Best sellers' },
-    { id: '3', label: 'Most reviewed' },
-    { id: '4', label: 'Highest rated' },
-    { id: '5', label: 'Discount rate' },
-    { id: '6', label: 'Newly added' },
+    { id: 0, label: 'Lowest price' },
+    { id: 1, label: 'Highest price' },
+    { id: 2, label: 'Best sellers' },
+    { id: 3, label: 'Most reviewed' },
+    { id: 4, label: 'Highest rated' },
+    { id: 5, label: 'Discount rate' },
+    { id: 6, label: 'Newly added' },
   ];
 
   const ratings = [
-    { id: '1',  label: <Rating value={1}  readOnly  stars={1}  cancel={false} className="rat-icon-filter" />},
-    { id: '2',  label: <Rating value={2}  readOnly  stars={2}  cancel={false} className="rat-icon-filter" />},
-    { id: '3',  label: <Rating value={3}  readOnly  stars={3}  cancel={false} className="rat-icon-filter" />},
-    { id: '4',  label: <Rating value={4}  readOnly  stars={4}  cancel={false} className="rat-icon-filter" />},
-    { id: '5',  label: <Rating value={5}  readOnly  stars={5}  cancel={false} className="rat-icon-filter" />},
-    { id: '6',  label: <Rating value={6}  readOnly  stars={6}  cancel={false} className="rat-icon-filter" />},
-    { id: '7',  label: <Rating value={7}  readOnly  stars={7}  cancel={false} className="rat-icon-filter" />},
-    { id: '8',  label: <Rating value={8}  readOnly  stars={8}  cancel={false} className="rat-icon-filter" />},
-    { id: '9',  label: <Rating value={9}  readOnly  stars={9}  cancel={false} className="rat-icon-filter" />},
-    { id: '10', label: <Rating value={10} readOnly  stars={10} cancel={false} className="rat-icon-filter" />},
-    { id: '0',  label: 'Unrated' },
+    { id: 1,  label: <Rating value={1}  readOnly  stars={1}  cancel={false} className="rat-icon-filter" />},
+    { id: 2,  label: <Rating value={2}  readOnly  stars={2}  cancel={false} className="rat-icon-filter" />},
+    { id: 3,  label: <Rating value={3}  readOnly  stars={3}  cancel={false} className="rat-icon-filter" />},
+    { id: 4,  label: <Rating value={4}  readOnly  stars={4}  cancel={false} className="rat-icon-filter" />},
+    { id: 5,  label: <Rating value={5}  readOnly  stars={5}  cancel={false} className="rat-icon-filter" />},
+    { id: 6,  label: <Rating value={6}  readOnly  stars={6}  cancel={false} className="rat-icon-filter" />},
+    { id: 7,  label: <Rating value={7}  readOnly  stars={7}  cancel={false} className="rat-icon-filter" />},
+    { id: 8,  label: <Rating value={8}  readOnly  stars={8}  cancel={false} className="rat-icon-filter" />},
+    { id: 9,  label: <Rating value={9}  readOnly  stars={9}  cancel={false} className="rat-icon-filter" />},
+    { id: 10, label: <Rating value={10} readOnly  stars={10} cancel={false} className="rat-icon-filter" />},
+    { id: 0,  label: 'Unrated' },
   ];
 
   const toggleShowAllCities = () => {
     setShowAllCities(!showAllCities);
   };
 
-  const sampleService = {
-    id: 8,
-    name: 'Hotel Oludeniz',
-    location: 'Oludeniz, Fethiye',
-    pricePerNight: 274,
-    amenities: ['Free Wi-Fi', 'Restaurant', 'Outdoor Swimming Pool', 'Bar', 'Air Conditioning'],
-    rating: 4.5,
-    numberOfReviews: 900,
-    imageUrl: 'https://as2.ftcdn.net/v2/jpg/01/03/19/25/1000_F_103192538_F7yBInvL7o3D7DgkhU6UyjXI6L8w6RLB.jpg'
+  const formatDate = (date: any) => {
+    const d = new Date(date);
+    const month = `0${d.getMonth() + 1}`.slice(-2);
+    const day = `0${d.getDate()}`.slice(-2);
+    const year = d.getFullYear();
+    return `${year}-${month}-${day}`;
   };
 
-  const handleLocationSelectFromMap = (location: { lat: number; lng: number; address: any }) => {
-    setSelectedLocationFromMap(location);
-  };
+  const getAllService = () => {
+    const queryParts: string[] = [];
+    const { address, startDate, endDate, selectdTab, selectedFields, sidebarFilter } = selectFilterData || {};
 
-  const handleLocationSelectFromSearch = (location: {lat: number; lng: number; country: string; province: string}) => {
-    setSelectedLocationFromSearch(location);
+    const addQueryPart = (key: string, value: string | string[]) => {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          queryParts.push(`${key}=${value.map(encodeURIComponent).join(',')}`);
+        }
+      } else if (value) {
+        queryParts.push(`${key}=${encodeURIComponent(value)}`);
+      }
+    };
+
+    if (address?.name) {
+      addQueryPart('address', address.name.name ?? address.name);
+    }
+
+    if (startDate) {
+      addQueryPart('start_date', formatDate(startDate));
+    }
+
+    if (endDate) {
+      addQueryPart('end_date', formatDate(endDate));
+    }
+
+    if (selectdTab) {
+      addQueryPart('tab', selectdTab.children[1]);
+    }
+
+    if (selectedFields?.length) {
+      addQueryPart('fields', selectedFields.map((field: any) => field.name));
+    }
+
+    if (sidebarFilter) {
+      Object.keys(sidebarFilter).forEach((key) => {
+        addQueryPart(
+          `sidebar_filter[${key}]`,
+          sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => key === 'rating' ? item.label.props.stars : item.name ?? item.label) || []
+        );
+      });
+    }
+
+    GetPaginatedServices(pageNumber, pageSize, queryParts.join('&')).then((res: any) => {
+      setFoundLenght(services?.totalItems);
+      setServices(res.data);
+    });
   };
 
   const markerData = [
@@ -135,27 +194,35 @@ const SearchAndFilter = () => {
     }
   };
 
-  const findCountry = (selectedCountry: string, countries: any[]) => {
-    return countries.find((country) => country.name.toLowerCase() === selectedCountry.toLowerCase());
+  const findCountry = (countries: any[], selectedCountry?: string, countryId?: number) => {
+    if(selectedCountry) {
+      return countries.find((country) => country.name.toLowerCase() === selectedCountry.toLowerCase());
+    } else {
+      return countries.find((country) => country.id === countryId);
+    }
   };
 
-  const findProvince = (selectedProvince: string, provinces: any[]) => {
-    const searchProvinceLower = selectedProvince.substring(0, 8).toLowerCase();
-    return provinces.find((province) => {
-      const provinceNameLower = province.name.toLowerCase();
-      return (
-        provinceNameLower.substring(0, 4) === searchProvinceLower.substring(0, 4) ||
-        provinceNameLower.substring(0, 5) === searchProvinceLower.substring(0, 5)
-      );
-    });
+  const findProvince = (provinces: any[], selectedProvince?: string, provinceId?: number) => {
+    if(selectedProvince) {
+      const searchProvinceLower = selectedProvince.substring(0, 8).toLowerCase();
+      return provinces.find((province) => {
+        const provinceNameLower = province.name.toLowerCase();
+        return (
+          provinceNameLower.substring(0, 4) === searchProvinceLower.substring(0, 4) ||
+          provinceNameLower.substring(0, 5) === searchProvinceLower.substring(0, 5)
+        );
+      });
+    } else {
+      return provinces.find((province) => province.id === provinceId);
+    }
   };
 
   useEffect(() => {
     const { country, province } = selectedLocationFromSearch || {};
 
     if (country && countries && provinces) {
-      const foundCountry = findCountry(country, countries);
-      const foundProvince = province ? findProvince(province, provinces) : null;
+      const foundCountry = findCountry(countries, country);
+      const foundProvince = province ? findProvince(provinces, province) : null;
 
       if (foundProvince && foundProvince.id) {
         fetchCitiesByProvinceId(foundProvince.id, setCities);
@@ -165,13 +232,53 @@ const SearchAndFilter = () => {
     }
   }, [selectedLocationFromSearch, countries, provinces, setCities]);
 
-  return (
-    <>
+  const onPageChange = (event: any) => {
+    setPageNumber(event.page + 1);
+    setPageSize(event.rows);
+  };
+
+  useEffect(() => {
+    getAllService();
+  }, [pageNumber, pageSize, selectFilterData]);
+
+  useEffect(() => {
+    setSelectFilterData((prevState: any) => ({
+      ...prevState,
+      sidebarFilter: selectedItems
+    }));
+  }, [selectedItems]);
+
+  const CheckboxList = ({ title, category, items, selectedItems }: any) => (
+    <div className={category}>
+      <h4>{title}</h4>
+      <div className="options">
+        {items && items.length > 0 ? items.map((item: any, index: number) => (
+          <div key={item.id} className="my-2 flex justify-content-between align-items-center">
+            <div className="checkbox">
+              <Checkbox
+                name={`${item}-${index}`}
+                checked={selectedItems.some((selectedItem: any) => selectedItem.id === item.id)}
+                onChange={() => handleCheckboxChange(category, item)}
+              />
+              <label className="ml-2" htmlFor={item.id}>{item.name || item.label}</label>
+            </div>
+            <div className="number-filter">0</div>
+          </div>
+        )) : <span className="no-data">No {title.toLowerCase()} available</span>}
+      </div>
+    </div>
+  );
+
+  return (<>
     <div className="container mx-auto px-12 search-and-filter">
      { loading ? <LoadingComponent/> : <div className="m-auto">
         <div id="image-container-filter-result" className="flex align-items-center section-one-search-and-filter">
           <SearchBar
-            onLocationSelect={handleLocationSelectFromSearch}
+            onLocationSelect={(location: LocationFromSearch) => { setSelectedLocationFromSearch(location) }}
+            onSelectFilterData={(_filterData: QueryFilter) => {
+              setSelectFilterData(_filterData);
+              getAllService();
+            }}
             SearchBarStyle={{
               width: '100%',
               border: '1px solid #ddd',
@@ -187,130 +294,52 @@ const SearchAndFilter = () => {
           <div className="md:col-3 lg:col-3 sm:col-12 m-filter">
             <h2 className="px-2">Filters</h2>
             <div className="m-block-filters">
-              <div className="resdins">
-                <p style={{ color: '#000', fontSize: '18px' }}>Residence</p>
-                <div className="options">
-                  {residence && residence.length > 0 ? residence.map((item: any) => (
-                    <div key={item.id} className="my-2 flex justify-content-between align-items-center">
-                      <div className="checkbox">
-                        <Checkbox
-                          name={item.id}
-                          checked={false}
-                          // onChange={() => handleCheckboxChange(item.id)}
-                        />
-                        <label className="ml-2" htmlFor={item.id}>{item.name}</label>
-                      </div>
-                      <div className="number-filter">0</div>
-                    </div>
-                  )) : <span className="no-data">No Residence available</span>}
-                </div>
-              </div>
+              <CheckboxList
+                title="Residence"
+                category="residence"
+                items={residence}
+                selectedItems={selectedItems.residence}
+              />
 
-              <div className="resdins-type">
-                <h4>Residence Type</h4>
-                <div className="options">
-                  {residenceType && residenceType.length > 0 ? residenceType.map((item: any) => (
-                    <div key={item.id} className="my-2 flex justify-content-between align-items-center">
-                      <div className="checkbox">
-                        <Checkbox
-                          name={item.id}
-                          checked={false}
-                          // onChange={() => handleCheckboxChange(item.id)}
-                        />
-                        <label className="ml-2" htmlFor={item.id}>{item.name}</label>
-                      </div>
-                      <div className="number-filter">0</div>
-                    </div>
-                  )) : <span className="no-data">No Residence Type available</span>}
-                </div>
-              </div>
+              <CheckboxList
+                title="Residence Type"
+                category="residenceType"
+                items={residenceType}
+                selectedItems={selectedItems.residenceType}
+              />
 
-              <div className="city">
-                <h4>City</h4>
-                <div className="options">
-                {cities && cities.length > 0 ? (
-                  <>
-                    {cities.slice(0, showAllCities ? cities.length : 7).map((item: any) => (
-                      <div key={item.id} className="my-2 flex justify-content-between align-items-center">
-                        <div className="checkbox">
-                          <Checkbox
-                            name={`city-${item.id}`}
-                            checked={false}
-                            // onChange={() => handleCheckboxChange(`city-${item.id}`)}
-                          />
-                          <label className="ml-2" htmlFor={`city-${item.id}`}>{item.name}</label>
-                        </div>
-                        <div className="number-filter">0</div>
-                      </div>
-                    ))}
-                    {cities.length > 7 && (
-                      <button className="show-more-btn" onClick={toggleShowAllCities}>
-                        {showAllCities ? 'Show Less' : `Show More (${cities.length - 7} more)`}
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <span className="no-data">No cities available</span>
-                )}
-                </div>
-              </div>
+              <CheckboxList
+                title="City"
+                category="city"
+                items={cities && cities.length > 0 ? cities.slice(0, showAllCities ? cities.length : 7) : []}
+                selectedItems={selectedItems.city}
+              />
+              {cities && cities.length > 7 && (
+                <button className="show-more-btn" onClick={toggleShowAllCities}>
+                  {showAllCities ? 'Show Less' : `Show More (${cities.length - 7} more)`}
+                </button>
+              )}
 
-              <div className="rang-price">
-                <h4>Range Price</h4>
-                <div className="options">
-                 {rangePrices.map((range) => (
-                  <div key={range.id} className="my-2 flex justify-content-between align-items-center">
-                    <div className="checkbox">
-                      <Checkbox
-                        name={range.id}
-                        checked={false}
-                        // onChange={() => handleCheckboxChange(range.id)}
-                      />
-                      <label className="ml-2" htmlFor={range.id}>{range.label}</label>
-                    </div>
-                      <div className="number-filter">0</div>
-                  </div>
-                ))}
-                </div>
-              </div>
+              <CheckboxList
+                title="Range Price"
+                category="rangePrice"
+                items={rangePrices}
+                selectedItems={selectedItems.rangePrice}
+              />
 
-              <div className="rating">
-                <h4>Rating</h4>
-                <div className="options">
-                  {ratings.map((rating) => (
-                    <div key={rating.id} className="my-2 flex justify-content-between align-items-center">
-                      <div className="checkbox">
-                        <Checkbox
-                          name={rating.id}
-                          checked={false}
-                          // onChange={() => handleCheckboxChange(rating.id)}
-                        />
-                        <label className="ml-2" htmlFor={rating.id}>{rating.label}</label>
-                      </div>
-                      <div className="number-filter">0</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <CheckboxList
+                title="Rating"
+                category="rating"
+                items={ratings}
+                selectedItems={selectedItems.rating}
+              />
 
-              <div className="currency">
-                <h4>Currency</h4>
-                <div className="options">
-                  {currency && currency.length > 0 ?  currency.map((item: any) => (
-                    <div key={item.id} className="my-2 flex justify-content-between align-items-center">
-                      <div className="checkbox">
-                        <Checkbox
-                          name={item.id}
-                          checked={false}
-                          // onChange={() => handleCheckboxChange(item.id)}
-                        />
-                        <label className="ml-2" htmlFor={item.id}>{item.name}</label>
-                      </div>
-                      <div className="number-filter">0</div>
-                    </div>
-                  )) : <span className="no-data">No Currency available</span>}
-                </div>
-              </div>
+              <CheckboxList
+                title="Currency"
+                category="currency"
+                items={currency}
+                selectedItems={selectedItems.currency}
+              />
             </div>
           </div>
 
@@ -320,7 +349,7 @@ const SearchAndFilter = () => {
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <p className="m-p-filter-result">{selectedCountry}: {foundLenght} properties found</p>
+              <p className="m-p-filter-result">{selectedCountry}: ({foundLenght}) properties found</p>
 
               <div className="actions">
                 <Dropdown
@@ -353,11 +382,24 @@ const SearchAndFilter = () => {
             </div>
 
             <div className="service-card-content">
-              <ServiceCard service={sampleService} ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}} />
-              <ServiceCard service={sampleService} ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}} />
-              <ServiceCard service={sampleService} ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}} />
-              <ServiceCard service={sampleService} ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}} />
-              <ServiceCard service={sampleService} ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}} />
+              {services && services.totalItems > 0 ? services.items.map((service: ServiceDTO, index: number) => (
+                <ServiceCard
+                  key={index}
+                  service={{
+                    id: service.id ? service?.id : 0,
+                    name: service.name,
+                    location: `${findCountry(countries, undefined, service.countryId)?.name ?? 'No Country'}, ${findProvince(provinces, undefined, service.provincyId)?.name ?? 'No Province'}`,
+                    pricePerNight: service.price,
+                    rating: service.ratingAverage,
+                    numberOfReviews: 900,
+                    imageUrl: service?.photos ? service?.photos[0].imagePath : ''
+                  }}
+                  ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
+                />
+              ))
+              : 'no data'}
+
+              <Paginator first={pageNumber} rows={pageSize} totalRecords={services?.totalItems} rowsPerPageOptions={[5, 10, 20, 30]} onPageChange={onPageChange} />
             </div>
           </div>
         </div>
@@ -396,11 +438,10 @@ const SearchAndFilter = () => {
         //     ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
         //     : undefined
         // }
-        onLocationSelect={handleLocationSelectFromMap}
+        onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
       />
     </Dialog>
-  </>
-  );
+  </>);
 };
 
 export default SearchAndFilter;

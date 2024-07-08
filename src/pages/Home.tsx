@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
+import { LocationFromSearch, QueryFilter } from "../modules/getrip.modules";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -28,7 +29,8 @@ const Home = () => {
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const navigate = useNavigate();
-  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<{lat: number; lng: number; country: string; province: string} | null>(null);
+  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
+  const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
 
   useEffect(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -221,30 +223,28 @@ const Home = () => {
     );
   }
 
-  const handleLocationSelectFromSearch = (location: {lat: number; lng: number; country: string; province: string}) => {
-    setSelectedLocationFromSearch(location);
-  };
-
   return (<>
     <div className="container mx-8 overflow-hidden">
-
-    <div id="image-container-home">
-      <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
-        <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
-        <div className="md:w-9 lg:w-9 m-auto">
-          <SearchBar
-            onLocationSelect={handleLocationSelectFromSearch}
-            SearchBarStyle={{
-              width: '100%',
-              border: '1px solid #ddd',
-              backgroundColor: '#fff',
-              padding: '15px 10px',
-              borderRadius: '2px'
-            }}
-          />
+      <div id="image-container-home">
+        <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
+          <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
+          <div className="md:w-9 lg:w-9 m-auto">
+            <SearchBar
+              onLocationSelect={(location: LocationFromSearch) => { setSelectedLocationFromSearch(location) }}
+              onSelectFilterData={(_filterData: QueryFilter) => {
+                setSelectFilterData(_filterData);
+              }}
+              SearchBarStyle={{
+                width: '100%',
+                border: '1px solid #ddd',
+                backgroundColor: '#fff',
+                padding: '15px 10px',
+                borderRadius: '2px'
+              }}
+            />
+          </div>
         </div>
       </div>
-    </div>
 
       <div className="home-card mb-5">
         <Carousel

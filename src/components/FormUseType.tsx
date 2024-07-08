@@ -119,7 +119,7 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
-      Serviceform.values.images = {};
+      Serviceform.values.images = {}; //{files: fileimg[0].objectURL};
 
       if (selectedLocation) {
         Serviceform.values.address = extractLocationDetails(selectedLocation);

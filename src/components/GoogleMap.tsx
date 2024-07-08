@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
+import { LocationFromMap } from '../modules/getrip.modules';
 
 interface MarkerProps {
   lat: number;
@@ -18,7 +19,7 @@ interface GoogleMapProps {
   country?: string;
   province?: string;
   city?: string;
-  onLocationSelect: (location: { lat: number; lng: number; address: any}) => void;
+  onLocationSelect: (location: LocationFromMap) => void;
 }
 
 const APIKEY : string = 'AIzaSyBEXkQBNQVfF3uHq7f34_9D_jH6ava1ZCY';
@@ -139,7 +140,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
       console.error('Error searching location:', error);
     }
   };
-
 
   return (
     <>

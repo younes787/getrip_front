@@ -23,9 +23,15 @@ html body {
   color: $secondery_color !important;
 }
 
-#image-container-home .p-carousel-item .active-tab {
+.p-datepicker table td > span.p-highlight {
+  color: #fff;
+  background: $secondery_color;
+}
+
+#image-container-home .p-carousel-item .active-tab,
+#image-container-filter-result .p-carousel-item .active-tab {
   border-radius: 0;
-  border-bottom: 2.7px solid #f1881f !important;
+  border-bottom: 2.7px solid $secondery_color !important;
 }
 
 .navbar {

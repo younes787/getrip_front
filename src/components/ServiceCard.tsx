@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Rating } from 'primereact/rating';
 import { useNavigate } from 'react-router-dom';
+import { GetAssignedFacilitiesByServiceId } from '../Services';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 
 interface Service {
   id: number;
   name: string;
   location: string;
   pricePerNight: number;
-  amenities: string[];
   rating: number;
   numberOfReviews: number;
   imageUrl: string;
@@ -22,7 +24,24 @@ interface ServiceCardProps {
 
 const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service }) => {
   const navigate = useNavigate();
+  const [facilities, setFacilities] = useState<any[]>([]);
 
+  useEffect(() => {
+    GetAssignedFacilitiesByServiceId(service.id)
+    .then((res: any) => {
+      if (res.isSuccess && res.data) {
+        const primaryFacilities = res.data.flatMap((category: any) =>
+          category.facilities
+            .filter((facility: any) => facility.isPrimary)
+            .map((facility: any) => facility.name)
+        );
+        setFacilities(primaryFacilities);
+      }
+    })
+    .catch((error: any) => {
+      console.error('Error fetching facilities:', error);
+    });
+  }, [service.id]);
 
   return (
     <Card style={{ ...ServiceCardStyle }}>
@@ -36,7 +55,10 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service })
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
                 <h2 style={{ margin: '0 0 0.5rem 0' }}>{service.name}</h2>
-                <p style={{ margin: '0 0 1rem 0', color: '#888' }}>{service.location}</p>
+                <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+                  <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+                  {service.location}
+                </p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <h2 style={{ margin: '0 0 0.5rem 0', color: '#FF6C00' }}>${service.pricePerNight}</h2>
@@ -45,10 +67,10 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service })
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', marginBottom: '1rem' }}>
-              {service.amenities.map((amenity, index) => (
+              {facilities.map((facility: any, index: number) => (
                 <span key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: '#555' }}>
                   <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i>
-                  {amenity}
+                  {facility}
                 </span>
               ))}
             </div>
@@ -61,9 +83,11 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service })
                 <span style={{ fontSize: '0.9rem', color: '#888' }}>({service.numberOfReviews} REVIEWS)</span>
               </div>
               <Button
-              label="View Details" className='view-details' style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px'}} onClick={() => {
-                            navigate(`/service-details/${service.id}`);
-                          }}/>
+                label="View Details"
+                className='view-details'
+                style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px'}}
+                onClick={() => { navigate(`/service-details/${service.id}`) }}
+              />
             </div>
           </div>
         </div>

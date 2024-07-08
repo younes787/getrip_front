@@ -251,6 +251,34 @@ export interface Address {
   city?: string;
   description?: string;
 }
+export interface SidebarFilter {
+  residence: any[];
+  residence_type: any[];
+  city: any[];
+  range_price: any[];
+  rating: any[];
+  currency: any[];
+}
+
+export interface QueryFilter {
+  selectdTab?: any;
+  address?: any;
+  startDate?: Date;
+  endDate?: Date;
+  selectedFields?: FildsDTO[],
+  sidebarFilter?: SidebarFilter;
+}
+export interface LocationFromMap {
+  lat: number;
+  lng: number;
+  address: any
+}
+export interface LocationFromSearch {
+  lat: number;
+  lng: number;
+  country: string;
+  province: string
+}
 export class ServiceDTO{
   id?: number = 0;
   name: string = '';
@@ -264,6 +292,7 @@ export class ServiceDTO{
   vehicleTypeId:number=0;
   residenceTypeId?:number;
   price:number=0;
+  ratingAverage:number=0;
   currencyId:number=0;
   isTrip:boolean= false;
   photos?: any[];
