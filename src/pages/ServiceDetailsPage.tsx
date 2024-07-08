@@ -36,7 +36,7 @@ const ServiceDetailsPage = () => {
             .map((facility: any) => { return <div className="m-2">- {facility.name}</div>})
         ),
         prices: serviceDetailsRes.data.price,
-        reviews: '',
+        reviews: '900',
         address: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
         pricePerNight: serviceDetailsRes.data.price,
         dates: '',
