@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import LoadingComponent from "../components/Loading";
 import SearchBar from "../components/SearchBar";
 import { Button } from "primereact/button";
@@ -13,6 +13,7 @@ import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
 import { LocationFromMap, LocationFromSearch, QueryFilter, ServiceDTO, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
+import axios from 'axios';
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -48,6 +49,25 @@ const SearchAndFilter = () => {
     });
   };
 
+  async function fetchNearbyPlaces(latitude: number, longitude: number, radius = 5000, type = 'restaurant|cafe') {
+    try {
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json`, {
+        params: {
+          location: `${latitude},${longitude}`,
+          radius: radius,
+          type: type,
+          key: process.env.REACT_APP_GOOGLE_MAP_API_KEY
+        }
+      });
+
+      console.log(response.data.results, type);
+
+      return response.data.results;
+    } catch (error) {
+      console.error('Error get Near by Places location: restaurant|cafe ', error);
+    }
+  }
+
   useEffect(() => {
     setLoading(true);
 
@@ -72,6 +92,10 @@ const SearchAndFilter = () => {
 
   useEffect(() => {
     setSelectedCountry(`${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`);
+
+    if(selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
+      fetchNearbyPlaces(selectedLocationFromSearch.lat, selectedLocationFromSearch.lng)
+    }
   }, [selectedLocationFromSearch]);
 
   const rangePrices = [

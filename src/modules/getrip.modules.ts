@@ -217,8 +217,8 @@ export class StepsDTO{
   serviceId: number = 0;
   hasNewPlace: boolean = false;
   newPLaceName: string ='';
-  arrivalTime?: any
-  departureTime?: any
+  arrivalTime?: any;
+  departureTime?: any;
 }
 export class stepsActivitiesDTO{
   id?: number = 0;
@@ -301,6 +301,7 @@ export class ServiceDTO{
   placeHasNewActivities:boolean= false;
   hasNewRentalPlace :boolean= false;
   isRental:boolean= false;
+  isTaxIncluded:boolean= false;
   isActive:boolean= false;
   isArchived:boolean= false;
   isApproved:boolean= false;

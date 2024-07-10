@@ -12,7 +12,7 @@ const createAxiosInstance = (contentType: string) => {
   };
 
   const instance = axios.create({
-    baseURL: "https://getrip.azurewebsites.net",
+    baseURL: process.env.REACT_APP_BASE_URL,
     headers,
   });
 
@@ -282,6 +282,15 @@ export const UpdateCountry = async (CountryData: any) => {
 export const GetAllCountries = async () => {
   try {
     const response = await api.get("/getallcountries");
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetProvimcesByName = async (name: string) => {
+  try {
+    const response = await api.get(`/getprovimcesbyname/${name}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

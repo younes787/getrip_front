@@ -1,7 +1,7 @@
 import React, { CSSProperties, useEffect, useState } from 'react';
 import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faFireAlt, faHandPointUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GetAllCountries, GetFeilds, GetServiceTypes } from '../Services';
+import { GetProvimcesByName, GetFeilds, GetServiceTypes, GetFeildsbysid } from '../Services';
 import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { Calendar } from 'primereact/calendar';
@@ -23,11 +23,13 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   startDate.setDate(today.getDate() - 30);
   const [activeIndex, setActiveIndex] = useState(0);
   const [date, setDate] = useState<any>([startDate, today]);
-  const [countries, setCountries] = useState<any>();
+  const [serviceTypeQuery, setServiceTypeQuery] = useState<any[]>([]);
+  const [addressData, setAddressData] = useState<any[]>([]);
   const [selectedFields, setSelectedFields] = useState([]);
   const [fields, setFields] = useState<any>();
+  const [keySearch, setKeySearch] = useState<string>('A');
   const [selectedLocation, setSelectedLocation] = useState<{ name: string }>({ name: '' });
-  const [filteredCountries, setFilteredCountries] = useState<any>(null);
+  const [filteredQuery, setFilteredQuery] = useState<any>(null);
   const navigate = useNavigate();
 
   const [serviceType, setServiceType] = useState([
@@ -37,7 +39,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const handleCurrandLocation = async ({latitude, longitude}: any) => {
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyBEXkQBNQVfF3uHq7f34_9D_jH6ava1ZCY`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`
       );
 
       if (response.data.status === 'OK') {
@@ -50,7 +52,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             country = component.long_name;
           }
           if (component.types.includes('administrative_area_level_1')) {
-            province = component.long_name;
+            province = component.long_name.replace(/Governorate|state/g, '').trim();
           }
         }
 
@@ -65,21 +67,9 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   };
 
   useEffect(() => {
-    onSelectFilterData({
-      selectdTab: serviceType[activeIndex].header.props ?? null,
-      address: selectedLocation ?? null,
-      startDate: date[0] ?? null,
-      endDate: date[1] ?? null,
-      selectedFields: selectedFields ?? null,
-    });
-
-  }, [selectedFields, selectedLocation, date,  activeIndex]);
-
-  useEffect(() => {
-    GetAllCountries().then((res) => setCountries(res.data));
-    GetFeilds().then((res) => setFields(res.data));
-
     GetServiceTypes().then((res) => {
+      setServiceTypeQuery(res.data);
+
       const serviceTypes = res.data.map((service: any) => ({
         header: <span><FontAwesomeIcon icon={faHandPointUp} size={"sm"} className="mr-2" />{service.name}</span>
       }));
@@ -100,20 +90,52 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     });
   }, []);
 
+  useEffect(() => {
+
+    if(!['Search All', 'Hotels', 'Restaurants', 'Flight'].includes(serviceType[activeIndex].header.props.children[1])) {
+      const serviceTypeId = serviceTypeQuery.find((s: any) => s.name === serviceType[activeIndex].header.props.children[1])?.id
+      if(serviceTypeId) {
+        GetFeildsbysid(serviceTypeId).then((res) => setFields(res.data));
+      }
+    } else {
+      GetFeilds().then((res) => setFields(res.data));
+    }
+
+    onSelectFilterData({
+      selectdTab: serviceType[activeIndex].header.props ?? null,
+      address: selectedLocation ?? null,
+      startDate: date[0] ?? null,
+      endDate: date[1] ?? null,
+      selectedFields: selectedFields ?? null,
+    });
+
+  }, [selectedFields, selectedLocation, date,  activeIndex]);
+
+  useEffect(() => {
+    GetProvimcesByName(keySearch).then((res) => {
+      const _fullProvinceName = res.data.map((_res: any) => {
+        return {name: _res.fullProvinceName};
+      });
+
+      setAddressData(_fullProvinceName);
+    }).catch((error) => {
+      console.error(error);
+    });
+  }, [keySearch]);
+
   const search = (event: any) => {
     setTimeout(() => {
-        let _filteredCountries;
+        let _filteredQuery;
 
         if (!event.query.trim().length) {
-            _filteredCountries = [...countries];
+          _filteredQuery = [...addressData];
         }
         else {
-            _filteredCountries = countries.filter((country: any) => {
-                return country.name.toLowerCase().startsWith(event.query.toLowerCase());
-            });
+          setKeySearch(event.query.toLowerCase());
+          _filteredQuery = addressData;
         }
 
-        setFilteredCountries(_filteredCountries);
+        setFilteredQuery(_filteredQuery);
     }, 250);
   }
 
@@ -148,7 +170,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         <form className="grid w-full">
           <div className="form__group">
             <FontAwesomeIcon icon={faMapMarkerAlt} size={"sm"} className="fa mr-2" />
-            <AutoComplete className='failds' style={{width: '100%'}} placeholder='Choos Country' tooltip='At least one letter must be written' tooltipOptions={{position: 'bottom'}} field="name" value={selectedLocation.name} suggestions={filteredCountries} completeMethod={search}
+            <AutoComplete className='failds' style={{width: '100%'}} placeholder='Type to search address...' tooltip='At least one letter must be written' tooltipOptions={{position: 'bottom'}} field="name" value={selectedLocation.name} suggestions={filteredQuery} completeMethod={search}
               onChange={(e) => {
                 onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '' });
                 setSelectedLocation({name: e.value});

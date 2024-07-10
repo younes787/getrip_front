@@ -22,6 +22,7 @@ import LoadingComponent from "./Loading";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import GoogleMap from "./GoogleMap";
 import { Editor } from "primereact/editor";
+import { Timeline } from "primereact/timeline";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -30,7 +31,7 @@ const validationSchema = Yup.object({
   // price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
   cityId: Yup.number().required('City is required'),
   // placeId: Yup.number().required('Place is required'),
-  // rentalPlaceName: Yup.string(),
+  // newPLaceName: Yup.string(),
   // fields: Yup.object().shape({
   //   someFieldName: Yup.string().required('This field is required')
   // }),
@@ -66,12 +67,14 @@ const FormUseType = () => {
   const nonEmptyTags = tags.filter(tag => tag.name.trim() !== '');
   const location = useLocation();
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectShowFacilities, setSelectShowFacilities] = useState<{index: string, checked: boolean}[]>([]);
   const [pricingTypes, setPricingTypes] = useState<any>();
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
   const [selectedCountry, setSelectedCountry] = useState<number>(0);
   const [selectedProvince, setSelectedProvince] = useState<number>(0);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: any } | null>(null);
+  const [showSteps, setShowSteps] = useState(false);
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     setSelectedLocation(location);
@@ -113,7 +116,6 @@ const FormUseType = () => {
     validationSchema,
     validateOnChange: true,
     onSubmit: (values) => {
-      Serviceform.values.isRental = true
       Serviceform.values.typeId?.id === 9 ? Serviceform.values.isYacht = true : Serviceform.values.isYacht = false;
       Serviceform.values.typeId?.id === 12 ? Serviceform.values.isVehicle = true : Serviceform.values.isVehicle = false;
       Serviceform.values.accountId = user?.data?.accountId;
@@ -208,6 +210,8 @@ const FormUseType = () => {
           navigate('/profile');
         } else {
           Serviceform.setFieldValue("typeId", location.state);
+          Serviceform.setFieldValue("isRental", location.state.isRental);
+          Serviceform.setFieldValue("isTrip", location.state.isTrip);
 
           const [feildsTypeRes, vehicleRes] = await Promise.all([
             GetFeildsbysid(location.state.id),
@@ -255,11 +259,16 @@ const FormUseType = () => {
     GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
   }, [selectedCountry, selectedProvince]);
 
+  useEffect(() => {
+    if(Serviceform?.values?.cityId) {
+      GetPlacesbyid(Serviceform?.values?.cityId).then((res) => {
+        setPlaces(res.data);
+      });
+    }
+  }, [Serviceform.values.cityId]);
+
   const handleCityChange = (e: any) => {
     Serviceform.setFieldValue("cityId", e.value)
-    GetPlacesbyid(e.value).then((res) => {
-      setPlaces([...res.data, { id: 'other', name: 'other', desciption: 'other'}])
-    });
   };
 
   const handlePlaceChange = (e: any) => {
@@ -317,6 +326,26 @@ const FormUseType = () => {
     );
   };
 
+  const handleToggle = (index: string, checked: boolean) => {
+    setSelectShowFacilities(prevState => {
+      const facilityIndex = prevState.findIndex((facility: any) => facility.index === index);
+      if (facilityIndex >= 0) {
+        const newState = [...prevState];
+        newState[facilityIndex].checked = checked;
+        return newState.filter(facility => facility.checked);
+      } else {
+        return [...prevState, { index, checked }];
+      }
+    });
+  };
+
+  const events = [
+    { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
+    { status: 'Processing', date: '15/10/2020 14:00', icon: 'pi pi-cog', color: '#673AB7' },
+    { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
+    { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' }
+  ];
+
   return (
     <div className="container mx-auto px-12">
       {loading ? <LoadingComponent/> : <>
@@ -326,7 +355,7 @@ const FormUseType = () => {
           </div>
 
           <div className="md:col-11 lg:col-11 getrip-type text-center flex justify-content-center align-items-center">
-            <Image alt={Serviceform.values.typeId?.name} zoomSrc={Serviceform.values.typeId?.images?.files} src={Serviceform.values.typeId?.images?.files} width="90" height="90" preview />
+            <Image alt={Serviceform.values.typeId?.name} zoomSrc={Serviceform.values.typeId?.photos[0].imagePath} src={Serviceform.values.typeId?.photos[0].imagePath} width="90" height="90" preview />
             <span className="primary mx-2 text-xl antialiased get-rp">{Serviceform.values.typeId?.name}</span>
           </div>
         </div>
@@ -528,54 +557,19 @@ const FormUseType = () => {
                 />
               </div>
 
-              {Serviceform.values.typeId?.name !== "VIP transfers" &&
+              {/* {Serviceform.values.typeId?.name !== "VIP transfers" &&
                 Serviceform.values.typeId?.name !== 'Transfers' &&
                 Serviceform.values.typeId?.name !== 'transfers' ? (
                 <>
-                  {/* <div className="md:col-6 lg:col-6">
-                    <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
-                    <Dropdown
-                      placeholder="Select a Place"
-                      options={places}
-                      optionLabel="name"
-                      optionValue="id"
-                      name="placeId"
-                      filter
-                      className="w-full"
-                      tooltip={"If you don't find the place you're looking for, you can add a new place by selecting 'Other'."}
-                      tooltipOptions={{ event: 'both', position: 'left', showDelay: 100 }}
-                      value={Serviceform.values.placeId ?? otherPlace?.value}
-                      onChange={(e) => handlePlaceChange(e)} />
-                      {renderError(Serviceform.errors.placeId)}
-                  </div> */}
-
                   <Dialog header={"Add Residence"} visible={showResidence} className="md:w-40rem lg:w-40rem" onHide={() => setshowResidence(false)}>
                     <Residence />
-                  </Dialog>
-
-                  <Dialog header={"Add Place"} visible={showPlace} className="md:w-40rem lg:w-40rem" onHide={() => setshowPlace(false)}>
-                    <div className="md:col-12 lg:col-12">
-                      <label className="mb-2" htmlFor="Status">{" "}New Place Name{" "}</label>
-                      <InputText
-                        placeholder="New Place"
-                        name="rentalPlaceName"
-                        className="w-full"
-                        autoFocus={focusedField === 'rentalPlaceName'}
-                        onInput={() => handleInputFocus('rentalPlaceName')}
-                        value={Serviceform.values.rentalPlaceName}
-                        onChange={(e) => Serviceform.setFieldValue('rentalPlaceName', e.target.value)} />
-                        {renderError(Serviceform.errors.rentalPlaceName)}
-                    </div>
-
-                    <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => setshowPlace(false)} />
                   </Dialog>
 
                   <Dialog header={"Add Vehicle"} visible={showVehicle} className="md:w-40rem lg:w-40rem" onHide={() => setshowVehicle(false)}>
                     <Vehicle />
                   </Dialog>
-
                 </>
-              ) : <></>}
+              ) : <></>} */}
             </div>
           </Fieldset>
 
@@ -641,55 +635,96 @@ const FormUseType = () => {
                   onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
                   {renderError(Serviceform.errors.currencyId)}
               </div>
+
+              <div className="md:col-6 lg:col-6">
+                <label htmlFor="Wallet">Tax Included</label>
+                <InputSwitch
+                  autoFocus={focusedField === 'isTaxIncluded'}
+                  onInput={() => handleInputFocus('isTaxIncluded')}
+                  checked={Serviceform.values.isTaxIncluded ?? false}
+                  onChange={(e) => Serviceform.setFieldValue('isTaxInclude', e.value)}
+                />
+              </div>
             </div>
           </Fieldset>
 
-          <Fieldset legend="Facilities" className="md:col-12 lg:col-12 mb-3 field-set-facilities" toggleable>
-            {assignedFacilitiesByServiceTypeIdWithCategory && assignedFacilitiesByServiceTypeIdWithCategory.length > 0 ? (
-              <div className="grid grid-cols-12 gap-4">
-                {assignedFacilitiesByServiceTypeIdWithCategory.map((category: any, index: number) => (
-                  <div key={index} className="col-span-12 py-2 px-4 border-1 border-gray-300 rounded-md" style={{borderRadius: '15px'}}>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold">- {category.categoryName}</h3>
-                    </div>
+          {Serviceform.values.typeId?.isRental  === true &&  Serviceform.values.typeId?.isTrip === false ? (
+            <Fieldset legend="Facilities" className="md:col-12 lg:col-12 mb-3 field-set-facilities" toggleable>
+              {assignedFacilitiesByServiceTypeIdWithCategory && assignedFacilitiesByServiceTypeIdWithCategory.length > 0 ? (
+                <div className="grid grid-cols-12 gap-4">
+                  {assignedFacilitiesByServiceTypeIdWithCategory.map((category: any, index: number) => (
+                    <div key={index} className="col-span-12 py-2 px-4 border-1 border-gray-300 rounded-md" style={{borderRadius: '15px'}}>
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold">- {category.categoryName}</h3>
+                      </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {category.facilities.map((facility: any, _index: number) => (
-                        <div key={facility.serviceTypeFacilityId} className="p-2 border-1 border-gray-200 rounded-md" style={{borderRadius: '15px'}}>
-                          <h4 className="text-md font-medium">*{facility.name}</h4>
-                          <div className="flex items-center mt-2">
-                            <label className="mr-2">Primary</label>
-                            <InputSwitch
-                               className="mr-4"
-                               name={`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`}
-                               checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isPrimary || false}
-                               onChange={(e) => {
-                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, e.value)
-                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
-                              }}
-                            />
-                          </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {category.facilities.map((facility: any, _index: number) => (
+                          <div key={facility.serviceTypeFacilityId} className="p-2 border-1 border-gray-200 rounded-md" style={{borderRadius: '15px'}}>
+                            <h4 className="text-md font-medium flex justify-content-start align-items-center">
+                              *{facility.name}
+                              <InputSwitch
+                                className="mx-2"
+                                name={`facility_name_${index}_${_index}`}
+                                checked={!!selectShowFacilities.find((fac: any) => fac.index === `${index}_${_index}_${facility.name}`)?.checked}
+                                onChange={(e) => handleToggle(`${index}_${_index}_${facility.name}`, e.value)}
+                              />
+                            </h4>
 
-                          <div className="flex items-center mt-2">
-                            <label className="mr-2">Additional Charges</label>
-                            <InputSwitch
-                              className="mr-4"
-                              name={`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`}
-                              checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isAdditionalCharges || false}
-                              onChange={(e) => {
-                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, e.value);
-                                Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
-                              }}
-                            />
+                            {!!selectShowFacilities.find((fac: any) => fac.index === `${index}_${_index}_${facility.name}`)?.checked && <>
+                              <div className="flex items-center mt-2">
+                                <label className="mr-2">Primary</label>
+                                <InputSwitch
+                                  className="mr-4"
+                                  name={`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`}
+                                  checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isPrimary || false}
+                                  onChange={(e) => {
+                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, e.value)
+                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                  }}
+                                />
+                              </div>
+
+                              <div className="flex items-center mt-2">
+                                <label className="mr-2">Additional Charges</label>
+                                <InputSwitch
+                                  className="mr-4"
+                                  name={`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`}
+                                  checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isAdditionalCharges || false}
+                                  onChange={(e) => {
+                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, e.value);
+                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                  }}
+                                />
+                              </div>
+                            </>}
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              ) : <p className="text-center text-red-500 text-sm italic">No Data</p>}
+            </Fieldset>
+          ) : Serviceform.values.typeId?.isRental  === false &&  Serviceform.values.typeId?.isTrip === true ? (
+            <Fieldset legend="Steps" className="md:col-12 lg:col-12 mb-3 field-set-steps" toggleable>
+
+              <div className="grid grid-cols-12">
+                <div className="md:col-12 lg:col-12 flex justify-content-end align-items-center">
+                  <Button rounded icon='pi pi-plus' type="button" severity="secondary" size="small" label="Add step" onClick={() => setShowSteps(true)} />
+                </div>
+
+                <div className="md:col-12 lg:col-12">
+                  <Timeline
+                    value={events}
+                    opposite={(item) => <span><i className={`mx-2 ${item.icon}`}></i>{item.status}</span>}
+                    content={(item) => <small className="text-color-secondary">{item.date}</small>}
+                  />
+                </div>
               </div>
-            ) : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
+          ) : null}
+
 
           <div className="md:col-12 lg:col-12 mb-8 flex align-items-center justify-content-end">
             <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />
@@ -700,7 +735,56 @@ const FormUseType = () => {
       <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
         <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Serviceform.resetForm} />
       )}/>
+
+      <Dialog
+        header="Add Step"
+        visible={showSteps}
+        style={{ minWidth: '40%', minHeight: '40%' }}
+        footer={<div>
+          {/* <Button label="Save" size="small" severity="warning" outlined onClick={() => FacilityForm.handleSubmit()} className="mt-4"></Button> */}
+          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowSteps(false)} className="mt-4"></Button>
+        </div>}
+        onHide={() => setShowSteps(false)}
+      >
+
+        <div className="md:col-6 lg:col-6">
+          <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
+          <Dropdown
+            placeholder="Select a Place"
+            options={[...places, { id: 'other', name: 'other', desciption: 'other'}]}
+            optionLabel="name"
+            optionValue="id"
+            name="placeId"
+            filter
+            className="w-full"
+            tooltip={"If you don't find the place you're looking for, you can add a new place by selecting 'Other'."}
+            tooltipOptions={{ event: 'both', position: 'left', showDelay: 100 }}
+            value={Serviceform.values.steps?.placeId ?? otherPlace?.value}
+            onChange={(e) => handlePlaceChange(e)} />
+            {renderError(Serviceform.errors.placeId)}
+        </div>
+
+      </Dialog>
+
+      <Dialog header={"Add Place"} visible={showPlace} className="md:w-40rem lg:w-40rem" onHide={() => setshowPlace(false)}>
+        <div className="md:col-12 lg:col-12">
+          <label className="mb-2" htmlFor="Status">{" "}New Place Name{" "}</label>
+          <InputText
+            placeholder="New Place"
+            name="rentalPlaceName"
+            className="w-full"
+            autoFocus={focusedField === 'rentalPlaceName'}
+            onInput={() => handleInputFocus('rentalPlaceName')}
+            value={Serviceform.values.steps?.newPLaceName}
+            onChange={(e) => Serviceform.setFieldValue('newPLaceName', e.target.value)}
+          />
+            {/* {renderError(Serviceform.errors.newPLaceName)} */}
+        </div>
+
+        <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => setshowPlace(false)} />
+      </Dialog>
     </div>
   );
 };
+
 export default FormUseType;

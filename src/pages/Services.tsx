@@ -10,7 +10,6 @@ import LoadingComponent from "../components/Loading";
 import { Tag } from "primereact/tag";
 import ServiceAttributes from "./ServiceAttributes";
 import { RadioButton } from "primereact/radiobutton";
-import { Dropdown } from "primereact/dropdown";
 import ServicePricingtype from "./ServicePricingtype";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Checkbox } from "primereact/checkbox";

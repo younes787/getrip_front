@@ -22,8 +22,6 @@ interface GoogleMapProps {
   onLocationSelect: (location: LocationFromMap) => void;
 }
 
-const APIKEY : string = 'AIzaSyBEXkQBNQVfF3uHq7f34_9D_jH6ava1ZCY';
-
 const Marker: React.FC<MarkerProps> = ({ text, onClick, onMouseEnter, onMouseLeave }) => (
   <div
     onClick={onClick}
@@ -47,7 +45,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
       if (country || province || city) {
         try {
           const location = `${city ? city + ', ' : ''}${province ? province + ', ' : ''}${country || ''}`;
-          const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${APIKEY}`);
+          const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
           const results = response.data.results;
           if (results.length > 0) {
             const { lat, lng } = results[0].geometry.location;
@@ -86,7 +84,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const fetchLocationInfo = async (lat: number, lng: number) => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${APIKEY}`);
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
       const results = response.data.results;
       if (results.length > 0) {
         const locationDetails = results[0].formatted_address;
@@ -109,7 +107,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const handleMarkerHover = async (lat: number, lng: number) => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${APIKEY}`);
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
       const results = response.data.results;
       if (results.length > 0) {
         const locationDetails = results[0].formatted_address;
@@ -126,7 +124,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${APIKEY}`);
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
       const results = response.data.results;
       if (results.length > 0) {
         const { lat, lng } = results[0].geometry.location;
@@ -160,7 +158,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
       <div style={{ height: '400px', width: '100%', position: 'relative', borderRadius: '15px', padding: '10px'}}>
         <GoogleMapReact
           onClick={( e: any ) => fetchLocationInfo(e.lat, e.lng)}
-          bootstrapURLKeys={{ key: APIKEY }}
+          bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_API_KEY as string }}
           center={mapCenter}
           defaultZoom={16}
           yesIWantToUseGoogleMapApiInternals
