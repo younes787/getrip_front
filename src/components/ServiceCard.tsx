@@ -6,93 +6,250 @@ import { useNavigate } from 'react-router-dom';
 import { GetAssignedFacilitiesByServiceId } from '../Services';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
-
-interface Service {
-  id: number;
-  name: string;
-  location: string;
-  pricePerNight: number;
-  rating: number;
-  numberOfReviews: number;
-  imageUrl: string;
-}
+import { Service, Hotel, Flight, Restaurant } from '../modules/getrip.modules';
+import { DataType } from '../enums';
+import { Dialog } from 'primereact/dialog';
+import GoogleMap from './GoogleMap';
 
 interface ServiceCardProps {
-  service: Service;
+  service: Service | Hotel | Flight | Restaurant;
+  type: DataType;
   ServiceCardStyle?: React.CSSProperties;
 }
 
-const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service }) => {
+const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, type }) => {
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState<any[]>([]);
+  const [showMapLocation, setShowMapLocation] = useState<{
+    markerLat?: any
+    markerLng?: any
+    markerText?: any
+    country?: any
+    province?: any
+    city?: any
+  } | null>(null);
 
   useEffect(() => {
-    GetAssignedFacilitiesByServiceId(service.id)
-    .then((res: any) => {
-      if (res.isSuccess && res.data) {
-        const primaryFacilities = res.data.flatMap((category: any) =>
-          category.facilities
-            .filter((facility: any) => facility.isPrimary)
-            .map((facility: any) => facility.name)
+    if (type === DataType.Service) {
+      GetAssignedFacilitiesByServiceId((service as Service).id)
+        .then((res: any) => {
+          if (res.isSuccess && res.data) {
+            const primaryFacilities = res.data.flatMap((category: any) =>
+              category.facilities
+                .filter((facility: any) => facility.isPrimary)
+                .map((facility: any) => facility.name)
+            );
+            setFacilities(primaryFacilities);
+          }
+        })
+        .catch((error: any) => {
+          console.error('Error fetching facilities:', error);
+        });
+    }
+  }, [service, type]);
+
+  const renderContent = () => {
+    switch (type) {
+      case DataType.Hotel:
+        const hotel = service as Hotel;
+        return (
+          <>
+            <h2 style={{ margin: '0 0 0.5rem 0' }}>{hotel.hotel.name}</h2>
+            <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+              <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+              {hotel.city.name}, {hotel.country.name}
+            </p>
+          </>
         );
-        setFacilities(primaryFacilities);
-      }
-    })
-    .catch((error: any) => {
-      console.error('Error fetching facilities:', error);
-    });
-  }, [service.id]);
+      case DataType.Flight:
+        const flight = service as Flight;
+        return (
+          <>
+            <h2 style={{ margin: '0 0 0.5rem 0' }}>{flight.airport?.name ?? 'All'}</h2>
+            <p style={{ margin: '0 0 4rem 0', color: '#888' }}>
+              <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+              {flight.city ? flight.city.name : flight.airport?.name}
+            </p>
+          </>
+        );
+      case DataType.Restaurant:
+        const restaurant = service as Restaurant;
+        return (
+          <>
+            <h2 style={{ margin: '0 0 1rem 0', display: 'flex', justifyContent: 'space-between' }}>
+              <span>{restaurant.name}</span>
+              <span className='p-button p-component p-button-outlined p-button-danger p-2 text-sm'>
+                <span style={{color: '#000'}} className='mr-2'>Business Status: </span>{restaurant.business_status.replace(/_/g, ' ')}
+              </span>
+            </h2>
+            <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+              <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+              {restaurant.vicinity}
+            </p>
+          </>
+        );
+      case DataType.Service:
+        const serviceData = service as Service;
+        return (
+          <>
+            <h2 style={{ margin: '0 0 0.5rem 0' }}>{serviceData.name}</h2>
+            <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+              <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+              {serviceData.description}
+            </p>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <Card style={{ ...ServiceCardStyle }}>
-      <div className='grid grid-cols-12'>
-        <div className="md:col-3 lg:col-3 sm:col-12">
-          <img src={service.imageUrl} alt={service.name} className='px-2 py-4' style={{ height: '220px', maxHeight: '220px', width: '100%' }} />
-        </div>
+    <>
+      <Card style={{ ...ServiceCardStyle }}>
+        <div className='grid grid-cols-12'>
+          <div className="md:col-3 lg:col-3 sm:col-12">
+            <img
+              src={service?.image}
+              alt={service?.name}
+              className='px-2 py-4'
+              style={{ height: '220px', maxHeight: '220px', width: '100%' }}
+            />
+          </div>
+          <div className="md:col-9 lg:col-9 sm:col-12">
+            <div className='pl-2 pr-4 py-4'>
+              {renderContent()}
+              {type === DataType.Service && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', marginBottom: '1rem' }}>
+                  {facilities.map((facility, index) => (
+                    <span key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: '#555' }}>
+                      <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i>
+                      {facility}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {type === DataType.Restaurant && service.hasOwnProperty('types') && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', marginBottom: '1rem' }}>
+                  {(service as Restaurant).types.map((type: string, index: number) => (
+                    <span key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: '#555' }}>
+                      <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i>
+                      {type.replace(/_/g, ' ')}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <hr style={{ border: '1px solid #ddd' }} className='my-3' />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {service.hasOwnProperty('ratingAverage') && (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Rating value={(service as Service).ratingAverage} readOnly stars={5} cancel={false} style={{ marginRight: '0.5rem' }} />
+                    <span style={{ fontSize: '0.9rem', color: '#888' }}>({(service as Service).isApproved ? 'APPROVED' : 'NOT APPROVED'})</span>
+                  </div>
+                )}
+                {service.hasOwnProperty('rating') && (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Rating value={(service as Restaurant).rating} readOnly stars={5} cancel={false} style={{ marginRight: '0.5rem' }} />
+                    <span style={{ fontSize: '0.9rem', color: '#888' }}>({(service as Restaurant).user_ratings_total}) <b>User Ratings Total</b></span>
+                  </div>
+                )}
 
-        <div className="md:col-9 lg:col-9 sm:col-12">
-          <div className='pl-2 pr-4 py-4'>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>{service.name}</h2>
-                <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
-                  <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
-                  {service.location}
-                </p>
+                {type === DataType.Service ? (
+                  <Button
+                    label="View Details"
+                    className='view-details'
+                    style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                    onClick={() => { navigate(`/service-details/${(service as Service).id}`) }}
+                  />
+                ): type === DataType.Flight ? (
+                  <div style={{width:'100%', display:'flex', justifyContent: 'end', alignItems: 'center'}}>
+                    <Button
+                      label="View Details"
+                      className='view-details'
+                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                      onClick={() => { navigate(`/service-details/${(service as Flight).airport.id}`) }}
+                    />
+
+                    <Button
+                      label="View In Map"
+                      className='view-details mx-1'
+                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                      onClick={() => setShowMapLocation({
+                        markerLat: (service as Flight).geolocation.latitude,
+                        markerLng: (service as Flight).geolocation.longitude,
+                        markerText: `${(service as Flight).city?.name}`,
+                        city:`${(service as Flight).city?.name}`,
+                      })}
+                    />
+                  </div>
+                ): type === DataType.Hotel ? (
+                  <div style={{width:'100%', display:'flex', justifyContent: 'end', alignItems: 'center'}}>
+                    <Button
+                      label="View Details"
+                      className='view-details mx-1'
+                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                      onClick={() => { navigate(`/service-details/${(service as Hotel).hotel.id}`) }}
+                    />
+
+                    <Button
+                      label="View In Map"
+                      className='view-details mx-1'
+                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                      onClick={() => setShowMapLocation({
+                        markerLat: (service as Hotel).geolocation.latitude,
+                        markerLng: (service as Hotel).geolocation.longitude,
+                        markerText: `${(service as Hotel).city.name}, ${(service as Hotel).country.name}`,
+                        country:`${(service as Hotel).country?.name}`,
+                        city:`${(service as Hotel).city?.name}`,
+                      })}
+                    />
+                  </div>
+                ): type === DataType.Restaurant ? (
+                  <Button
+                    label="View In Map"
+                    className='view-details'
+                    style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                    onClick={() =>  setShowMapLocation({
+                      markerLat: (service as Restaurant).geometry.location.lat,
+                      markerLng: (service as Restaurant).geometry.location.lng,
+                      markerText: (service as Restaurant).vicinity,
+                      country:`${(service as Restaurant).vicinity}`,
+                    })}
+                  />
+                ): null }
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0', color: '#FF6C00' }}>${service.pricePerNight}</h2>
-                <p style={{ margin: '0', color: '#888' }}>Per Night</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem 1rem', marginBottom: '1rem' }}>
-              {facilities.map((facility: any, index: number) => (
-                <span key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem', color: '#555' }}>
-                  <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i>
-                  {facility}
-                </span>
-              ))}
-            </div>
-
-            <hr style={{border: '1px solid #ddd'}} className='my-3'/>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Rating value={service.rating} readOnly stars={5} cancel={false} style={{ marginRight: '0.5rem' }} />
-                <span style={{ fontSize: '0.9rem', color: '#888' }}>({service.numberOfReviews} REVIEWS)</span>
-              </div>
-              <Button
-                label="View Details"
-                className='view-details'
-                style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px'}}
-                onClick={() => { navigate(`/service-details/${service.id}`) }}
-              />
             </div>
           </div>
         </div>
-      </div>
-  </Card>
+      </Card>
+
+      <Dialog
+        header="Map Location"
+        visible={showMapLocation !== null}
+        style={{
+          minWidth: '70%',
+          minHeight: '70%',
+          padding: '0',
+          margin: '0',
+          backgroundColor: 'transparent'
+        }}
+        footer={<div>
+          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowMapLocation(null)} className="mt-4"></Button>
+        </div>}
+        onHide={() => setShowMapLocation(null)}
+      >
+        <GoogleMap
+          // markerData={[{
+          //     lat:  showMapLocation?.markerLat ?? null,
+          //     lng:  showMapLocation?.markerLng ?? null,
+          //     text: showMapLocation?.markerText ?? null
+          // }]}
+          country={showMapLocation?.country ?? ''}
+          province={showMapLocation?.province ?? ''}
+          city={showMapLocation?.city ?? ''}
+        />
+      </Dialog>
+    </>
   );
 };
 

@@ -11,9 +11,11 @@ import { Rating } from "primereact/rating";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
-import { LocationFromMap, LocationFromSearch, QueryFilter, ServiceDTO, SidebarFilter } from "../modules/getrip.modules";
+import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, Service, ServiceDTO, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
 import axios from 'axios';
+import { mapHotelData, mapFlightData, mapRestaurantData, mapServiceData } from "../utils/mapData";
+import { DataType } from "../enums";
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,7 +23,11 @@ const SearchAndFilter = () => {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
   const [cities, setCities] = useState<any>();
-  const [services, setServices] = useState<any>();
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [cardType, setCardType] = useState<DataType>();
   const [currency, setCurrency] = useState<any>();
   const [residence, setResidence] = useState<any>();
   const [showAllCities, setShowAllCities] = useState(false);
@@ -51,20 +57,37 @@ const SearchAndFilter = () => {
 
   async function fetchNearbyPlaces(latitude: number, longitude: number, radius = 5000, type = 'restaurant|cafe') {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json`, {
+      return await axios.get(`http://127.0.0.1:8000/api/v1/retailers/googleapis/nearbysearch`, {
         params: {
-          location: `${latitude},${longitude}`,
+          latitude: latitude,
+          longitude: longitude,
           radius: radius,
           type: type,
-          key: process.env.REACT_APP_GOOGLE_MAP_API_KEY
+        }
+      });
+    } catch (error) {
+      console.error('Error get Near by Places location: restaurant|cafe ', error);
+    }
+  }
+
+  async function fetchProvider(persistenceUrl: string, Query: any) {
+    try {
+      const tokenResponse = await axios.post(`http://service.stage.paximum.com/v2/api/authenticationservice/login`, {
+        Agency: "PXM25730",
+        User: "USR1",
+        Password: "Admin01."
+      });
+
+      const token = tokenResponse.data.body.token;
+      const response = await axios.post(`http://service.stage.paximum.com/v2/api/${persistenceUrl}`, Query, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
 
-      console.log(response.data.results, type);
-
-      return response.data.results;
+      return response;
     } catch (error) {
-      console.error('Error get Near by Places location: restaurant|cafe ', error);
+      console.error('Error Get Hotel ', error);
     }
   }
 
@@ -92,10 +115,6 @@ const SearchAndFilter = () => {
 
   useEffect(() => {
     setSelectedCountry(`${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`);
-
-    if(selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
-      fetchNearbyPlaces(selectedLocationFromSearch.lat, selectedLocationFromSearch.lng)
-    }
   }, [selectedLocationFromSearch]);
 
   const rangePrices = [
@@ -139,55 +158,6 @@ const SearchAndFilter = () => {
     const day = `0${d.getDate()}`.slice(-2);
     const year = d.getFullYear();
     return `${year}-${month}-${day}`;
-  };
-
-  const getAllService = () => {
-    const queryParts: string[] = [];
-    const { address, startDate, endDate, selectdTab, selectedFields, sidebarFilter } = selectFilterData || {};
-
-    const addQueryPart = (key: string, value: string | string[]) => {
-      if (Array.isArray(value)) {
-        if (value.length > 0) {
-          queryParts.push(`${key}=${value.map(encodeURIComponent).join(',')}`);
-        }
-      } else if (value) {
-        queryParts.push(`${key}=${encodeURIComponent(value)}`);
-      }
-    };
-
-    if (address?.name) {
-      addQueryPart('address', address.name.name ?? address.name);
-    }
-
-    if (startDate) {
-      addQueryPart('start_date', formatDate(startDate));
-    }
-
-    if (endDate) {
-      addQueryPart('end_date', formatDate(endDate));
-    }
-
-    if (selectdTab) {
-      addQueryPart('tab', selectdTab.children[1]);
-    }
-
-    if (selectedFields?.length) {
-      addQueryPart('fields', selectedFields.map((field: any) => field.name));
-    }
-
-    if (sidebarFilter) {
-      Object.keys(sidebarFilter).forEach((key) => {
-        addQueryPart(
-          `sidebar_filter[${key}]`,
-          sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => key === 'rating' ? item.label.props.stars : item.name ?? item.label) || []
-        );
-      });
-    }
-
-    GetPaginatedServices(pageNumber, pageSize, queryParts.join('&')).then((res: any) => {
-      setFoundLenght(services?.totalItems);
-      setServices(res.data);
-    });
   };
 
   const markerData = [
@@ -262,7 +232,7 @@ const SearchAndFilter = () => {
   };
 
   useEffect(() => {
-    getAllService();
+    fetchDataToCard();
   }, [pageNumber, pageSize, selectFilterData]);
 
   useEffect(() => {
@@ -293,6 +263,123 @@ const SearchAndFilter = () => {
     </div>
   );
 
+  const fetchDataToCard = async () => {
+    const queryParts: string[] = [];
+    const {
+      address,
+      startDate,
+      endDate,
+      selectdTab,
+      selectedFields,
+      sidebarFilter,
+      arrivalCity,
+      departureDate,
+      guests,
+      departureCity,
+      returnDate,
+    } = selectFilterData || {};
+
+    const addQueryPart = (key: string, value: string | string[]) => {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          queryParts.push(`${key}=${value.map(encodeURIComponent).join(',')}`);
+        }
+      } else if (value) {
+        queryParts.push(`${key}=${encodeURIComponent(value)}`);
+      }
+    };
+
+    const handleHotels = async () => {
+      if (guests) addQueryPart('guests', guests.toString() ?? '1');
+
+      const persistenceUrl = 'productservice/getarrivalautocomplete';
+      const Query = {
+        ProductType: 2,
+        Query: 'antal',
+        Culture: 'en-US',
+      };
+
+     return await fetchProvider(persistenceUrl, Query);
+    };
+
+    const handleFlights = async () => {
+      if (departureDate) addQueryPart('departure_date', formatDate(departureDate));
+      if (arrivalCity) addQueryPart('arrival_city', arrivalCity);
+      if (departureCity) addQueryPart('departure_city', departureCity);
+      if (returnDate) addQueryPart('return_date', formatDate(returnDate));
+
+      const persistenceUrl = 'productservice/getdepartureautocomplete';
+      const Query = {
+        ProductType: 3,
+        Query: 'IST',
+        ServiceType: 2,
+        Culture: 'en-US',
+      };
+
+      return await fetchProvider(persistenceUrl, Query);
+    };
+
+    const handleRestaurants = async () => {
+      if (selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
+        return await fetchNearbyPlaces(selectedLocationFromSearch.lat, selectedLocationFromSearch.lng);
+      }
+    };
+
+    const handleServices = async () => {
+      if (address?.name) addQueryPart('address', address.name.name ?? address.name);
+      if (startDate) addQueryPart('start_date', formatDate(startDate));
+      if (endDate) addQueryPart('end_date', formatDate(endDate));
+      if (selectdTab) addQueryPart('tab', selectdTab.children[1]);
+      if (selectedFields?.length) {
+        addQueryPart('fields', selectedFields.map((field: any) => field.id));
+      }
+      if (sidebarFilter) {
+        Object.keys(sidebarFilter).forEach((key) => {
+          addQueryPart(
+            `sidebar_filter[${key}]`,
+            sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => (key === 'rating' ? item.label.props.stars : item.id)) || []
+          );
+        });
+      }
+
+      return await GetPaginatedServices(pageNumber, pageSize, queryParts.join('&'));
+    };
+
+    if (selectdTab) {
+      let data: any;
+      switch (selectdTab.children[1]) {
+        case DataType.Hotel:
+        case 'Hotels':
+          data = await handleHotels();
+          setCardType(DataType.Hotel);
+          setFoundLenght(data.data.body.items.length);
+          setHotels(mapHotelData(data));
+          break;
+        case  DataType.Flight:
+        case 'Flight':
+          data = await handleFlights();
+          setCardType(DataType.Flight);
+          setFoundLenght(data.data.body.items.length);
+          setFlights(mapFlightData(data));
+          break;
+        case  DataType.Restaurant:
+        case 'Restaurants':
+          data = await handleRestaurants();
+          setCardType(DataType.Restaurant);
+          setFoundLenght(data.data.results.length);
+          setRestaurants(mapRestaurantData(data));
+          break;
+        default:
+        // case  DataType.Service:
+          data = await handleServices();
+          setCardType(DataType.Service);
+          setFoundLenght(data.data?.totalItems);
+          setServices(mapServiceData(data));
+          break;
+      }
+    }
+  };
+
   return (<>
     <div className="container mx-auto px-12 search-and-filter">
      { loading ? <LoadingComponent/> : <div className="m-auto">
@@ -301,7 +388,7 @@ const SearchAndFilter = () => {
             onLocationSelect={(location: LocationFromSearch) => { setSelectedLocationFromSearch(location) }}
             onSelectFilterData={(_filterData: QueryFilter) => {
               setSelectFilterData(_filterData);
-              getAllService();
+              fetchDataToCard();
             }}
             SearchBarStyle={{
               width: '100%',
@@ -368,13 +455,15 @@ const SearchAndFilter = () => {
           </div>
 
           <div className="md:col-9 lg:col-9 sm:col-12 px-3">
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
+            <b className="p-button p-component p-button-outlined p-button-danger">{ cardType }</b>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+            >
               <p className="m-p-filter-result">{selectedCountry}: ({foundLenght}) properties found</p>
-
               <div className="actions">
                 <Dropdown
                   placeholder="Sort"
@@ -391,39 +480,63 @@ const SearchAndFilter = () => {
                 />
 
                 <Button
-                rounded
-                className="m-button mx-2"
-                icon={
-                  <FontAwesomeIcon
-                    className="fa mr-2"
-                    icon={faMapLocation}
-                    size={"sm"}
-                  />
-                }
-                onClick={() => setShowMapLocation(true)}
-                >Map</Button>
+                  rounded
+                  className="m-button mx-2"
+                  icon={
+                    <FontAwesomeIcon
+                      className="fa mr-2"
+                      icon={faMapLocation}
+                      size={"sm"}
+                    />
+                  }
+                  onClick={() => setShowMapLocation(true)}
+                >
+                  Map
+                </Button>
               </div>
             </div>
 
             <div className="service-card-content">
-              {services && services.totalItems > 0 ? services.items.map((service: ServiceDTO, index: number) => (
-                <ServiceCard
-                  key={index}
-                  service={{
-                    id: service.id ? service?.id : 0,
-                    name: service.name,
-                    location: `${findCountry(countries, undefined, service.countryId)?.name ?? 'No Country'}, ${findProvince(provinces, undefined, service.provincyId)?.name ?? 'No Province'}`,
-                    pricePerNight: service.price,
-                    rating: service.ratingAverage,
-                    numberOfReviews: 900,
-                    imageUrl: service?.photos ? service?.photos[0].imagePath : ''
-                  }}
-                  ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
-                />
-              ))
-              : 'no data'}
+            {
+              cardType === DataType.Hotel && hotels.length > 0 ? (
+                hotels.map(hotel => (
+                  <ServiceCard
+                    key={hotel.hotel.id}
+                    service={hotel}
+                    ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
+                    type={DataType.Hotel}
+                  />
+                ))
+              ) : cardType === DataType.Flight && flights.length > 0 ? (
+                flights.map(flight => (
+                  <ServiceCard
+                    key={flight.geolocation.longitude}
+                    service={flight}
+                    ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
+                    type={DataType.Flight}
+                  />
+                ))
+              ) : cardType === DataType.Restaurant && restaurants.length > 0 ? (
+                restaurants.map(restaurant => (
+                  <ServiceCard
+                    key={restaurant.place_id}
+                    service={restaurant}
+                    ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
+                    type={DataType.Restaurant}
+                  />
+                ))
+              ) : cardType === DataType.Service && services.length > 0 ? (
+                services.map(service => (
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
+                    type={DataType.Service}
+                  />
+                ))
+              ) : (<p className="text-center text-red-500 text-lg italic p-5">No data to show</p>)}
 
-              <Paginator first={pageNumber} rows={pageSize} totalRecords={services?.totalItems} rowsPerPageOptions={[5, 10, 20, 30]} onPageChange={onPageChange} />
+              <Paginator first={pageNumber} rows={pageSize} totalRecords={foundLenght} rowsPerPageOptions={[5, 10, 20, 30]} onPageChange={onPageChange} />
             </div>
           </div>
         </div>
@@ -447,21 +560,9 @@ const SearchAndFilter = () => {
     >
       <GoogleMap
         markerData={markerData}
-        // country={
-        //   (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
-        //     ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
-        //     : undefined
-        // }
-        // province={
-        //   (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
-        //     ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
-        //     : undefined
-        // }
-        // city={
-        //   (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
-        //     ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
-        //     : undefined
-        // }
+        // country={}
+        // province={}
+        // city={}
         onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
       />
     </Dialog>
@@ -469,3 +570,13 @@ const SearchAndFilter = () => {
 };
 
 export default SearchAndFilter;
+
+// service={{
+//   id: service.id ? service?.id : 0,
+//   name: service.name,
+//   location: `${findCountry(countries, undefined, service.countryId)?.name ?? 'No Country'}, ${findProvince(provinces, undefined, service.provincyId)?.name ?? 'No Province'}`,
+//   pricePerNight: service.price,
+//   rating: service.ratingAverage,
+//   numberOfReviews: 900,
+//   imageUrl: service?.photos ? service?.photos[0].imagePath : ''
+// }}

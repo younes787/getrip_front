@@ -182,6 +182,18 @@ html body {
   color: $secondery_color;
 }
 
+.p-inputtext:enabled:focus {
+  border-color: $secondery_color;
+}
+
+.p-button-secondery {
+  background-color: $secondery_color;
+  color: #FFF;
+  border: none;
+  outline: none;
+  padding: 10px;
+}
+
 .siderbar {
   .css-dip3t8, .css-ewdv3l {
     background-color: $primary_color !important;

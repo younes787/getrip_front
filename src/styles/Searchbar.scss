@@ -39,6 +39,49 @@ $black: #3c3c3c;
   width: 100%;
 }
 
+.more-filter {
+  background-color: #FFF;
+  color: $secondery_color;
+  border: 1px solid $secondery_color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.more-filter .p-button-label {
+  text-align: end;
+}
+
+.more-filter:hover {
+  background-color: $secondery_color;
+  color: #FFF;
+  border: 1px solid #FFF;
+}
+
+.more-filter:hover .more-filter-icon {
+  color: #FFF;
+}
+
+.more-filter:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.departure .p-button {
+  background-color: $secondery_color;
+  color: #FFF;
+  border: 1px solid $secondery_color;
+}
+
+.departure .p-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.form__group .p-button.p-button-icon-only {
+  width: 2rem;
+}
+
 .form__group input:focus, .failds , .actions .m-button:focus {
   outline: none;
   box-shadow: none;

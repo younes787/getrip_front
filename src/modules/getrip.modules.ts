@@ -265,8 +265,13 @@ export interface QueryFilter {
   address?: any;
   startDate?: Date;
   endDate?: Date;
-  selectedFields?: FildsDTO[],
+  selectedFields?: FildsDTO[];
   sidebarFilter?: SidebarFilter;
+  guests: number;
+  departureCity: any;
+  arrivalCity: any;
+  departureDate: Date;
+  returnDate: Date;
 }
 export interface LocationFromMap {
   lat: number;
@@ -316,4 +321,92 @@ export class ServiceDTO{
   placeNewActivities?: placeNewActivitiesDTO;
   tags?: TagsDTO | any;
   serviceFacilities?: ServiceFacilitiesDTO[] = [];
+}
+
+export interface Service {
+  id: number;
+  name: string;
+  description: string;
+  business: string;
+  typeId: number;
+  cityId: number;
+  lat: number | null;
+  lng: number | null;
+  addressDescription: string | null;
+  placeId: string | null;
+  accountId: number;
+  price: number;
+  currencyId: number;
+  isActive: boolean;
+  isArchived: boolean;
+  isApproved: boolean;
+  ratingAverage: number;
+  image: string;
+}
+export interface Hotel {
+  type: number;
+  geolocation: {
+    longitude: string;
+    latitude: string;
+  };
+  country: {
+    id: string;
+    name: string;
+  };
+  state: {
+    id: string;
+    name: string;
+  };
+  city: {
+    id: string;
+    name: string;
+  };
+  hotel: {
+    id: string
+    internationalName: string
+    name:string
+  };
+  name?: string;
+  provider: number;
+  image: string;
+}
+export interface Flight {
+  type: number;
+  geolocation: {
+    longitude: string;
+    latitude: string;
+  };
+  city?: {
+    id: string;
+    name: string;
+  };
+  airport: {
+    id: string;
+    name: string;
+  };
+  name?: string;
+  provider: number;
+  image: string;
+}
+export interface Restaurant {
+  business_status: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  icon: string;
+  name: string;
+  opening_hours: {
+    open_now: boolean;
+  };
+  image: string;
+  place_id: string;
+  price_level: number;
+  rating: number;
+  isApproved: boolean,
+  user_ratings_total: number;
+  vicinity: string;
+  types: string[] | any;
 }

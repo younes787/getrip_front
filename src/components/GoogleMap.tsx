@@ -19,7 +19,7 @@ interface GoogleMapProps {
   country?: string;
   province?: string;
   city?: string;
-  onLocationSelect: (location: LocationFromMap) => void;
+  onLocationSelect?: (location: LocationFromMap) => void;
 }
 
 const Marker: React.FC<MarkerProps> = ({ text, onClick, onMouseEnter, onMouseLeave }) => (
@@ -93,15 +93,21 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
         setLocationInfo(`Location: ${locationDetails}`);
         setSelectedLocation({ lat, lng });
         setMapCenter({ lat: lat, lng: lng });
-        onLocationSelect({ lat, lng, address: results });
+        if(onLocationSelect) {
+          onLocationSelect({ lat, lng, address: results });
+        }
       } else {
         setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
-        onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
+        if(onLocationSelect) {
+          onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
+        }
       }
     } catch (error) {
       console.error('Error fetching location info:', error);
       setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
-      onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
+      if(onLocationSelect) {
+        onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
+      }
     }
   };
 

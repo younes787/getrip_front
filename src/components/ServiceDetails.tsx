@@ -166,21 +166,9 @@ const ServiceDetails: React.FC<{ loading: boolean, serviceDetails: ServiceDetail
       >
         <GoogleMap
           markerData={markerData}
-          // country={
-          //   (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
-          //     ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
-          //     : undefined
-          // }
-          // province={
-          //   (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
-          //     ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
-          //     : undefined
-          // }
-          // city={
-          //   (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
-          //     ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
-          //     : undefined
-          // }
+          // country={}
+          // province={}
+          // city={}
           onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
         />
       </Dialog>
