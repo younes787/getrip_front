@@ -1,7 +1,7 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faFireAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture } from "@fortawesome/free-solid-svg-icons";
+import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faFireAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GetProvimcesByName, GetServiceTypes, GetFeildsbysid } from '../Services';
+import { GetProvimcesByName, GetServiceTypes, GetFeildsbysid, GetProvincebyCid } from '../Services';
 import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { Calendar } from 'primereact/calendar';
@@ -12,7 +12,8 @@ import axios from 'axios';
 import { QueryFilter } from '../modules/getrip.modules';
 import { InputNumber } from 'primereact/inputnumber';
 import { Menu } from 'primereact/menu';
-import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { DataType } from '../enums';
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
@@ -27,7 +28,13 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [activeIndex, setActiveIndex] = useState(0);
   const [date, setDate] = useState<any>([startDate, today]);
   const [serviceTypeQuery, setServiceTypeQuery] = useState<any[]>([]);
-  const [addressData, setAddressData] = useState<any[]>([]);
+  const [addressData, setAddressData] = useState<{
+    countryId: number,
+    countryName: string,
+    name: string,
+    provinceId: number,
+    provinceName: string,
+  }[]>([]);
   const [selectedFields, setSelectedFields] = useState([]);
   const [fields, setFields] = useState<any>();
   const [keySearch, setKeySearch] = useState<string>('A');
@@ -41,6 +48,11 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const menuLeft = useRef<any>(null);
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState<any>('');
+  const [provinces, setProvinces] = useState<any>();
+  const [flightServiceType, setFlightServiceType] = useState<any>();
+  const [serviceType, setServiceType] = useState([
+    { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
+  ]);
 
   const FlightTemplate = ({ icon, label, inputComponent }: any) => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -49,10 +61,6 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       {inputComponent}
     </div>
   );
-
-  const [serviceType, setServiceType] = useState([
-    { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
-  ]);
 
   const handleCurrandLocation = async ({latitude, longitude}: any) => {
     try {
@@ -75,7 +83,8 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         }
 
         setSelectedLocation({name: `${country}, ${province}`});
-        onLocationSelect({lat: latitude, lng: longitude, country, province })
+        onLocationSelect({lat: latitude, lng: longitude, country, province });
+        setKeySearch(province);
       } else {
         console.error('Geocoding API error: ', response.data.status);
       }
@@ -83,6 +92,15 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       console.error('Error fetching geocoding data: ', error);
     }
   };
+
+  useEffect(() => {
+    if(addressData[0]?.countryId) {
+      GetProvincebyCid(addressData[0]?.countryId)
+      .then((res) => {
+        setProvinces(res.data);
+      });
+    }
+  }, [addressData]);
 
   useEffect(() => {
     GetServiceTypes().then((res) => {
@@ -127,14 +145,21 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       arrivalCity: arrivalCity ?? null,
       departureDate: departureDate ?? null,
       returnDate: returnDate ?? null,
+      flightServiceType: flightServiceType ?? null,
     });
 
-  }, [selectedFields, selectedLocation, date,  activeIndex, guests, arrivalCity, departureDate, departureCity, returnDate]);
+  }, [selectedFields, selectedLocation, date,  activeIndex, guests, arrivalCity, departureDate, departureCity, returnDate, flightServiceType]);
 
   useEffect(() => {
     GetProvimcesByName(keySearch).then((res) => {
       const _fullProvinceName = res.data.map((_res: any) => {
-        return {name: _res.fullProvinceName};
+        return {
+          countryId: _res.countryId,
+          countryName: _res.countryName,
+          name: _res.fullProvinceName,
+          provinceId: _res.id,
+          provinceName: _res.name,
+        };
       });
 
       setAddressData(_fullProvinceName);
@@ -198,7 +223,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
           severity="danger"
           type='button'
           style={{ padding: '5px' }}
-          onClick={(event) => menuLeft.current.toggle(event)}
+          onClick={(event) => menuLeft.current.hide(event)}
           aria-controls="popup_menu_left"
           aria-haspopup
         />
@@ -266,17 +291,43 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             <>
               <div className='m-2 w-full departure'>
                 <FlightTemplate
+                  icon={faPlaceOfWorship}
+                  label="Flight Service Type"
+                  inputComponent={
+                    <Dropdown
+                      placeholder="Select a Flight Service Type"
+                      options={[
+                        {id: 1, name: 'One Way'},
+                        {id: 2, name: 'Round Trip'},
+                        {id: 3, name: 'Multi City'},
+                      ]}
+                      optionLabel="name"
+                      optionValue="id"
+                      name="flightServiceType"
+                      filter
+                      className="mt-2	w-full"
+                      value={flightServiceType}
+                      onChange={(e) => setFlightServiceType(e.value)}
+                    />
+                  }
+                />
+              </div>
+
+              <div className='m-2 w-full departure'>
+                <FlightTemplate
                   icon={faPlaneDeparture}
                   label="Departure City"
                   inputComponent={
-                    <InputText
-                      placeholder="Departure city"
-                      className="w-full"
+                    <Dropdown
+                      placeholder="Select a Departure city"
+                      options={provinces}
+                      optionLabel="name"
+                      optionValue="name"
                       name="departureCity"
-                      autoFocus={focusedField === 'departureCity'}
-                      onInput={() => handleInputFocus('departureCity')}
+                      filter
+                      className="mt-2	w-full"
                       value={departureCity}
-                      onChange={(e) => setDepartureCity(e.target.value)}
+                      onChange={(e) => setDepartureCity(e.value)}
                     />
                   }
                 />
@@ -287,14 +338,16 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   icon={faPlaneArrival}
                   label="Arrival City"
                   inputComponent={
-                    <InputText
-                      placeholder="Arrival city"
-                      className="w-full"
+                    <Dropdown
+                      placeholder="Select a Arrival city"
+                      options={provinces}
+                      optionLabel="name"
+                      optionValue="name"
                       name="arrivalCity"
-                      autoFocus={focusedField === 'arrivalCity'}
-                      onInput={() => handleInputFocus('arrivalCity')}
+                      filter
+                      className="mt-2	w-full"
                       value={arrivalCity}
-                      onChange={(e) => setArrivalCity(e.target.value)}
+                      onChange={(e) => setArrivalCity(e.value)}
                     />
                   }
                 />
@@ -346,7 +399,10 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       {
         label: 'Departure City',
         template: () => (
-          <div className='text-center p-button p-component p-button-outlined p-button-danger' style={{ padding: '10px 70px'}}>No Filter Found</div>
+          <>
+            <div className='text-center p-button p-component p-button-outlined p-button-danger' style={{ padding: '10px 70px'}}>No Filter Found</div>
+            {commonCloseButton}
+          </>
         )
       }
     ];
@@ -376,7 +432,8 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
               tooltipOptions={{position: 'bottom'}}
               field="name"
               value={selectedLocation.name}
-              suggestions={filteredQuery} completeMethod={search}
+              suggestions={filteredQuery}
+              completeMethod={search}
               onChange={(e) => {
                 onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '' });
                 setSelectedLocation({name: e.value});

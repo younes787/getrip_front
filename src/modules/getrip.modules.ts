@@ -272,6 +272,7 @@ export interface QueryFilter {
   arrivalCity: any;
   departureDate: Date;
   returnDate: Date;
+  flightServiceType: any;
 }
 export interface LocationFromMap {
   lat: number;

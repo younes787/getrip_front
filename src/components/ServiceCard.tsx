@@ -55,7 +55,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
         return (
           <>
             <h2 style={{ margin: '0 0 0.5rem 0' }}>{hotel.hotel.name}</h2>
-            <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+            <p style={{ margin: '0 0 4rem 0', color: '#888' }}>
               <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
               {hotel.city.name}, {hotel.country.name}
             </p>
@@ -65,7 +65,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
         const flight = service as Flight;
         return (
           <>
-            <h2 style={{ margin: '0 0 0.5rem 0' }}>{flight.airport?.name ?? 'All'}</h2>
+            <h2 style={{ margin: '0 0 0.5rem 0' }}>{flight.airport?.name ?? flight.city?.name}</h2>
             <p style={{ margin: '0 0 4rem 0', color: '#888' }}>
               <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
               {flight.city ? flight.city.name : flight.airport?.name}
@@ -78,7 +78,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
           <>
             <h2 style={{ margin: '0 0 1rem 0', display: 'flex', justifyContent: 'space-between' }}>
               <span>{restaurant.name}</span>
-              <span className='p-button p-component p-button-outlined p-button-danger p-2 text-sm'>
+              <span className='p-button p-component p-button-outlined p-button-danger p-2 text-sm' style={{minWidth: 'max-content', height: '40px'}}>
                 <span style={{color: '#000'}} className='mr-2'>Business Status: </span>{restaurant.business_status.replace(/_/g, ' ')}
               </span>
             </h2>

@@ -43,7 +43,6 @@ export const mapRestaurantData = (data: any): Restaurant[] => {
     types: item.types,
     user_ratings_total: item.user_ratings_total,
     vicinity: item.vicinity,
-    // image: 'https://cdn3.iconfinder.com/data/icons/diversity-avatars/64/chef-man-white-512.png',
     image: 'https://as2.ftcdn.net/v2/jpg/02/09/08/21/1000_F_209082136_p19UCUKbDeONvW0O5o0iTh59kEWWfutL.jpg',
   }));
 };
