@@ -159,16 +159,18 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                     label="View Details"
                     className='view-details'
                     style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
-                    onClick={() => { navigate(`/service-details/${(service as Service).id}`) }}
+                    onClick={() => { navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}`) }}
                   />
                 ): type === DataType.Flight ? (
                   <div style={{width:'100%', display:'flex', justifyContent: 'end', alignItems: 'center'}}>
-                    <Button
-                      label="View Details"
-                      className='view-details'
-                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
-                      onClick={() => { navigate(`/service-details/${(service as Flight).airport.id}`) }}
-                    />
+                    {(service as Flight).airport &&
+                      <Button
+                        label="View Details"
+                        className='view-details'
+                        style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                        onClick={() => { navigate(`/service-details/${DataType.Flight.toLowerCase()}/${(service as Flight)?.airport?.id}`) }}
+                      />
+                    }
 
                     <Button
                       label="View In Map"
@@ -184,12 +186,14 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                   </div>
                 ): type === DataType.Hotel ? (
                   <div style={{width:'100%', display:'flex', justifyContent: 'end', alignItems: 'center'}}>
-                    <Button
-                      label="View Details"
-                      className='view-details mx-1'
-                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
-                      onClick={() => { navigate(`/service-details/${(service as Hotel).hotel.id}`) }}
-                    />
+                    {(service as Hotel).hotel &&
+                      <Button
+                        label="View Details"
+                        className='view-details mx-1'
+                        style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                        onClick={() => { navigate(`/service-details/${DataType.Hotel.toLowerCase()}/${(service as Hotel)?.hotel?.id}`) }}
+                      />
+                    }
 
                     <Button
                       label="View In Map"
@@ -239,11 +243,6 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
         onHide={() => setShowMapLocation(null)}
       >
         <GoogleMap
-          // markerData={[{
-          //     lat:  showMapLocation?.markerLat ?? null,
-          //     lng:  showMapLocation?.markerLng ?? null,
-          //     text: showMapLocation?.markerText ?? null
-          // }]}
           country={showMapLocation?.country ?? ''}
           province={showMapLocation?.province ?? ''}
           city={showMapLocation?.city ?? ''}

@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddImageToService, AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory} from "../Services";
+import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory } from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
-import Vehicle from "../pages/Vehicle";
-import Residence from "../pages/Residencemain";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ImageDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO } from "../modules/getrip.modules";
+import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -23,6 +21,9 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import GoogleMap from "./GoogleMap";
 import { Editor } from "primereact/editor";
 import { Timeline } from "primereact/timeline";
+import { ProgressBar } from "primereact/progressbar";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Card } from "primereact/card";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -52,6 +53,8 @@ const FormUseType = () => {
   const [assignedFacilitiesByServiceTypeIdWithCategory, setAssignedFacilitiesByServiceTypeIdWithCategory] = useState<any>();
   const [cities, setCities] = useState<any>();
   const [places, setPlaces] = useState<any>([]);
+  const [steps, setSteps] = useState<StepsDTO[]>([]);
+  const [stepsDelagData, setStepsDelagData] = useState<any>(null);
   const [residence, setResidence] = useState();
   const [vehicle, setVehicle] = useState();
   const [currency, setCurrency] = useState();
@@ -75,14 +78,12 @@ const FormUseType = () => {
   const [selectedProvince, setSelectedProvince] = useState<number>(0);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: any } | null>(null);
   const [showSteps, setShowSteps] = useState(false);
+  const [totalSize, setTotalSize] = useState(0);
+  const fileUploadRef = useRef<any>(null);
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     setSelectedLocation(location);
   };
-
-  const markerData = [
-    // { lat: 40.748817, lng: -73.985428, text: 'Marker 1' },
-  ] || [];
 
   const extractLocationDetails = (selectedLocation: any): Address => {
     const lat = selectedLocation.lat;
@@ -121,7 +122,8 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
-      Serviceform.values.images = {}; //{files: fileimg[0].objectURL};
+      Serviceform.values.images = fileimg;
+      Serviceform.values.steps = steps;
 
       if (selectedLocation) {
         Serviceform.values.address = extractLocationDetails(selectedLocation);
@@ -158,23 +160,10 @@ const FormUseType = () => {
     },
   });
 
-  const ImageServiceform = useFormik<ImageDTO>({
-    initialValues: new ImageDTO(),
-    validateOnChange: true,
-    onSubmit: () => {
-      const formData = new FormData();
-      formData.append("file", fileimg);
-      formData.append("ObjectId", Serviceform.values.typeId);
-      AddImageToService(formData);
-    },
-  });
-
   const handleAddService = async () => {
     try {
       const addServiceResponse = await AddService(Serviceform.values);
       if (addServiceResponse.isSuccess) {
-        ImageServiceform.handleSubmit()
-
           confirmDialog({
             header: 'Success!',
             message: 'Service added successfully.',
@@ -250,13 +239,14 @@ const FormUseType = () => {
     fetchData();
   }, [location, navigate]);
 
-  const handleImgChange = (e: any) => {
-    setFileimg(e.files);
-  };
-
   useEffect(() => {
-    GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));
-    GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
+    if(selectedCountry) {
+      GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));
+    }
+
+    if(selectedProvince) {
+      GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
+    }
   }, [selectedCountry, selectedProvince]);
 
   useEffect(() => {
@@ -269,16 +259,6 @@ const FormUseType = () => {
 
   const handleCityChange = (e: any) => {
     Serviceform.setFieldValue("cityId", e.value)
-  };
-
-  const handlePlaceChange = (e: any) => {
-    if(e.target.value === 'other') {
-      setOtherPlace(e.target)
-      setshowPlace(true)
-    } else {
-      Serviceform.setFieldValue("placeId", e.value)
-      GetResidencebyCottages(e.value).then((res) => setResidence(res.data));
-    }
   };
 
   const handleAddTag = () => {
@@ -339,12 +319,134 @@ const FormUseType = () => {
     });
   };
 
-  const events = [
-    { status: 'Ordered', date: '15/10/2020 10:30', icon: 'pi pi-shopping-cart', color: '#9C27B0', image: 'game-controller.jpg' },
-    { status: 'Processing', date: '15/10/2020 14:00', icon: 'pi pi-cog', color: '#673AB7' },
-    { status: 'Shipped', date: '15/10/2020 16:15', icon: 'pi pi-shopping-cart', color: '#FF9800' },
-    { status: 'Delivered', date: '16/10/2020 10:00', icon: 'pi pi-check', color: '#607D8B' }
-  ];
+  const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
+  const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+
+  const onTemplateSelect = (e: any) => {
+      let _totalSize = totalSize;
+      let files = e.files;
+
+      Object.keys(files).forEach((key) => {
+          _totalSize += files[key].size || 0;
+      });
+
+      setFileimg(files);
+      setTotalSize(_totalSize);
+  };
+
+  const onTemplateUpload = (e: any) => {
+      let _totalSize = 0;
+
+      e.files.forEach((file: any) => {
+          _totalSize += file.size || 0;
+      });
+
+      setTotalSize(_totalSize);
+  };
+
+  const onTemplateRemove = (file: any, callback: any) => {
+      setTotalSize(totalSize - file.size);
+      callback();
+  };
+
+  const onTemplateClear = () => {
+      setTotalSize(0);
+  };
+
+  const headerTemplate = (options: any) => {
+      const { className, chooseButton, uploadButton, cancelButton } = options;
+      const value = totalSize / 10000;
+      const formatedValue = fileUploadRef && fileUploadRef.current ? fileUploadRef.current?.formatSize(totalSize) : '0 B';
+
+      return (
+          <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
+              {chooseButton}
+              {uploadButton}
+              {cancelButton}
+              <div className="flex align-items-center gap-3 ml-auto">
+                  <span>{formatedValue} / 1 MB</span>
+                  <ProgressBar value={value} showValue={false} style={{ width: '10rem', height: '12px' }}></ProgressBar>
+              </div>
+          </div>
+      );
+  };
+
+  const itemTemplate = (file: any, props: any) => {
+      return (
+          <div className="flex align-items-center flex-wrap">
+              <div className="flex align-items-center" style={{ width: '40%' }}>
+                  <img alt={file.name} role="presentation" src={file.objectURL} width={100} />
+                  <span className="flex flex-column text-left ml-3">
+                      {file.name}
+                      <small>{new Date().toLocaleDateString()}</small>
+                  </span>
+              </div>
+              <Tag value={props.formatSize} severity="warning" className="px-3 py-2" />
+              <Button type="button" icon="pi pi-times" className="p-button-outlined p-button-rounded p-button-danger ml-auto" onClick={() => onTemplateRemove(file, props.onRemove)} />
+          </div>
+      );
+  };
+
+  const emptyTemplate = () => {
+      return (
+          <div className="flex align-items-center flex-column">
+              <i className="pi pi-image mt-3 p-5" style={{ fontSize: '5em', borderRadius: '50%', backgroundColor: 'var(--surface-b)', color: 'var(--surface-d)' }}></i>
+              <span style={{ fontSize: '1.2em', color: 'var(--text-color-secondary)' }} className="my-5">
+                  Drag and Drop Image Here
+              </span>
+          </div>
+      );
+  };
+
+  const cardFooter = (step: StepsDTO, index: number) => (
+    <>
+      <Button
+        label="Actiivites"
+        icon="pi pi-check"
+        size="small"
+      />
+
+      <Button
+        label="remove"
+        size="small"
+        severity="secondary"
+        icon="pi pi-times"
+        onClick={() => { setSteps(steps.filter((_, i) => i !== index)); }}
+        style={{ marginLeft: '0.5em' }}
+      />
+    </>
+  );
+
+  const customizedMarker = (item: StepsDTO) => {
+    return (
+        <span className="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1 shadow-1" style={{ backgroundColor: '#673AB7' }}>
+            <i className={`pi pi-cog`}></i>
+        </span>
+    );
+  };
+
+  const customizedContent = (step: StepsDTO) => {
+    const index = steps?.findIndex((_step: StepsDTO) => _step?.name === step?.name);
+    return (
+        <Card
+          subTitle={
+            <>
+              <p>Departure Time: {new Date(step?.departureTime).toLocaleString()}</p>
+              <b>Step Count: {step?.stepCount}</b>
+            </>
+          }
+          title={step?.name}
+          key={index}
+          footer={() => cardFooter(step, index)}
+        >
+          <p>{step?.description}</p>
+          <p>City: {cities.find((cit:any) => cit.id === step?.cityId)?.name}</p>
+          <p>Has New Place: {step?.hasNewPlace ? 'Yes' : 'No'}</p>
+          {step?.hasNewPlace && <p>New Place Name: {step?.newPlaceName}</p>}
+          <p>Arrival Time: {new Date(step?.arrivalTime).toLocaleString()}</p>
+        </Card>
+    );
+  };
 
   return (
     <div className="container mx-auto px-12">
@@ -408,24 +510,23 @@ const FormUseType = () => {
               <div className="md:col-12 lg:col-12">
                 <label htmlFor="Wallet">Service Image</label>
                 <FileUpload
-                  name="images"
+                  ref={fileUploadRef}
+                  name="images[]"
+                  multiple
                   accept="image/*"
-                  onSelect={handleImgChange}
-                  emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
-                  chooseOptions={{
-                    icon: "pi pi-fw pi-images",
-                    iconOnly: true,
-                    className: "custom-choose-btn p-button-rounded p-button-outlined",
-                  }}
+                  maxFileSize={1000000}
+                  onUpload={onTemplateUpload}
+                  onSelect={onTemplateSelect}
+                  onError={onTemplateClear}
+                  onClear={onTemplateClear}
+                  headerTemplate={headerTemplate}
+                  itemTemplate={itemTemplate}
+                  emptyTemplate={emptyTemplate}
+                  chooseOptions={chooseOptions}
+                  cancelOptions={cancelOptions}
                   uploadOptions={{ style: { display: 'none' } }}
-                  cancelOptions={{
-                    icon: "pi pi-fw pi-times",
-                    iconOnly: true,
-                    className: "custom-cancel-btn p-button-danger p-button-rounded p-button-outlined",
-                  }}
-                  customUpload
-                  uploadHandler={() => ImageServiceform.handleSubmit()} />
-                  {renderError(Serviceform.errors.images)}
+                />
+                {renderError(Serviceform.errors.images)}
               </div>
             </div>
           </Fieldset>
@@ -537,7 +638,6 @@ const FormUseType = () => {
 
               <div className="md:col-12 lg:col-12">
                 <GoogleMap
-                  markerData={markerData}
                   country={
                     (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
                       ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
@@ -636,12 +736,13 @@ const FormUseType = () => {
                   {renderError(Serviceform.errors.currencyId)}
               </div>
 
-              <div className="md:col-6 lg:col-6">
-                <label htmlFor="Wallet">Tax Included</label>
+              <div className="md:col-6 lg:col-6 flex justify-content-start align-items-center">
+                <label htmlFor="Wallet mx-2">Tax Included</label>
                 <InputSwitch
+                  className="mx-2"
                   autoFocus={focusedField === 'isTaxIncluded'}
                   onInput={() => handleInputFocus('isTaxIncluded')}
-                  checked={Serviceform.values.isTaxIncluded ?? false}
+                  checked={Serviceform.values.isTaxIncluded}
                   onChange={(e) => Serviceform.setFieldValue('isTaxInclude', e.value)}
                 />
               </div>
@@ -715,14 +816,35 @@ const FormUseType = () => {
                 </div>
 
                 <div className="md:col-12 lg:col-12">
-                  <Timeline
-                    value={events}
-                    opposite={(item) => <span><i className={`mx-2 ${item.icon}`}></i>{item.status}</span>}
-                    content={(item) => <small className="text-color-secondary">{item.date}</small>}
-                  />
+                  {steps && steps.length > 0 ? (
+                    <Timeline
+                      value={steps}
+                      align="alternate"
+                      className="customized-timeline"
+                      marker={customizedMarker}
+                      content={customizedContent}
+                    />
+
+                    // steps.map((step, index) => (
+                    //   <div className="md:col-4 lg:col-4">
+                    //     <Card title={step?.name} key={index} footer={() => cardFooter(step, index)}>
+                          // <p>{step?.description}</p>
+                          // <p>City: {cities.find((cit:any) => cit.id === step?.cityId).name}</p>
+                          // <p>Step Count: {step?.stepCount}</p>
+                          // <p>Place ID: {step?.placeId}</p>
+                          // <p>Has New Place: {step?.hasNewPlace ? 'Yes' : 'No'}</p>
+                          // {step?.hasNewPlace && <p>New Place Name: {step?.newPlaceName}</p>}
+                          // <p>Arrival Time: {new Date(step.arrivalTime).toLocaleString()}</p>
+                          // <p>Departure Time: {new Date(step.departureTime).toLocaleString()}</p>
+                    //     </Card>
+                    //   </div>
+                    // ))
+                  ) : (
+                    <div className="text-center">No steps available</div>
+                  )}
                 </div>
               </div>
-          </Fieldset>
+            </Fieldset>
           ) : null}
 
 
@@ -739,46 +861,209 @@ const FormUseType = () => {
       <Dialog
         header="Add Step"
         visible={showSteps}
-        style={{ minWidth: '40%', minHeight: '40%' }}
+        style={{ width: "50vw", minWidth: '50vw' }}
         footer={<div>
-          {/* <Button label="Save" size="small" severity="warning" outlined onClick={() => FacilityForm.handleSubmit()} className="mt-4"></Button> */}
+         <Button
+            label="Add"
+            size="small"
+            severity="info"
+            outlined
+            onClick={() => {
+              setSteps(prevState => [ ...prevState, {
+                  name: stepsDelagData?.name,
+                  description: stepsDelagData?.description,
+                  cityId: stepsDelagData?.cityId,
+                  stepCount: stepsDelagData?.stepCount,
+                  placeId: stepsDelagData?.placeId,
+                  serviceId: 0,
+                  hasNewPlace: stepsDelagData?.newPlaceName ? true : false,
+                  newPlaceName: stepsDelagData?.newPlaceName,
+                  arrivalTime: stepsDelagData?.arrivalTime,
+                  departureTime: stepsDelagData?.departureTime,
+                }
+              ]);
+
+              setStepsDelagData(null);
+              setShowSteps(false);
+            }}
+            className="mt-4"
+          ></Button>
           <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowSteps(false)} className="mt-4"></Button>
         </div>}
         onHide={() => setShowSteps(false)}
       >
+        <div className="grid grid-cols-12">
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Status">Name</label>
+            <InputText
+              placeholder="Step name"
+              name="stepName"
+              className="w-full"
+              autoFocus={focusedField === 'stepName'}
+              onInput={() => handleInputFocus('stepName')}
+              value={stepsDelagData?.name}
+              onChange={(e) => setStepsDelagData({...stepsDelagData, name: e.target.value})}
+            />
+          </div>
 
-        <div className="md:col-6 lg:col-6">
-          <label className="mb-2" htmlFor="">{" "}Place Name{" "}</label>
-          <Dropdown
-            placeholder="Select a Place"
-            options={[...places, { id: 'other', name: 'other', desciption: 'other'}]}
-            optionLabel="name"
-            optionValue="id"
-            name="placeId"
-            filter
-            className="w-full"
-            tooltip={"If you don't find the place you're looking for, you can add a new place by selecting 'Other'."}
-            tooltipOptions={{ event: 'both', position: 'left', showDelay: 100 }}
-            value={Serviceform.values.steps?.placeId ?? otherPlace?.value}
-            onChange={(e) => handlePlaceChange(e)} />
-            {renderError(Serviceform.errors.placeId)}
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Status">Description</label>
+            <InputTextarea
+              placeholder="step description"
+              rows={5}
+              cols={30}
+              name="stepDescription"
+              className="w-full"
+              autoFocus={focusedField === 'stepsDescription'}
+              onInput={() => handleInputFocus('stepsDescription')}
+              value={stepsDelagData?.description}
+              onChange={(e) => setStepsDelagData({...stepsDelagData, description: e.target.value})}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Country">Country</label>
+            <Dropdown
+              placeholder="Select a Country"
+              options={countries}
+              optionLabel="name"
+              optionValue="id"
+              name="countryId"
+              filter
+              className="mt-2	w-full"
+              value={stepsDelagData?.countryId}
+              onChange={async (e) => {
+                try {
+                  await GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
+                  setStepsDelagData({...stepsDelagData, countryId: e.value})
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Provinces">Provinces</label>
+            <Dropdown
+              placeholder="Select a Provincy"
+              options={provinces}
+              optionLabel="name"
+              optionValue="id"
+              name="provincyId"
+              filter
+              className="mt-2	w-full"
+              value={stepsDelagData?.provincyId}
+              onChange={async (e) => {
+                try {
+                  await GetCitiesbyid(e.value).then((res) => setCities(res.data));
+                  setStepsDelagData({...stepsDelagData, provincyId: e.value})
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="City">City</label>
+            <Dropdown
+              placeholder="Select a City"
+              options={cities}
+              optionLabel="name"
+              optionValue="id"
+              name="cityId"
+              filter
+              className="w-full"
+              value={stepsDelagData?.cityId}
+              onChange={async (e) => {
+                try {
+                 await GetPlacesbyid(e.value).then((res) => setPlaces(res.data) );
+                  setStepsDelagData({...stepsDelagData, cityId: e.value})
+                } catch (error) {
+                  console.error(error);
+                }
+              }}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <InputNumber
+              placeholder="Step Count"
+              name="stepCount"
+              className="w-full"
+              step={1}
+              min={1}
+              showButtons
+              value={stepsDelagData?.stepCount}
+              onChange={(e) => setStepsDelagData({...stepsDelagData, stepCount: e.value})}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <Calendar
+              name="departureTime"
+              className='departureTime w-full'
+              placeholder='Departure Time'
+              value={stepsDelagData?.departureTime}
+              onChange={(e) => setStepsDelagData({...stepsDelagData, departureTime: e.value})}
+              showIcon={true}
+              showTime
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <Calendar
+              name="arrivalTime"
+              className='arrivalTime w-full'
+              placeholder='Arrival Time'
+              value={stepsDelagData?.arrivalTime}
+              onChange={(e) => setStepsDelagData({...stepsDelagData, arrivalTime: e.value})}
+              showIcon={true}
+              showTime
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Place">Place Name</label>
+            <Dropdown
+              placeholder="Select a Place"
+              options={[...places, { id: 'other', name: 'other', desciption: 'other'}]}
+              optionLabel="name"
+              optionValue="id"
+              name="placeId"
+              filter
+              className="w-full"
+              tooltip={"If you don't find the place you're looking for, you can add a new place by selecting 'Other'."}
+              tooltipOptions={{ event: 'both', position: 'left', showDelay: 100 }}
+              value={stepsDelagData?.placeId}
+              onChange={(e) => {
+                if(e.target.value === 'other') {
+                  setOtherPlace(e.target)
+                  setshowPlace(true)
+                } else {
+                  setStepsDelagData({...stepsDelagData, placeId: e.value})
+                  GetResidencebyCottages(e.value).then((res) => setResidence(res.data));
+                }
+              }}
+            />
+              {renderError(Serviceform.errors.placeId)}
+          </div>
         </div>
-
       </Dialog>
 
       <Dialog header={"Add Place"} visible={showPlace} className="md:w-40rem lg:w-40rem" onHide={() => setshowPlace(false)}>
         <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="Status">{" "}New Place Name{" "}</label>
+          <label className="mb-2" htmlFor="Status">New Place Name</label>
           <InputText
             placeholder="New Place"
-            name="rentalPlaceName"
+            name="newPlaceName"
             className="w-full"
-            autoFocus={focusedField === 'rentalPlaceName'}
-            onInput={() => handleInputFocus('rentalPlaceName')}
-            value={Serviceform.values.steps?.newPLaceName}
-            onChange={(e) => Serviceform.setFieldValue('newPLaceName', e.target.value)}
+            autoFocus={focusedField === 'newPlaceName'}
+            onInput={() => handleInputFocus('newPlaceName')}
+            value={stepsDelagData?.newPlaceName}
+            onChange={(e) => setStepsDelagData({...stepsDelagData, newPlaceName: e.target.value})}
           />
-            {/* {renderError(Serviceform.errors.newPLaceName)} */}
         </div>
 
         <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => setshowPlace(false)} />

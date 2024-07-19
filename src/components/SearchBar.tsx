@@ -8,12 +8,11 @@ import { Calendar } from 'primereact/calendar';
 import { AutoComplete } from 'primereact/autocomplete';
 import { MultiSelect } from 'primereact/multiselect';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { QueryFilter } from '../modules/getrip.modules';
 import { InputNumber } from 'primereact/inputnumber';
 import { Menu } from 'primereact/menu';
 import { Dropdown } from 'primereact/dropdown';
-import { DataType } from '../enums';
+import { ProviderHandleCurrandLocation } from '../Services/providerRequests';
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
@@ -64,30 +63,29 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
   const handleCurrandLocation = async ({latitude, longitude}: any) => {
     try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`
-      );
+      ProviderHandleCurrandLocation(latitude, longitude)
+      .then((res) => {
+        if (res?.data.status === 'OK') {
+          const results = res?.data.results;
+          let country = '';
+          let province = '';
 
-      if (response.data.status === 'OK') {
-        const results = response.data.results;
-        let country = '';
-        let province = '';
+          for (const component of results[0].address_components) {
+            if (component.types.includes('country')) {
+              country = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_1')) {
+              province = component.long_name.replace(/Governorate|state/g, '').trim();
+            }
+          }
 
-        for (const component of results[0].address_components) {
-          if (component.types.includes('country')) {
-            country = component.long_name;
-          }
-          if (component.types.includes('administrative_area_level_1')) {
-            province = component.long_name.replace(/Governorate|state/g, '').trim();
-          }
+          setSelectedLocation({name: `${country}, ${province}`});
+          onLocationSelect({lat: latitude, lng: longitude, country, province });
+          setKeySearch(province);
+        } else {
+          console.error('Geocoding API error: ', res?.data.status);
         }
-
-        setSelectedLocation({name: `${country}, ${province}`});
-        onLocationSelect({lat: latitude, lng: longitude, country, province });
-        setKeySearch(province);
-      } else {
-        console.error('Geocoding API error: ', response.data.status);
-      }
+      });
     } catch (error) {
       console.error('Error fetching geocoding data: ', error);
     }

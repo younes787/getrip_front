@@ -21,6 +21,7 @@ import { Checkbox } from "primereact/checkbox";
 import { Card } from "primereact/card";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Badge } from "primereact/badge";
+import { DataType } from "../enums";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
@@ -545,7 +546,7 @@ const NavBar = () => {
               className="hover:text-blue-400"
               onClick={() => {
                 dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
-                navigate(`/service-details/${service.id}`);
+                navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`);
               }}
               style={{ cursor: 'pointer' }}
             >

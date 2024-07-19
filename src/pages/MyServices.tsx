@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
+import { DataType } from "../enums";
 
 const MyServices = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any);
@@ -95,7 +96,7 @@ const MyServices = () => {
                       }}
                       aria-label="Filter"
                       size="small"
-                      onClick={() => navigate(`/service-details/${service.id}`)}
+                      onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`)}
                     >
                       Show details
                     </Button>

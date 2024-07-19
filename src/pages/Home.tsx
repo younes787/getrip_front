@@ -21,6 +21,7 @@ import SearchBar from "../components/SearchBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
 import { LocationFromSearch, QueryFilter } from "../modules/getrip.modules";
+import { DataType } from "../enums";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -153,7 +154,7 @@ const Home = () => {
                 }}
                 aria-label="Filter"
                 size="small"
-                onClick={() => navigate(`/service-details/${service.id}`)}
+                onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`)}
               >
                 Show details
               </Button>
@@ -230,17 +231,9 @@ const Home = () => {
           <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
           <div className="md:w-9 lg:w-9 m-auto">
             <SearchBar
-              onLocationSelect={(location: LocationFromSearch) => { setSelectedLocationFromSearch(location) }}
-              onSelectFilterData={(_filterData: QueryFilter) => {
-                setSelectFilterData(_filterData);
-              }}
-              SearchBarStyle={{
-                width: '100%',
-                border: '1px solid #ddd',
-                backgroundColor: '#fff',
-                padding: '15px 10px',
-                borderRadius: '2px'
-              }}
+              onLocationSelect={(location: LocationFromSearch) =>  setSelectedLocationFromSearch(location)}
+              onSelectFilterData={(_filterData: QueryFilter) => setSelectFilterData(_filterData)}
+              SearchBarStyle={{width: '100%', border: '1px solid #ddd', backgroundColor: '#fff', padding: '15px 10px', borderRadius: '2px'}}
             />
           </div>
         </div>

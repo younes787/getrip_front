@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
-import axios from 'axios';
 import { InputText } from 'primereact/inputtext';
 import { LocationFromMap } from '../modules/getrip.modules';
+import { ProviderFetchLocationInfo, ProviderHandleMarkerHover, ProviderHandleSearch, ProviderInitializeMapCenter } from '../Services/providerRequests';
 
 interface MarkerProps {
   lat: number;
@@ -43,19 +43,17 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
   useEffect(() => {
     const initializeMapCenter = async () => {
       if (country || province || city) {
-        try {
-          const location = `${city ? city + ', ' : ''}${province ? province + ', ' : ''}${country || ''}`;
-          const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
-          const results = response.data.results;
+        const location = `${city ? city + ', ' : ''}${province ? province + ', ' : ''}${country || ''}`;
+        ProviderInitializeMapCenter(location)
+        .then((res) => {
+          const results = res?.data.results;
           if (results.length > 0) {
             const { lat, lng } = results[0].geometry.location;
             setSelectedLocation({ lat, lng });
             setMapCenter({ lat: lat, lng: lng });
             fetchLocationInfo(lat, lng);
           }
-        } catch (error) {
-          console.error('Error initializing map center:', error);
-        }
+        });
       } else if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const { latitude, longitude } = position.coords;
@@ -84,24 +82,27 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const fetchLocationInfo = async (lat: number, lng: number) => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
-      const results = response.data.results;
-      if (results.length > 0) {
-        const locationDetails = results[0].formatted_address;
-        setSearchQuery(locationDetails)
+      ProviderFetchLocationInfo(lat, lng)
+      .then((res) => {
+        const results = res?.data.results;
+        if (results.length > 0) {
+          const locationDetails = results[0].formatted_address;
+          setSearchQuery(locationDetails)
 
-        setLocationInfo(`Location: ${locationDetails}`);
-        setSelectedLocation({ lat, lng });
-        setMapCenter({ lat: lat, lng: lng });
-        if(onLocationSelect) {
-          onLocationSelect({ lat, lng, address: results });
+          setLocationInfo(`Location: ${locationDetails}`);
+          setSelectedLocation({ lat, lng });
+          setMapCenter({ lat: lat, lng: lng });
+          if(onLocationSelect) {
+            onLocationSelect({ lat, lng, address: results });
+          }
+        } else {
+          setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
+          if(onLocationSelect) {
+            onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
+          }
         }
-      } else {
-        setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
-        if(onLocationSelect) {
-          onLocationSelect({ lat, lng, address: `Latitude: ${lat}, Longitude: ${lng}` });
-        }
-      }
+      });
+
     } catch (error) {
       console.error('Error fetching location info:', error);
       setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
@@ -113,15 +114,17 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const handleMarkerHover = async (lat: number, lng: number) => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
-      const results = response.data.results;
-      if (results.length > 0) {
-        const locationDetails = results[0].formatted_address;
-        setMapCenter({ lat: lat, lng: lng });
-        setHoverInfo(`Location: ${locationDetails}`);
-      } else {
-        setHoverInfo(`Latitude: ${lat}, Longitude: ${lng}`);
-      }
+      ProviderHandleMarkerHover(lat, lng)
+      .then((res) => {
+        const results = res?.data.results;
+        if (results.length > 0) {
+          const locationDetails = results[0].formatted_address;
+          setMapCenter({ lat: lat, lng: lng });
+          setHoverInfo(`Location: ${locationDetails}`);
+        } else {
+          setHoverInfo(`Latitude: ${lat}, Longitude: ${lng}`);
+        }
+      });
     } catch (error) {
       console.error('Error fetching location info:', error);
       setHoverInfo(`Latitude: ${lat}, Longitude: ${lng}`);
@@ -130,16 +133,18 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
-      const results = response.data.results;
-      if (results.length > 0) {
-        const { lat, lng } = results[0].geometry.location;
-        setMapCenter({ lat, lng });
-        setSelectedLocation({ lat, lng });
-        fetchLocationInfo(lat, lng);
-      } else {
-        console.error('Location not found');
-      }
+      ProviderHandleSearch(searchQuery)
+      .then((res) => {
+        const results = res?.data.results;
+        if (results.length > 0) {
+          const { lat, lng } = results[0].geometry.location;
+          setMapCenter({ lat, lng });
+          setSelectedLocation({ lat, lng });
+          fetchLocationInfo(lat, lng);
+        } else {
+          console.error('Location not found');
+        }
+      });
     } catch (error) {
       console.error('Error searching location:', error);
     }

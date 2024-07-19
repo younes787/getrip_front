@@ -5,7 +5,7 @@ import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocation, faArrowUpShortWide, faForward, faBackward, faDatabase } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "primereact/checkbox";
-import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetPaginatedServices, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
+import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetNearByRestaurants, GetPaginatedServices, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
 import ServiceCard from "../components/ServiceCard";
 import { Rating } from "primereact/rating";
 import { Dropdown } from "primereact/dropdown";
@@ -13,9 +13,9 @@ import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
 import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, Service, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
-import axios from 'axios';
 import { mapHotelData, mapFlightData, mapRestaurantData, mapServiceData } from "../utils/mapData";
 import { DataType } from "../enums";
+import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -69,43 +69,6 @@ const SearchAndFilter = () => {
       };
     });
   };
-
-  const fetchNearbyPlaces = async (latitude: number, longitude: number, radius = 5000, type = 'restaurant|cafe') => {
-    try {
-      return await axios.get(`http://127.0.0.1:8000/api/v1/retailers/near_place`, {
-        params: {
-          latitude: latitude,
-          longitude: longitude,
-          radius: radius,
-          type: type,
-          nextPageToken: nextPageToken,
-        }
-      });
-    } catch (error) {
-      console.error('Error get Near by Places location: restaurant|cafe ', error);
-    }
-  }
-
-  const fetchProvider = async (persistenceUrl: string, Query: any) => {
-    try {
-      const tokenResponse = await axios.post(`http://service.stage.paximum.com/v2/api/authenticationservice/login`, {
-        Agency: "PXM25730",
-        User: "USR1",
-        Password: "Admin01."
-      });
-
-      const token = tokenResponse.data.body.token;
-      const response = await axios.post(`http://service.stage.paximum.com/v2/api/${persistenceUrl}`, Query, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      return response;
-    } catch (error) {
-      console.error('Error Get Hotel ', error);
-    }
-  }
 
   useEffect(() => {
     setLoading(true);
@@ -302,72 +265,6 @@ const SearchAndFilter = () => {
       }
     };
 
-    const handleHotels = async () => {
-      if (guests) addQueryPart('guests', guests.toString() ?? '1');
-
-      const persistenceUrl = 'productservice/getarrivalautocomplete';
-      const Query = {
-        ProductType: 2,
-        Query: 'antal',
-        Culture: 'en-US',
-      };
-
-     return await fetchProvider(persistenceUrl, Query);
-    };
-
-    const handleFlights = async () => {
-      if (departureDate) addQueryPart('departure_date', formatDate(departureDate));
-      if (arrivalCity) addQueryPart('arrival_city', arrivalCity);
-      if (departureCity) addQueryPart('departure_city', departureCity);
-      if (returnDate) addQueryPart('return_date', formatDate(returnDate));
-      if (flightServiceType) addQueryPart('flight_service_type', formatDate(flightServiceType));
-
-      const persistenceUrl = 'productservice/getdepartureautocomplete';
-
-      const Query = {
-        ProductType: 3,
-        Query: address.name.name ?? address.name,
-        ServiceType: flightServiceType,
-        DepartureLocations: [{
-            Id: departureCity,
-            Type: 5
-        }],
-        ArrivalLocations: [{
-            Id: arrivalCity,
-            Type: 5
-        }],
-        Culture: 'en-US',
-      };
-
-      return await fetchProvider(persistenceUrl, Query);
-    };
-
-    const handleRestaurants = async () => {
-      if (selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
-        return await fetchNearbyPlaces(selectedLocationFromSearch.lat, selectedLocationFromSearch.lng);
-      }
-    };
-
-    const handleServices = async () => {
-      if (address?.name) addQueryPart('address', address.name.name ?? address.name);
-      if (startDate) addQueryPart('start_date', formatDate(startDate));
-      if (endDate) addQueryPart('end_date', formatDate(endDate));
-      if (selectdTab) addQueryPart('tab', selectdTab.children[1]);
-      if (selectedFields?.length) {
-        addQueryPart('fields', selectedFields.map((field: any) => field.id));
-      }
-      if (sidebarFilter) {
-        Object.keys(sidebarFilter).forEach((key) => {
-          addQueryPart(
-            `sidebar_filter[${key}]`,
-            sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => (key === 'rating' ? item.label.props.stars : item.id)) || []
-          );
-        });
-      }
-
-      return await GetPaginatedServices(pageNumber, pageSize, queryParts.join('&'));
-    };
-
     if (selectdTab) {
       setFoundLenght(0);
       setHotels([]);
@@ -375,41 +272,110 @@ const SearchAndFilter = () => {
       setRestaurants([]);
       setServices([]);
 
-      let data: any;
       switch (selectdTab.children[1]) {
         case DataType.Hotel:
         case 'Hotels':
-          data = await handleHotels();
-          setCardType(DataType.Hotel);
-          setFoundLenght(data.data.body.items.length);
-          setHotels(mapHotelData(data));
+          if (guests) addQueryPart('guests', guests.toString() ?? '1');
+          const HotelsPersistenceUrl = 'productservice/getarrivalautocomplete';
+          const HotelsQuery = {
+            ProductType: 2,
+            Query: typeof address?.name === 'string' ? address?.name : address?.name?.countryName,
+            Culture: 'en-US',
+          };
+
+          ProviderAuthenticationservice()
+          .then((res) => {
+            ProviderServiceTourVisio(HotelsPersistenceUrl, HotelsQuery, res)
+            .then((resPro) => {
+              if(resPro?.data?.body?.items) {
+                setCardType(DataType.Hotel);
+                setFoundLenght(resPro?.data?.body?.items.length);
+                setHotels(mapHotelData(resPro));
+              }
+            });
+          });
           break;
         case  DataType.Flight:
         case 'Flight':
-          data = await handleFlights();
-          setCardType(DataType.Flight);
-          setFoundLenght(data.data.body.items.length);
-          setFlights(mapFlightData(data));
+          if (departureDate) addQueryPart('departure_date', formatDate(departureDate));
+          if (arrivalCity) addQueryPart('arrival_city', arrivalCity);
+          if (departureCity) addQueryPart('departure_city', departureCity);
+          if (returnDate) addQueryPart('return_date', formatDate(returnDate));
+          if (flightServiceType) addQueryPart('flight_service_type', formatDate(flightServiceType));
+
+          const FlightPersistenceUrl = 'productservice/getdepartureautocomplete';
+          const FlightQuery = {
+            ProductType: 3,
+            Query: typeof address?.name === 'string' ? address?.name : address?.name?.countryName,
+            ServiceType: flightServiceType,
+            DepartureLocations: [{
+                Id: departureCity,
+                Type: 5
+            }],
+            ArrivalLocations: [{
+                Id: arrivalCity,
+                Type: 5
+            }],
+            Culture: 'en-US',
+          };
+
+          ProviderAuthenticationservice()
+          .then((res) => {
+            ProviderServiceTourVisio(FlightPersistenceUrl, FlightQuery, res)
+            .then((resPro) => {
+              if(resPro?.data?.body?.items) {
+                setCardType(DataType.Flight);
+                setFoundLenght(resPro?.data?.body?.items.length);
+                setFlights(mapFlightData(resPro));
+              }
+            });
+          });
           break;
         case  DataType.Restaurant:
         case 'Restaurants':
-          data = await handleRestaurants();
-          setCardType(DataType.Restaurant);
+          if (selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
+            let query = `?latitude=${selectedLocationFromSearch.lat}&longitude=${selectedLocationFromSearch.lng}&radius=5000&type=restaurant|cafe`;
 
-          if(data.data.next_page_token) {
-            setNextPageToken(data.data.next_page_token);
-          } else {
-            setNextPageToken(null);
+            if (nextPageToken) { query += `&nextPageToken=${nextPageToken}`; }
+
+            GetNearByRestaurants(query)
+            .then((resRes) => {
+              if(resRes.data.next_page_token) {
+                setNextPageToken(resRes.data.next_page_token);
+              } else {
+                setNextPageToken(null);
+              }
+              setCardType(DataType.Restaurant);
+              setFoundLenght(resRes.data.results.length);
+              setRestaurants(mapRestaurantData(resRes));
+            });
           }
-
-          setFoundLenght(data.data.results.length);
-          setRestaurants(mapRestaurantData(data));
           break;
         default: // case  DataType.Service:
-          data = await handleServices();
-          setCardType(DataType.Service);
-          setFoundLenght(data.data?.totalItems);
-          setServices(mapServiceData(data));
+          if (address?.name) addQueryPart('address', address.name.name ?? address.name);
+          if (startDate) addQueryPart('start_date', formatDate(startDate));
+          if (endDate) addQueryPart('end_date', formatDate(endDate));
+          if (selectdTab) addQueryPart('tab', selectdTab.children[1]);
+
+          if (selectedFields?.length) {
+            addQueryPart('fields', selectedFields.map((field: any) => field.id));
+          }
+
+          if (sidebarFilter) {
+            Object.keys(sidebarFilter).forEach((key) => {
+              addQueryPart(
+                `sidebar_filter[${key}]`,
+                sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => (key === 'rating' ? item.label.props.stars : item.id)) || []
+              );
+            });
+          }
+
+          GetPaginatedServices(pageNumber, pageSize, queryParts.join('&'))
+          .then((resSer) => {
+            setCardType(DataType.Service);
+            setFoundLenght(resSer.data?.totalItems);
+            setServices(mapServiceData(resSer));
+          });
           break;
       }
     }
@@ -424,18 +390,9 @@ const SearchAndFilter = () => {
      { loading ? <LoadingComponent/> : <div className="m-auto">
         <div id="image-container-filter-result" className="flex align-items-center section-one-search-and-filter">
           <SearchBar
-            onLocationSelect={(location: LocationFromSearch) => { setSelectedLocationFromSearch(location) }}
-            onSelectFilterData={(_filterData: QueryFilter) => {
-              setSelectFilterData(_filterData);
-            }}
-            SearchBarStyle={{
-              width: '100%',
-              border: '1px solid #ddd',
-              backgroundColor: '#fff',
-              padding: '15px 10px',
-              margin: '10px 0',
-              borderRadius: '2px'
-            }}
+            onLocationSelect={(location: LocationFromSearch) => setSelectedLocationFromSearch(location) }
+            onSelectFilterData={(_filterData: QueryFilter) =>  setSelectFilterData(_filterData) }
+            SearchBarStyle={{width: '100%',border: '1px solid #ddd',backgroundColor: '#fff',padding: '15px 10px',margin: '10px 0',borderRadius: '2px'}}
           />
         </div>
 

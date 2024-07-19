@@ -936,6 +936,15 @@ export const GetRejectedUsers = async () => {
   }
 };
 
+export const GetNearByRestaurants = async (data: any) => {
+  try {
+    const response = await api.get(`/getnearbyrestaurants${data}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export const GetRejectedServices = async () => {
   try {
     const response = await api.get(`/getrejectedservices`);

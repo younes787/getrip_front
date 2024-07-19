@@ -85,7 +85,7 @@ const Layout = () => {
             <Route path="/stat-of-users" element={<StatOfUsers />} />
             <Route path="/stat-of-services" element={<StatOfServices />} />
             <Route path="/user-details/:accountId" element={<UserDetails />} />
-            <Route path="/service-details/:serviceId" element={<ServiceDetailsPage />} />
+            <Route path="/service-details/:serviceType/:serviceId" element={<ServiceDetailsPage />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
@@ -96,7 +96,7 @@ const Layout = () => {
         ) : (
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/service-details/:serviceId" element={<ServiceDetailsPage />} />
+            <Route path="/service-details/:serviceType/:serviceId" element={<ServiceDetailsPage />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
           </>
         )}

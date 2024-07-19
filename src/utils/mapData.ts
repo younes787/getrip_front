@@ -2,7 +2,7 @@ import { Hotel, Flight, Restaurant, Service } from "../modules/getrip.modules";
 
 
 export const mapHotelData = (data: any): Hotel[] => {
-  return data.data.body.items
+  return data?.data?.body?.items
     .filter((item: any) => item.hotel)
     .map((item: any) => ({
       type: item.type,
@@ -17,7 +17,7 @@ export const mapHotelData = (data: any): Hotel[] => {
 };
 
 export const mapFlightData = (data: any): Flight[] => {
-  return data.data.body.items.map((item: any) => ({
+  return data?.data?.body?.items.map((item: any) => ({
     type: item.type,
     geolocation: item.geolocation,
     city: item.city,
@@ -29,7 +29,7 @@ export const mapFlightData = (data: any): Flight[] => {
 };
 
 export const mapRestaurantData = (data: any): Restaurant[] => {
-  return data.data.results.map((item: any) => ({
+  return data?.data?.results.map((item: any) => ({
     business_status: item.business_status,
     geometry: item.geometry,
     icon: item.icon,
@@ -48,7 +48,7 @@ export const mapRestaurantData = (data: any): Restaurant[] => {
 };
 
 export const mapServiceData = (data: any): Service[] => {
-  return data.data.items.map((item: any) => ({
+  return data?.data?.items.map((item: any) => ({
     id: item.id,
     name: item.name,
     description: item.description,
