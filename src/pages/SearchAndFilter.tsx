@@ -19,6 +19,7 @@ import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Serv
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [cardTypeLoading, setCardTypeLoading] = useState<boolean>(false);
   const [foundLenght, setFoundLenght] = useState<number>(0);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
@@ -272,6 +273,8 @@ const SearchAndFilter = () => {
       setRestaurants([]);
       setServices([]);
 
+      setCardTypeLoading(true);
+
       switch (selectdTab.children[1]) {
         case DataType.Hotel:
         case 'Hotels':
@@ -287,7 +290,50 @@ const SearchAndFilter = () => {
           .then((res) => {
             ProviderServiceTourVisio(HotelsPersistenceUrl, HotelsQuery, res)
             .then((resPro) => {
+              setCardTypeLoading(false);
               if(resPro?.data?.body?.items) {
+
+                console.log(resPro?.data);
+
+                // ProviderServiceTourVisio(
+                //   'productservice/pricesearch', {
+                //     checkAllotment: true,
+                //     checkStopSale: true,
+                //     getOnlyDiscountedPrice: false,
+                //     getOnlyBestOffers:  true,
+                //     productType: 2,
+                //     arrivalLocations: [
+                //         {
+                //           id: resProductInfo?.city?.id,
+                //           type: 2
+                //       }
+                //     ],
+                //     roomCriteria: [
+                //       {
+                //           adult: 2,
+                //           childAges: [
+                //             2,
+                //             5
+                //           ]
+                //       },
+                //       {
+                //           adult: 1,
+                //           childAges: [
+                //             3
+                //           ]
+                //       }
+                //     ],
+                //     nationality: "DE",
+                //     checkIn: new Date(),
+                //     night: 7,
+                //     currency: "EUR",
+                //     culture: "en-US"
+                //   }, token
+                // )
+                // .then((resPriceSearch: any) => {
+                //   console.log(resPriceSearch, 'resPriceSearch');
+                // });
+
                 setCardType(DataType.Hotel);
                 setFoundLenght(resPro?.data?.body?.items.length);
                 setHotels(mapHotelData(resPro));
@@ -323,6 +369,7 @@ const SearchAndFilter = () => {
           .then((res) => {
             ProviderServiceTourVisio(FlightPersistenceUrl, FlightQuery, res)
             .then((resPro) => {
+              setCardTypeLoading(false);
               if(resPro?.data?.body?.items) {
                 setCardType(DataType.Flight);
                 setFoundLenght(resPro?.data?.body?.items.length);
@@ -340,6 +387,7 @@ const SearchAndFilter = () => {
 
             GetNearByRestaurants(query)
             .then((resRes) => {
+              setCardTypeLoading(false);
               if(resRes.data.next_page_token) {
                 setNextPageToken(resRes.data.next_page_token);
               } else {
@@ -372,6 +420,7 @@ const SearchAndFilter = () => {
 
           GetPaginatedServices(pageNumber, pageSize, queryParts.join('&'))
           .then((resSer) => {
+            setCardTypeLoading(false);
             setCardType(DataType.Service);
             setFoundLenght(resSer.data?.totalItems);
             setServices(mapServiceData(resSer));
@@ -529,12 +578,14 @@ const SearchAndFilter = () => {
                   />
                 ))
               ) : (<>
+              {cardTypeLoading ?
                 <p className="text-center text-red-500 text-lg italic p-5 relative">
                   <div className="spinner mx-2" style={{ width: '80px', height: '80px'}}></div>
                   <div className="absolute" style={{top: '50%', left: '50%', transform: 'translate(-17px, -23px)'}}>
                     <FontAwesomeIcon className="mr-2" style={{color: '#4a235a', fontSize: '2.5rem'}} icon={faDatabase} />
                   </div>
                 </p>
+              : <span>no data </span>}
               </>)}
 
               { cardType === DataType.Hotel && hotels.length > 0 ? (
