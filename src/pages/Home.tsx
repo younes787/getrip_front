@@ -225,7 +225,7 @@ const Home = () => {
   }
 
   return (<>
-    <div className="container mx-8 overflow-hidden">
+    <div className="container md:mx-4 sm:mx-2 lg:mx-8 overflow-hidden">
       <div id="image-container-home">
         <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
           <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>

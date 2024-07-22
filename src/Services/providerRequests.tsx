@@ -1,7 +1,5 @@
 import axios from "axios";
 
-
-
 export const ProviderHandleCurrandLocation = async (latitude: number, longitude: number) => {
   try {
     return await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
@@ -44,7 +42,7 @@ export const ProviderHandleSearch = async (searchQuery: any) => {
 
 export const ProviderAuthenticationservice = async () => {
   try {
-    const tokenResponse = await axios.post(`https://service.paximum.com/v2/api/authenticationservice/login`, {
+    const tokenResponse = await axios.post(`http://service.stage.paximum.com/v2/api/authenticationservice/login`, {
       Agency: "PXM25730",
       User: "USR1",
       Password: "Admin01."
@@ -58,7 +56,7 @@ export const ProviderAuthenticationservice = async () => {
 
 export const ProviderServiceTourVisio = async (persistenceUrl: string, Query: any, token: string) => {
   try {
-    const response = await axios.post(`https://service.paximum.com/v2/api/${persistenceUrl}`, Query, {
+    const response = await axios.post(`http://service.stage.paximum.com/v2/api/${persistenceUrl}`, Query, {
       headers: {
         Authorization: `Bearer ${token}`
       }

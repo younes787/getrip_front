@@ -34,6 +34,7 @@ import UserDetails from "../pages/UserDetails";
 import ServiceDetailsPage from "../pages/ServiceDetailsPage";
 import SearchAndFilter from "../pages/SearchAndFilter";
 import OrderHistory from "../pages/OrderHistory";
+import HomePageContent from "../pages/HomePageContent";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -78,6 +79,7 @@ const Layout = () => {
                 <Route path="/residence-type" element={<ResidenceType />} />
                 <Route path="/residence" element={<Residence />} />
                 <Route path="/currency" element={<Payment />} />
+                <Route path="/home-page-content" element={<HomePageContent />} />
               </Route>
             )}
 

@@ -38,6 +38,10 @@ const SideBar = () => {
           <i className="pi pi-wallet mr-3" style={{ fontSize: "1.3rem" }}></i>Manage Currency
         </MenuItem>
 
+        <MenuItem onClick={() => navigate("/home-page-content")}>
+          <i className="pi pi-home mr-3" style={{ fontSize: "1.3rem" }}></i>Manage Home Page Content
+        </MenuItem>
+
         <SubMenu label={
             <div>
               <i className="pi pi-globe  mr-3" style={{ fontSize: "1.3rem" }}></i>Logistics

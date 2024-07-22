@@ -22,10 +22,10 @@ interface SearchBarProps {
 
 const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect, onSelectFilterData }) => {
   const today = new Date();
-  const startDate = new Date();
-  startDate.setDate(today.getDate() - 30);
+  const minSelectableDate = new Date(today);
+  minSelectableDate.setDate(today.getDate() + 10);
+  const [date, setDate] = useState<any>([today, minSelectableDate]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [date, setDate] = useState<any>([startDate, today]);
   const [serviceTypeQuery, setServiceTypeQuery] = useState<any[]>([]);
   const [addressData, setAddressData] = useState<{
     countryId: number,
@@ -49,6 +49,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [focusedField, setFocusedField] = useState<any>('');
   const [provinces, setProvinces] = useState<any>();
   const [flightServiceType, setFlightServiceType] = useState<any>();
+  const [numVisible, setNumVisible] = useState(6);
   const [serviceType, setServiceType] = useState([
     { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
   ]);
@@ -165,6 +166,23 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       console.error(error);
     });
   }, [keySearch]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        setNumVisible(2);
+      } else {
+        setNumVisible(6);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const search = (event: any) => {
     setTimeout(() => {
@@ -406,6 +424,34 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     ];
   };
 
+  const responsiveOptions = [
+    {
+      breakpoint: '1700px',
+      numVisible: 6,
+      numScroll: 2
+    },
+    {
+      breakpoint: '1500px',
+      numVisible: 5,
+      numScroll: 2
+    },
+    {
+      breakpoint: '1200px',
+      numVisible: 4,
+      numScroll: 2
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2,
+      numScroll: 1
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1,
+      numScroll: 1
+    }
+  ];
+
   return (
     <div style={SearchBarStyle}>
       <Carousel
@@ -413,14 +459,15 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         value={serviceType}
         showIndicators={false}
         showNavigators={true}
-        numVisible={6}
+        numVisible={numVisible}
         numScroll={1}
+        responsiveOptions={responsiveOptions}
         itemTemplate={titleTemplate}
       />
 
       <div className="search__bar">
-        <form className="grid w-full">
-          <div className="form__group">
+        <form className="grid w-full grid grid-cols-12">
+          <div className="form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4">
             <FontAwesomeIcon icon={faMapMarkerAlt} size={"sm"} className="fa mr-2" />
             <AutoComplete
               className='failds'
@@ -439,7 +486,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             />
           </div>
 
-          <div className="form__group">
+          <div className="form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4">
             <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} className="fa mr-2" />
             <Calendar
               className='failds'
@@ -449,10 +496,11 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
               onChange={(e) => setDate(e.value)}
               numberOfMonths={2}
               selectionMode="range"
+              minDate={today}
             />
           </div>
 
-          <div className="form__group">
+          <div className="form__group sm:col-12 md:col-12 lg:col-4">
             <div className="flex justify-content-center align-items-center w-full">
               <div className="w-full mx-3 relative">
                 <Menu

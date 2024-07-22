@@ -449,7 +449,7 @@ const FormUseType = () => {
   };
 
   return (
-    <div className="container mx-auto px-12">
+    <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>
         <div className="grid grid-cols-12 mt-3 mb-5">
           <div className="back md:col-1 lg:col-1 flex justify-content-start align-items-center">

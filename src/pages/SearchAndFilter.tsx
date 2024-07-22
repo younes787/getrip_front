@@ -435,7 +435,7 @@ const SearchAndFilter = () => {
   }, [pageNumber, pageSize, selectFilterData]);
 
   return (<>
-    <div className="container mx-auto px-12 search-and-filter">
+    <div className="container mx-auto search-and-filter">
      { loading ? <LoadingComponent/> : <div className="m-auto">
         <div id="image-container-filter-result" className="flex align-items-center section-one-search-and-filter">
           <SearchBar

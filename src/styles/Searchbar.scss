@@ -22,8 +22,10 @@ $black: #3c3c3c;
   color: #2c2c2c;
   padding: 0 10px;
   text-align: center;
-  width: calc(100% / 3);
+  // width: calc(100% / 3);
   overflow: hidden;
+  border-left: none;
+  border-color: #ddd;
 }
 
 .form__group>.search__icon {
@@ -92,7 +94,7 @@ $black: #3c3c3c;
 }
 
 .form__group:not(:last-child) {
-  border-right: 2px solid #ddd;
+  // border-right: 2px solid #ddd;
 }
 
 .rat-icon-filter {
@@ -122,13 +124,13 @@ $black: #3c3c3c;
    }
 
    .search__bar form .form__group {
-      width: 48%;
+      // width: 48%;
    }
 }
 
 @media only screen and (max-width:576px) {
    .search__bar form .form__group {
-      width: 100%;
+      // width: 100%;
    }
 
    .form__group input {

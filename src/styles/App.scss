@@ -213,14 +213,19 @@ html body {
 }
 
 .service-card {
+  position: relative;
   background-color: $primary_color;
   box-shadow: 3px 3px 3px rgb(194, 194, 194);
   color: white;
   border-radius: 10px;
   transition: width 0.3s, height 0.3s;
+  max-height: 350px;
+  min-height: 350px;
+  overflow: hidden;
+
   .p-card-content {
-    height: 150px;
-    min-height: 150px;
+    // height: 150px;
+    // min-height: 150px;
   }
   &.add-new {
     .p-card-content {
@@ -234,6 +239,11 @@ html body {
         font-weight: 900;
       }
     }
+  }
+  .p-card-footer {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
   }
 }
 
@@ -575,5 +585,39 @@ html body {
   .sidebar-total-fees {
     margin-top: 25px;
     border-top: 1px solid #ccccccbd;
+  }
+}
+
+@media screen and (max-width: 960px) {
+  .p-menubar .p-menubar-button {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .search-and-filter, .form-user-type {
+    padding-left: 10rem;
+    padding-right: 10rem;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .search-and-filter, .form-user-type {
+    padding-left: 5rem;
+    padding-right: 5rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .search-and-filter, .form-user-type {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media screen and (max-width: 560px) {
+  .search-and-filter, .form-user-type {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }

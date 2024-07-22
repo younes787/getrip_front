@@ -1,5 +1,6 @@
 import axios from "axios";
 import { handleResponse, handleError } from "./handleResponse";
+import { ImageToRowDTO } from "../modules/getrip.modules";
 
 const getToken = () => {
   return typeof window !== "undefined" && window.localStorage ? localStorage.getItem("token") : "";
@@ -994,6 +995,33 @@ export const RejectService = async (data: any) => {
   try {
     const response = await api.post("/rejectservice", data);
     return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddHomePageRow = async (data: any) => {
+  try {
+    const response = await api.post("/addhomepagerow", data);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddImageTorRow = async (data: ImageToRowDTO | ImageToRowDTO[]) => {
+  try {
+    const response = await api.post("/addimagetorrow", data);
+    return handleResponse(response , 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetHomePageRows = async () => {
+  try {
+    const response = await api.get(`/gethomepagerows`);
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }

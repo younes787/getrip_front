@@ -68,6 +68,7 @@ export class ServicesTypeDTO {
   id?: number = 0;
   name: string = '';
   description: string = '';
+  icon: string = '';
   isRental: boolean = false;
   isTrip: boolean = false;
   isResidence: boolean = false;
@@ -101,7 +102,8 @@ export class CitiesDTO {
 export class ProvincesDTO {
   id?: number = 0;
   name: string = '';
-  countryId?:number;}
+  countryId?:number;
+}
 
 export class EditProvincesDTO {
   id?: number = 0;
@@ -201,12 +203,14 @@ export class CurrencyDTO{
   apiUrl?:string='';
   apiKey?:string='';
 }
+
 export class FildsDTO{
   id?: number = 0;
   value: any = '';
   serviceTypeFieldId: number = 0;
   serviceId: number = 0;
 }
+
 export class StepsDTO{
   id?: number = 0;
   name: string = '';
@@ -222,6 +226,28 @@ export class StepsDTO{
   countryId?: number = 0;
   provincyId?: number = 0;
 }
+
+export class HomePageRowDTO{
+  pageId?: number = 0;
+  title: string = '';
+  description: string = '';
+  placement: number = 0;
+  columnsCount: number = 0;
+  itemsCount: number = 0;
+  isSlider: boolean = false;
+  isService: boolean = false;
+  filterByProvinceId: boolean = false;
+  filterByCityId: boolean = false;
+  isPlace: boolean = false;
+  isActivity: boolean = false;
+  isAd: boolean = false;
+  isOnlyImage: boolean = false;
+  serviceTypeId: number = 0;
+  cityId: number = 0;
+  provinceId: number = 0;
+  isBanner: boolean = false;
+}
+
 export class stepsActivitiesDTO{
   id?: number = 0;
   newActivityName: string = '';
@@ -229,15 +255,23 @@ export class stepsActivitiesDTO{
   activityId: number = 0;
   hasNewActivity : boolean = true;
 }
+
+export class ImageToRowDTO{
+  ObjectId: number = 0;
+  file: string | any = null;
+}
+
 export class placeNewActivitiesDTO{
   pLaceId?: number = 0;
   name: string = '';
 }
+
 export class TagsDTO{
   id?: number = 0;
   name: any = '';
   serviceId: number = 0;
 }
+
 export class ServiceFacilitiesDTO{
   serviceTypeFacilityId: number = 0;
   name?: string = '';
@@ -245,6 +279,7 @@ export class ServiceFacilitiesDTO{
   isPrimary: boolean = false;
   isAdditionalCharges: boolean = false;
 }
+
 export interface Address {
   lat?: number;
   lng?: number;
@@ -253,6 +288,7 @@ export interface Address {
   city?: string;
   description?: string;
 }
+
 export interface SidebarFilter {
   residence: any[];
   residence_type: any[];
@@ -281,12 +317,14 @@ export interface LocationFromMap {
   lng: number;
   address: any
 }
+
 export interface LocationFromSearch {
   lat: number;
   lng: number;
   country: string;
   province: string
 }
+
 export class ServiceDTO{
   id?: number = 0;
   name: string = '';
@@ -346,6 +384,7 @@ export interface Service {
   ratingAverage: number;
   image: string;
 }
+
 export interface Hotel {
   type: number;
   geolocation: {
@@ -373,6 +412,7 @@ export interface Hotel {
   provider: number;
   image: string;
 }
+
 export interface Flight {
   type: number;
   geolocation: {
@@ -391,6 +431,7 @@ export interface Flight {
   provider: number;
   image: string;
 }
+
 export interface Restaurant {
   business_status: string;
   geometry: {

@@ -16,6 +16,9 @@ import { Checkbox } from "primereact/checkbox";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { useNavigate } from "react-router-dom";
 import { SpeedDial } from "primereact/speeddial";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Dropdown } from "primereact/dropdown";
 
 interface RadioOptionPrimary {
   title: string,
@@ -45,6 +48,7 @@ const Services = () => {
   const [facilityCategories, setFacilityCategories] = useState<any>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [selectedAssignFaciliesToServiceType, setSelectedAssignFaciliesToServiceType] = useState<any[]>([]);
+  const [icons, setIcons] = useState<any>([]);
   const navigate = useNavigate();
 
   const radioOptionsPrimary: RadioOptionPrimary[] = [
@@ -121,7 +125,23 @@ const Services = () => {
 
     GetResidenceType().then((res) => setResidenceType(res.data));
     GetAllVehiclesTypes().then((res)=> setVehicleType(res.data));
+
+    const _icons = Object.keys(fas).map(iconName =>  ({
+      name: iconName,
+      icon: fas[iconName]
+    }));
+
+    setIcons(_icons);
   }, []);
+
+  const iconOption = (option: any) => {
+    return (
+      <div className="flex align-items-center">
+        <FontAwesomeIcon icon={option.icon} className="mr-2" />
+        <span>{option.name}</span>
+      </div>
+    );
+  };
 
   const ServicesForm = useFormik<ServicesTypeDTO>({
     initialValues: new ServicesTypeDTO(),
@@ -198,6 +218,7 @@ const Services = () => {
       name: serviceType.name,
       isRental: serviceType.isRental,
       isTrip: serviceType.isTrip,
+      icon: serviceType.icon,
       isResidence: serviceType.isResidence,
       isVehicle: serviceType.isVehicle,
       isCruise: serviceType.isCruise,
@@ -351,8 +372,7 @@ const Services = () => {
         <ServicePricingtype id={currentServiceId}/>
       </Dialog>
 
-      <Dialog
-        header="Add New Service Type"
+      <Dialog header="Add New Service Type"
         visible={showServicesForm}
         className="md:w-50 lg:w-50"
         style={{ maxWidth: '800px' }}
@@ -377,6 +397,7 @@ const Services = () => {
               onChange={(e) => ServicesForm.setFieldValue("name", e.target.value)}
             />
           </div>
+
           <div className="md:col-12 lg:col-6">
             <label htmlFor="description" className="block mb-2">Description</label>
             <InputText
@@ -387,6 +408,21 @@ const Services = () => {
               onChange={(e) => ServicesForm.setFieldValue("description", e.target.value)}
             />
           </div>
+
+          <div className="md:col-12 lg:col-6">
+            <Dropdown
+              value={ServicesForm.values.icon}
+              onChange={(e) => ServicesForm.setFieldValue("icon", e.value)}
+              options={icons}
+              optionLabel="name"
+              placeholder="Select an Icon"
+              filter
+              valueTemplate={ServicesForm.values.icon && iconOption(ServicesForm.values.icon)}
+              itemTemplate={iconOption}
+              className="w-full"
+            />
+          </div>
+
           <div className="md:col-12 lg:col-6">
             <h3>Select an Option</h3>
             {radioOptionsPrimary.map((radioOption) => (
@@ -406,6 +442,7 @@ const Services = () => {
               </div>
             ))}
           </div>
+
           {selectedRadioOptionsPrimary && selectedRadioOptionsPrimary.value !== 'isOther' && (
             <div className="md:col-12 lg:col-6">
               <h3>Select a Secondary Option</h3>
@@ -467,8 +504,7 @@ const Services = () => {
         </div>
       </Dialog>
 
-      <Dialog
-        header="Edit Service Type"
+      <Dialog header="Edit Service Type"
         visible={showServicesFormUpdate}
         className="md:w-50 lg:w-50"
         style={{ maxWidth: '800px' }}
@@ -491,6 +527,7 @@ const Services = () => {
               onChange={(e) => ServicesFormUpdate.setFieldValue("name", e.target.value)}
             />
           </div>
+
           <div className="md:col-12 lg:col-6">
             <label htmlFor="description" className="block mb-2">Description</label>
             <InputText
@@ -501,6 +538,21 @@ const Services = () => {
               onChange={(e) => ServicesFormUpdate.setFieldValue("description", e.target.value)}
             />
           </div>
+
+          <div className="md:col-12 lg:col-6">
+            <Dropdown
+              value={ServicesFormUpdate.values.icon}
+              onChange={(e) => ServicesFormUpdate.setFieldValue("icon", e.value)}
+              options={icons}
+              optionLabel="name"
+              placeholder="Select an Icon"
+              filter
+              valueTemplate={ServicesFormUpdate.values.icon && iconOption(ServicesFormUpdate.values.icon)}
+              itemTemplate={iconOption}
+              className="w-full"
+            />
+          </div>
+
           <div className="md:col-12 lg:col-6">
             <h3>Select an Option</h3>
             {radioOptionsPrimary.map((radioOption) => (
@@ -520,6 +572,7 @@ const Services = () => {
               </div>
             ))}
           </div>
+
           {selectedRadioOptionsPrimary && selectedRadioOptionsPrimary.value !== 'isOther' && (
             <div className="md:col-12 lg:col-6">
               <h3>Select a Secondary Option</h3>
@@ -581,8 +634,7 @@ const Services = () => {
         </div>
       </Dialog>
 
-      <Dialog
-        header="Add Facilities"
+      <Dialog header="Add Facilities"
         visible={showFacilities}
         className=""
         onHide={() => setShowFacilities(false)}

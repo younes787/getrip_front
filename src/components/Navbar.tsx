@@ -1,6 +1,6 @@
 import { Menubar } from "primereact/menubar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faServer, faUsers} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBell, faServer, faUsers} from "@fortawesome/free-solid-svg-icons";
 import { Menu } from "primereact/menu";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { Button } from "primereact/button";
@@ -53,6 +53,8 @@ const NavBar = () => {
   const [currentUserId, setCurrentUserId] = useState<any>(null);
   const [currentServiceId, setCurrentServiceId] = useState<any>(null);
   const [headerRejectionReason, setHeaderRejectionReason] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleRejectClick = (id: number, fromUser: boolean = true) => {
     if(fromUser) {
@@ -373,14 +375,46 @@ const NavBar = () => {
     );
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
+  };
+
+  const MenuItems = () => (
+    <>
+      <Button label="Explore" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button label="EN. $" icon="pi pi-fw pi-globe" className="border-none primary bg-transparent outline-0 shadow-none" onClick={() => setshowSelectLang(true)}/>
+    </>
+  );
+
   const end = (
     <div className="flex align-items-center gap-2 mr-7">
 
-    <div className="menu-items mr-7">
-      <Button label="Expolre" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
-      <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
-      <Button label="EN. $" icon={'pi pi-fw pi-globe'} className="border-none primary bg-transparent outline-0 shadow-none" onClick={() => setshowSelectLang(true)}/>
-    </div>
+      {isMobile ? (
+        <Button
+          icon={<FontAwesomeIcon icon={faBars} />}
+          onClick={toggleMobileMenu}
+          className="p-button-text"
+          style={{color: '#000'}}
+        />
+      ) : (
+        <div className="menu-items mr-7 flex">
+          <MenuItems />
+        </div>
+      )}
 
       {user?.isSuccess === true ?
         <></> :
@@ -1163,15 +1197,25 @@ const NavBar = () => {
       </div>
 
       {loading ? <LoadingComponent/> :
-        <Menubar
-          start={
-            <span className="text-2xl get-rp cursor-pointer" style={{marginLeft:'100px'}} onClick={() => navigate('/')}>
-                Ge<span className="secondery">t</span>rip
-            </span>
-          }
-          end={end}
-          className="navbar"
-        />
+        <>
+          <Menubar
+            start={
+              <span className="text-2xl get-rp cursor-pointer" style={{marginLeft:'100px'}} onClick={() => navigate('/')}>
+                  Ge<span className="secondery">t</span>rip
+              </span>
+            }
+            end={end}
+            className="navbar"
+          />
+          {isMobile && showMobileMenu && (
+            <div className="mobile-menu p-3 bg-white shadow-2">
+              <MenuItems />
+              {!user?.isSuccess && (
+                <Button rounded label="Become Our Partner" outlined className="outline_btn mt-2 w-full" onClick={() => setShowSignPartner(true)}/>
+              )}
+            </div>
+          )}
+        </>
       }
     </div>
   );
