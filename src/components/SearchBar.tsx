@@ -13,6 +13,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Menu } from 'primereact/menu';
 import { Dropdown } from 'primereact/dropdown';
 import { ProviderHandleCurrandLocation } from '../Services/providerRequests';
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
@@ -106,7 +107,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       setServiceTypeQuery(res.data);
 
       const serviceTypes = res.data.map((service: any) => ({
-        header: <span><FontAwesomeIcon icon={faHandPointUp} size={"sm"} className="mr-2" />{service.name}</span>
+        header: <span><FontAwesomeIcon icon={fas[service.iconCode] ?? faHandPointUp} size={"sm"} className="mr-2" />{service.name}</span>
       }));
 
       setServiceType(prevTabs => [...prevTabs, ...serviceTypes]);

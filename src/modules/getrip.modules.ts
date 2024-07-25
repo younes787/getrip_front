@@ -68,7 +68,7 @@ export class ServicesTypeDTO {
   id?: number = 0;
   name: string = '';
   description: string = '';
-  icon: string = '';
+  iconCode: string = '';
   isRental: boolean = false;
   isTrip: boolean = false;
   isResidence: boolean = false;

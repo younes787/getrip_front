@@ -218,7 +218,7 @@ const Services = () => {
       name: serviceType.name,
       isRental: serviceType.isRental,
       isTrip: serviceType.isTrip,
-      icon: serviceType.icon,
+      iconCode: serviceType.iconCode,
       isResidence: serviceType.isResidence,
       isVehicle: serviceType.isVehicle,
       isCruise: serviceType.isCruise,
@@ -411,13 +411,13 @@ const Services = () => {
 
           <div className="md:col-12 lg:col-6">
             <Dropdown
-              value={ServicesForm.values.icon}
-              onChange={(e) => ServicesForm.setFieldValue("icon", e.value)}
+              value={ServicesForm.values.iconCode}
+              onChange={(e) => ServicesForm.setFieldValue("iconCode", e.value.name)}
               options={icons}
               optionLabel="name"
               placeholder="Select an Icon"
               filter
-              valueTemplate={ServicesForm.values.icon && iconOption(ServicesForm.values.icon)}
+              valueTemplate={ServicesForm.values.iconCode && iconOption(ServicesForm.values.iconCode)}
               itemTemplate={iconOption}
               className="w-full"
             />
@@ -541,13 +541,13 @@ const Services = () => {
 
           <div className="md:col-12 lg:col-6">
             <Dropdown
-              value={ServicesFormUpdate.values.icon}
-              onChange={(e) => ServicesFormUpdate.setFieldValue("icon", e.value)}
+              value={ServicesFormUpdate.values.iconCode}
+              onChange={(e) => ServicesFormUpdate.setFieldValue("iconCode", e.value.name)}
               options={icons}
               optionLabel="name"
               placeholder="Select an Icon"
               filter
-              valueTemplate={ServicesFormUpdate.values.icon && iconOption(ServicesFormUpdate.values.icon)}
+              valueTemplate={ServicesFormUpdate.values.iconCode && iconOption(ServicesFormUpdate.values.iconCode)}
               itemTemplate={iconOption}
               className="w-full"
             />
