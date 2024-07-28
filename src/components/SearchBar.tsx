@@ -1,12 +1,11 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faFireAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
+import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GetProvimcesByName, GetServiceTypes, GetFeildsbysid, GetProvincebyCid } from '../Services';
+import { GetProvimcesByName, GetServiceTypes, GetProvincebyCid } from '../Services';
 import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { Calendar } from 'primereact/calendar';
 import { AutoComplete } from 'primereact/autocomplete';
-import { MultiSelect } from 'primereact/multiselect';
 import { useNavigate } from 'react-router-dom';
 import { QueryFilter } from '../modules/getrip.modules';
 import { InputNumber } from 'primereact/inputnumber';
@@ -17,7 +16,7 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
-  onLocationSelect: (location: {lat: number; lng: number; country: string; province: string}) => void;
+  onLocationSelect: (location: {lat: number; lng: number; country: string; province: string, moreData?: any}) => void;
   onSelectFilterData: (_filterData: QueryFilter) => void;
 }
 
@@ -27,7 +26,6 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   minSelectableDate.setDate(today.getDate() + 10);
   const [date, setDate] = useState<any>([today, minSelectableDate]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [serviceTypeQuery, setServiceTypeQuery] = useState<any[]>([]);
   const [addressData, setAddressData] = useState<{
     countryId: number,
     countryName: string,
@@ -35,12 +33,11 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     provinceId: number,
     provinceName: string,
   }[]>([]);
-  const [selectedFields, setSelectedFields] = useState([]);
-  const [fields, setFields] = useState<any>();
   const [keySearch, setKeySearch] = useState<string>('A');
   const [selectedLocation, setSelectedLocation] = useState<{ name: string }>({ name: '' });
   const [filteredQuery, setFilteredQuery] = useState<any>(null);
   const [guests, setGuests] = useState<any>(1);
+  const [children, setChildren] = useState<any>(1);
   const [departureCity, setDepartureCity] = useState<any>(null);
   const [arrivalCity, setArrivalCity] = useState<any>(null);
   const [departureDate, setDepartureDate] = useState<any>(null);
@@ -104,8 +101,6 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
   useEffect(() => {
     GetServiceTypes().then((res) => {
-      setServiceTypeQuery(res.data);
-
       const serviceTypes = res.data.map((service: any) => ({
         header: <span><FontAwesomeIcon icon={fas[service.iconCode] ?? faHandPointUp} size={"sm"} className="mr-2" />{service.name}</span>
       }));
@@ -127,28 +122,20 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   }, []);
 
   useEffect(() => {
-    if(!['Search All', 'Hotels', 'Restaurants', 'Flight'].includes(serviceType[activeIndex].header.props.children[1])) {
-      const serviceTypeId = serviceTypeQuery.find((s: any) => s.name === serviceType[activeIndex].header.props.children[1])?.id
-      if(serviceTypeId) {
-        GetFeildsbysid(serviceTypeId).then((res) => setFields(res.data));
-      }
-    }
-
     onSelectFilterData({
       selectdTab: serviceType[activeIndex].header.props ?? null,
       address: selectedLocation ?? null,
       startDate: date[0] ?? null,
       endDate: date[1] ?? null,
-      selectedFields: selectedFields ?? null,
       guests: guests ?? null,
+      children: children ?? null,
       departureCity: departureCity ?? null,
       arrivalCity: arrivalCity ?? null,
       departureDate: departureDate ?? null,
       returnDate: returnDate ?? null,
       flightServiceType: flightServiceType ?? null,
     });
-
-  }, [selectedFields, selectedLocation, date,  activeIndex, guests, arrivalCity, departureDate, departureCity, returnDate, flightServiceType]);
+  }, [selectedLocation, date,  activeIndex, guests, children, arrivalCity, departureDate, departureCity, returnDate, flightServiceType]);
 
   useEffect(() => {
     GetProvimcesByName(keySearch).then((res) => {
@@ -207,9 +194,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       <button
         className={`px-3 py-2 p-link ${activeIndex === index ? 'active-tab' : ''}`}
         style={{ width: 'max-content', fontSize: '18px', fontWeight: '500', color: '#4a235a'}}
-        onClick={() => {
-          setActiveIndex(index)
-        }}
+        onClick={() => setActiveIndex(index)}
       >
         {item.header}
       </button>
@@ -223,6 +208,16 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       setGuests(value);
     } else {
       setGuests(1);
+    }
+  };
+
+  const handleChildrenChange = (e: any) => {
+    const value = e.value;
+
+    if (value && value > 0) {
+      setChildren(value);
+    } else {
+      setChildren(1);
     }
   };
 
@@ -247,15 +242,15 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
       </div>
     );
 
-    if (serviceTypeName === 'Hotels') {
+    if (!['Restaurants', 'Flight'].includes(serviceTypeName)) {
       return [
         {
-          label: 'Guests',
+          label: 'Fields',
           template: () => (
             <>
-              <div className="gus" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+              <div className="gus m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
-                <span className='mx-2'>Guests</span>
+                <span className='mx-2' style={{width: '100px'}}>Guests</span>
                 <InputNumber
                   inputId="guests"
                   value={guests}
@@ -264,35 +259,29 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   buttonLayout="horizontal"
                   step={1}
                   min={1}
+                  inputClassName="input-template"
                   decrementButtonClassName="p-button-secondery"
                   incrementButtonClassName="p-button-secondery"
                   incrementButtonIcon="pi pi-plus"
                   decrementButtonIcon="pi pi-minus"
                 />
               </div>
-              {commonCloseButton}
-            </>
-          )
-        }
-      ];
-    } else if (!['Search All', 'Hotels', 'Restaurants', 'Flight'].includes(serviceTypeName)) {
-      return [
-        {
-          label: 'Fields',
-          template: () => (
-            <>
-              <div className='p-2' style={{display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: '10px', border: '.2rem solid #f1881f'}}>
-                <FontAwesomeIcon icon={faFireAlt} size={"sm"} className="fa mr-2" />
-                <MultiSelect
-                  className='fields'
-                  style={{ width: '100%', minWidth: '250px', border: 0 }}
-                  value={selectedFields}
-                  onChange={(e) => setSelectedFields(e.value)}
-                  options={fields}
-                  optionLabel="name"
-                  display="chip"
-                  placeholder="Select Fields"
-                  maxSelectedLabels={10}
+              <div className="chi m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
+                <span className='mx-2' style={{width: '100px'}}>children's</span>
+                <InputNumber
+                  inputId="childrens"
+                  value={children}
+                  onValueChange={handleChildrenChange}
+                  showButtons
+                  buttonLayout="horizontal"
+                  step={1}
+                  min={1}
+                  inputClassName="input-template"
+                  decrementButtonClassName="p-button-secondery"
+                  incrementButtonClassName="p-button-secondery"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
                 />
               </div>
               {commonCloseButton}
@@ -414,7 +403,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
     return [
       {
-        label: 'Departure City',
+        label: 'No Filter',
         template: () => (
           <>
             <div className='text-center p-button p-component p-button-outlined p-button-danger' style={{ padding: '10px 70px'}}>No Filter Found</div>
@@ -481,7 +470,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
               suggestions={filteredQuery}
               completeMethod={search}
               onChange={(e) => {
-                onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '' });
+                onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '', moreData: e.value });
                 setSelectedLocation({name: e.value});
               }}
             />

@@ -1,42 +1,73 @@
 import { Button } from "primereact/button";
-import imageCardCarouselOne from "../Assets/b.png";
-import imageCardCarouselTow from "../Assets/3.png";
-import icon1 from "../Assets/car.png";
-import icon2 from "../Assets/gps.png";
-import icon3 from "../Assets/limousine.png";
-import icon4 from "../Assets/fi.png";
-import nature1 from "../Assets/n1.png";
-import nature2 from "../Assets/n2.png";
-import nature3 from "../Assets/n3.png";
-import nature4 from "../Assets/n4.png";
 import "../styles/home.scss";
 import "../styles/Searchbar.scss";
 import { Image } from "primereact/image";
 import { Card } from "primereact/card";
 import { useEffect, useState } from "react";
-import { GetAllCountries, GetAllLanguages, GetAllServices, GetCurrency, Getlogged } from "../Services";
+import { GetAllCountries, GetAllLanguages, GetAllProvinces, GetCurrency, GetHomePageRows, Getlogged } from "../Services";
 import { Carousel } from "primereact/carousel";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
-import { LocationFromSearch, QueryFilter } from "../modules/getrip.modules";
+import { faDatabase, faMapLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
+import { HomePageRowDTO, LocationFromSearch, QueryFilter } from "../modules/getrip.modules";
 import { DataType } from "../enums";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
-  const [services, setServices] = useState<any>();
   const [country, setCountry] = useState<any>();
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const navigate = useNavigate();
+  const [provinces, setProvinces] = useState<any>();
+
+  const [homePageRows, setHomePageRows] = useState<HomePageRowDTO[]>([]);
   const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
+  const { t } = useTranslation();
+
+  const findProvince = (provinces: any[], selectedProvince?: string, provinceId?: number) => {
+    if(selectedProvince) {
+      const searchProvinceLower = selectedProvince.substring(0, 8).toLowerCase();
+      return provinces.find((province) => {
+        const provinceNameLower = province.name.toLowerCase();
+        return (
+          provinceNameLower.substring(0, 4) === searchProvinceLower.substring(0, 4) ||
+          provinceNameLower.substring(0, 5) === searchProvinceLower.substring(0, 5)
+        );
+      });
+    } else {
+      return provinces.find((province) => province.id === provinceId);
+    }
+  };
 
   useEffect(() => {
-    const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
+    const { province, moreData } = selectedLocationFromSearch || {};
 
-    GetAllServices().then((res)=> setServices(res?.data));
+    if(moreData && moreData.provinceId) {
+      GetHomePageRows(moreData.provinceId).then((res) => {
+        setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+      });
+    } else if(province) {
+      console.log(province);
+
+      GetAllProvinces().then((res) => {
+        const foundProvince = province ? findProvince(res.data, province) : null;
+
+        if(foundProvince && foundProvince.id) {
+          GetHomePageRows(foundProvince.id).then((res) => {
+            setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+          });
+        }
+      });
+    } else {
+      GetHomePageRows().then((res) => {
+        setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+      });
+    }
+
+    const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
 
     GetAllLanguages().then((res)=> {
       const foundLanguage = res.data.find((_language: any) => language && _language.id === language);
@@ -58,65 +89,49 @@ const Home = () => {
     }
   },[]);
 
-  const opportunities = [
-    {
-      title: "Drive Around Istanbul",
-      subTitle: "Rent a car for easy exploration and flexibility during your trip",
-      header: <Image src={icon1} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
-    },
-    {
-      title: "Discover Dining Spots",
-      subTitle: "Find the best restaurants and cafés for delightful experiences",
-      header: <Image src={icon2} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
-    },
-    {
-      title: "Luxury Airport Transfer",
-      subTitle: "Exclusive transportation from the airport to your destination",
-      header: <Image src={icon3} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
-    },
-    {
-      title: "Plan Your Trip",
-      subTitle: "Browse hotels and plan your Istanbul itinerary hassle-free",
-      header: <Image src={icon4} alt={'Card'} style={{ width: "30%", paddingTop: "40px", paddingLeft: "20px" }} imageStyle={{ width: '30%', height: '30%'}} />
-    }
-  ];
+  const Footer = () => {
+    return (
+      <footer className="footer grid grid-cols-12 mt-5">
+        <div className="footer-top md:col-3 lg:col-3">
+          <div className="location">
+            {country?.name} · {language?.name} ({language?.shortcut}) · {currency?.name}
+          </div>
+        </div>
 
-  const reconnects = [
-    {
-      title: "Belgrad Forest",
-      subTitle: "Northern Istanbul",
-      header: <Image src={nature1} alt={'Card'} />,
-      description: "Lush woodland for tranquil walks and picnics."
-    },
-    {
-      title: "Polonezköy Nature Park",
-      subTitle: "Eastern Istanbul",
-      header: <Image src={nature2} alt={'Card'} />,
-      description: "Forested area with hiking trails and horseback riding."
-    },
-    {
-      title: "Yoros Castle and Anadolu Kavağı",
-      subTitle: "Northern Istanbul, the Asian side",
-      header: <Image src={nature3} alt={'Card'} />,
-      description: "Historic castle ruins with coastal walks and seafood dining."
-    },
-    {
-      title: "Atatürk Arboretum",
-      subTitle: "Western Istanbul, in Sarıyer district",
-      header: <Image src={nature4} alt={'Card'} />,
-      description: "Botanical garden with diverse plant species for leisurely strolls."
-    }
-  ];
+        <div className="footer-middle md:col-9 lg:col-9">
+          <div className="footer-column md:col-3 lg:col-3">
+            <a href="#">Help</a>
+            <a href="#">Privacy Settings</a>
+            <a href="#">Log in</a>
+          </div>
 
-  const images = [
-    imageCardCarouselOne,
-    imageCardCarouselTow,
-    imageCardCarouselOne,
-    imageCardCarouselTow
-  ];
+          <div className="footer-column md:col-3 lg:col-3">
+            <a href="#">Cookie policy</a>
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of service</a>
+            <a href="#">Company Details</a>
+          </div>
+
+          <div className="footer-column md:col-3 lg:col-3">
+            <a href="#">Explore</a>
+            <a href="#">Company</a>
+            <a href="#">Partners</a>
+            <a href="#">Trips</a>
+            <a href="#">International Sites</a>
+          </div>
+        </div>
+
+        <div className="footer-bottom md:col-12 lg:col-12">
+          Compare and book cheap flights with  Ge<span className="secondery">t</span>rip
+          <br />
+          ©  Ge<span className="secondery">t</span>rip Ltd 2024 – 2024
+        </div>
+      </footer>
+    );
+  };
 
   const renderImage = (image: string) => {
-    return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '100%'}} />;
+    return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '400px'}} />;
   };
 
   const renderServices = (service: any) => {
@@ -161,68 +176,67 @@ const Home = () => {
             </Card>;
   };
 
-  const renderOpportunities = (opportunitie: any) => {
+  const renderPlaces = (place: any) => {
     return  <Card
-              title={opportunitie.title}
-              subTitle={opportunitie.subTitle}
-              header={opportunitie.header}
-              className="md:w-21rem m-2 m-home-card pt-4"
-              style={{ height: "17rem"}}
+              title={place.name}
+              subTitle={place.description}
+              header={<img alt="Card" style={{ borderRadius: '30px 30px 0 0', height: "10rem"}} src={place.photos[0]?.imagePath ?? 'https://getripstorage2.blob.core.windows.net/uploads/bd65bd25-6fcf-4485-b29a-91aae287ab8c.jpg'} />}
+              className="md:w-21rem m-2 m-home-card"
+              style={{ height: "20rem"}}
             ></Card>;
   };
 
-  const renderReconnects = (reconnect: any) => {
+  const renderActivity = (activity: any) => {
     return <Card
-              title={reconnect.title}
-              subTitle={reconnect.subTitle}
-              header={reconnect.header}
-              style={{ height: "30rem" }}
+              title={activity.name}
+              subTitle={activity.description}
+              header={<img alt="Card" style={{ borderRadius: '30px 30px 0 0', height: "10rem"}} src={activity.photos[0]?.imagePath ?? 'https://getripstorage2.blob.core.windows.net/uploads/bd65bd25-6fcf-4485-b29a-91aae287ab8c.jpg'} />}
+              style={{ height: "20rem"}}
               className="md:w-21rem m-2 m-home-card"
-            >
-              <div className=" mb-0"><p>{reconnect.description}</p></div>
-            </Card>;
+            ></Card>;
   };
 
-  const Footer = () => {
+  const renderCarousel = (page: HomePageRowDTO) => {
+    let itemTemplate;
+    let value;
+
+    if (page.isOnlyImage) {
+      itemTemplate = renderImage;
+      value = page.objects?.map((ob: any) => ob.item.imagePath);
+    } else if (page.isService) {
+      itemTemplate = renderServices;
+      value = page.objects?.map((ob: any) => ob.item);
+    } else if (page.isPlace) {
+      itemTemplate = renderPlaces;
+      value = page.objects?.map((ob: any) => ob.item);
+    } else if (page.isActivity) {
+      itemTemplate = renderActivity;
+      value = page.objects?.map((ob: any) => ob.item);
+    } else {
+      return null;
+    }
+
     return (
-      <footer className="footer grid grid-cols-12 mt-5">
-        <div className="footer-top md:col-3 lg:col-3">
-          <div className="location">
-            {country?.name} · {language?.name} ({language?.shortcut}) · {currency?.name}
-          </div>
-        </div>
-
-        <div className="footer-middle md:col-9 lg:col-9">
-          <div className="footer-column md:col-3 lg:col-3">
-            <a href="#">Help</a>
-            <a href="#">Privacy Settings</a>
-            <a href="#">Log in</a>
-          </div>
-
-          <div className="footer-column md:col-3 lg:col-3">
-            <a href="#">Cookie policy</a>
-            <a href="#">Privacy policy</a>
-            <a href="#">Terms of service</a>
-            <a href="#">Company Details</a>
-          </div>
-
-          <div className="footer-column md:col-3 lg:col-3">
-            <a href="#">Explore</a>
-            <a href="#">Company</a>
-            <a href="#">Partners</a>
-            <a href="#">Trips</a>
-            <a href="#">International Sites</a>
-          </div>
-        </div>
-
-        <div className="footer-bottom md:col-12 lg:col-12">
-          Compare and book cheap flights with  Ge<span className="secondery">t</span>rip
-          <br />
-          ©  Ge<span className="secondery">t</span>rip Ltd 2024 – 2024
-        </div>
-      </footer>
+      <>
+        {value && value.length ?
+          <Carousel
+            value={value}
+            showIndicators={false}
+            numVisible={page.columnsCount}
+            numScroll={1}
+            itemTemplate={itemTemplate}
+          />
+          :
+          <p className="m-auto text-center p-4">
+            <span className="no-data-home-page flex justify-content-center align-items-center">
+              <FontAwesomeIcon className="mr-2" style={{color: '#fff', fontSize: '2.5rem'}} icon={faDatabase} />
+              no data
+            </span>
+          </p>
+        }
+      </>
     );
-  }
+  };
 
   return (<>
     <div className="container md:mx-4 sm:mx-2 lg:mx-8 overflow-hidden">
@@ -239,46 +253,13 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="home-card mb-5">
-        <Carousel
-          value={images}
-          showIndicators={false}
-          numVisible={2}
-          numScroll={1}
-          itemTemplate={renderImage} />
-      </div>
-
-      {services && services.length > 0 &&
-        <div className="text-xl home-card service-home-card mb-5">
-          <h2 className="black mx-6">Last-minute weekend deals</h2>
-          <Carousel
-            value={services}
-            showIndicators={false}
-            numVisible={4}
-            numScroll={1}
-            itemTemplate={renderServices} />
+      {homePageRows.map((page: HomePageRowDTO) => (
+        <div key={page.id} className="home-card mb-5">
+          {page.title && <h2 className="black mx-6">{page.title}</h2>}
+          {page.description && <p className="black mx-6">{page.description}</p>}
+          {page.isSlider && renderCarousel(page)}
         </div>
-      }
-
-      <div className="text-xl home-card mb-5">
-        <h2 className="black mx-6">Explore your travel opportunities with GE<span className="secondery">T</span>RIP!</h2>
-        <Carousel
-          value={opportunities}
-          showIndicators={false}
-          numVisible={4}
-          numScroll={1}
-          itemTemplate={renderOpportunities} />
-      </div>
-
-      <div className="text-xl home-card mb-5">
-        <h2 className="black mx-6">Reconnect with the Earth</h2>
-        <Carousel
-          value={reconnects}
-          showIndicators={false}
-          numVisible={4}
-          numScroll={1}
-          itemTemplate={renderReconnects} />
-      </div>
+      ))}
     </div>
     <Footer />
   </>);

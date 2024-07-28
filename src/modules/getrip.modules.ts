@@ -228,6 +228,7 @@ export class StepsDTO{
 }
 
 export class HomePageRowDTO{
+  id?: string;
   pageId?: number = 0;
   title: string = '';
   description: string = '';
@@ -245,7 +246,9 @@ export class HomePageRowDTO{
   serviceTypeId: number = 0;
   cityId: number = 0;
   provinceId: number = 0;
+  objects?: any;
   isBanner: boolean = false;
+  chosenName?: string;
 }
 
 export class stepsActivitiesDTO{
@@ -290,11 +293,15 @@ export interface Address {
 }
 
 export interface SidebarFilter {
-  residence: any[];
   residence_type: any[];
   city: any[];
-  range_price: any[];
-  rating: any[];
+  fields: any[];
+  vehicles: any[];
+  places: any[];
+  makers: any[];
+  vehicleTypes: any[];
+  minMaxPrice: any;
+  ratings: any;
   currency: any[];
 }
 
@@ -306,12 +313,14 @@ export interface QueryFilter {
   selectedFields?: FildsDTO[];
   sidebarFilter?: SidebarFilter;
   guests: number;
+  children: number;
   departureCity: any;
   arrivalCity: any;
   departureDate: Date;
   returnDate: Date;
   flightServiceType: any;
 }
+
 export interface LocationFromMap {
   lat: number;
   lng: number;
@@ -322,7 +331,8 @@ export interface LocationFromSearch {
   lat: number;
   lng: number;
   country: string;
-  province: string
+  province: string;
+  moreData?: any
 }
 
 export class ServiceDTO{
@@ -453,4 +463,24 @@ export interface Restaurant {
   user_ratings_total: number;
   vicinity: string;
   types: string[] | any;
+}
+
+export interface SearchFilterParams {
+  ServiceTypeId?: number;
+  ProvinceId?: number;
+  CityIds?: number[];
+  ResidenceTypeIds?: number[];
+  VehicleTypeIds?: number[];
+  MakerIds?: number[];
+  VehicleIds?: number[];
+  PlaceIds?: number[];
+  CurrencyIds?: number[];
+  StartDate?: string;
+  EndDate?: string;
+  AdultPassengers?: number;
+  ChildPassengers?: number;
+  MaxAmount?: number;
+  MinAmount?: number;
+  MaxRating?: number;
+  MinRating?: number;
 }

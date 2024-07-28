@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 import PropTypes from "prop-types";
 import { Card } from "primereact/card";
+import { useTranslation } from "react-i18next";
 
 export default function AppWebsiteVisits({
   title,
@@ -11,6 +12,8 @@ export default function AppWebsiteVisits({
 }: any) {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
+  const { t, i18n } = useTranslation();
+
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue("--text-color");
@@ -19,17 +22,30 @@ export default function AppWebsiteVisits({
     );
     const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
     const data = {
-      labels: ["January", "February", "March", "April", "May", "June", "July"],
+      labels: [
+        t('charts.mon.January'),
+        t('charts.mon.February'),
+        t('charts.mon.March'),
+        t('charts.mon.April'),
+        t('charts.mon.May'),
+        t('charts.mon.June'),
+        t('charts.mon.July'),
+        t('charts.mon.August'),
+        t('charts.mon.September'),
+        t('charts.mon.October'),
+        t('charts.mon.November'),
+        t('charts.mon.December'),
+      ],
       datasets: [
         {
-          label: "First Dataset",
+          label: t('charts.datasets.labels.First Dataset'),
           data: [65, 59, 80, 81, 56, 55, 40],
           fill: false,
           tension: 0.4,
           borderColor: documentStyle.getPropertyValue("--blue-500"),
         },
         {
-          label: "Second Dataset",
+          label: t('charts.datasets.labels.Second Dataset'),
           data: [28, 48, 40, 19, 86, 27, 90],
           fill: false,
           borderDash: [5, 5],
@@ -37,7 +53,7 @@ export default function AppWebsiteVisits({
           borderColor: documentStyle.getPropertyValue("--teal-500"),
         },
         {
-          label: "Third Dataset",
+          label: t('charts.datasets.labels.Third Dataset'),
           data: [12, 51, 62, 33, 21, 62, 45],
           fill: true,
           borderColor: documentStyle.getPropertyValue("--orange-500"),
@@ -95,6 +111,7 @@ export default function AppWebsiteVisits({
     </div>
   );
 }
+
 AppWebsiteVisits.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,

@@ -5,21 +5,26 @@ import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapLocation, faArrowUpShortWide, faForward, faBackward, faDatabase } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "primereact/checkbox";
-import { GetAllCountries, GetAllProvinces, GetCitiesbyid, GetCurrency, GetNearByRestaurants, GetPaginatedServices, GetProvincebyCid, GetResidence, GetResidenceType } from "../Services";
+import { GetAllCountries, GetAllMakers, GetAllPlaces, GetAllProvinces, GetAllVehicles, GetAllVehiclesTypes, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetNearByRestaurants, GetPaginatedServicesBySearchFilter, GetProvincebyCid, GetResidenceType, GetServiceTypes } from "../Services";
 import ServiceCard from "../components/ServiceCard";
 import { Rating } from "primereact/rating";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
-import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, Service, SidebarFilter } from "../modules/getrip.modules";
+import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, SearchFilterParams, Service, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
 import { mapHotelData, mapFlightData, mapRestaurantData, mapServiceData } from "../utils/mapData";
 import { DataType } from "../enums";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
+import { Slider } from "primereact/slider";
+import { MultiSelect } from "primereact/multiselect";
+import { InputNumber } from "primereact/inputnumber";
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [cardTypeLoading, setCardTypeLoading] = useState<boolean>(false);
+  const [showFields, setShowFields] = useState<boolean>(false);
+  const [showVehicles, setShowVehicles] = useState<boolean>(false);
   const [foundLenght, setFoundLenght] = useState<number>(0);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
@@ -27,10 +32,10 @@ const SearchAndFilter = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [fields, setFields] = useState<any>();
   const [services, setServices] = useState<Service[]>([]);
   const [cardType, setCardType] = useState<DataType>();
   const [currency, setCurrency] = useState<any>();
-  const [residence, setResidence] = useState<any>();
   const [showAllCities, setShowAllCities] = useState(false);
   const [showMapLocation, setShowMapLocation] = useState(false);
   const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
@@ -41,19 +46,20 @@ const SearchAndFilter = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [nextPageToken, setNextPageToken] = useState(null);
-  const [selectedItems, setSelectedItems] = useState<{
-    residenceType: any[],
-    residence: any[],
-    city: any[],
-    rangePrice: any[],
-    rating: any[],
-    currency: any[]
-  }>({
-    residenceType: [],
-    residence: [],
+  const [vehicles, setVehicles] = useState<any>();
+  const [vehicleTypes, setVehicleTypes] = useState<any>();
+  const [places, setPlaces] = useState<any>();
+  const [makers, setMakers] = useState<any>();
+  const [selectedItems, setSelectedItems] = useState<SidebarFilter>({
+    residence_type: [],
+    vehicles: [],
+    vehicleTypes: [],
+    places: [],
+    makers: [],
+    fields: [],
     city: [],
-    rangePrice: [],
-    rating: [],
+    minMaxPrice: [2000, 5000],
+    ratings: 2,
     currency: []
   });
 
@@ -71,6 +77,23 @@ const SearchAndFilter = () => {
     });
   };
 
+  const handleSliderChange = (e: any) => {
+    setSelectedItems((prevState) => ({
+      ...prevState,
+      minMaxPrice: e.value
+    }));
+  };
+
+  const handleInputChange = (value: number, index: number) => {
+    const newMinMaxPrice = [...selectedItems.minMaxPrice];
+    newMinMaxPrice[index] = value;
+
+    setSelectedItems((prevState) => ({
+      ...prevState,
+      minMaxPrice: newMinMaxPrice
+    }));
+  };
+
   useEffect(() => {
     setLoading(true);
 
@@ -78,14 +101,16 @@ const SearchAndFilter = () => {
       GetAllCountries(),
       GetAllProvinces(),
       GetCurrency(),
-      GetResidence(),
-      GetResidenceType()
-    ]).then(([countriesRes, provincesRes, currencyRes, residenceRes, residenceTypeRes]) => {
+      GetResidenceType(),
+      GetAllPlaces(),
+      GetAllMakers(),
+    ]).then(([countriesRes, provincesRes, currencyRes, residenceTypeRes, palcesRes, makersRes]) => {
       setCountries(countriesRes.data);
       setProvinces(provincesRes.data);
       setCurrency(currencyRes.data);
-      setResidence(residenceRes.data);
       setResidenceType(residenceTypeRes.data);
+      setPlaces(palcesRes.data);
+      setMakers(makersRes.data);
     }).catch(error => {
       console.error('Error fetching data:', error);
     }).finally(() => {
@@ -97,13 +122,6 @@ const SearchAndFilter = () => {
     setSelectedCountry(`${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`);
   }, [selectedLocationFromSearch]);
 
-  const rangePrices = [
-    { id: 0, label: '0 - 100' },
-    { id: 1, label: '100 - 500' },
-    { id: 2, label: '500 - 2000' },
-    { id: 3, label: 'More than 2000' },
-  ];
-
   const dropDownSort = [
     { id: 0, label: 'Lowest price' },
     { id: 1, label: 'Highest price' },
@@ -112,20 +130,6 @@ const SearchAndFilter = () => {
     { id: 4, label: 'Highest rated' },
     { id: 5, label: 'Discount rate' },
     { id: 6, label: 'Newly added' },
-  ];
-
-  const ratings = [
-    { id: 1,  label: <Rating value={1}  readOnly  stars={1}  cancel={false} className="rat-icon-filter" />},
-    { id: 2,  label: <Rating value={2}  readOnly  stars={2}  cancel={false} className="rat-icon-filter" />},
-    { id: 3,  label: <Rating value={3}  readOnly  stars={3}  cancel={false} className="rat-icon-filter" />},
-    { id: 4,  label: <Rating value={4}  readOnly  stars={4}  cancel={false} className="rat-icon-filter" />},
-    { id: 5,  label: <Rating value={5}  readOnly  stars={5}  cancel={false} className="rat-icon-filter" />},
-    { id: 6,  label: <Rating value={6}  readOnly  stars={6}  cancel={false} className="rat-icon-filter" />},
-    { id: 7,  label: <Rating value={7}  readOnly  stars={7}  cancel={false} className="rat-icon-filter" />},
-    { id: 8,  label: <Rating value={8}  readOnly  stars={8}  cancel={false} className="rat-icon-filter" />},
-    { id: 9,  label: <Rating value={9}  readOnly  stars={9}  cancel={false} className="rat-icon-filter" />},
-    { id: 10, label: <Rating value={10} readOnly  stars={10} cancel={false} className="rat-icon-filter" />},
-    { id: 0,  label: 'Unrated' },
   ];
 
   const toggleShowAllCities = () => {
@@ -192,7 +196,7 @@ const SearchAndFilter = () => {
   };
 
   useEffect(() => {
-    const { country, province } = selectedLocationFromSearch || {};
+    const { country, province, lat, lng, moreData } = selectedLocationFromSearch || {};
 
     if (country && countries && provinces) {
       const foundCountry = findCountry(countries, country);
@@ -202,6 +206,8 @@ const SearchAndFilter = () => {
         fetchCitiesByProvinceId(foundProvince.id, setCities);
       } else if (foundCountry && foundCountry.id) {
         fetchProvincesAndCitiesByCountryId(foundCountry.id, setCities);
+      } else if(moreData) {
+        fetchCitiesByProvinceId(moreData.provinceId, setCities);
       }
     }
   }, [selectedLocationFromSearch, countries, provinces, setCities]);
@@ -240,33 +246,55 @@ const SearchAndFilter = () => {
   );
 
   const fetchDataToCard = async () => {
-    const queryParts: string[] = [];
-    const {
-      address,
-      startDate,
-      endDate,
-      selectdTab,
-      selectedFields,
-      sidebarFilter,
-      arrivalCity,
-      departureDate,
-      guests,
-      departureCity,
-      returnDate,
-      flightServiceType
-    } = selectFilterData || {};
 
-    const addQueryPart = (key: string, value: string | string[]) => {
-      if (Array.isArray(value)) {
-        if (value.length > 0) {
-          queryParts.push(`${key}=${value.map(encodeURIComponent).join(',')}`);
-        }
-      } else if (value) {
-        queryParts.push(`${key}=${encodeURIComponent(value)}`);
+    if (selectFilterData?.selectdTab) {
+      const serviceTypeQuery: any = [];
+      if(!['Search All', 'Hotels', 'Restaurants', 'Flight'].includes(selectFilterData?.selectdTab.children[1])) {
+        GetServiceTypes().then((res) => {
+          serviceTypeQuery.push(res.data);
+
+          setShowFields(true);
+          const serviceType = res.data.find((s: any) => s.name === selectFilterData?.selectdTab.children[1])
+          if(serviceType?.id) {
+            GetFeildsbysid(serviceType?.id).then((res) => setFields(res.data));
+          }
+
+          if(serviceType?.isVehicle && serviceType.isVehicle) {
+            setShowVehicles(true);
+            GetAllVehicles().then((res) => setVehicles(res.data) );
+            GetAllVehiclesTypes().then((res)=> setVehicleTypes(res.data));
+          } else {
+            setShowVehicles(false);
+          }
+        });
+      } else {
+        setShowFields(false);
+        setShowVehicles(false);
       }
-    };
 
-    if (selectdTab) {
+      const { province, moreData } = selectedLocationFromSearch || {};
+      const foundProvince = province ? findProvince(provinces, province) : null;
+
+      const queryParts: SearchFilterParams = {
+        ServiceTypeId: serviceTypeQuery.find((s: any) => s.name === selectFilterData?.selectdTab.children[1])?.id,
+        ProvinceId: foundProvince && foundProvince.id ? foundProvince.id : moreData.provinceId,
+        CityIds: selectFilterData?.sidebarFilter?.city?.map((res) => res.id),
+        ResidenceTypeIds: selectFilterData?.sidebarFilter?.residence_type?.map((res) => res.id),
+        VehicleTypeIds: selectFilterData?.sidebarFilter?.vehicleTypes?.map((res) => res.id),
+        MakerIds: selectFilterData?.sidebarFilter?.makers?.map((res) => res.id),
+        VehicleIds: selectFilterData?.sidebarFilter?.vehicles?.map((res) => res.id),
+        PlaceIds: selectFilterData?.sidebarFilter?.places?.map((res) => res.id),
+        CurrencyIds: selectFilterData?.sidebarFilter?.currency?.map((res) => res.id),
+        StartDate: formatDate(selectFilterData?.startDate),
+        EndDate: formatDate(selectFilterData?.endDate),
+        AdultPassengers: selectFilterData?.guests,
+        ChildPassengers: selectFilterData?.children,
+        MinAmount: selectFilterData?.sidebarFilter?.minMaxPrice[0],
+        MaxAmount: selectFilterData?.sidebarFilter?.minMaxPrice[1],
+        MaxRating: selectFilterData?.sidebarFilter?.ratings,
+        MinRating: 0,
+      };
+
       setFoundLenght(0);
       setHotels([]);
       setFlights([]);
@@ -275,14 +303,13 @@ const SearchAndFilter = () => {
 
       setCardTypeLoading(true);
 
-      switch (selectdTab.children[1]) {
+      switch (selectFilterData?.selectdTab.children[1]) {
         case DataType.Hotel:
         case 'Hotels':
-          if (guests) addQueryPart('guests', guests.toString() ?? '1');
           const HotelsPersistenceUrl = 'productservice/getarrivalautocomplete';
           const HotelsQuery = {
             ProductType: 2,
-            Query: typeof address?.name === 'string' ? address?.name : address?.name?.countryName,
+            Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
             Culture: 'en-US',
           };
 
@@ -292,48 +319,6 @@ const SearchAndFilter = () => {
             .then((resPro) => {
               setCardTypeLoading(false);
               if(resPro?.data?.body?.items) {
-
-                console.log(resPro?.data);
-
-                // ProviderServiceTourVisio(
-                //   'productservice/pricesearch', {
-                //     checkAllotment: true,
-                //     checkStopSale: true,
-                //     getOnlyDiscountedPrice: false,
-                //     getOnlyBestOffers:  true,
-                //     productType: 2,
-                //     arrivalLocations: [
-                //         {
-                //           id: resProductInfo?.city?.id,
-                //           type: 2
-                //       }
-                //     ],
-                //     roomCriteria: [
-                //       {
-                //           adult: 2,
-                //           childAges: [
-                //             2,
-                //             5
-                //           ]
-                //       },
-                //       {
-                //           adult: 1,
-                //           childAges: [
-                //             3
-                //           ]
-                //       }
-                //     ],
-                //     nationality: "DE",
-                //     checkIn: new Date(),
-                //     night: 7,
-                //     currency: "EUR",
-                //     culture: "en-US"
-                //   }, token
-                // )
-                // .then((resPriceSearch: any) => {
-                //   console.log(resPriceSearch, 'resPriceSearch');
-                // });
-
                 setCardType(DataType.Hotel);
                 setFoundLenght(resPro?.data?.body?.items.length);
                 setHotels(mapHotelData(resPro));
@@ -343,23 +328,17 @@ const SearchAndFilter = () => {
           break;
         case  DataType.Flight:
         case 'Flight':
-          if (departureDate) addQueryPart('departure_date', formatDate(departureDate));
-          if (arrivalCity) addQueryPart('arrival_city', arrivalCity);
-          if (departureCity) addQueryPart('departure_city', departureCity);
-          if (returnDate) addQueryPart('return_date', formatDate(returnDate));
-          if (flightServiceType) addQueryPart('flight_service_type', formatDate(flightServiceType));
-
           const FlightPersistenceUrl = 'productservice/getdepartureautocomplete';
           const FlightQuery = {
             ProductType: 3,
-            Query: typeof address?.name === 'string' ? address?.name : address?.name?.countryName,
-            ServiceType: flightServiceType,
+            Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
+            ServiceType: selectFilterData?.flightServiceType,
             DepartureLocations: [{
-                Id: departureCity,
+                Id: selectFilterData?.departureCity,
                 Type: 5
             }],
             ArrivalLocations: [{
-                Id: arrivalCity,
+                Id: selectFilterData?.arrivalCity,
                 Type: 5
             }],
             Culture: 'en-US',
@@ -399,26 +378,8 @@ const SearchAndFilter = () => {
             });
           }
           break;
-        default: // case  DataType.Service:
-          if (address?.name) addQueryPart('address', address.name.name ?? address.name);
-          if (startDate) addQueryPart('start_date', formatDate(startDate));
-          if (endDate) addQueryPart('end_date', formatDate(endDate));
-          if (selectdTab) addQueryPart('tab', selectdTab.children[1]);
-
-          if (selectedFields?.length) {
-            addQueryPart('fields', selectedFields.map((field: any) => field.id));
-          }
-
-          if (sidebarFilter) {
-            Object.keys(sidebarFilter).forEach((key) => {
-              addQueryPart(
-                `sidebar_filter[${key}]`,
-                sidebarFilter[key as keyof SidebarFilter]?.map((item: any) => (key === 'rating' ? item.label.props.stars : item.id)) || []
-              );
-            });
-          }
-
-          GetPaginatedServices(pageNumber, pageSize, queryParts.join('&'))
+        default:
+          GetPaginatedServicesBySearchFilter(pageNumber, pageSize, queryParts)
           .then((resSer) => {
             setCardTypeLoading(false);
             setCardType(DataType.Service);
@@ -448,19 +409,144 @@ const SearchAndFilter = () => {
         <div className="grid grid-cols-12 my-5 section-tow-search-and-filter">
           <div className="md:col-3 lg:col-3 sm:col-12 m-filter">
             <h2 className="px-2">Filters</h2>
-            <div className="m-block-filters">
-              <CheckboxList
-                title="Residence"
-                category="residence"
-                items={residence}
-                selectedItems={selectedItems.residence}
-              />
+            <div className="m-block-filters overflow-hidden w-full">
+
+              {showFields &&
+                <div className='fields-x w-full'>
+                  <h4>Fields</h4>
+                  <div className="my-2 flex justify-content-between align-items-center w-full">
+                    <div className="checkbox">
+                      <MultiSelect
+                        className='fields w-full'
+                        value={selectedItems.fields}
+                        onChange={(e) => {
+                          setSelectedItems((prevState) => ({
+                            ...prevState,
+                            fields: e.value
+                          }));
+                        }}
+                        options={fields}
+                        optionLabel="name"
+                        display="chip"
+                        placeholder="Select Fields"
+                        maxSelectedLabels={100}
+                      />
+                    </div>
+
+                    <div className="number-filter">0</div>
+                  </div>
+                </div>
+              }
+
+              {showVehicles &&
+                <>
+                  <div className='vehicles-x w-full'>
+                    <h4>Vehicles</h4>
+                    <div className="my-2 flex justify-content-between align-items-center w-full">
+                      <div className="checkbox">
+                        <MultiSelect
+                          className='vehicles w-full'
+                          value={selectedItems.vehicles}
+                          onChange={(e) => {
+                            setSelectedItems((prevState) => ({
+                              ...prevState,
+                              vehicles: e.value
+                            }));
+                          }}
+                          options={vehicles}
+                          optionLabel="model"
+                          display="chip"
+                          placeholder="Select Vehicles"
+                          maxSelectedLabels={100}
+                        />
+                      </div>
+
+                      <div className="number-filter">0</div>
+                    </div>
+                  </div>
+
+                  <div className='vehicles-type-x w-full'>
+                    <h4>Vehicle Types</h4>
+                    <div className="my-2 flex justify-content-between align-items-center w-full">
+                      <div className="checkbox">
+                        <MultiSelect
+                          className='vehicle-types w-full'
+                          value={selectedItems.vehicleTypes}
+                          onChange={(e) => {
+                            setSelectedItems((prevState) => ({
+                              ...prevState,
+                              vehicleTypes: e.value
+                            }));
+                          }}
+                          options={vehicleTypes}
+                          optionLabel="name"
+                          display="chip"
+                          placeholder="Select Vehicle Types"
+                          maxSelectedLabels={100}
+                        />
+                      </div>
+
+                      <div className="number-filter">0</div>
+                    </div>
+                  </div>
+                </>
+              }
+
+              <div className='places-x w-full'>
+                <h4>Places</h4>
+                <div className="my-2 flex justify-content-between align-items-center w-full">
+                  <div className="checkbox">
+                    <MultiSelect
+                      className='places w-full'
+                      value={selectedItems.places}
+                      onChange={(e) => {
+                        setSelectedItems((prevState) => ({
+                          ...prevState,
+                          places: e.value
+                        }));
+                      }}
+                      options={places}
+                      optionLabel="name"
+                      display="chip"
+                      placeholder="Select Places"
+                      maxSelectedLabels={100}
+                    />
+                  </div>
+
+                  <div className="number-filter">0</div>
+                </div>
+              </div>
+
+              <div className='makers-x w-full'>
+                <h4>Makers</h4>
+                <div className="my-2 flex justify-content-between align-items-center w-full">
+                  <div className="checkbox">
+                    <MultiSelect
+                      className='makers w-full'
+                      value={selectedItems.makers}
+                      onChange={(e) => {
+                        setSelectedItems((prevState) => ({
+                          ...prevState,
+                          makers: e.value
+                        }));
+                      }}
+                      options={makers}
+                      optionLabel="name"
+                      display="chip"
+                      placeholder="Select Makers"
+                      maxSelectedLabels={100}
+                    />
+                  </div>
+
+                  <div className="number-filter">0</div>
+                </div>
+              </div>
 
               <CheckboxList
                 title="Residence Type"
-                category="residenceType"
+                category="residence_type"
                 items={residenceType}
-                selectedItems={selectedItems.residenceType}
+                selectedItems={selectedItems.residence_type}
               />
 
               <CheckboxList
@@ -475,19 +561,50 @@ const SearchAndFilter = () => {
                 </button>
               )}
 
-              <CheckboxList
-                title="Range Price"
-                category="rangePrice"
-                items={rangePrices}
-                selectedItems={selectedItems.rangePrice}
-              />
+              <div className='rating-x my-2'>
+                <h4>Rating</h4>
+                <div className="my-2 flex justify-content-between align-items-center">
+                  <div className="checkbox">
+                    <Rating
+                      className="rat-icon-filter mx-2 border-0"
+                      value={selectedItems.ratings}
+                      stars={10}
+                      onChange={(e) => {
+                        setSelectedItems((prevState) => ({
+                          ...prevState,
+                          ratings: e.value
+                        }));
+                      }}
+                    />
+                  </div>
 
-              <CheckboxList
-                title="Rating"
-                category="rating"
-                items={ratings}
-                selectedItems={selectedItems.rating}
-              />
+                  <div className="number-filter">0</div>
+                </div>
+              </div>
+
+              <div className='slider-x my-2'>
+                <h4>Min - Max Price</h4>
+                <div className="my-2 flex justify-content-between align-items-center">
+                    <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[0]} onValueChange={(e) => handleInputChange(e.value as number, 0)} placeholder="Min" />
+                    <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[1]} onValueChange={(e) => handleInputChange(e.value as number, 1)} placeholder="Max" />
+                  </div>
+
+                <div className="my-2 flex justify-content-between align-items-center">
+                  <div className="w-full pr-3">
+                    <Slider
+                      min={0}
+                      max={20000}
+                      className="w-full"
+                      step={1}
+                      value={selectedItems.minMaxPrice}
+                      onChange={(e) => handleSliderChange(e)}
+                      range
+                    />
+                  </div>
+
+                  <div className="number-filter">0</div>
+                </div>
+              </div>
 
               <CheckboxList
                 title="Currency"
@@ -585,7 +702,7 @@ const SearchAndFilter = () => {
                     <FontAwesomeIcon className="mr-2" style={{color: '#4a235a', fontSize: '2.5rem'}} icon={faDatabase} />
                   </div>
                 </p>
-              : <span>no data </span>}
+              : <span className="no-data-services">no data </span>}
               </>)}
 
               { cardType === DataType.Hotel && hotels.length > 0 ? (

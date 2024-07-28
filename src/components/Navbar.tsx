@@ -22,6 +22,7 @@ import { Card } from "primereact/card";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Badge } from "primereact/badge";
 import { DataType } from "../enums";
+import { useTranslation } from "react-i18next";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
@@ -55,6 +56,7 @@ const NavBar = () => {
   const [headerRejectionReason, setHeaderRejectionReason] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleRejectClick = (id: number, fromUser: boolean = true) => {
     if(fromUser) {
@@ -206,7 +208,14 @@ const NavBar = () => {
     Partneregister.setFieldValue('phone', phone);
   };
 
+
   const handleSelectionChange = (name: any, value: any) => {
+    const languageMap: any = { 1: 'en', 2: 'ar', 3: 'tr'};
+
+    if(name === "language") {
+      i18n.changeLanguage(languageMap[value as number] || 'en');
+    }
+
     setExternalDataToLocalStorage((prevState: any) => ({
         ...prevState,
         [name]: value

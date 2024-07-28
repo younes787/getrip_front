@@ -75,6 +75,43 @@ const ServiceDetailsPage = () => {
         }, token)
         .then((resProductInfo: any) => {
           console.log(resProductInfo, 'resProductInfo');
+
+          ProviderServiceTourVisio('productservice/pricesearch', {
+            checkAllotment: true,
+            checkStopSale: true,
+            getOnlyDiscountedPrice: false,
+            getOnlyBestOffers:  true,
+            productType: 2,
+            arrivalLocations: [
+                {
+                  id: resProductInfo?.city?.id,
+                  type: 2
+              }
+            ],
+            roomCriteria: [
+              {
+                  adult: 2,
+                  childAges: [
+                    2,
+                    5
+                  ]
+              },
+              {
+                  adult: 1,
+                  childAges: [
+                    3
+                  ]
+              }
+            ],
+            nationality: "DE",
+            checkIn: new Date(),
+            night: 7,
+            currency: "EUR",
+            culture: "en-US"
+          }, token)
+          .then((resPriceSearch: any) => {
+            console.log(resPriceSearch, 'resPriceSearch');
+          });
         }).finally(() => {
           setLoading(false);
         });

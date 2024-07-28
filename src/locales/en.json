@@ -1,0 +1,57 @@
+{
+  "Dashboard": {
+    "welcomeMessage": "Welcome In Ge<strongClass>t</strongClass>rip",
+    "Summery": "Summery",
+    "Weekly Sales": "Weekly Sales",
+    "New Users": "New Users",
+    "Weekly Orders": "Weekly Orders",
+    "Requests": "Requests",
+    "Orders": "Orders",
+    "Charts": "Charts",
+    "Website Visits": "Website Visits",
+    "Last Year": "(+43%) than last year"
+  },
+  "sidbar": {
+    "Dashboard": "Dashboard",
+    "Manage Users": "Manage Users",
+    "Manage Services Type": "Manage Services Type",
+    "Manage Currency": "Manage Currency",
+    "Manage Home Page Content": "Manage Home Page Content",
+    "Logistics": "Logistics",
+    "Countries": "Countries",
+    "Provinces": "Provinces",
+    "Cities": "Cities",
+    "Places": "Places",
+    "Residence": "Residence",
+    "Residence Type": "Residence Type",
+    "Residences": "Residences",
+    "Vehicles": "Vehicles",
+    "Vehicles Type": "Vehicles Type",
+    "Makers": "Makers",
+    "Facility Categories": "Facility Categories",
+    "Facility": "Facility"
+  },
+  "charts": {
+    "mon": {
+     "January": "January",
+      "February": "February",
+      "March": "March",
+      "April": "April",
+      "May": "May",
+      "June": "June",
+      "July": "July",
+      "August": "August",
+      "September": "September",
+      "October": "October",
+      "November": "November",
+      "December": "December"
+    },
+    "datasets": {
+      "labels": {
+        "First Dataset": "First Dataset",
+        "Second Dataset": "Second Dataset",
+        "Third Dataset": "Third Dataset"
+      }
+    }
+  }
+}

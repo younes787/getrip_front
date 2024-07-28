@@ -1,6 +1,6 @@
 import axios from "axios";
 import { handleResponse, handleError } from "./handleResponse";
-import { ImageToRowDTO } from "../modules/getrip.modules";
+import { ImageToRowDTO, SearchFilterParams } from "../modules/getrip.modules";
 
 const getToken = () => {
   return typeof window !== "undefined" && window.localStorage ? localStorage.getItem("token") : "";
@@ -184,6 +184,30 @@ export const GetMyServices = async (aid: number, pn: number, ps: number) => {
 export const GetPaginatedServices = async (pn: number, ps: number, _filterData: string) => {
   try {
     const response = await api.get(`/getpaginatedservices/${pn}/${ps}?${_filterData}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetPaginatedServicesBySearchFilter = async (pageNumber: number, pageSize: number, filterData: SearchFilterParams) => {
+  try {
+    const queryParams = new URLSearchParams();
+
+    queryParams.append('pn', pageNumber.toString());
+    queryParams.append('ps', pageSize.toString());
+
+    Object.entries(filterData).forEach(([key, value]) => {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach((item) => queryParams.append(key, item.toString()));
+        } else {
+          queryParams.append(key, value.toString());
+        }
+      }
+    });
+
+    const response = await api.get(`/getpaginatedservicesbysearchfilter?${queryParams.toString()}`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);
@@ -1003,24 +1027,49 @@ export const RejectService = async (data: any) => {
 export const AddHomePageRow = async (data: any) => {
   try {
     const response = await api.post("/addhomepagerow", data);
-    return handleResponse(response , 'Post');
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }
 };
 
-export const AddImageTorRow = async (data: ImageToRowDTO | ImageToRowDTO[]) => {
+export const UpdateHomePageRow = async (data: any) => {
   try {
-    const response = await api.post("/addimagetorrow", data);
-    return handleResponse(response , 'Post');
+    const response = await api.put("/updatehomepagerow", data);
+    return handleResponse(response);
   } catch (error) {
     handleError(error);
   }
 };
 
-export const GetHomePageRows = async () => {
+export const DeleteRow = async (id: any) => {
   try {
-    const response = await api.get(`/gethomepagerows`);
+    const response = await api.delete(`/deleterow/${id}`);
+    return handleResponse(response, 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddImageTorRow = async (data: ImageToRowDTO) => {
+  try {
+    const response = await apiForm.post("/addimagetorrow", data);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetHomePageRows = async (ProvinceId?: number, CityId?: number) => {
+  try {
+    const queryParams = new URLSearchParams();
+
+    if (ProvinceId) queryParams.append('ProvinceId', ProvinceId.toString());
+    if (CityId) queryParams.append('CityId', CityId.toString());
+
+    const url = `/gethomepagerows${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
+    const response = await api.get(url);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

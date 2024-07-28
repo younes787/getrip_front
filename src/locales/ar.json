@@ -1,0 +1,57 @@
+{
+  "Dashboard": {
+    "welcomeMessage": "مرحبا بك في Ge<strongClass>t</strongClass>rip",
+    "Summery": "ملخص",
+    "Weekly Sales": "المبيعات الأسبوعية",
+    "New Users": "المستخدمين الجدد",
+    "Weekly Orders": "الطلبات الأسبوعية",
+    "Requests": "الطلبات",
+    "Orders": "الأوامر",
+    "Charts": "الرسوم البيانية",
+    "Website Visits": "زيارات الموقع",
+    "Last Year": "(+43%) مقارنة بالعام الماضي"
+  },
+  "sidbar": {
+    "Dashboard": "لوحة التحكم",
+    "Manage Users": "إدارة المستخدمين",
+    "Manage Services Type": "إدارة نوع الخدمات",
+    "Manage Currency": "إدارة العملة",
+    "Manage Home Page Content": "إدارة محتوى الصفحة الرئيسية",
+    "Logistics": "اللوجستيات",
+    "Countries": "الدول",
+    "Provinces": "المحافظات",
+    "Cities": "المدن",
+    "Places": "الأماكن",
+    "Residence": "الإقامة",
+    "Residence Type": "نوع الإقامة",
+    "Residences": "الإقامات",
+    "Vehicles": "المركبات",
+    "Vehicles Type": "نوع المركبات",
+    "Makers": "الصناع",
+    "Facility Categories": "فئات المنشأة",
+    "Facility": "المنشأة"
+  },
+  "charts": {
+    "mon": {
+     "January": "يناير",
+      "February": "فبراير",
+      "March": "مارس",
+      "April": "أبريل",
+      "May": "مايو",
+      "June": "يونيو",
+      "July": "يوليو",
+      "August": "أغسطس",
+      "September": "سبتمبر",
+      "October": "أكتوبر",
+      "November": "نوفمبر",
+      "December": "ديسمبر"
+    },
+    "datasets": {
+      "labels": {
+        "First Dataset": "مجموعة البيانات الأولى",
+        "Second Dataset": "مجموعة البيانات الثانية",
+        "Third Dataset": "مجموعة البيانات الثالثة"
+      }
+    }
+  }
+}

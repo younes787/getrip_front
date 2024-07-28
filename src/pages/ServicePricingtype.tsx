@@ -65,82 +65,80 @@ const ServicePricingtype = (props: Props) => {
 
   return (
     <div>
-      <div>
-        <Button label="Add New Pricing Types" onClick={() => setShowPricingTypes(true)} size="small" className="mt-4 ml-5 primary_btn"></Button>
+      <Button label="Add New Pricing Types" onClick={() => setShowPricingTypes(true)} size="small" className="mt-4 ml-5 primary_btn"></Button>
 
-        <DataTable
-          value={pricingTypes}
-          stripedRows
-          showGridlines
-          className=" p-5"
-          tableStyle={{ minWidth: "50rem" }}
-          size="small"
-          style={{ fontSize: "1.2rem", padding: "16px" }}
-          resizableColumns
-          rows={5}
-          rowsPerPageOptions={[10, 15, 20, 50]}
-          filterDisplay="menu"
-          globalFilterFields={["global"]}
-          paginator
-          rowHover
-          sortMode="multiple"
-        >
-          <Column field="name" sortable header="Name"></Column>
-          <Column field="" sortable header="Actions" body={BodyTemplate}></Column>
-        </DataTable>
+      <DataTable
+        value={pricingTypes}
+        stripedRows
+        showGridlines
+        className=" p-5"
+        tableStyle={{ minWidth: "50rem" }}
+        size="small"
+        style={{ fontSize: "1.2rem", padding: "16px" }}
+        resizableColumns
+        rows={5}
+        rowsPerPageOptions={[10, 15, 20, 50]}
+        filterDisplay="menu"
+        globalFilterFields={["global"]}
+        paginator
+        rowHover
+        sortMode="multiple"
+      >
+        <Column field="name" sortable header="Name"></Column>
+        <Column field="" sortable header="Actions" body={BodyTemplate}></Column>
+      </DataTable>
 
-        <Dialog
-          header="Add New Pricing Types"
-          visible={showPricingTypes}
-          className="md:w-50 lg:w-50"
-          onHide={() => setShowPricingTypes(false)}
-          footer={
-            <>
-              <div>
-                <Button label="Save" size="small" severity="warning" outlined onClick={() => pricingTypeform.handleSubmit()} className="mt-4"></Button>
-                <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowPricingTypes(false)} className="mt-4"></Button>
-              </div>
-            </>
-          }
-        >
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">Name</label>
-              <InputText
-                name="name"
-                value={pricingTypeform.values.name}
-                onChange={(e) => pricingTypeform.setFieldValue("name", e.target.value)}
-              />
+      <Dialog
+        header="Add New Pricing Types"
+        visible={showPricingTypes}
+        className="md:w-50 lg:w-50"
+        onHide={() => setShowPricingTypes(false)}
+        footer={
+          <>
+            <div>
+              <Button label="Save" size="small" severity="warning" outlined onClick={() => pricingTypeform.handleSubmit()} className="mt-4"></Button>
+              <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowPricingTypes(false)} className="mt-4"></Button>
             </div>
+          </>
+        }
+      >
+        <div className="grid mt-3">
+          <div className="md:col-6 lg:col-6">
+            <label className="mb-2" htmlFor="Status">Name</label>
+            <InputText
+              name="name"
+              value={pricingTypeform.values.name}
+              onChange={(e) => pricingTypeform.setFieldValue("name", e.target.value)}
+            />
           </div>
-        </Dialog>
+        </div>
+      </Dialog>
 
-        <Dialog
-          header="Edit Pricing Types"
-          visible={showPricingTypesEdit}
-          className="md:w-50 lg:w-50"
-          onHide={() => setShowPricingTypesEdit(false)}
-          footer={
-            <>
-              <div>
-                <Button label="Save" size="small" severity="warning" outlined onClick={() => pricingTypeformformEdit.handleSubmit()} className="mt-4"></Button>
-                <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowPricingTypesEdit(false)} className="mt-4"></Button>
-              </div>
-            </>
-          }
-        >
-          <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">Name</label>
-              <InputText
-                name="name"
-                value={pricingTypeformformEdit.values.name}
-                onChange={(e) => pricingTypeformformEdit.setFieldValue("name", e.target.value)}
-              />
+      <Dialog
+        header="Edit Pricing Types"
+        visible={showPricingTypesEdit}
+        className="md:w-50 lg:w-50"
+        onHide={() => setShowPricingTypesEdit(false)}
+        footer={
+          <>
+            <div>
+              <Button label="Save" size="small" severity="warning" outlined onClick={() => pricingTypeformformEdit.handleSubmit()} className="mt-4"></Button>
+              <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowPricingTypesEdit(false)} className="mt-4"></Button>
             </div>
+          </>
+        }
+      >
+        <div className="grid mt-3">
+          <div className="md:col-6 lg:col-6">
+            <label className="mb-2" htmlFor="Status">Name</label>
+            <InputText
+              name="name"
+              value={pricingTypeformformEdit.values.name}
+              onChange={(e) => pricingTypeformformEdit.setFieldValue("name", e.target.value)}
+            />
           </div>
-        </Dialog>
-      </div>
+        </div>
+      </Dialog>
     </div>
   );
 };

@@ -8,33 +8,40 @@ import { Column } from "primereact/column";
 import AppUsersVisits from "../components/Circle";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Image } from 'primereact/image';
+import { Trans, useTranslation } from "react-i18next";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="dashboard">
       <span>
-        <h1 className="text-center text-4xl get-rp ml-5">Welcome In Ge<span className="secondery">t</span>rip</h1>
+        <h1 className="text-center text-4xl get-rp ml-5">
+          <Trans i18nKey="Dashboard.welcomeMessage" components={{ strongClass: <span className="secondery" /> }}>
+            Welcome In Ge<span className="secondery">t</span>rip
+          </Trans>
+        </h1>
       </span>
 
       <Accordion activeIndex={0} className="my-3">
-        <AccordionTab header='Summery'>
+        <AccordionTab header={t('Dashboard.Summery')}>
         <div className="grid mr-0 gap-5 mt-5">
             <AppWidgetSummary
-              title="Weekly Sales"
+              title={t('Dashboard.Weekly Sales')}
               total={714}
               color="success"
               icon={<Image src={glassBag} alt={`icon`}  />}
             />
 
             <AppWidgetSummary
-              title="New Users"
+              title={t('Dashboard.New Users')}
               total={1352831}
               color="info"
               icon={<Image src={glassUsers} alt={`icon`}  />}
             />
 
             <AppWidgetSummary
-              title="Weekly Orders"
+              title={t('Dashboard.Weekly Orders')}
               total={1723315}
               color="warning"
               icon={<Image src={glassbuy} alt={`icon`}  />}
@@ -44,7 +51,7 @@ const Dashboard = () => {
       </Accordion>
 
       <Accordion activeIndex={0} className="my-3">
-        <AccordionTab header='Requests'>
+        <AccordionTab header={t('Dashboard.Requests')}>
               <DataTable
                 // value={UsersList}
                 stripedRows
@@ -67,7 +74,7 @@ const Dashboard = () => {
       </Accordion>
 
       <Accordion activeIndex={0} className="my-3">
-        <AccordionTab header='Orders' >
+        <AccordionTab header={t('Dashboard.Orders')} >
           <DataTable
             // value={UsersList}
             stripedRows
@@ -89,16 +96,16 @@ const Dashboard = () => {
       </Accordion>
 
       <Accordion activeIndex={0} className="my-3">
-        <AccordionTab header='Charts'>
+        <AccordionTab header={t('Dashboard.Charts')} >
           <div className="flex flex-wrap  mr-0 gap-5 mt-5" >
             <div className="grid grid-cols-2 w-full" style={{justifyContent:'center'}}>
               <AppWebsiteVisits
-                title="Website Visits"
-                subheader="(+43%) than last year"
+                title={t('Dashboard.Website Visits')}
+                subheader={t('Dashboard.Last Year')}
               />
               <AppUsersVisits
-                title="Website Visits"
-                subheader="(+43%) than last year"
+                title={t('Website Visits')}
+                subheader={t('Dashboard.Last Year')}
               />
             </div>
           </div>

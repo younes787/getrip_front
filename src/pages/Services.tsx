@@ -411,13 +411,12 @@ const Services = () => {
 
           <div className="md:col-12 lg:col-6">
             <Dropdown
-              value={ServicesForm.values.iconCode}
               onChange={(e) => ServicesForm.setFieldValue("iconCode", e.value.name)}
               options={icons}
-              optionLabel="name"
+              optionLabel=""
               placeholder="Select an Icon"
               filter
-              valueTemplate={ServicesForm.values.iconCode && iconOption(ServicesForm.values.iconCode)}
+              valueTemplate={<span>{<FontAwesomeIcon icon={fas[ServicesForm?.values?.iconCode]} className="mr-2" />}</span>}
               itemTemplate={iconOption}
               className="w-full"
             />
@@ -541,13 +540,12 @@ const Services = () => {
 
           <div className="md:col-12 lg:col-6">
             <Dropdown
-              value={ServicesFormUpdate.values.iconCode}
               onChange={(e) => ServicesFormUpdate.setFieldValue("iconCode", e.value.name)}
               options={icons}
-              optionLabel="name"
+              optionLabel=""
               placeholder="Select an Icon"
               filter
-              valueTemplate={ServicesFormUpdate.values.iconCode && iconOption(ServicesFormUpdate.values.iconCode)}
+              valueTemplate={<span>{<FontAwesomeIcon icon={fas[ServicesFormUpdate?.values?.iconCode]} className="mr-2" />}</span>}
               itemTemplate={iconOption}
               className="w-full"
             />

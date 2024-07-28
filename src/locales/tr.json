@@ -1,0 +1,57 @@
+{
+  "Dashboard": {
+    "welcomeMessage": "Ge<strongClass>t</strongClass>rip'e Hoş Geldiniz",
+    "Summery": "Özet",
+    "Weekly Sales": "Haftalık Satışlar",
+    "New Users": "Yeni Kullanıcılar",
+    "Weekly Orders": "Haftalık Siparişler",
+    "Requests": "Talepler",
+    "Orders": "Siparişler",
+    "Charts": "Grafikler",
+    "Website Visits": "Web Sitesi Ziyaretleri",
+    "Last Year": "Geçen yıla göre (+%43)"
+  },
+  "sidbar": {
+    "Dashboard": "Gösterge Paneli",
+    "Manage Users": "Kullanıcıları Yönet",
+    "Manage Services Type": "Hizmet Türlerini Yönet",
+    "Manage Currency": "Para Birimini Yönet",
+    "Manage Home Page Content": "Ana Sayfa İçeriğini Yönet",
+    "Logistics": "Lojistik",
+    "Countries": "Ülkeler",
+    "Provinces": "Eyaletler",
+    "Cities": "Şehirler",
+    "Places": "Yerler",
+    "Residence": "İkamet",
+    "Residence Type": "İkamet Türü",
+    "Residences": "İkametler",
+    "Vehicles": "Araçlar",
+    "Vehicles Type": "Araç Türleri",
+    "Makers": "Üreticiler",
+    "Facility Categories": "Tesis Kategorileri",
+    "Facility": "Tesis"
+  },
+  "charts": {
+    "mon": {
+      "January": "Ocak",
+      "February": "Şubat",
+      "March": "Mart",
+      "April": "Nisan",
+      "May": "Mayıs",
+      "June": "Haziran",
+      "July": "Temmuz",
+      "August": "Ağustos",
+      "September": "Eylül",
+      "October": "Ekim",
+      "November": "Kasım",
+      "December": "Aralık"
+    },
+    "datasets": {
+      "labels": {
+        "First Dataset": "Birinci Veri Seti",
+        "Second Dataset": "İkinci Veri Seti",
+        "Third Dataset": "Üçüncü Veri Seti"
+      }
+    }
+  }
+}
