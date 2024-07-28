@@ -13,15 +13,16 @@ import { faDatabase, faMapLocationDot, faStar } from "@fortawesome/free-solid-sv
 import { HomePageRowDTO, LocationFromSearch, QueryFilter } from "../modules/getrip.modules";
 import { DataType } from "../enums";
 import { useTranslation } from "react-i18next";
+import LoadingComponent from "../components/Loading";
 
 const Home = () => {
-  const User = JSON.parse(localStorage?.getItem('user') as any)
+  const User = JSON.parse(localStorage?.getItem('user') as any);
+  const [loading, setLoading] = useState<boolean>(false);
   const [country, setCountry] = useState<any>();
   const [language, setLanguage] = useState<any>();
   const [currency, setCurrency] = useState<any>();
   const navigate = useNavigate();
   const [provinces, setProvinces] = useState<any>();
-
   const [homePageRows, setHomePageRows] = useState<HomePageRowDTO[]>([]);
   const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
@@ -43,27 +44,29 @@ const Home = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     const { province, moreData } = selectedLocationFromSearch || {};
 
     if(moreData && moreData.provinceId) {
       GetHomePageRows(moreData.provinceId).then((res) => {
         setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+        setLoading(false);
       });
     } else if(province) {
-      console.log(province);
-
       GetAllProvinces().then((res) => {
         const foundProvince = province ? findProvince(res.data, province) : null;
 
         if(foundProvince && foundProvince.id) {
           GetHomePageRows(foundProvince.id).then((res) => {
             setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+            setLoading(false);
           });
         }
       });
     } else {
       GetHomePageRows().then((res) => {
         setHomePageRows([...res.data].sort((a, b) => a.placement - b.placement));
+        setLoading(false);
       });
     }
 
@@ -239,6 +242,8 @@ const Home = () => {
   };
 
   return (<>
+  { loading ? <LoadingComponent/> :
+    <>
     <div className="container md:mx-4 sm:mx-2 lg:mx-8 overflow-hidden">
       <div id="image-container-home">
         <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
@@ -262,6 +267,8 @@ const Home = () => {
       ))}
     </div>
     <Footer />
+    </>
+  }
   </>);
 };
 
