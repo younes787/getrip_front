@@ -1,19 +1,50 @@
 import { Hotel, Flight, Restaurant, Service } from "../modules/getrip.modules";
 
-
 export const mapHotelData = (data: any): Hotel[] => {
-  return data?.data?.body?.items
-    .filter((item: any) => item.hotel)
-    .map((item: any) => ({
-      type: item.type,
-      geolocation: item.geolocation,
-      country: item.country,
-      state: item.state,
-      city: item.city,
-      hotel: item.hotel,
-      provider: item.provider,
-      image: 'https://images.trvl-media.com/lodging/1000000/910000/902700/902656/6ebc6e2b.jpg',
-    }));
+  return data?.data?.body?.hotels.map((item: any) => ({
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    geolocation: item.geolocation,
+    country: {
+      internationalCode: item.country.internationalCode,
+      name: item.country.name,
+      provider: item.country.provider,
+      isTopRegion: item.country.isTopRegion
+    },
+    state: item.state,
+    city: {
+      name: item.city.name,
+      countryId: item.city.countryId,
+      provider: item.city.provider,
+      isTopRegion: item.city.isTopRegion,
+      id: item.city.id
+    },
+    address: item.address,
+    boardGroups: item.boardGroups,
+    boards: item.boards,
+    description: item.description,
+    facilities: item.facilities,
+    giataInfo: item.giataInfo,
+    hasChannelManagerOffer: item.hasChannelManagerOffer,
+    hasThirdPartyOwnOffer: item.hasThirdPartyOwnOffer,
+    hotelCategory: item.hotelCategory,
+    location: {
+      name: item.location.name,
+      countryId: item.location.countryId,
+      provider: item.location.provider,
+      isTopRegion: item.location.isTopRegion,
+      id: item.location.id
+    },
+    offers: item.offers,
+    provider: item.provider,
+    rating: item.rating,
+    stars: item.stars,
+    themes: item.themes,
+    thirdPartyInformation: item.thirdPartyInformation,
+    thumbnail: item.thumbnail,
+    image: item.thumbnailFull,
+  }));
 };
 
 export const mapFlightData = (data: any): Flight[] => {

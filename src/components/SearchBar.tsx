@@ -1,7 +1,7 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
 import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { GetProvimcesByName, GetServiceTypes, GetProvincebyCid } from '../Services';
+import { GetProvimcesByName, GetServiceTypes, GetProvincebyCid, GetAllCountries } from '../Services';
 import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { Calendar } from 'primereact/calendar';
@@ -36,8 +36,8 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [keySearch, setKeySearch] = useState<string>('A');
   const [selectedLocation, setSelectedLocation] = useState<{ name: string }>({ name: '' });
   const [filteredQuery, setFilteredQuery] = useState<any>(null);
-  const [guests, setGuests] = useState<any>(1);
-  const [children, setChildren] = useState<any>(1);
+  const [guests, setGuests] = useState<any>(0);
+  const [children, setChildren] = useState<any>(0);
   const [departureCity, setDepartureCity] = useState<any>(null);
   const [arrivalCity, setArrivalCity] = useState<any>(null);
   const [departureDate, setDepartureDate] = useState<any>(null);
@@ -46,8 +46,10 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState<any>('');
   const [provinces, setProvinces] = useState<any>();
+  const [country, setCountry] = useState<any>(null);
   const [flightServiceType, setFlightServiceType] = useState<any>();
   const [numVisible, setNumVisible] = useState(6);
+  const [countries, setCountries] = useState<any>();
   const [serviceType, setServiceType] = useState([
     { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
   ]);
@@ -119,6 +121,8 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     }, (error) => {
       console.error('Error getting current location:', error);
     });
+
+    GetAllCountries().then((res)=> setCountries(res.data));
   }, []);
 
   useEffect(() => {
@@ -258,7 +262,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   showButtons
                   buttonLayout="horizontal"
                   step={1}
-                  min={1}
+                  min={0}
                   inputClassName="input-template"
                   decrementButtonClassName="p-button-secondery"
                   incrementButtonClassName="p-button-secondery"
@@ -266,17 +270,18 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   decrementButtonIcon="pi pi-minus"
                 />
               </div>
+
               <div className="chi m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
-                <span className='mx-2' style={{width: '100px'}}>children's</span>
+                <span className='mx-2' style={{width: '100px'}}>children</span>
                 <InputNumber
-                  inputId="childrens"
+                  inputId="children"
                   value={children}
                   onValueChange={handleChildrenChange}
                   showButtons
                   buttonLayout="horizontal"
                   step={1}
-                  min={1}
+                  min={0}
                   inputClassName="input-template"
                   decrementButtonClassName="p-button-secondery"
                   incrementButtonClassName="p-button-secondery"
@@ -318,6 +323,21 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   }
                 />
               </div>
+
+              <Dropdown
+                placeholder="Select a Country"
+                options={countries}
+                optionLabel="name"
+                optionValue="id"
+                name="country_name"
+                filter
+                className="mt-2	w-full"
+                value={country}
+                onChange={(e) => {
+                  setCountry(e.value);
+                  GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
+                }}
+              />
 
               <div className='m-2 w-full departure'>
                 <FlightTemplate
@@ -505,12 +525,12 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   id="popup_menu_left"
                 />
                 <Button
-                  label="More Filter..."
-                  icon={<FontAwesomeIcon icon={faArrowAltCircleDown} size={"sm"} className="more-filter-icon fa p-0" />}
+                  label={`${guests} guests. ${children} children`}
+                  icon={<FontAwesomeIcon icon={faUserAlt} size={"sm"} className="more-filter-icon fa p-0" />}
                   type='button'
                   style={{minWidth: 'max-content', margin: '7px -9px 0 0'}}
                   className="mr-2 more-filter w-full"
-                  onClick={(event) => menuLeft.current.toggle(event)}
+                  onClick={(event) => menuLeft.current.show(event)}
                   aria-controls="popup_menu_left"
                   aria-haspopup
                 />

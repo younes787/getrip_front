@@ -13,8 +13,8 @@ i18n
       tr: { translation: trTranslations },
       ar: { translation: arTranslations },
     },
-    lng: 'en',
-    fallbackLng: 'en',
+    lng: localStorage.getItem('userLanguage') || 'en',
+    fallbackLng: localStorage.getItem('userLanguage') || 'en',
     interpolation: {
       escapeValue: false,
     },

@@ -234,7 +234,7 @@ export const AssignServiceTypeListToAccount = async (ServiceData: any) => {
 
 export const AddService = async (ServiceData: any) => {
   try {
-    const response = await api.post(`/addservice` , ServiceData);
+    const response = await apiForm.post(`/addservice` , ServiceData);
     return handleResponse(response , '');
   } catch (error) {
     handleError(error);
@@ -1070,6 +1070,168 @@ export const GetHomePageRows = async (ProvinceId?: number, CityId?: number) => {
     const url = `/gethomepagerows${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
     const response = await api.get(url);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const AddRequest = async (data: any) => {
+  try {
+    const response = await api.post("/addrequest", data);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const ApproveRequest = async (rid: any) => {
+  try {
+    const response = await api.post(`/approverequest/${rid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const RejectRequest = async (data: any) => {
+  try {
+    const response = await api.post("/rejectrequest", data);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const UpdateRequest = async (data: any) => {
+  try {
+    const response = await api.put("/updaterequest", data);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const DeleteRequest = async (rid: any) => {
+  try {
+    const response = await api.delete(`/deleterequest/${rid}`);
+    return handleResponse(response, 'Post');
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllRequestsByServiceId = async (sid: any) => {
+  try {
+    const response = await api.get(`/getallrequestsbyserviceid/${sid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetServiceProviderAllRequests = async (spid: any) => {
+  try {
+    const response = await api.get(`/getserviceproviderallrequests/${spid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetServiceProviderPendingRequests = async (spid: any) => {
+  try {
+    const response = await api.get(`/getserviceproviderpendingrequests/${spid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetServiceProviderApprovedRequests = async (spid: any) => {
+  try {
+    const response = await api.get(`/getserviceproviderapprovedrequests/${spid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetServiceProviderRejectedRequests = async (spid: any) => {
+  try {
+    const response = await api.get(`/getserviceproviderrejectedrequests/${spid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetClienterAllrequests = async (cid: any) => {
+  try {
+    const response = await api.get(`/getclienterallrequests/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetClientPendingRequests = async (cid: any) => {
+  try {
+    const response = await api.get(`/getclientpendingrequests/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetClientApprovedRequests = async (cid: any) => {
+  try {
+    const response = await api.get(`/getclientapprovedrequests/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetClientRejectedRequests = async (cid: any) => {
+  try {
+    const response = await api.get(`/getclientrejectedrequests/${cid}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllRequests = async () => {
+  try {
+    const response = await api.get(`/getallrequests`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetPendingRequests = async () => {
+  try {
+    const response = await api.get(`/getpendingrequests`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetApprovedRequests = async () => {
+  try {
+    const response = await api.get(`/getapprovedrequests`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetRejectedRequests = async () => {
+  try {
+    const response = await api.get(`/getrejectedrequests`);
     return handleResponse(response);
   } catch (error) {
     handleError(error);

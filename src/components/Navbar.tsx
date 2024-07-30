@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$/;
 
-const NavBar = () => {
+const NavBar = ({navState}: any) => {
   const [show, setshow] = useState<boolean>(false);
   const [showsign, setshowsign] = useState<boolean>(false);
   const [showSelectLang, setshowSelectLang] = useState<boolean>(false);
@@ -158,6 +158,7 @@ const NavBar = () => {
   const { pending: pendingUsers, loading: loadingUsers } = users;
   const { pending: pendingServices, loading: loadingServices } = services;
   const role = User?.data?.role;
+  const hasOpenedRef = useRef(false);
 
   const [externalDataToLocalStorage, setExternalDataToLocalStorage] = useState<any>(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -213,7 +214,9 @@ const NavBar = () => {
     const languageMap: any = { 1: 'en', 2: 'ar', 3: 'tr'};
 
     if(name === "language") {
-      i18n.changeLanguage(languageMap[value as number] || 'en');
+      const selectedLanguage = languageMap[value] || 'en';
+      i18n.changeLanguage(selectedLanguage);
+      localStorage.setItem('userLanguage', selectedLanguage);
     }
 
     setExternalDataToLocalStorage((prevState: any) => ({
@@ -348,11 +351,12 @@ const NavBar = () => {
         {
           label: "User Menu",
           items: [
-            { label: "Dashboard",     icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Dashboard",     icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
             { label: "My Profile",    icon: "pi pi-user",      command: () => navigate('/profile') },
             { label: "My services",   icon: "pi pi-list",      command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
             { label: "Add services",  icon: "pi pi-plus",      command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
             { label: "Order History", icon: "pi pi-history",   command: () => navigate('/order-history'), condition: role === 'Client' },
+            { label: `${role} Requests`, icon: "pi pi-user",   command: () => navigate(`/${role}-requests`) },
             { label: "Log Out",       icon: "pi pi-sign-out",  command: () => logout() }
           ].filter(c => c.condition === undefined || c.condition)
         }
@@ -614,6 +618,11 @@ const NavBar = () => {
       </ul>
     );
   };
+
+  if (!hasOpenedRef.current && navState) {
+    setshow(true);
+    hasOpenedRef.current = true;
+  }
 
   return (
     <div className="card">

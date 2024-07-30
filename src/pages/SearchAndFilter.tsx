@@ -13,7 +13,7 @@ import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
 import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, SearchFilterParams, Service, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
-import { mapHotelData, mapFlightData, mapRestaurantData, mapServiceData } from "../utils/mapData";
+import { mapHotelData, mapRestaurantData, mapServiceData } from "../utils/mapData";
 import { DataType } from "../enums";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
 import { Slider } from "primereact/slider";
@@ -43,7 +43,8 @@ const SearchAndFilter = () => {
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
-  const [pageNumber, setPageNumber] = useState(1);
+  const [hotelSearchId, setHotelSearchId] = useState<any>();
+  const [pageNumber, setPageNumber] = useState<number>(1);
   const [pageSize, setPageSize] = useState(5);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [vehicles, setVehicles] = useState<any>();
@@ -248,36 +249,11 @@ const SearchAndFilter = () => {
   const fetchDataToCard = async () => {
 
     if (selectFilterData?.selectdTab) {
-      const serviceTypeQuery: any = [];
-      if(!['Search All', 'Hotels', 'Restaurants', 'Flight'].includes(selectFilterData?.selectdTab.children[1])) {
-        GetServiceTypes().then((res) => {
-          serviceTypeQuery.push(res.data);
-
-          setShowFields(true);
-          const serviceType = res.data.find((s: any) => s.name === selectFilterData?.selectdTab.children[1])
-          if(serviceType?.id) {
-            GetFeildsbysid(serviceType?.id).then((res) => setFields(res.data));
-          }
-
-          if(serviceType?.isVehicle && serviceType.isVehicle) {
-            setShowVehicles(true);
-            GetAllVehicles().then((res) => setVehicles(res.data) );
-            GetAllVehiclesTypes().then((res)=> setVehicleTypes(res.data));
-          } else {
-            setShowVehicles(false);
-          }
-        });
-      } else {
-        setShowFields(false);
-        setShowVehicles(false);
-      }
-
       const { province, moreData } = selectedLocationFromSearch || {};
       const foundProvince = province ? findProvince(provinces, province) : null;
 
       const queryParts: SearchFilterParams = {
-        ServiceTypeId: serviceTypeQuery.find((s: any) => s.name === selectFilterData?.selectdTab.children[1])?.id,
-        ProvinceId: foundProvince && foundProvince.id ? foundProvince.id : moreData.provinceId,
+        ProvinceId: foundProvince && foundProvince.id ? foundProvince.id : moreData?.provinceId,
         CityIds: selectFilterData?.sidebarFilter?.city?.map((res) => res.id),
         ResidenceTypeIds: selectFilterData?.sidebarFilter?.residence_type?.map((res) => res.id),
         VehicleTypeIds: selectFilterData?.sidebarFilter?.vehicleTypes?.map((res) => res.id),
@@ -314,47 +290,155 @@ const SearchAndFilter = () => {
           };
 
           ProviderAuthenticationservice()
-          .then((res) => {
-            ProviderServiceTourVisio(HotelsPersistenceUrl, HotelsQuery, res)
+          .then((tokenRes) => {
+            ProviderServiceTourVisio(HotelsPersistenceUrl, HotelsQuery, tokenRes)
             .then((resPro) => {
               setCardTypeLoading(false);
               if(resPro?.data?.body?.items) {
                 setCardType(DataType.Hotel);
-                setFoundLenght(resPro?.data?.body?.items.length);
-                setHotels(mapHotelData(resPro));
+                  ProviderServiceTourVisio('productservice/pricesearch', {
+                    checkAllotment: true,
+                    checkStopSale: true,
+                    getOnlyDiscountedPrice: false,
+                    getOnlyBestOffers:  true,
+                    productType: 2,
+                    arrivalLocations: [
+                        {
+                          id: resPro?.data?.body?.items[0]?.city?.id,
+                          type: 2
+                        }
+                    ],
+                    roomCriteria: [
+                      {
+                          adult: 2,
+                          childAges: [
+                            2,
+                            5
+                          ]
+                      },
+                      {
+                          adult: 1,
+                          childAges: [
+                            3
+                          ]
+                      }
+                    ],
+                    nationality: "DE",
+                    checkIn: formatDate(selectFilterData?.startDate),
+                    night: 1,
+                    currency: "USD",
+                    culture: "en-US"
+                  }, tokenRes).then((resPriceSearch: any) => {
+                    if(resPriceSearch?.data?.body?.hotels) {
+                      setHotelSearchId(resPriceSearch?.data.body.searchId);
+                      setFoundLenght(resPriceSearch?.data?.body?.hotels?.length);
+                      setHotels(mapHotelData(resPriceSearch));
+                    }
+                  });
               }
             });
           });
           break;
         case  DataType.Flight:
         case 'Flight':
-          const FlightPersistenceUrl = 'productservice/getdepartureautocomplete';
-          const FlightQuery = {
-            ProductType: 3,
-            Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
-            ServiceType: selectFilterData?.flightServiceType,
-            DepartureLocations: [{
-                Id: selectFilterData?.departureCity,
-                Type: 5
-            }],
-            ArrivalLocations: [{
-                Id: selectFilterData?.arrivalCity,
-                Type: 5
-            }],
-            Culture: 'en-US',
-          };
-
           ProviderAuthenticationservice()
-          .then((res) => {
-            ProviderServiceTourVisio(FlightPersistenceUrl, FlightQuery, res)
-            .then((resPro) => {
-              setCardTypeLoading(false);
-              if(resPro?.data?.body?.items) {
-                setCardType(DataType.Flight);
-                setFoundLenght(resPro?.data?.body?.items.length);
-                setFlights(mapFlightData(resPro));
-              }
+          .then((tokenRes) => {
+            ProviderServiceTourVisio('productservice/getdepartureautocomplete', {
+              ProductType: 3,
+              Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
+              ServiceType: selectFilterData?.flightServiceType,
+              Culture: 'en-US',
+            }, tokenRes).then((resDepartureAutoComplete) => {
+              console.log(resDepartureAutoComplete, 'res Departure Auto Complete');
             });
+
+            ProviderServiceTourVisio('productservice/getarrivalautocomplete', {
+              ProductType: 3,
+              Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
+              ServiceType: selectFilterData?.flightServiceType,
+              DepartureLocations: [{
+                  Id: selectFilterData?.departureCity,
+                  Type: 5
+              }],
+              // ArrivalLocations: [{
+              //     Id: selectFilterData?.arrivalCity,
+              //     Type: 5
+              // }],
+              Culture: 'en-US',
+            }, tokenRes).then((resArrivalAutoComplete) => {
+              console.log(resArrivalAutoComplete, 'res Arrival Auto Complete');
+            });
+
+            ProviderServiceTourVisio('productservice/getcheckindates', {
+              ProductType: 3,
+              ServiceType: selectFilterData?.flightServiceType,
+              DepartureLocations: [{
+                  Id: selectFilterData?.departureCity,
+                  Type: 5
+              }],
+              ArrivalLocations: [{
+                  Id: selectFilterData?.arrivalCity,
+                  Type: 5
+              }],
+            }, tokenRes).then((resCheckinDates) => {
+              console.log(resCheckinDates, 'res Checkin Dates');
+            });
+
+            console.log(selectFilterData?.departureCity, selectFilterData?.arrivalCity);
+
+            ProviderServiceTourVisio('productservice/pricesearch', {
+              ProductType: 3,
+              ServiceTypes: [selectFilterData?.flightServiceType ?? 1],
+              CheckIn: "2024-07-29T00:00:00+03:00",
+              DepartureLocations: [{
+                  id: selectFilterData?.departureCity?.slice(0, 3).toUpperCase(),
+                  type: 5
+              }],
+              ArrivalLocations: [{
+                  id: selectFilterData?.arrivalCity?.slice(0, 3).toUpperCase(),
+                  type: 5
+              }],
+              Passengers: [
+                {
+                  type: 1,
+                  count: 1
+                },
+                {
+                  type: 2,
+                  count: 1
+                },
+                {
+                  type: 3,
+                  count: 1
+                },
+                {
+                  type: 4,
+                  count: 1
+                }
+              ],
+              showOnlyNonStopFlight: false,
+              additionalParameters: {
+                getOptionsParameters: {
+                  flightBaggageGetOption: 0
+                }
+              },
+              acceptPendingProviders: false,
+              forceFlightBundlePackage: false,
+              disablePackageOfferTotalPrice: true,
+              calculateFlightFees: false,
+              flightClasses: [0],
+              Culture: "en-US",
+              Currency: "EUR"
+            }, tokenRes).then((resPriceSearch) => {
+              console.log(resPriceSearch, 'res Price Search');
+            });
+
+            // setCardTypeLoading(false);
+            // if(resPro?.data?.body?.items) {
+            //   setCardType(DataType.Flight);
+            //   setFoundLenght(resPro?.data?.body?.items.length);
+            //   setFlights(mapFlightData(resPro));
+            // }
           });
           break;
         case  DataType.Restaurant:
@@ -379,13 +463,51 @@ const SearchAndFilter = () => {
           }
           break;
         default:
-          GetPaginatedServicesBySearchFilter(pageNumber, pageSize, queryParts)
-          .then((resSer) => {
-            setCardTypeLoading(false);
-            setCardType(DataType.Service);
-            setFoundLenght(resSer.data?.totalItems);
-            setServices(mapServiceData(resSer));
-          });
+            const SUPPORTED_TABS = ['Search All', 'Hotels', 'Restaurants', 'Flight'];
+            const isSupportedTab = (tab: any) => SUPPORTED_TABS.includes(tab);
+            const selectedTab = selectFilterData?.selectdTab.children[1];
+
+            if(!isSupportedTab(selectedTab)) {
+              GetServiceTypes().then((res) => {
+                setShowFields(true);
+
+                queryParts.ServiceTypeId = res.data.find((s: any) => s.name === selectedTab)?.id;
+                const serviceType = res.data.find((s: any) => s.name === selectedTab);
+
+                if(serviceType?.id) GetFeildsbysid(serviceType?.id).then((res) => setFields(res.data));
+
+                if(serviceType?.isVehicle && serviceType.isVehicle) {
+                  setShowVehicles(true);
+                  GetAllVehicles().then((res) => setVehicles(res.data) );
+                  GetAllVehiclesTypes().then((res)=> setVehicleTypes(res.data));
+                } else {
+                  setShowVehicles(false);
+                }
+
+                GetPaginatedServicesBySearchFilter(pageNumber, pageSize, queryParts)
+                .then((resSer) => {
+                  setCardTypeLoading(false);
+                  if(resSer?.data?.items) {
+                    setCardType(DataType.Service);
+                    setFoundLenght(resSer?.data?.totalItems);
+                    setServices(mapServiceData(resSer));
+                  }
+                });
+              });
+            } else {
+              GetPaginatedServicesBySearchFilter(pageNumber, pageSize, queryParts)
+              .then((resSer) => {
+                setCardTypeLoading(false);
+                if(resSer?.data?.items) {
+                  setCardType(DataType.Service);
+                  setFoundLenght(resSer?.data?.totalItems);
+                  setServices(mapServiceData(resSer));
+                }
+              });
+
+              setShowFields(false);
+              setShowVehicles(false);
+            }
           break;
       }
     }
@@ -661,8 +783,10 @@ const SearchAndFilter = () => {
               { cardType === DataType.Hotel && hotels.length > 0 ? (
                   hotels.map(hotel => (
                     <ServiceCard
-                      key={hotel.hotel.id}
+                      key={hotel.id}
                       service={hotel}
+                      moreData={hotelSearchId}
+                      QueryFilter={selectFilterData ?? undefined}
                       ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
                       type={DataType.Hotel}
                     />
@@ -672,6 +796,7 @@ const SearchAndFilter = () => {
                   <ServiceCard
                     key={flight.geolocation.longitude}
                     service={flight}
+                    QueryFilter={selectFilterData ?? undefined}
                     ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
                     type={DataType.Flight}
                   />
@@ -681,6 +806,7 @@ const SearchAndFilter = () => {
                   <ServiceCard
                     key={restaurant.place_id}
                     service={restaurant}
+                    QueryFilter={selectFilterData ?? undefined}
                     ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
                     type={DataType.Restaurant}
                   />
@@ -690,6 +816,7 @@ const SearchAndFilter = () => {
                   <ServiceCard
                     key={service.id}
                     service={service}
+                    QueryFilter={selectFilterData ?? undefined}
                     ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
                     type={DataType.Service}
                   />

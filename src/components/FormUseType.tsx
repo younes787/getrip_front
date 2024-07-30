@@ -122,7 +122,11 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
-      Serviceform.values.images = fileimg;
+      Serviceform.values.images = fileimg.map((_file: any) => ({
+        ObjectId: 0,
+        file: _file
+      }));
+
       Serviceform.values.steps = steps;
 
       if (selectedLocation) {
@@ -457,8 +461,10 @@ const FormUseType = () => {
           </div>
 
           <div className="md:col-11 lg:col-11 getrip-type text-center flex justify-content-center align-items-center">
-            <Image alt={Serviceform.values.typeId?.name} zoomSrc={Serviceform.values.typeId?.photos[0].imagePath} src={Serviceform.values.typeId?.photos[0].imagePath} width="90" height="90" preview />
-            <span className="primary mx-2 text-xl antialiased get-rp">{Serviceform.values.typeId?.name}</span>
+            {Serviceform?.values?.typeId?.photos &&
+              <Image alt={Serviceform?.values?.typeId?.name} zoomSrc={Serviceform?.values?.typeId?.photos[0].imagePath} src={Serviceform?.values?.typeId?.photos[0].imagePath} width="90" height="90" preview />
+            }
+            <span className="primary mx-2 text-xl antialiased get-rp">{Serviceform?.values?.typeId?.name}</span>
           </div>
         </div>
 

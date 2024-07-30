@@ -35,15 +35,18 @@ import ServiceDetailsPage from "../pages/ServiceDetailsPage";
 import SearchAndFilter from "../pages/SearchAndFilter";
 import OrderHistory from "../pages/OrderHistory";
 import HomePageContent from "../pages/HomePageContent";
+import { useState } from "react";
+import Requests from "../pages/Requests";
 
 const Layout = () => {
   const { user } = useAuth();
   const User = JSON.parse(localStorage?.getItem('user') as any)
   const role = User?.data?.role;
+  const [navState, setNavState] = useState<boolean>(false);
 
   return (
     <div className="h-full">
-      <NavBar />
+        <NavBar navState={navState} />
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -62,7 +65,7 @@ const Layout = () => {
       <Routes>
       {user ? (
           <>
-            {role === 'Administrator' && (
+            {role === 'Administrator' && ( //  || role === 'Service Provider'
               <Route element={<LayoutWithSidebar />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/users" element={<Users />} />
@@ -87,18 +90,19 @@ const Layout = () => {
             <Route path="/stat-of-users" element={<StatOfUsers />} />
             <Route path="/stat-of-services" element={<StatOfServices />} />
             <Route path="/user-details/:accountId" element={<UserDetails />} />
-            <Route path="/service-details/:serviceType/:serviceId" element={<ServiceDetailsPage />} />
+            <Route path="/service-details/:serviceType/:serviceId/:queryFilter?/:moreParams?" element={<ServiceDetailsPage onCheckAuth={() => setNavState(true)} />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />
             <Route path="/order-history" element={<OrderHistory />} />
+            <Route path={`/${role}-requests`} element={<Requests />} />
             <Route path="/form-use-type" element={<FormUseType />} />
           </>
         ) : (
           <>
             <Route path="/" element={<Home />} />
-            <Route path="/service-details/:serviceType/:serviceId" element={<ServiceDetailsPage />} />
+            <Route path="/service-details/:serviceType/:serviceId/:queryFilter?/:moreParams?" element={<ServiceDetailsPage onCheckAuth={() => setNavState(true)} />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
           </>
         )}

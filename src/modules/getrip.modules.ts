@@ -1,5 +1,4 @@
 
-
 export class LoginDTO {
   username: string = "";
   password: string = "";
@@ -119,6 +118,20 @@ export class PlaceDTO {
   lang: string = '';
   lot: string = '';
   cityId: number = 0;
+}
+
+export class AddRequestDTO {
+  senderAccountId: number = 0;
+  recieverAccountId: number = 0;
+  requestDate: Date = new Date();
+  lastUpdateDate: Date = new Date();
+  notes: string = '';
+  subject: string = '';
+  serviceId: number = 0;
+  startDate: Date = new Date();
+  endDate: Date = new Date();
+  adultPassengers: number = 0;
+  childPassengers: number = 0;
 }
 
 export class VehicleDTO {
@@ -352,7 +365,10 @@ export class ServiceDTO{
   currencyId:number=0;
   isTrip:boolean = false;
   photos?: any[];
-  images?: {};
+  images?: {
+    ObjectId: number,
+    file: any,
+  };
   address?: Address;
   placeHasNewActivities:boolean = false;
   hasNewRentalPlace :boolean = false;
@@ -396,33 +412,66 @@ export interface Service {
 }
 
 export interface Hotel {
-  type: number;
+  id: string;
+  name: string;
+  type?: number;
   geolocation: {
     longitude: string;
     latitude: string;
   };
   country: {
-    id: string;
+    internationalCode: string;
     name: string;
+    provider: number;
+    isTopRegion: boolean;
   };
-  state: {
+  state?: {
     id: string;
     name: string;
   };
   city: {
-    id: string;
     name: string;
+    countryId: string;
+    provider: number;
+    isTopRegion: boolean;
+    id: string;
   };
-  hotel: {
-    id: string
-    internationalName: string
-    name:string
+  address: string;
+  boardGroups: any[];
+  boards: any[];
+  description: {
+    text: string;
   };
-  name?: string;
+  facilities: any[];
+  giataInfo: {
+    hotelId: string;
+    destinationId: string;
+  };
+  hasChannelManagerOffer: boolean;
+  hasThirdPartyOwnOffer: boolean;
+  hotelCategory: {
+    name: string;
+    id: string;
+    code: string;
+  };
+  location: {
+    name: string;
+    countryId: string;
+    provider: number;
+    isTopRegion: boolean;
+    id: string;
+  };
+  offers: any[];
   provider: number;
+  rating: number;
+  stars: number;
+  themes: any[];
+  thirdPartyInformation: {
+    infos: any[];
+  };
+  thumbnail: string;
   image: string;
 }
-
 export interface Flight {
   type: number;
   geolocation: {

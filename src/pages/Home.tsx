@@ -43,6 +43,13 @@ const Home = () => {
     }
   };
 
+  const queryString = selectFilterData
+  ? Object.entries(selectFilterData)
+      .filter(([_, value]) => value !== undefined)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .join('&')
+  : '';
+
   useEffect(() => {
     setLoading(true);
     const { province, moreData } = selectedLocationFromSearch || {};
@@ -172,7 +179,7 @@ const Home = () => {
                 }}
                 aria-label="Filter"
                 size="small"
-                onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`)}
+                onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}/${queryString}`)}
               >
                 Show details
               </Button>
