@@ -348,6 +348,12 @@ export interface LocationFromSearch {
   moreData?: any
 }
 
+export class PriceValuesDTO {
+  pricingTypeId: number = 0;
+  value: any = 0;
+  isTaxIncluded: boolean = false;
+}
+
 export class ServiceDTO{
   id?: number = 0;
   name: string = '';
@@ -366,7 +372,7 @@ export class ServiceDTO{
   isTrip:boolean = false;
   photos?: any[];
   images?: {
-    ObjectId: number,
+    ObjectId: any,
     file: any,
   };
   address?: Address;
@@ -381,6 +387,7 @@ export class ServiceDTO{
   isCruise:boolean = false;
   isVehicle:boolean = false;
   isResidence:boolean = false;
+  priceValues?: PriceValuesDTO[];
   rentalPlaceName:string = '';
   fields?: any;
   steps?: StepsDTO[];

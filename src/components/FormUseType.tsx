@@ -7,7 +7,7 @@ import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, 
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO } from "../modules/getrip.modules";
+import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO, PriceValuesDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -122,10 +122,10 @@ const FormUseType = () => {
       Serviceform.values.accountId = user?.data?.accountId;
       Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       Serviceform.values.typeId =  Serviceform.values.typeId?.id;
-      Serviceform.values.images = fileimg.map((_file: any) => ({
-        ObjectId: 0,
-        file: _file
-      }));
+
+
+      Serviceform.values.images =  fileimg.map((_file: any) => ({ file: _file }));
+      // Serviceform.values.images?.ObjectId = 0;
 
       Serviceform.values.steps = steps;
 
@@ -139,6 +139,13 @@ const FormUseType = () => {
         serviceTypeFieldId: FeildsType.find((f:any) => f.name === key)?.id || 0,
         serviceId: 0
       })) || [];
+
+      const formattedPriceValues: PriceValuesDTO[] = Object.keys(values.fields).map((key, index) => ({
+        isTaxIncluded: values.isTaxIncluded as boolean,
+        pricingTypeId: index as number,
+        value: JSON.stringify(values.fields[key]),
+      })) || [];
+
 
       const formattedTags: TagsDTO[] =  values.tags && values.tags.map((tag : any, index :any) => ({
         id: index,
@@ -158,6 +165,7 @@ const FormUseType = () => {
 
       values.tags = formattedTags;
       values.fields = formattedFields;
+      values.priceValues = formattedPriceValues;
       values.serviceFacilities = serviceFacilities;
       Serviceform.values.residenceTypeId = 1;
       handleAddService();
@@ -722,7 +730,10 @@ const FormUseType = () => {
                       onInput={() => handleInputFocus(pricingType.name)}
                       value={Serviceform.values.fields?.[pricingType.name]}
                       className="w-full mt-1"
-                      onValueChange={(e) => Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value)}
+                      onValueChange={(e) => {
+                        Serviceform.setFieldValue(`priceValues.${pricingType.name}`, e.value)
+                        Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value)
+                      }}
                       placeholder={pricingType.name} />
                     </div>
                 ))}
@@ -748,7 +759,7 @@ const FormUseType = () => {
                   className="mx-2"
                   autoFocus={focusedField === 'isTaxIncluded'}
                   onInput={() => handleInputFocus('isTaxIncluded')}
-                  checked={Serviceform.values.isTaxIncluded}
+                  checked={Serviceform.values.isTaxIncluded || false}
                   onChange={(e) => Serviceform.setFieldValue('isTaxInclude', e.value)}
                 />
               </div>
