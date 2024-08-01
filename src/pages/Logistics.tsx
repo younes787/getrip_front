@@ -259,8 +259,8 @@ const Logistics = () => {
               <InputNumber
                 placeholder="Tax Rate"
                 name="taxRate"
-                value={Countryform.values.taxRate}
-                onChange={(e) => Countryform.setFieldValue("taxRate", e.value)}
+                value={CountryformEdit.values.taxRate}
+                onChange={(e) => CountryformEdit.setFieldValue("taxRate", e.value)}
               />
             </div>
           </div>
