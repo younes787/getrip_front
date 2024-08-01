@@ -319,7 +319,7 @@ export interface SidebarFilter {
 }
 
 export interface QueryFilter {
-  selectdTab?: any;
+  selectedTab?: any;
   address?: any;
   startDate?: Date;
   endDate?: Date;

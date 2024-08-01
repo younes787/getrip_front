@@ -160,7 +160,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
     if(serviceType) {
       onSelectFilterData({
-        selectdTab: serviceType[activeIndex]?.header?.props.children[1] ?? selectedTab,
+        selectedTab: serviceType[activeIndex]?.header?.props.children[1] ?? selectedTab,
         address: selectedLocation ?? null,
         startDate: date[0] ?? null,
         endDate: date[1] ?? null,
