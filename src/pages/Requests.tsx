@@ -192,6 +192,20 @@ const Requests = () => {
     </div>
   );
 
+  const AccountName = ({ accountId }: { accountId: any }) => {
+    const [name, setName] = useState<string | null>(null);
+
+    useEffect(() => {
+      if (accountId) {
+        GetAccountById(accountId).then((res) => {
+          setName(res.data.name ?? 'a');
+        });
+      }
+    }, [accountId]);
+
+    return <span>{name}</span>;
+  };
+
   const header = renderHeader();
 
   const columns = [
@@ -206,18 +220,12 @@ const Requests = () => {
     { field: "isApproved", header: "Approved", body: (row: any) => showIcons(row.isApproved) },
     { field: "isPending", header: "Pending", body: (row: any) => showIcons(row.isPending) },
     { field: "lastUpdateDate", header: "Last Update Date", body: (row: any) => formatDate(row.endDate) },
-    { field: "recieverAccountId", header: "Reciever Account", body: (row: any) => getAccount(row.recieverAccountId) },
+    { field: "recieverAccountId", header: "Receiver Account", body: (row: any) => <AccountName accountId={row.recieverAccountId} /> || 'Loading...'},
     { field: "requestDate", header: "Request Date", body: (row: any) => formatDate(row.endDate) },
     { field: "startDate", header: "Start Date", body: (row: any) => formatDate(row.endDate) },
     { field: "rejectionNote", header: "Rejection Note" },
     { field: "", header: "Actions", body: BodyTemplate }
   ];
-
-  const getAccount = (accountId: any) => {
-    GetAccountById(accountId).then((res) => {
-      return res.data.name
-    })
-  }
 
   return (
     <div>

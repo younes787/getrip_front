@@ -267,9 +267,9 @@ const SearchAndFilter = () => {
         EndDate: formatDate(selectFilterData?.endDate),
         AdultPassengers: selectFilterData?.guests,
         ChildPassengers: selectFilterData?.children,
-        MinAmount: selectFilterData?.sidebarFilter?.minMaxPrice[0],
-        MaxAmount: selectFilterData?.sidebarFilter?.minMaxPrice[1],
-        MaxRating: selectFilterData?.sidebarFilter?.ratings,
+        MinAmount: selectFilterData?.sidebarFilter?.minMaxPrice[0] ?? 0,
+        MaxAmount: selectFilterData?.sidebarFilter?.minMaxPrice[1] ?? 0,
+        MaxRating: selectFilterData?.sidebarFilter?.ratings ?? 0,
         MinRating: 0,
       };
 

@@ -123,11 +123,7 @@ const FormUseType = () => {
       values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       values.typeId =  Serviceform.values.typeId?.id;
 
-
-      values.images = fileimg.map((_file: any) => ({
-        file: [_file],
-        ObjectId: 0
-      }));
+      values.images = { ObjectId: 0, file: fileimg}
 
       values.steps = steps;
 
@@ -144,10 +140,9 @@ const FormUseType = () => {
 
       const formattedPriceValues: PriceValuesDTO[] = Object.keys(values.fields).map((key, index) => ({
         isTaxIncluded: values.isTaxIncluded as boolean,
-        pricingTypeId: index as number,
+        pricingTypeId: FeildsType.find((f:any) => f.name === key)?.id || 0,
         value: JSON.stringify(values.fields[key]),
       })) || [];
-
 
       const formattedTags: TagsDTO[] =  values.tags && values.tags.map((tag : any, index :any) => ({
         id: index,
