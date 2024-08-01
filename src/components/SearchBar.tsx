@@ -24,24 +24,9 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const today = new Date();
   const minSelectableDate = new Date(today);
   minSelectableDate.setDate(today.getDate() + 10);
-  const [date, setDate] = useState<any>([today, minSelectableDate]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [addressData, setAddressData] = useState<{
-    countryId: number,
-    countryName: string,
-    name: string,
-    provinceId: number,
-    provinceName: string,
-  }[]>([]);
+
   const [keySearch, setKeySearch] = useState<string>('A');
-  const [selectedLocation, setSelectedLocation] = useState<{ name: string }>({ name: '' });
   const [filteredQuery, setFilteredQuery] = useState<any>(null);
-  const [guests, setGuests] = useState<any>(0);
-  const [children, setChildren] = useState<any>(0);
-  const [departureCity, setDepartureCity] = useState<any>(null);
-  const [arrivalCity, setArrivalCity] = useState<any>(null);
-  const [departureDate, setDepartureDate] = useState<any>(null);
-  const [returnDate, setReturnDate] = useState<any>(null);
   const menuLeft = useRef<any>(null);
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState<any>('');
@@ -50,9 +35,44 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [flightServiceType, setFlightServiceType] = useState<any>();
   const [numVisible, setNumVisible] = useState(6);
   const [countries, setCountries] = useState<any>();
+  const [activeIndex, setActiveIndex] = useState<number>(parseInt(localStorage.getItem('activeIndex')!) || 0);
+  const [selectedLocation, setSelectedLocation] = useState<{ name: string }>(JSON.parse(localStorage.getItem('selectedLocation')!) || { name: '' });
+  const [guests, setGuests] = useState<any>(parseInt(localStorage.getItem('guests')!) || 0);
+  const [children, setChildren] = useState<any>(parseInt(localStorage.getItem('children')!) || 0);
+  const [departureCity, setDepartureCity] = useState<any>(JSON.parse(localStorage.getItem('departureCity')!) || null);
+  const [arrivalCity, setArrivalCity] = useState<any>(JSON.parse(localStorage.getItem('arrivalCity')!) || null);
+  const [departureDate, setDepartureDate] = useState<any>(JSON.parse(localStorage.getItem('departureDate')!) || null);
+  const [returnDate, setReturnDate] = useState<any>(JSON.parse(localStorage.getItem('returnDate')!) || null);
+  const [addressData, setAddressData] = useState<{
+    countryId: number,
+    countryName: string,
+    name: string,
+    provinceId: number,
+    provinceName: string,
+  }[]>([]);
+
   const [serviceType, setServiceType] = useState([
     { header: <span><FontAwesomeIcon icon={faSearch} size={"sm"} className="mr-2" />Search All</span> },
   ]);
+
+  const [selectedTab, setSelectedTab] = useState<string>(() => {
+    const storedTab = localStorage.getItem('selectedTab');
+    return storedTab ? storedTab : "Search All";
+  });
+
+  const getInitialDate = () => {
+    const localDate = localStorage.getItem('date');
+    if (localDate) {
+      const parsedDate = JSON.parse(localDate);
+      return [
+        parsedDate[0] ? new Date(parsedDate[0]) : today,
+        parsedDate[1] ? new Date(parsedDate[1]) : minSelectableDate
+      ];
+    }
+    return [today, minSelectableDate];
+  };
+
+  const [date, setDate] = useState<any>(getInitialDate());
 
   const FlightTemplate = ({ icon, label, inputComponent }: any) => (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -126,19 +146,33 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   }, []);
 
   useEffect(() => {
-    onSelectFilterData({
-      selectdTab: serviceType[activeIndex].header.props ?? null,
-      address: selectedLocation ?? null,
-      startDate: date[0] ?? null,
-      endDate: date[1] ?? null,
-      guests: guests ?? null,
-      children: children ?? null,
-      departureCity: departureCity ?? null,
-      arrivalCity: arrivalCity ?? null,
-      departureDate: departureDate ?? null,
-      returnDate: returnDate ?? null,
-      flightServiceType: flightServiceType ?? null,
-    });
+    localStorage.setItem('selectedLocation', JSON.stringify(selectedLocation));
+    localStorage.setItem('date', JSON.stringify(date));
+    localStorage.setItem('activeIndex', activeIndex.toString());
+    localStorage.setItem('guests', guests.toString());
+    localStorage.setItem('children', children.toString());
+    localStorage.setItem('departureCity', JSON.stringify(departureCity));
+    localStorage.setItem('arrivalCity', JSON.stringify(arrivalCity));
+    localStorage.setItem('departureDate', JSON.stringify(departureDate));
+    localStorage.setItem('returnDate', JSON.stringify(returnDate));
+    localStorage.setItem('keySearch', keySearch);
+    localStorage.setItem('selectedTab', JSON.stringify(serviceType[activeIndex]?.header?.props.children[1]) ?? selectedTab);
+
+    if(serviceType) {
+      onSelectFilterData({
+        selectdTab: serviceType[activeIndex]?.header?.props.children[1] ?? selectedTab,
+        address: selectedLocation ?? null,
+        startDate: date[0] ?? null,
+        endDate: date[1] ?? null,
+        guests: guests ?? null,
+        children: children ?? null,
+        departureCity: departureCity ?? null,
+        arrivalCity: arrivalCity ?? null,
+        departureDate: departureDate ?? null,
+        returnDate: returnDate ?? null,
+        flightServiceType: flightServiceType ?? null,
+      });
+    }
   }, [selectedLocation, date,  activeIndex, guests, children, arrivalCity, departureDate, departureCity, returnDate, flightServiceType]);
 
   useEffect(() => {
@@ -230,208 +264,210 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   };
 
   const getMenuModel = () => {
-    const serviceTypeName = serviceType[activeIndex].header.props.children[1];
+    if(serviceType) {
 
-    const commonCloseButton = (
-      <div className="close w-full mt-5" style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
-        <Button
-          label="Close"
-          severity="danger"
-          type='button'
-          style={{ padding: '5px' }}
-          onClick={(event) => menuLeft.current.hide(event)}
-          aria-controls="popup_menu_left"
-          aria-haspopup
-        />
-      </div>
-    );
+      const commonCloseButton = (
+        <div className="close w-full mt-5" style={{ display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+          <Button
+            label="Close"
+            severity="danger"
+            type='button'
+            style={{ padding: '5px' }}
+            onClick={(event) => menuLeft.current.hide(event)}
+            aria-controls="popup_menu_left"
+            aria-haspopup
+          />
+        </div>
+      );
 
-    if (!['Restaurants', 'Flight'].includes(serviceTypeName)) {
-      return [
-        {
-          label: 'Fields',
-          template: () => (
-            <>
-              <div className="gus m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
-                <span className='mx-2' style={{width: '100px'}}>Guests</span>
-                <InputNumber
-                  inputId="guests"
-                  value={guests}
-                  onValueChange={handleGuestsChange}
-                  showButtons
-                  buttonLayout="horizontal"
-                  step={1}
-                  min={0}
-                  inputClassName="input-template"
-                  decrementButtonClassName="p-button-secondery"
-                  incrementButtonClassName="p-button-secondery"
-                  incrementButtonIcon="pi pi-plus"
-                  decrementButtonIcon="pi pi-minus"
+      if (!['Restaurants', 'Flight'].includes(selectedTab as string)) {
+        return [
+          {
+            label: 'Fields',
+            template: () => (
+              <>
+                <div className="gus m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                  <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
+                  <span className='mx-2' style={{width: '100px'}}>Guests</span>
+                  <InputNumber
+                    inputId="guests"
+                    value={guests}
+                    onValueChange={handleGuestsChange}
+                    showButtons
+                    buttonLayout="horizontal"
+                    step={1}
+                    min={0}
+                    inputClassName="input-template"
+                    decrementButtonClassName="p-button-secondery"
+                    incrementButtonClassName="p-button-secondery"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus"
+                  />
+                </div>
+
+                <div className="chi m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                  <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
+                  <span className='mx-2' style={{width: '100px'}}>children</span>
+                  <InputNumber
+                    inputId="children"
+                    value={children}
+                    onValueChange={handleChildrenChange}
+                    showButtons
+                    buttonLayout="horizontal"
+                    step={1}
+                    min={0}
+                    inputClassName="input-template"
+                    decrementButtonClassName="p-button-secondery"
+                    incrementButtonClassName="p-button-secondery"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus"
+                  />
+                </div>
+                {commonCloseButton}
+              </>
+            )
+          }
+        ];
+      } else if(selectedTab === 'Flight') {
+        return [
+          {
+            label: 'Departure City',
+            template: () => (
+              <>
+                <div className='m-2 w-full departure'>
+                  <FlightTemplate
+                    icon={faPlaceOfWorship}
+                    label="Flight Service Type"
+                    inputComponent={
+                      <Dropdown
+                        placeholder="Select a Flight Service Type"
+                        options={[
+                          {id: 1, name: 'One Way'},
+                          {id: 2, name: 'Round Trip'},
+                          {id: 3, name: 'Multi City'},
+                        ]}
+                        optionLabel="name"
+                        optionValue="id"
+                        name="flightServiceType"
+                        filter
+                        className="mt-2	w-full"
+                        value={flightServiceType}
+                        onChange={(e) => setFlightServiceType(e.value)}
+                      />
+                    }
+                  />
+                </div>
+
+                <Dropdown
+                  placeholder="Select a Country"
+                  options={countries}
+                  optionLabel="name"
+                  optionValue="id"
+                  name="country_name"
+                  filter
+                  className="mt-2	w-full"
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.value);
+                    GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
+                  }}
                 />
-              </div>
 
-              <div className="chi m-2 w-full" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
-                <span className='mx-2' style={{width: '100px'}}>children</span>
-                <InputNumber
-                  inputId="children"
-                  value={children}
-                  onValueChange={handleChildrenChange}
-                  showButtons
-                  buttonLayout="horizontal"
-                  step={1}
-                  min={0}
-                  inputClassName="input-template"
-                  decrementButtonClassName="p-button-secondery"
-                  incrementButtonClassName="p-button-secondery"
-                  incrementButtonIcon="pi pi-plus"
-                  decrementButtonIcon="pi pi-minus"
-                />
-              </div>
-              {commonCloseButton}
-            </>
-          )
-        }
-      ];
-    } else if(serviceTypeName === 'Flight') {
-      return [
-        {
-          label: 'Departure City',
-          template: () => (
-            <>
-              <div className='m-2 w-full departure'>
-                <FlightTemplate
-                  icon={faPlaceOfWorship}
-                  label="Flight Service Type"
-                  inputComponent={
-                    <Dropdown
-                      placeholder="Select a Flight Service Type"
-                      options={[
-                        {id: 1, name: 'One Way'},
-                        {id: 2, name: 'Round Trip'},
-                        {id: 3, name: 'Multi City'},
-                      ]}
-                      optionLabel="name"
-                      optionValue="id"
-                      name="flightServiceType"
-                      filter
-                      className="mt-2	w-full"
-                      value={flightServiceType}
-                      onChange={(e) => setFlightServiceType(e.value)}
-                    />
-                  }
-                />
-              </div>
+                <div className='m-2 w-full departure'>
+                  <FlightTemplate
+                    icon={faPlaneDeparture}
+                    label="Departure City"
+                    inputComponent={
+                      <Dropdown
+                        placeholder="Select a Departure city"
+                        options={provinces}
+                        optionLabel="name"
+                        optionValue="name"
+                        name="departureCity"
+                        filter
+                        className="mt-2	w-full"
+                        value={departureCity}
+                        onChange={(e) => setDepartureCity(e.value)}
+                      />
+                    }
+                  />
+                </div>
 
-              <Dropdown
-                placeholder="Select a Country"
-                options={countries}
-                optionLabel="name"
-                optionValue="id"
-                name="country_name"
-                filter
-                className="mt-2	w-full"
-                value={country}
-                onChange={(e) => {
-                  setCountry(e.value);
-                  GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
-                }}
-              />
+                <div className='m-2 w-full departure'>
+                  <FlightTemplate
+                    icon={faPlaneArrival}
+                    label="Arrival City"
+                    inputComponent={
+                      <Dropdown
+                        placeholder="Select a Arrival city"
+                        options={provinces}
+                        optionLabel="name"
+                        optionValue="name"
+                        name="arrivalCity"
+                        filter
+                        className="mt-2	w-full"
+                        value={arrivalCity}
+                        onChange={(e) => setArrivalCity(e.value)}
+                      />
+                    }
+                  />
+                </div>
 
-              <div className='m-2 w-full departure'>
-                <FlightTemplate
-                  icon={faPlaneDeparture}
-                  label="Departure City"
-                  inputComponent={
-                    <Dropdown
-                      placeholder="Select a Departure city"
-                      options={provinces}
-                      optionLabel="name"
-                      optionValue="name"
-                      name="departureCity"
-                      filter
-                      className="mt-2	w-full"
-                      value={departureCity}
-                      onChange={(e) => setDepartureCity(e.value)}
-                    />
-                  }
-                />
-              </div>
+                <div className='m-2 w-full departure'>
+                  <FlightTemplate
+                    icon={faCalendarAlt}
+                    label="Departure Date"
+                    inputComponent={
+                      <Calendar
+                        className="w-full"
+                        inputId="departureDate"
+                        autoFocus={focusedField === 'departureDate'}
+                        onInput={() => handleInputFocus('departureDate')}
+                        value={departureDate}
+                        onChange={(e) => setDepartureDate(e.value)}
+                        showIcon
+                      />
+                    }
+                  />
+                </div>
 
-              <div className='m-2 w-full departure'>
-                <FlightTemplate
-                  icon={faPlaneArrival}
-                  label="Arrival City"
-                  inputComponent={
-                    <Dropdown
-                      placeholder="Select a Arrival city"
-                      options={provinces}
-                      optionLabel="name"
-                      optionValue="name"
-                      name="arrivalCity"
-                      filter
-                      className="mt-2	w-full"
-                      value={arrivalCity}
-                      onChange={(e) => setArrivalCity(e.value)}
-                    />
-                  }
-                />
-              </div>
-
-              <div className='m-2 w-full departure'>
-                <FlightTemplate
-                  icon={faCalendarAlt}
-                  label="Departure Date"
-                  inputComponent={
-                    <Calendar
-                      className="w-full"
-                      inputId="departureDate"
-                      autoFocus={focusedField === 'departureDate'}
-                      onInput={() => handleInputFocus('departureDate')}
-                      value={departureDate}
-                      onChange={(e) => setDepartureDate(e.value)}
-                      showIcon
-                    />
-                  }
-                />
-              </div>
-
-              <div className='m-2 w-full departure'>
-                <FlightTemplate
-                  icon={faCalendarAlt}
-                  label="Return Date"
-                  inputComponent={
-                    <Calendar
-                      className="w-full"
-                      inputId="returnDate"
-                      autoFocus={focusedField === 'returnDate'}
-                      onInput={() => handleInputFocus('returnDate')}
-                      value={returnDate}
-                      onChange={(e) => setReturnDate(e.value)}
-                      showIcon
-                    />
-                  }
-                />
-              </div>
-              {commonCloseButton}
-            </>
-          )
-        }
-      ];
-    }
-
-    return [
-      {
-        label: 'No Filter',
-        template: () => (
-          <>
-            <div className='text-center p-button p-component p-button-outlined p-button-danger' style={{ padding: '10px 70px'}}>No Filter Found</div>
-            {commonCloseButton}
-          </>
-        )
+                <div className='m-2 w-full departure'>
+                  <FlightTemplate
+                    icon={faCalendarAlt}
+                    label="Return Date"
+                    inputComponent={
+                      <Calendar
+                        className="w-full"
+                        inputId="returnDate"
+                        autoFocus={focusedField === 'returnDate'}
+                        onInput={() => handleInputFocus('returnDate')}
+                        value={returnDate}
+                        onChange={(e) => setReturnDate(e.value)}
+                        showIcon
+                      />
+                    }
+                  />
+                </div>
+                {commonCloseButton}
+              </>
+            )
+          }
+        ];
       }
-    ];
+
+      return [
+        {
+          label: 'No Filter',
+          template: () => (
+            <>
+              <div className='text-center p-button p-component p-button-outlined p-button-danger' style={{ padding: '10px 70px'}}>No Filter Found</div>
+              {commonCloseButton}
+            </>
+          )
+        }
+      ];
+
+    }
   };
 
   const responsiveOptions = [

@@ -117,20 +117,22 @@ const FormUseType = () => {
     validationSchema,
     validateOnChange: true,
     onSubmit: (values) => {
-      Serviceform.values.typeId?.id === 9 ? Serviceform.values.isYacht = true : Serviceform.values.isYacht = false;
-      Serviceform.values.typeId?.id === 12 ? Serviceform.values.isVehicle = true : Serviceform.values.isVehicle = false;
-      Serviceform.values.accountId = user?.data?.accountId;
-      Serviceform.values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
-      Serviceform.values.typeId =  Serviceform.values.typeId?.id;
+      values.typeId?.id === 9 ? Serviceform.values.isYacht = true : Serviceform.values.isYacht = false;
+      values.typeId?.id === 12 ? Serviceform.values.isVehicle = true : Serviceform.values.isVehicle = false;
+      values.accountId = user?.data?.accountId;
+      values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
+      values.typeId =  Serviceform.values.typeId?.id;
 
 
-      Serviceform.values.images =  fileimg.map((_file: any) => ({ file: _file }));
-      // Serviceform.values.images?.ObjectId = 0;
+      values.images = fileimg.map((_file: any) => ({
+        file: [_file],
+        ObjectId: 0
+      }));
 
-      Serviceform.values.steps = steps;
+      values.steps = steps;
 
       if (selectedLocation) {
-        Serviceform.values.address = extractLocationDetails(selectedLocation);
+        values.address = extractLocationDetails(selectedLocation);
       }
 
       const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
@@ -167,7 +169,7 @@ const FormUseType = () => {
       values.fields = formattedFields;
       values.priceValues = formattedPriceValues;
       values.serviceFacilities = serviceFacilities;
-      Serviceform.values.residenceTypeId = 1;
+      values.residenceTypeId = 1;
       handleAddService();
     },
   });

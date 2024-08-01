@@ -279,7 +279,7 @@ const SearchAndFilter = () => {
 
       setCardTypeLoading(true);
 
-      switch (selectFilterData?.selectdTab.children[1]) {
+      switch (selectFilterData?.selectdTab) {
         case DataType.Hotel:
         case 'Hotels':
           const HotelsPersistenceUrl = 'productservice/getarrivalautocomplete';
@@ -465,7 +465,7 @@ const SearchAndFilter = () => {
         default:
             const SUPPORTED_TABS = ['Search All', 'Hotels', 'Restaurants', 'Flight'];
             const isSupportedTab = (tab: any) => SUPPORTED_TABS.includes(tab);
-            const selectedTab = selectFilterData?.selectdTab.children[1];
+            const selectedTab = selectFilterData?.selectdTab;
 
             if(!isSupportedTab(selectedTab)) {
               GetServiceTypes().then((res) => {
