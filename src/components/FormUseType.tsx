@@ -122,26 +122,16 @@ const FormUseType = () => {
       values.accountId = user?.data?.accountId;
       values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
       values.typeId =  Serviceform.values.typeId?.id;
-
       values.images = { ObjectId: 0, file: fileimg}
-
       values.steps = steps;
 
-      if (selectedLocation) {
-        values.address = extractLocationDetails(selectedLocation);
-      }
+      if (selectedLocation) { values.address = extractLocationDetails(selectedLocation); }
 
       const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
         id: index,
         value: JSON.stringify(values.fields[key]),
         serviceTypeFieldId: FeildsType.find((f:any) => f.name === key)?.id || 0,
         serviceId: 0
-      })) || [];
-
-      const formattedPriceValues: PriceValuesDTO[] = Object.keys(values.fields).map((key, index) => ({
-        isTaxIncluded: values.isTaxIncluded as boolean,
-        pricingTypeId: FeildsType.find((f:any) => f.name === key)?.id || 0,
-        value: JSON.stringify(values.fields[key]),
       })) || [];
 
       const formattedTags: TagsDTO[] =  values.tags && values.tags.map((tag : any, index :any) => ({
@@ -162,9 +152,9 @@ const FormUseType = () => {
 
       values.tags = formattedTags;
       values.fields = formattedFields;
-      values.priceValues = formattedPriceValues;
       values.serviceFacilities = serviceFacilities;
       values.residenceTypeId = 1;
+
       handleAddService();
     },
   });
@@ -720,19 +710,37 @@ const FormUseType = () => {
             <div className="grid grid-cols-12">
               {pricingTypes && pricingTypes.length > 0 && <>
                 {pricingTypes?.map((pricingType: any, index: number) => (
-                    <div className=" md:col-6 lg:col-6my-2">
-                    <label htmlFor={pricingType.name}>{pricingType.name}</label>
-                    <InputNumber
-                      autoFocus={focusedField === pricingType.name}
-                      onInput={() => handleInputFocus(pricingType.name)}
-                      value={Serviceform.values.fields?.[pricingType.name]}
-                      className="w-full mt-1"
-                      onValueChange={(e) => {
-                        Serviceform.setFieldValue(`priceValues.${pricingType.name}`, e.value)
-                        Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value)
-                      }}
-                      placeholder={pricingType.name} />
+                  <>
+                    <div className="md:col-6 lg:col-6 my-2">
+                      <label htmlFor={pricingType.name}>{pricingType.name}</label>
+                      <InputNumber
+                        autoFocus={focusedField === pricingType.name}
+                        onInput={() => handleInputFocus(pricingType.name)}
+                        value={Serviceform.values.fields?.[pricingType.name]}
+                        className="w-full mt-1"
+                        onValueChange={(e) => {
+
+                          Serviceform.setFieldValue(`priceValues.${index}.pricingTypeId`, pricingType.id);
+                          Serviceform.setFieldValue(`priceValues.${index}.pricingTypeName`, pricingType.name);
+                          Serviceform.setFieldValue(`priceValues.${index}.value`, e.value);
+
+                          Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value);
+                        }}
+                        placeholder={pricingType.name}
+                      />
                     </div>
+
+                    <div className="md:col-6 lg:col-6 my-2 flex justify-content-start align-items-center">
+                      <InputSwitch
+                        className="mx-2"
+                        autoFocus={focusedField === `priceValues.${index}.isTaxIncluded`}
+                        onInput={() => handleInputFocus(`priceValues.${index}.isTaxIncluded`)}
+                        checked={Serviceform.values.priceValues ? Serviceform.values.priceValues[index]?.isTaxIncluded : false}
+                        onChange={(e) => Serviceform.setFieldValue(`priceValues.${index}.isTaxIncluded`, e.value)}
+                      />
+                      <label htmlFor="Wallet mx-2">Tax Included</label>
+                    </div>
+                  </>
                 ))}
               </>}
 
@@ -748,17 +756,6 @@ const FormUseType = () => {
                   onInput={() => handleInputFocus('currency')}
                   onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
                   {renderError(Serviceform.errors.currencyId)}
-              </div>
-
-              <div className="md:col-6 lg:col-6 flex justify-content-start align-items-center">
-                <label htmlFor="Wallet mx-2">Tax Included</label>
-                <InputSwitch
-                  className="mx-2"
-                  autoFocus={focusedField === 'isTaxIncluded'}
-                  onInput={() => handleInputFocus('isTaxIncluded')}
-                  checked={Serviceform.values.isTaxIncluded || false}
-                  onChange={(e) => Serviceform.setFieldValue('isTaxInclude', e.value)}
-                />
               </div>
             </div>
           </Fieldset>

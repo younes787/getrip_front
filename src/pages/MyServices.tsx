@@ -65,7 +65,7 @@ const MyServices = () => {
                   <Card
                     title={service.name}
                     subTitle={<span><FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />{service.description}</span>}
-                    header={ <Image src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} imageStyle={{borderRadius: '30px 30px 0 0'}}  preview />}
+                    header={ <Image className="w-full" imageStyle={{borderRadius: '30px 30px 0 0', width: '100%', maxHeight: '220px'}} src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null}  preview />}
                     className="md:w-21rem m-2 m-home-card relative"
                   >
                     <div className="grid mb-3">
@@ -120,7 +120,7 @@ const MyServices = () => {
                     >
                       Delete
                     </Button>
-                  </Card>;
+                  </Card>
                 </div>
               ))}
 

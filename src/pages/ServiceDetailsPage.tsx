@@ -4,7 +4,7 @@ import { AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById } f
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
-import { AddRequestDTO, LocationFromMap } from "../modules/getrip.modules";
+import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook, faCalendarAlt, faFireAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
@@ -15,6 +15,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
+import { RadioButton } from "primereact/radiobutton";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,6 +28,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const { serviceType, serviceId, queryFilter, moreParams } = useParams<{ serviceType: DataType, serviceId: string, queryFilter: any, moreParams: any }>();
   const { user } = useAuth();
   const today = new Date();
+  const [ingredient, setIngredient] = useState<PriceValuesDTO>();
+
+  const dateRange = serviceDetails?.dates?.split(' - ') || [];
+  const [startDate, endDate] = dateRange;
+  const [date, setDate] = useState<any>([new Date(startDate), new Date(endDate)]);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -89,10 +95,16 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         GetAllCountries(),
         GetAllProvinces(),
       ]).then(([serviceDetailsRes, countriesRes, provincesRes]) => {
+        // console.log(serviceDetailsRes);
+
+        setIngredient(serviceDetailsRes.data.priceValues[0]);
+
         setServiceDetails({
           id: serviceDetailsRes.data.id,
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
+          priceValues: serviceDetailsRes.data.priceValues,
+          countryTaxPercent: serviceDetailsRes.data.countryTaxPercent,
           location: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
           images: serviceDetailsRes.data.photos,
           overview: serviceDetailsRes.data.description,
@@ -219,6 +231,8 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     },
   });
 
+  console.log(ingredient);
+
   return (<>
       { loading ? <LoadingComponent /> : <>
         <div className="service-details-container">
@@ -315,19 +329,76 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
             <div className="md:col-4 lg:col-4 sm:col-12">
               <div className="sidebar">
                 <div className="sidebar-info">
-                  <p style={{ display: 'grid', justifyContent: 'start', alignItems: 'center', fontSize: '14px', color: '#ccccccbd'}}>per night <span style={{fontSize: '20px', fontWeight: 'bolder',  color: '#000'}}>${serviceDetails?.pricePerNight}</span></p>
-                  <p className='sidebar-border'><FontAwesomeIcon icon={faCalendarAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" /> {serviceDetails?.dates}</p>
-                  <p className='sidebar-border'><FontAwesomeIcon icon={faFireAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />{serviceDetails?.guests}</p>
-                  <Button style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}} rounded severity="warning" icon={ <FontAwesomeIcon className="mr-2" icon={faMapLocation} size={"sm"} />} onClick={() => setShowMapLocation(true)}>Show On Map</Button>
+                  {type === DataType.Service && serviceDetails &&
+                    serviceDetails?.priceValues.map((priceValue: any, index: number) => (
+                      <div className="card flex justify-content-center mb-3">
+                        <div className="flex flex-wrap gap-3">
+                            {index === 0 ? <h4>price type</h4> : null }
+                            <div className="flex align-items-center w-full">
+                                <RadioButton
+                                  inputId={`priceValue-${index}`}
+                                  name="priceValue"
+                                  value={priceValue}
+                                  onChange={(e) => setIngredient(e.value)}
+                                  checked={ingredient?.pricingTypeName === priceValue.pricingTypeName ?? false}
+                                />
+                                <label htmlFor="ingredient1" className="ml-2">{priceValue.pricingTypeName}</label>
+                            </div>
+                        </div>
+                      </div>
+                    ))
+                  }
+
+                  <p style={{ display: 'grid', justifyContent: 'start', alignItems: 'center', fontSize: '14px', color: '#ccccccbd'}}>
+                      per night
+                      <span style={{fontSize: '20px', fontWeight: 'bolder',  color: '#000'}}>
+                        ${ingredient?.value ?? serviceDetails?.pricePerNight}
+                      </span>
+                  </p>
+
+                  <p className='sidebar-border flex justify-content-center align-items-center'>
+                    <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+
+                    <Calendar
+                      className='failds'
+                      style={{ width: '100%' }}
+                      inputStyle={{ border: 'none' }}
+                      placeholder='Select Start - End Date'
+                      value={date}
+                      onChange={(e) => setDate(e.value)}
+                      numberOfMonths={2}
+                      selectionMode="range"
+                      minDate={today}
+                    />
+                  </p>
+
+                  <p className='sidebar-border'>
+                    <FontAwesomeIcon icon={faFireAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+                    {serviceDetails?.guests}
+                  </p>
+
+                  <Button
+                    style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
+                    rounded
+                    severity="warning"
+                    icon={ <FontAwesomeIcon className="mr-2" icon={faMapLocation} size={"sm"} />}
+                    onClick={() => setShowMapLocation(true)}
+                  >
+                    Show On Map
+                  </Button>
+
                   <Button
                     style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
                     rounded
                     severity="warning"
                     icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
                     onClick={() => user ? setShowBooking(true) : onCheckAuth() }
-                  >Book Now</Button>
+                  >
+                    Book Now
+                  </Button>
+
                   <div className="sidebar-total-fees">
-                    <p style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>Total Fees<span>${serviceDetails?.totalFees}</span></p>
+                    <p style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>Total Fees<span>${ingredient?.value ?? serviceDetails?.totalFees}</span></p>
                   </div>
                 </div>
               </div>
