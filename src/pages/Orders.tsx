@@ -108,7 +108,6 @@ const Orders = () => {
     return null;
   };
 
-
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
     setFilters(prevFilters => ({
