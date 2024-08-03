@@ -297,12 +297,12 @@ export class ServiceFacilitiesDTO{
 }
 
 export interface Address {
-  lat?: number;
-  lng?: number;
+  lat: number;
+  lng: number;
   country?: string;
   province?: string;
   city?: string;
-  description?: string;
+  description: string;
 }
 
 export interface SidebarFilter {
@@ -362,7 +362,7 @@ export class ServiceDTO{
   name: string = '';
   description: string = '';
   typeId?: any ;
-  cityId?: number = 0;
+  cityId: number = 0;
   countryId?: number = 0;
   provincyId?: number = 0;
   placeId?: number ;
@@ -378,7 +378,7 @@ export class ServiceDTO{
     ObjectId: any,
     file: any,
   };
-  address?: Address;
+  address!: Address;
   placeHasNewActivities:boolean = false;
   hasNewRentalPlace :boolean = false;
   isRental:boolean = false;

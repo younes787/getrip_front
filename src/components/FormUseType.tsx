@@ -161,7 +161,37 @@ const FormUseType = () => {
 
   const handleAddService = async () => {
     try {
-      const addServiceResponse = await AddService(Serviceform.values);
+      const formData = new FormData();
+
+      const appendToFormData = (key: any, value: any) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === 'object' && !(value instanceof File)) {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value.toString());
+          }
+        }
+      };
+
+      Object.entries(Serviceform.values).forEach(([key, value]) => {
+        appendToFormData(key, value);
+      });
+
+      appendToFormData('Lat', Serviceform.values.address?.lat);
+      appendToFormData('Lng', Serviceform.values.address?.lng);
+      appendToFormData('AddressDescription', Serviceform.values.address?.description);
+      appendToFormData('AccountId', user?.data?.accountId);
+      appendToFormData('CurrencyId', user?.data?.currencyId);
+
+      const imagesArray = fileimg ? Object.values(fileimg) : [];
+      imagesArray.forEach((file: any, index) => {
+        formData.append(`Images.file`, file);
+      });
+
+      formData.append('Id', '0');
+      formData.append('Images.ObjectId', '0');
+
+      const addServiceResponse = await AddService(formData);
       if (addServiceResponse.isSuccess) {
           confirmDialog({
             header: 'Success!',
@@ -587,7 +617,7 @@ const FormUseType = () => {
 
                 <Dropdown
                   placeholder="Select a Country"
-                  options={countries}
+                  options={countries ?? []}
                   optionLabel="name"
                   optionValue="id"
                   name="countryId"
@@ -608,7 +638,7 @@ const FormUseType = () => {
 
                 <Dropdown
                   placeholder="Select a Provincy"
-                  options={provinces}
+                  options={provinces ?? []}
                   optionLabel="name"
                   optionValue="id"
                   name="provincyId"
@@ -626,7 +656,7 @@ const FormUseType = () => {
                 <label className="mb-2" htmlFor="Status">{" "}City Name{" "}</label>
                 <Dropdown
                   placeholder="Select a City"
-                  options={cities}
+                  options={cities ?? []}
                   optionLabel="name"
                   optionValue="id"
                   name="cityId"

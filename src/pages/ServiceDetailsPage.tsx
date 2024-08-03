@@ -6,7 +6,7 @@ import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
 import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faCalendarAlt, faFireAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt } from "@fortawesome/free-solid-svg-icons";
+import { faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
 import GoogleMap from "../components/GoogleMap";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
@@ -29,10 +29,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const { user } = useAuth();
   const today = new Date();
   const [ingredient, setIngredient] = useState<PriceValuesDTO>();
-
-  const dateRange = serviceDetails?.dates?.split(' - ') || [];
-  const [startDate, endDate] = dateRange;
-  const [date, setDate] = useState<any>([new Date(startDate), new Date(endDate)]);
+  const [date, setDate] = useState<any>([today, today]);
+  const [daysCount, setDaysCount] = useState<any>(1);
+  const [guests, setGuests] = useState<any>(serviceDetails?.guests ?? 1);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -77,6 +76,20 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     return result;
   }
 
+  const [formInitialValues, setFormInitialValues] = useState<AddRequestDTO>({
+    senderAccountId: user?.data?.accountId,
+    recieverAccountId: serviceDetails?.accountId,
+    requestDate: new Date(),
+    lastUpdateDate: new Date(),
+    subject: '',
+    notes: '',
+    serviceId: serviceDetails?.id,
+    adultPassengers: guests,
+    childPassengers: parseQueryString(queryFilter).children,
+    startDate: date[0],
+    endDate: date[1],
+  });
+
   const type = serviceType?.toUpperCase();
 
   const findCountry = (countries: any[], countryId?: number) => {
@@ -95,8 +108,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         GetAllCountries(),
         GetAllProvinces(),
       ]).then(([serviceDetailsRes, countriesRes, provincesRes]) => {
-        // console.log(serviceDetailsRes);
-
         setIngredient(serviceDetailsRes.data.priceValues[0]);
 
         setServiceDetails({
@@ -198,20 +209,37 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     }
   }, [serviceId]);
 
-  const AddRequestForm = useFormik<AddRequestDTO>({
-    initialValues: {
+  useEffect(() => {
+    setFormInitialValues(prevValues => ({
+      ...prevValues,
+      adultPassengers: guests,
+      childPassengers: parseQueryString(queryFilter).children,
+      startDate: date[0],
+      endDate: date[1],
       senderAccountId: user?.data?.accountId,
       recieverAccountId: serviceDetails?.accountId,
-      requestDate: new Date(),
-      lastUpdateDate: new Date(),
-      subject: '',
-      notes: '',
       serviceId: serviceDetails?.id,
-      adultPassengers: parseQueryString(queryFilter).guests,
-      childPassengers: parseQueryString(queryFilter).children,
-      startDate: parseQueryString(queryFilter).startDate,
-      endDate: parseQueryString(queryFilter).endDate,
-    },
+    }));
+  }, [guests, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
+
+  useEffect(() => {
+    const calculateDays = (start: Date, end: Date) => {
+      const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      const diffTime = endDate.getTime() - startDate.getTime();
+
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    };
+
+
+    if(date[0] && date[1]) {
+      setDaysCount(calculateDays(date[0], date[1]));
+    }
+  }, [date]);
+
+  const AddRequestForm = useFormik<AddRequestDTO>({
+    initialValues: formInitialValues,
+    enableReinitialize: true,
     validateOnChange: true,
     onSubmit: async () => {
       try {
@@ -230,8 +258,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       }
     },
   });
-
-  console.log(ingredient);
 
   return (<>
       { loading ? <LoadingComponent /> : <>
@@ -330,28 +356,28 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               <div className="sidebar">
                 <div className="sidebar-info">
                   {type === DataType.Service && serviceDetails &&
-                    serviceDetails?.priceValues.map((priceValue: any, index: number) => (
-                      <div className="card flex justify-content-center mb-3">
-                        <div className="flex flex-wrap gap-3">
-                            {index === 0 ? <h4>price type</h4> : null }
-                            <div className="flex align-items-center w-full">
-                                <RadioButton
-                                  inputId={`priceValue-${index}`}
-                                  name="priceValue"
-                                  value={priceValue}
-                                  onChange={(e) => setIngredient(e.value)}
-                                  checked={ingredient?.pricingTypeName === priceValue.pricingTypeName ?? false}
-                                />
-                                <label htmlFor="ingredient1" className="ml-2">{priceValue.pricingTypeName}</label>
-                            </div>
-                        </div>
+                  <>
+                    <h4 className="my-2">price type</h4>
+                    {serviceDetails?.priceValues.map((priceValue: any, index: number) => (
+                      <div className="flex justify-content-start align-items-center w-full">
+                          <RadioButton
+                            inputId={`priceValue-${index}`}
+                            name="priceValue"
+                            className="my-2"
+                            value={priceValue}
+                            onChange={(e) => setIngredient(e.value)}
+                            checked={ingredient?.pricingTypeName === priceValue.pricingTypeName ?? false}
+                          />
+                          <label htmlFor="ingredient1" className="ml-2">{priceValue.pricingTypeName}</label>
                       </div>
-                    ))
+                    ))}
+                    <hr style={{ border: '1px dashed #ddd'}} className="my-2" />
+                  </>
                   }
 
                   <p style={{ display: 'grid', justifyContent: 'start', alignItems: 'center', fontSize: '14px', color: '#ccccccbd'}}>
-                      per night
-                      <span style={{fontSize: '20px', fontWeight: 'bolder',  color: '#000'}}>
+                      per {ingredient?.pricingTypeName}
+                      <span className="mb-1" style={{fontSize: '20px', fontWeight: 'bolder',  color: '#000'}}>
                         ${ingredient?.value ?? serviceDetails?.pricePerNight}
                       </span>
                   </p>
@@ -361,7 +387,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
 
                     <Calendar
                       className='failds'
-                      style={{ width: '100%' }}
+                      style={{ width: '100%', height: '30px' }}
                       inputStyle={{ border: 'none' }}
                       placeholder='Select Start - End Date'
                       value={date}
@@ -372,9 +398,24 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                     />
                   </p>
 
-                  <p className='sidebar-border'>
-                    <FontAwesomeIcon icon={faFireAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
-                    {serviceDetails?.guests}
+                  <p className='sidebar-border flex justify-content-center align-items-center w-full'>
+                    <FontAwesomeIcon icon={faUserAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+                    <InputNumber
+                      inputId="guests"
+                      value={guests}
+                      onValueChange={(e) => setGuests(e.value)}
+                      showButtons
+                      buttonLayout="horizontal"
+                      step={1}
+                      min={0}
+                      className="w-full"
+                      style={{width: '100%', height: '30px'}}
+                      inputStyle={{  width: '100%', height: '100%'}}
+                      decrementButtonClassName="p-button-secondery"
+                      incrementButtonClassName="p-button-secondery"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                    />
                   </p>
 
                   <Button
@@ -398,7 +439,30 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   </Button>
 
                   <div className="sidebar-total-fees">
-                    <p style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>Total Fees<span>${ingredient?.value ?? serviceDetails?.totalFees}</span></p>
+                    {!ingredient?.isTaxIncluded && (
+                      <span className="mt-1" style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        Tax: {serviceDetails?.countryTaxPercent} %
+                      </span>
+                    )}
+                    <p className="m-0" style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      Total Fees
+                      {!ingredient?.isTaxIncluded ? (
+                        <span>
+                          ${(
+                            (ingredient?.value * guests * daysCount) +
+                            (ingredient?.value * serviceDetails?.countryTaxPercent / 100) +
+                            (AddRequestForm.values.childPassengers > 0 ? ((ingredient?.value / 2) * AddRequestForm.values.childPassengers * daysCount) : 0)
+                          ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </span>
+                      ) : (
+                        <span>
+                          ${(
+                            (ingredient?.value * guests * daysCount) +
+                            (AddRequestForm.values.childPassengers > 0 ? ((ingredient?.value / 2) * AddRequestForm.values.childPassengers * daysCount) : 0)
+                          ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -417,9 +481,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         >
           <GoogleMap
             markerData={markerData}
-            // country={}
-            // province={}
-            // city={}
             onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
           />
         </Dialog>
