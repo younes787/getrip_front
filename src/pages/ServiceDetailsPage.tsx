@@ -294,8 +294,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     );
   };
 
-  console.log(serviceDetails);
-
   return (<>
       { loading ? <LoadingComponent /> : <>
         <div className="service-details-container">
