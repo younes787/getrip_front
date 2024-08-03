@@ -33,7 +33,7 @@ import StatOfUsers from "../pages/StatOfUsers";
 import UserDetails from "../pages/UserDetails";
 import ServiceDetailsPage from "../pages/ServiceDetailsPage";
 import SearchAndFilter from "../pages/SearchAndFilter";
-import OrderHistory from "../pages/OrderHistory";
+import Orders from "../pages/Orders";
 import HomePageContent from "../pages/HomePageContent";
 import { useState } from "react";
 import Requests from "../pages/Requests";
@@ -95,7 +95,7 @@ const Layout = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />
-            <Route path="/order-history" element={<OrderHistory />} />
+            <Route path="/orders" element={<Orders />} />
             <Route path={`/${role}-requests`} element={<Requests />} />
             <Route path="/form-use-type" element={<FormUseType />} />
           </>

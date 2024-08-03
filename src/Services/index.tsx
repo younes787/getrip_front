@@ -1238,4 +1238,31 @@ export const GetRejectedRequests = async () => {
   }
 };
 
+export const GetOrderstsByRecieverId = async (recieverId: number) => {
+  try {
+    const response = await api.get(`/getorderstsbyrecieverid/${recieverId}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetOrderstsBySenderId = async (senderId: number) => {
+  try {
+    const response = await api.get(`/getorderstsbysenderid/${senderId}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const GetAllOrders = async () => {
+  try {
+    const response = await api.get(`/getallorders`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export default api;

@@ -351,13 +351,13 @@ const NavBar = ({navState}: any) => {
         {
           label: "User Menu",
           items: [
-            { label: "Dashboard",     icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
-            { label: "My Profile",    icon: "pi pi-user",      command: () => navigate('/profile') },
-            { label: "My services",   icon: "pi pi-list",      command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
-            { label: "Add services",  icon: "pi pi-plus",      command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
-            { label: "Order History", icon: "pi pi-history",   command: () => navigate('/order-history'), condition: role === 'Client' },
-            { label: `${role} Requests`, icon: "pi pi-user",   command: () => navigate(`/${role}-requests`) },
-            { label: "Log Out",       icon: "pi pi-sign-out",  command: () => logout() }
+            { label: "Dashboard", icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
+            { label: "My Profile", icon: "pi pi-user", command: () => navigate('/profile') },
+            { label: "My services", icon: "pi pi-list", command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Add services", icon: "pi pi-plus", command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Orders", icon: "pi pi-history", command: () => navigate('/orders') },
+            { label: `${role} Requests`, icon: "pi pi-user", command: () => navigate(`/${role}-requests`) },
+            { label: "Log Out", icon: "pi pi-sign-out", command: () => logout() }
           ].filter(c => c.condition === undefined || c.condition)
         }
       ]);
