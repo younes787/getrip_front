@@ -19,6 +19,7 @@ import { SpeedDial } from "primereact/speeddial";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dropdown } from "primereact/dropdown";
+import { InputNumber } from "primereact/inputnumber";
 
 interface RadioOptionPrimary {
   title: string,
@@ -199,7 +200,7 @@ const Services = () => {
     });
   };
 
-  const ShowEditServiceType = (serviceType: any) => {
+  const ShowEditServiceType = (serviceType: ServicesTypeDTO) => {
     setShowServicesFormUpdate(true);
 
     const primaryOption = radioOptionsPrimary.find(option => serviceType[option.value as keyof typeof serviceType]);
@@ -215,6 +216,7 @@ const Services = () => {
     ServicesFormUpdate.setValues({
       id: serviceType.id,
       description: serviceType.description,
+      placement: serviceType.placement,
       name: serviceType.name,
       isRental: serviceType.isRental,
       isTrip: serviceType.isTrip,
@@ -409,6 +411,17 @@ const Services = () => {
             />
           </div>
 
+
+          <div className="md:col-12 lg:col-6">
+            <label className="mb-2 block" htmlFor="Placement">Placement</label>
+            <InputNumber
+              name="placement"
+              className="w-full"
+              value={ServicesForm.values.placement}
+              onChange={(e) => ServicesForm.setFieldValue("placement", e.value)}
+            />
+          </div>
+
           <div className="md:col-12 lg:col-6">
             <Dropdown
               onChange={(e) => ServicesForm.setFieldValue("iconCode", e.value.name)}
@@ -535,6 +548,16 @@ const Services = () => {
               className="w-full"
               value={ServicesFormUpdate?.values?.description}
               onChange={(e) => ServicesFormUpdate.setFieldValue("description", e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-6">
+            <label className="mb-2 block" htmlFor="Placement">Placement</label>
+            <InputNumber
+              name="placement"
+              className="w-full"
+              value={ServicesFormUpdate.values.placement}
+              onChange={(e) => ServicesFormUpdate.setFieldValue("placement", e.value)}
             />
           </div>
 

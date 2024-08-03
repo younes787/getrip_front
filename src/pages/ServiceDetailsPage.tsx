@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById } from "../Services";
+import { AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
@@ -16,6 +16,7 @@ import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
+import { Chip } from "primereact/chip";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,6 +32,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [ingredient, setIngredient] = useState<PriceValuesDTO>();
   const [date, setDate] = useState<any>([today, today]);
   const [daysCount, setDaysCount] = useState<any>(1);
+  const [facilities, setFacilities] = useState<any>();
   const [guests, setGuests] = useState<any>(serviceDetails?.guests ?? 1);
 
   const formatDate = (date: any) => {
@@ -103,26 +105,35 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   useEffect(() => {
     setLoading(true);
     if (type === DataType.Service) {
+
       Promise.all([
         GetServiceDetailsById(Number(serviceId)),
         GetAllCountries(),
         GetAllProvinces(),
-      ]).then(([serviceDetailsRes, countriesRes, provincesRes]) => {
+        GetServiceTypes()
+      ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes]) => {
         setIngredient(serviceDetailsRes.data.priceValues[0]);
-
+        setFacilities(serviceDetailsRes.data.serviceFacilities);
         setServiceDetails({
           id: serviceDetailsRes.data.id,
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
+          tags: serviceDetailsRes.data.tags,
+          serviceType: serviceTypesRes?.data?.find((_type: any) => _type.id === serviceDetailsRes.data.typeId),
           priceValues: serviceDetailsRes.data.priceValues,
           countryTaxPercent: serviceDetailsRes.data.countryTaxPercent,
           location: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
           images: serviceDetailsRes.data.photos,
           overview: serviceDetailsRes.data.description,
-          facilities: serviceDetailsRes.data.serviceFacilities.flatMap((category: any) =>
+          facilities: serviceDetailsRes.data.serviceFacilities.flatMap((category: any, index: number) =>
             category.facilities
               // .filter((facility: any) => facility.isPrimary)
-              .map((facility: any) => { return <div className="m-2">- {facility.name}</div>})
+              .map((facility: any) => {
+                return <div className="m-2">
+                          {index === 0 ? <p>{category.categoryName}</p> : null }
+                          - {facility.name}
+                        </div>
+              })
           ),
           prices: serviceDetailsRes.data.price,
           reviews: '900',
@@ -259,6 +270,32 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     },
   });
 
+  const RentalFacilities = () => {
+    if (serviceDetails?.serviceType?.isRental || !facilities?.length) {
+      return null;
+    }
+
+    return (
+      <div className="grid grid-cols-12 my-2">
+        <h2 className="mx-3 w-full">Facilities</h2>
+        {facilities.map((category: any, categoryIndex: number) => (
+          <div className="mx-3" key={category.categoryName}>
+            {category.facilities
+              .filter((facility: any) => facility.isPrimary)
+              .map((facility: any, facilityIndex: number) => (
+                <div key={facility.name} className="md:col-span-4 lg:col-span-4 sm:col-span-12">
+                  {facilityIndex === 0 && <p>{category.categoryName}</p>}
+                  - {facility.name}
+                </div>
+              ))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  console.log(serviceDetails);
+
   return (<>
       { loading ? <LoadingComponent /> : <>
         <div className="service-details-container">
@@ -304,6 +341,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               </div>
             }
           </div>
+
+
+          <RentalFacilities />
 
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
@@ -437,6 +477,15 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   >
                     Book Now
                   </Button>
+
+                  {serviceDetails?.tags?.length > 0 && (
+                    <div className="sidebar-tags mb-2">
+                      <h3 className="m-2">Tags</h3>
+                      {serviceDetails.tags.map((tag: any, index: number) => (
+                        <Chip className="mt-2 mx-1 tags-chip" key={index} label={tag.name} />
+                      ))}
+                    </div>
+                  )}
 
                   <div className="sidebar-total-fees">
                     {!ingredient?.isTaxIncluded && (

@@ -7,6 +7,7 @@ export class LoginDTO {
 export class RegisterDTO {
   email: string = "";
   password: string = "";
+  confirm_password: string = "";
   username: string = '';
   name: string = '';
   lastname: string = '';
@@ -26,6 +27,7 @@ export class RegisterServiceProviderDTO {
   name: string = "";
   lastname: string = "";
   password: string = "";
+  confirm_password: string = "";
   email: string = "";
   business: string = "";
   position: string = "";
@@ -66,6 +68,7 @@ export class UsersDTO {
 export class ServicesTypeDTO {
   id?: number = 0;
   name: string = '';
+  placement: number = 0;
   description: string = '';
   iconCode: string = '';
   isRental: boolean = false;
@@ -146,6 +149,7 @@ export class VehicleDTO {
 export class FacilityDTO {
   id?: number = 0;
   name: string = '';
+  iconCode: string = '';
   categoryId: number = 0;
 }
 
@@ -164,6 +168,7 @@ export class AssignFaciliesToServiceTypeDTO {
 export class FacilityCategotiesDTO {
   id?: number = 0;
   name: string = '';
+  iconCode: string = '';
 }
 
 export class MakerDTO{

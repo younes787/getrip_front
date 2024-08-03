@@ -352,7 +352,7 @@ html body {
   font-size: 14px;
 }
 
-.users-icon, .services-icon {
+.users-icon, .services-icon, .notifications-icon {
   position: relative;
 
   .p-card-title {
@@ -375,7 +375,7 @@ html body {
     font-size: .9rem;
   }
 
-  .menu-users, .menu-services {
+  .menu-users, .menu-services, .menu-notifications {
     position: absolute;
     width: 250px;
     height: 330px;
@@ -391,7 +391,7 @@ html body {
     .tab-footer {
       background-color: $primary_color;
       display: flex;
-      justify-content: end;
+      justify-content: space-between;
       align-items: center;
       padding-right: 25px;
       text-decoration: underline;
@@ -621,7 +621,14 @@ html body {
     font-size: 16px;
   }
 
-  .sidebar-total-fees {
+  .tags-chip {
+    background-color: $primary_color;
+    color: #fff;
+    font-size: 12px;
+    padding: 1px 8px;
+  }
+
+  .sidebar-total-fees, .sidebar-tags {
     margin-top: 25px;
     border-top: 1px solid #ccccccbd;
   }

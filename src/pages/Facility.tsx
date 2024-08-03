@@ -10,6 +10,8 @@ import { useFormik } from "formik";
 import { FacilityDTO } from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
 const Facility = () => {
   const [facilityCategories, setFacilityCategories] = useState<any>();
@@ -18,7 +20,7 @@ const Facility = () => {
   const [showEditForm, setShowEditForm] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
-
+  const [icons, setIcons] = useState<any>([]);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: {
@@ -51,6 +53,13 @@ const Facility = () => {
     };
 
     fetchData();
+
+    const _icons = Object.keys(fas).map(iconName =>  ({
+      name: iconName,
+      icon: fas[iconName]
+    }));
+
+    setIcons(_icons);
   }, []);
 
   const FacilityForm = useFormik<FacilityDTO>({
@@ -71,12 +80,13 @@ const Facility = () => {
     },
   });
 
-  const showFacilityFormEdit = (rowData: any) => {
+  const showFacilityFormEdit = (rowData: FacilityDTO) => {
     setShowEditForm(true);
 
     FacilityFormEdit.setValues({
       id: rowData.id,
       name: rowData.name,
+      iconCode: rowData.iconCode,
       categoryId: rowData.categoryId,
     });
   };
@@ -125,6 +135,15 @@ const Facility = () => {
     return category ? category.name : 'Unknown';
   };
 
+  const iconOption = (option: any) => {
+    return (
+      <div className="flex align-items-center">
+        <FontAwesomeIcon icon={option.icon} className="mr-2" />
+        <span>{option.name}</span>
+      </div>
+    );
+  };
+
   return (
     <div>
      { loading ? <LoadingComponent/> : <div>
@@ -167,17 +186,32 @@ const Facility = () => {
           }
         >
           <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">Name</label>
+            <div className="md:col-12 lg:col-12">
+              <label className="mb-2 block" htmlFor="Status">Name</label>
               <InputText
                 name="name"
+                className="w-full"
                 value={FacilityForm.values.name}
                 onChange={(e) => FacilityForm.setFieldValue("name", e.target.value)}
               />
             </div>
 
-            <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">Categories</label>
+            <div className="md:col-12 lg:col-12">
+              <label className="mb-2 block" htmlFor="Icon">Icon</label>
+              <Dropdown
+                onChange={(e) => FacilityForm.setFieldValue("iconCode", e.value.name)}
+                options={icons}
+                optionLabel=""
+                placeholder="Select an Icon"
+                filter
+                valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityForm?.values?.iconCode]} className="mr-2" />}</span>}
+                itemTemplate={iconOption}
+                className="w-full"
+              />
+            </div>
+
+            <div className="md:col-12 lg:col-12">
+                <label className="mb-2 block" htmlFor="Status">Categories</label>
                 <Dropdown
                   placeholder="Select a Category"
                   options={facilityCategories}
@@ -208,17 +242,32 @@ const Facility = () => {
           }
         >
           <div className="grid mt-3">
-            <div className="md:col-6 lg:col-6">
-              <label className="mb-2" htmlFor="Status">Name</label>
+            <div className="md:col-12 lg:col-12">
+              <label className="mb-2 block" htmlFor="Status">Name</label>
               <InputText
                 name="name"
+                className="w-full"
                 value={FacilityFormEdit.values.name}
                 onChange={(e) => FacilityFormEdit.setFieldValue("name", e.target.value)}
               />
             </div>
 
-            <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">Categories</label>
+            <div className="md:col-12 lg:col-12">
+              <label className="mb-2 block" htmlFor="Icon">Icon</label>
+              <Dropdown
+                onChange={(e) => FacilityFormEdit.setFieldValue("iconCode", e.value.name)}
+                options={icons}
+                optionLabel=""
+                placeholder="Select an Icon"
+                filter
+                valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityForm?.values?.iconCode]} className="mr-2" />}</span>}
+                itemTemplate={iconOption}
+                className="w-full"
+              />
+            </div>
+
+            <div className="md:col-12 lg:col-12">
+                <label className="mb-2 block" htmlFor="Status">Categories</label>
                 <Dropdown
                   placeholder="Select a Category"
                   options={facilityCategories}

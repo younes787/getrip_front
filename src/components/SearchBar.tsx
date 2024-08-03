@@ -37,7 +37,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [countries, setCountries] = useState<any>();
   const [activeIndex, setActiveIndex] = useState<number>(parseInt(localStorage.getItem('activeIndex')!) || 0);
   const [selectedLocation, setSelectedLocation] = useState<{ name: string }>(JSON.parse(localStorage.getItem('selectedLocation')!) || { name: '' });
-  const [guests, setGuests] = useState<any>(parseInt(localStorage.getItem('guests')!) || 0);
+  const [guests, setGuests] = useState<any>(parseInt(localStorage.getItem('guests')!) || 1);
   const [children, setChildren] = useState<any>(parseInt(localStorage.getItem('children')!) || 0);
   const [departureCity, setDepartureCity] = useState<any>(JSON.parse(localStorage.getItem('departureCity')!) || null);
   const [arrivalCity, setArrivalCity] = useState<any>(JSON.parse(localStorage.getItem('arrivalCity')!) || null);
@@ -296,7 +296,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                     showButtons
                     buttonLayout="horizontal"
                     step={1}
-                    min={0}
+                    min={1}
                     inputClassName="input-template"
                     decrementButtonClassName="p-button-secondery"
                     incrementButtonClassName="p-button-secondery"

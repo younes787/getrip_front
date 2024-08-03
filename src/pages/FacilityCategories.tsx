@@ -9,6 +9,9 @@ import { useFormik } from "formik";
 import { FacilityCategotiesDTO} from "../modules/getrip.modules";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
+import { Dropdown } from "primereact/dropdown";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
 const FacilityCategories = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,7 +19,7 @@ const FacilityCategories = () => {
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
   const [showEditFrom, setShowEditForm] = useState<boolean>(false);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
-
+  const [icons, setIcons] = useState<any>([]);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: {
@@ -35,6 +38,13 @@ const FacilityCategories = () => {
        setLoading(false);
     });
 
+
+    const _icons = Object.keys(fas).map(iconName =>  ({
+      name: iconName,
+      icon: fas[iconName]
+    }));
+
+    setIcons(_icons);
   }, []);
 
   const FacilityCategotiesForm = useFormik<FacilityCategotiesDTO>({
@@ -55,12 +65,13 @@ const FacilityCategories = () => {
     },
   });
 
-  const ShowEditFormTDO = (rowData: any) => {
+  const ShowEditFormTDO = (rowData: FacilityCategotiesDTO) => {
     setShowEditForm(true);
 
     FacilityCategotiesFormEdit.setValues({
       id: rowData.id,
       name: rowData.name,
+      iconCode: rowData.iconCode,
     });
   };
 
@@ -102,6 +113,15 @@ const FacilityCategories = () => {
   };
 
   const header = renderHeader();
+
+  const iconOption = (option: any) => {
+    return (
+      <div className="flex align-items-center">
+        <FontAwesomeIcon icon={option.icon} className="mr-2" />
+        <span>{option.name}</span>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -151,8 +171,23 @@ const FacilityCategories = () => {
                 <label className="mb-2 block" htmlFor="">Facility Categoties Name</label>
                 <InputText
                   name="name"
+                  className="w-full"
                   value={FacilityCategotiesForm.values.name}
                   onChange={(e) => FacilityCategotiesForm.setFieldValue("name", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label className="mb-2 block" htmlFor="Icon">Icon</label>
+                <Dropdown
+                  onChange={(e) => FacilityCategotiesForm.setFieldValue("iconCode", e.value.name)}
+                  options={icons}
+                  optionLabel=""
+                  placeholder="Select an Icon"
+                  filter
+                  valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityCategotiesForm?.values?.iconCode]} className="mr-2" />}</span>}
+                  itemTemplate={iconOption}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -177,8 +212,23 @@ const FacilityCategories = () => {
                 <label className="mb-2 block" htmlFor="">Facility Categoties Name</label>
                 <InputText
                   name="name"
+                  className="w-full"
                   value={FacilityCategotiesFormEdit.values.name}
                   onChange={(e) => FacilityCategotiesFormEdit.setFieldValue("name", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label className="mb-2 block" htmlFor="Icon">Icon</label>
+                <Dropdown
+                  onChange={(e) => FacilityCategotiesFormEdit.setFieldValue("iconCode", e.value.name)}
+                  options={icons}
+                  optionLabel=""
+                  placeholder="Select an Icon"
+                  filter
+                  valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityCategotiesFormEdit?.values?.iconCode]} className="mr-2" />}</span>}
+                  itemTemplate={iconOption}
+                  className="w-full"
                 />
               </div>
             </div>

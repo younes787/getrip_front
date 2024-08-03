@@ -49,6 +49,8 @@ const NavBar = ({navState}: any) => {
   const menuMainRoutes = useRef<any>(null);
   const [mainRoutes, setMainRoutes] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [showMenuNotificationsCard, setShowMenuNotificationsCard] = useState<any>(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [check, setCheck] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentUserId, setCurrentUserId] = useState<any>(null);
@@ -170,11 +172,13 @@ const NavBar = ({navState}: any) => {
     };
   });
 
-  const validationSchema = Yup.object({
-    password: Yup.string()
-    .matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character')
-    .min(8, 'Password must be at least 8 characters long')
-    .required('Password is required'),
+  const validationSchemaLogin = Yup.object({
+    password: Yup.string().matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character').min(8, 'Password must be at least 8 characters long').required('Password is required'),
+  });
+
+  const validationSchemaRegister = Yup.object({
+    password: Yup.string().matches(passwordRegex, 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character').min(8, 'Password must be at least 8 characters long').required('Password is required'),
+    confirm_password: Yup.string().oneOf([Yup.ref('password'), undefined], 'Passwords must match').required('Confirm password is required'),
   });
 
   useEffect(() => {
@@ -232,7 +236,7 @@ const NavBar = ({navState}: any) => {
 
   const register = useFormik<RegisterDTO>({
     initialValues: new RegisterDTO(),
-    validationSchema,
+    validationSchema: validationSchemaRegister,
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async () => {
@@ -246,7 +250,7 @@ const NavBar = ({navState}: any) => {
 
   const loginform = useFormik<LoginDTO>({
     initialValues: new LoginDTO(),
-    validationSchema,
+    validationSchema: validationSchemaLogin,
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async () => {
@@ -267,7 +271,7 @@ const NavBar = ({navState}: any) => {
 
   const Partneregister = useFormik<RegisterServiceProviderDTO>({
     initialValues: new RegisterServiceProviderDTO(),
-    validationSchema,
+    validationSchema: validationSchemaRegister,
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true);
@@ -352,12 +356,12 @@ const NavBar = ({navState}: any) => {
           label: "User Menu",
           items: [
             { label: "Dashboard", icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
-            { label: "My Profile", icon: "pi pi-user", command: () => navigate('/profile') },
+            { label: "My profile", icon: "pi pi-user", command: () => navigate('/profile') },
             { label: "My services", icon: "pi pi-list", command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
             { label: "Add services", icon: "pi pi-plus", command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
-            { label: "Orders", icon: "pi pi-history", command: () => navigate('/orders') },
-            { label: `${role} Requests`, icon: "pi pi-user", command: () => navigate(`/${role}-requests`) },
-            { label: "Log Out", icon: "pi pi-sign-out", command: () => logout() }
+            { label: "My orders", icon: "pi pi-history", command: () => navigate('/orders') },
+            { label: `My requests`, icon: "pi pi-user", command: () => navigate(`/${role}-requests`) },
+            { label: "Log out", icon: "pi pi-sign-out", command: () => logout() }
           ].filter(c => c.condition === undefined || c.condition)
         }
       ]);
@@ -441,7 +445,11 @@ const NavBar = ({navState}: any) => {
             <Button
               className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
               icon={<FontAwesomeIcon icon={faBell} size={"sm"} />}
-              onClick={() => { navigate("/notifications") }}
+              onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })
+                setShowMenuNotificationsCard(!showMenuNotificationsCard)
+              }}
               rounded
               style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px' }}
               size="small"
@@ -463,6 +471,7 @@ const NavBar = ({navState}: any) => {
                   className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
                   icon={<FontAwesomeIcon icon={faServer} size={"sm"} />}
                   onClick={() => {
+                    setShowMenuNotificationsCard(false)
                     dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
                     dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: !showMenuServicesCard })
                   }}
@@ -486,6 +495,7 @@ const NavBar = ({navState}: any) => {
                   className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
                   icon={<FontAwesomeIcon icon={faUsers} size={"sm"} />}
                   onClick={() => {
+                    setShowMenuNotificationsCard(false)
                     dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })
                     dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: !showMenuUsersCard })
                   }}
@@ -613,6 +623,24 @@ const NavBar = ({navState}: any) => {
                 style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
               ></i>
             </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const NotificationList = ({ notifications }: any) => {
+    return (
+      <ul className="py-0 pl-3 pr-1">
+        {notifications.map((notification: any, index: number) => (
+          <li key={index} className="my-3 flex flex-wrap gap-2 align-items-center justify-content-between">
+            <span
+              className="hover:text-blue-400"
+              // onClick={() => navigate(`//${DataType.Service.toLowerCase()}/${notification.id}`)}
+              style={{ cursor: 'pointer' }}
+            >
+              - {getShortName(notification.name)}
+            </span>
           </li>
         ))}
       </ul>
@@ -800,6 +828,25 @@ const NavBar = ({navState}: any) => {
             />
               {register.touched.password && register.errors.password ? ( <div className="p-error mt-2 text-sm">{register.errors.password}</div>) : null}
           </div>
+
+          <div className="col ml-3">
+            <div>
+              <label className="mb-2 primary" htmlFor="Confirm password">Confirm password</label>
+            </div>
+
+            <InputText
+              placeholder="Confirm password"
+              name="confirm_password"
+              type="confirm_password"
+              className="mt-2 w-24rem	"
+              value={register?.values?.confirm_password}
+              onBlur={register.handleBlur}
+              onChange={(e) =>
+                register.setFieldValue("confirm_password", e.target.value)
+              }
+            />
+              {register.touched.confirm_password && register.errors.confirm_password ? ( <div className="p-error mt-2 text-sm">{register.errors.confirm_password}</div>) : null}
+          </div>
         </div>
         <div className="flex justify-content-center" style={{ cursor: "pointer"}}>
           <Button
@@ -895,6 +942,23 @@ const NavBar = ({navState}: any) => {
                     onChange={(e) => Partneregister.setFieldValue("password", e.target.value)}
                   />
                   {Partneregister.touched.password && Partneregister.errors.password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.password}</div>) : null}
+                </div>
+
+                <div className="md:col-6 lg:col-6">
+                  <div>
+                    <label className="mb-2 primary" htmlFor="Confirm password">Confirm password</label>
+                  </div>
+
+                  <InputText
+                    placeholder="Confirm password"
+                    name="confirm_password"
+                    type="confirm_password"
+                    className="mt-2	w-full"
+                    value={Partneregister?.values?.confirm_password}
+                    onBlur={Partneregister.handleBlur}
+                    onChange={(e) => Partneregister.setFieldValue("confirm_password", e.target.value)}
+                  />
+                  {Partneregister.touched.confirm_password && Partneregister.errors.confirm_password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.confirm_password}</div>) : null}
                 </div>
             </div>
           </Fieldset>
@@ -1193,10 +1257,13 @@ const NavBar = ({navState}: any) => {
           <Card title="Pending Users" className="p-mt-2 menu-users">
             {loadingUsers ? <LoadingOverlay /> : pendingUsers.length ? <UserList users={pendingUsers} /> : <p className="mt-3">No pending users</p>}
 
-            <div className="tab-footer" onClick={() => {
-              dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
-              navigate("/stat-of-users")
-            }}>View All</div>
+            <div className="tab-footer">
+              <span className="mx-2" onClick={() => dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })}>close</span>
+              <span className="mx-2" onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
+                navigate("/stat-of-users")
+              }}>View All</span>
+            </div>
           </Card>
         )}
       </div>
@@ -1206,10 +1273,26 @@ const NavBar = ({navState}: any) => {
           <Card title="Pending Services" className="p-mt-2 menu-services">
             {loadingServices ? <LoadingOverlay /> : pendingServices.length ? <ServiceList services={pendingServices} /> : <p className="mt-3">No pending services</p>}
 
-            <div className="tab-footer" onClick={() => {
-              dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
-              navigate("/stat-of-services")
-            }}>View All</div>
+            <div className="tab-footer">
+              <span className="mx-2" onClick={() => dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })}>close</span>
+              <span className="mx-2" onClick={() => {
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
+                navigate("/stat-of-services")
+              }}>View All</span>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      <div className="notifications-icon">
+        {showMenuNotificationsCard && (
+          <Card title="Notifications" className="p-mt-2 menu-notifications">
+            {notifications.length ? <NotificationList notifications={notifications} /> : <p className="mt-3">No notifications</p>}
+
+            <div className="tab-footer">
+              <span className="mx-2" onClick={() => { setShowMenuNotificationsCard(false)}}>close</span>
+              <span className="mx-2" onClick={() => { setShowMenuNotificationsCard(false); navigate("/notifications")}}>View All</span>
+            </div>
           </Card>
         )}
       </div>
