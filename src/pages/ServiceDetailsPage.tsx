@@ -6,7 +6,7 @@ import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
 import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt } from "@fortawesome/free-solid-svg-icons";
+import { faBaby, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
 import GoogleMap from "../components/GoogleMap";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
@@ -33,7 +33,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [date, setDate] = useState<any>([today, today]);
   const [daysCount, setDaysCount] = useState<any>(1);
   const [facilities, setFacilities] = useState<any>();
-  const [guests, setGuests] = useState<any>(serviceDetails?.guests ?? 1);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -78,6 +77,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     return result;
   }
 
+  const [guests, setGuests] = useState<any>(parseQueryString(queryFilter).guests ?? 1);
+  const [children, setChildren] = useState<any>(parseQueryString(queryFilter).children ?? 0);
+
   const [formInitialValues, setFormInitialValues] = useState<AddRequestDTO>({
     senderAccountId: user?.data?.accountId,
     recieverAccountId: serviceDetails?.accountId,
@@ -87,7 +89,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     notes: '',
     serviceId: serviceDetails?.id,
     adultPassengers: guests,
-    childPassengers: parseQueryString(queryFilter).children,
+    childPassengers: children,
     startDate: date[0],
     endDate: date[1],
   });
@@ -220,18 +222,19 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     }
   }, [serviceId]);
 
+
   useEffect(() => {
     setFormInitialValues(prevValues => ({
       ...prevValues,
       adultPassengers: guests,
-      childPassengers: parseQueryString(queryFilter).children,
+      childPassengers: children,
       startDate: date[0],
       endDate: date[1],
       senderAccountId: user?.data?.accountId,
       recieverAccountId: serviceDetails?.accountId,
       serviceId: serviceDetails?.id,
     }));
-  }, [guests, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
+  }, [guests, children, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
 
   useEffect(() => {
     const calculateDays = (start: Date, end: Date) => {
@@ -340,7 +343,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
             }
           </div>
 
-
           <RentalFacilities />
 
           <div className="grid grid-cols-12 my-2">
@@ -420,41 +422,70 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                       </span>
                   </p>
 
-                  <p className='sidebar-border flex justify-content-center align-items-center'>
-                    <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
 
-                    <Calendar
-                      className='failds'
-                      style={{ width: '100%', height: '30px' }}
-                      inputStyle={{ border: 'none' }}
-                      placeholder='Select Start - End Date'
-                      value={date}
-                      onChange={(e) => setDate(e.value)}
-                      numberOfMonths={2}
-                      selectionMode="range"
-                      minDate={today}
-                    />
-                  </p>
+                  <div className="m-dates mt-3 pt-2" style={{borderTop: '1px dashed #ddd'}}>
+                    <span className="mx-2">Start - End Date:</span>
+                    <p className='sidebar-border flex justify-content-center align-items-center'>
+                      <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+                      <Calendar
+                        className='failds'
+                        style={{ width: '100%', height: '30px' }}
+                        inputStyle={{ border: 'none' }}
+                        placeholder='Select Start - End Date'
+                        value={date}
+                        onChange={(e) => setDate(e.value)}
+                        numberOfMonths={2}
+                        selectionMode="range"
+                        minDate={today}
+                      />
+                    </p>
+                  </div>
 
-                  <p className='sidebar-border flex justify-content-center align-items-center w-full'>
-                    <FontAwesomeIcon icon={faUserAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
-                    <InputNumber
-                      inputId="guests"
-                      value={guests}
-                      onValueChange={(e) => setGuests(e.value)}
-                      showButtons
-                      buttonLayout="horizontal"
-                      step={1}
-                      min={0}
-                      className="w-full"
-                      style={{width: '100%', height: '30px'}}
-                      inputStyle={{  width: '100%', height: '100%'}}
-                      decrementButtonClassName="p-button-secondery"
-                      incrementButtonClassName="p-button-secondery"
-                      incrementButtonIcon="pi pi-plus"
-                      decrementButtonIcon="pi pi-minus"
-                    />
-                  </p>
+                  <div className="m-guests">
+                    <span className="mx-2">Guests:</span>
+                    <p className='sidebar-border flex justify-content-center align-items-center w-full'>
+                      <FontAwesomeIcon icon={faUserAlt} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+                      <InputNumber
+                        inputId="guests"
+                        value={guests}
+                        onValueChange={(e) => setGuests(e.value)}
+                        showButtons
+                        buttonLayout="horizontal"
+                        step={1}
+                        min={0}
+                        className="w-full"
+                        style={{width: '100%', height: '30px'}}
+                        inputStyle={{  width: '100%', height: '100%'}}
+                        decrementButtonClassName="p-button-secondery"
+                        incrementButtonClassName="p-button-secondery"
+                        incrementButtonIcon="pi pi-plus"
+                        decrementButtonIcon="pi pi-minus"
+                      />
+                    </p>
+                  </div>
+
+                  <div className="m-children">
+                    <span className="mx-2">Children:</span>
+                    <p className='sidebar-border flex justify-content-center align-items-center w-full'>
+                      <FontAwesomeIcon icon={faBaby} size={"sm"} style={{ color: '#ddd' }} className="mr-2" />
+                      <InputNumber
+                        inputId="children"
+                        value={children}
+                        onValueChange={(e) => setChildren(e.value)}
+                        showButtons
+                        buttonLayout="horizontal"
+                        step={1}
+                        min={0}
+                        className="w-full"
+                        style={{width: '100%', height: '30px'}}
+                        inputStyle={{  width: '100%', height: '100%'}}
+                        decrementButtonClassName="p-button-secondery"
+                        incrementButtonClassName="p-button-secondery"
+                        incrementButtonIcon="pi pi-plus"
+                        decrementButtonIcon="pi pi-minus"
+                      />
+                    </p>
+                  </div>
 
                   <Button
                     style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
@@ -498,14 +529,14 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                           ${(
                             (ingredient?.value * guests * daysCount) +
                             (ingredient?.value * serviceDetails?.countryTaxPercent / 100) +
-                            (AddRequestForm.values.childPassengers > 0 ? ((ingredient?.value / 2) * AddRequestForm.values.childPassengers * daysCount) : 0)
+                            (children > 0 ? ((ingredient?.value / 2) * children * daysCount) : 0)
                           ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
                       ) : (
                         <span>
                           ${(
                             (ingredient?.value * guests * daysCount) +
-                            (AddRequestForm.values.childPassengers > 0 ? ((ingredient?.value / 2) * AddRequestForm.values.childPassengers * daysCount) : 0)
+                            (children > 0 ? ((ingredient?.value / 2) * children * daysCount) : 0)
                           ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
                       )}
@@ -556,7 +587,10 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   min={0}
                   showButtons
                   value={AddRequestForm.values.adultPassengers}
-                  onChange={(e) => AddRequestForm.setFieldValue("adultPassengers", e.value)}
+                  onChange={(e) => {
+                    setGuests(e.value)
+                    AddRequestForm.setFieldValue("adultPassengers", e.value)
+                  }}
                 />
               </div>
 
@@ -570,7 +604,10 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   min={0}
                   showButtons
                   value={AddRequestForm.values.childPassengers}
-                  onChange={(e) => AddRequestForm.setFieldValue("childPassengers", e.value)}
+                  onChange={(e) => {
+                    setChildren(e.value)
+                    AddRequestForm.setFieldValue("childPassengers", e.value)
+                  }}
                 />
               </div>
 

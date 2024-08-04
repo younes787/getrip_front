@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
-import { ApproveRequest, GetAccountById, GetAllOrders, GetAllServices, GetClientApprovedRequests, GetClienterAllrequests, GetClientPendingRequests, GetClientRejectedRequests, GetOrderstsByRecieverId, GetOrderstsBySenderId, GetResidence, GetServiceProviderAllRequests, GetServiceProviderApprovedRequests, GetServiceProviderPendingRequests, GetServiceProviderRejectedRequests, RejectRequest } from "../Services";
+import { ApproveRequest, GetAccountById, GetAllOrders, GetOrderstsByRecieverId, GetOrderstsBySenderId } from "../Services";
 import { InputText } from "primereact/inputtext";
 import LoadingComponent from "../components/Loading";
-import { TabPanel, TabView } from "primereact/tabview";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { Dialog } from "primereact/dialog";
-import { Button } from "primereact/button";
-import { error } from "console";
 
 const Orders = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
