@@ -334,7 +334,7 @@ export const GetProvincebyCid = async (cid:number) => {
 export const AddCity = async (CityData: any) => {
   try {
     const response = await api.post("/addcity", CityData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }
@@ -370,7 +370,7 @@ export const GetAllCities = async () => {
 export const AddProvince = async (ProvinceData: any) => {
   try {
     const response = await api.post("/addprovince", ProvinceData);
-    return handleResponse(response , 'Post');
+    return handleResponse(response , '');
   } catch (error) {
     handleError(error);
   }

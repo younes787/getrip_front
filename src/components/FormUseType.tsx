@@ -3,11 +3,11 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory } from "../Services";
+import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince } from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO, PriceValuesDTO } from "../modules/getrip.modules";
+import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -80,9 +80,53 @@ const FormUseType = () => {
   const [showSteps, setShowSteps] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
   const fileUploadRef = useRef<any>(null);
+  const [country, setCountry] = useState<string | null>(null);
+  const [province, setProvince] = useState<string | null>(null);
+  const [city, setCity] = useState<string | null>(null);
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
+    const results = location.address;
+    let country, province, city = '';
+
+    for (const component of results[0].address_components) {
+      if (component.types.includes('country')) {
+        country = component.long_name;
+      }
+
+      if (component.types.includes('administrative_area_level_1')) {
+        province = component.long_name.replace(/Governorate|state/g, '').trim();
+      }
+
+      if (component.types.includes('administrative_area_level_2')) {
+        city = component.long_name.replace(/Governorate|state/g, '').trim();
+      }
+    }
+
     setSelectedLocation(location);
+
+    if(country) setCountry(country)
+    if(province) setProvince(province)
+    if(city) setCity(city)
+  };
+
+  const findByNameOrId = <T extends { id: number; name: string }>(items: T[], nameOrId?: string | number): T | undefined => {
+    if (typeof nameOrId === 'string') {
+      const searchTerm = nameOrId.toLowerCase().substring(0, 8);
+      return items.find(item =>
+        item.name.toLowerCase().substring(0, 5) === searchTerm.substring(0, 5)
+      );
+    } else if (typeof nameOrId === 'number') {
+      return items.find(item => item.id === nameOrId);
+    }
+  };
+
+  const fetchData = async ( fetchFunction: (id: number) => Promise<any>, setStateFunction: (data: any) => void, id: number) => {
+    try {
+      const res = await fetchFunction(id);
+      setStateFunction(res.data);
+    } catch (error) {
+      console.error(`Error fetching data: `, error);
+    }
   };
 
   const extractLocationDetails = (selectedLocation: any): Address => {
@@ -207,6 +251,41 @@ const FormUseType = () => {
       console.error('Error adding service or fetching all services:', error);
     }
   };
+
+  useEffect(() => {
+    if (country && province && city && countries && countries.length > 0) {
+      let {foundCountry = '', foundProvince = '', foundCity = ''}: any = {};
+
+      foundCountry = findByNameOrId(countries, country);
+      if (foundCountry) {
+        Serviceform.values.countryId = foundCountry?.id as number;
+        fetchData(GetProvincebyCid, setProvinces, foundCountry.id);
+      }
+
+      if (foundCountry && province && provinces && provinces.length > 0) {
+        foundProvince = findByNameOrId(provinces, province);
+        if (foundProvince) {
+          Serviceform.values.provincyId = foundProvince?.id as number;
+          fetchData(GetCitiesbyid, setCities, foundProvince.id);
+        } else {
+          AddProvince({ name: province, countryId: foundCountry.id }).then((res) => {
+            fetchData(GetProvincebyCid, setProvinces, foundCountry.id);
+          });
+        }
+      }
+
+      if (foundProvince && city && cities && cities.length > 0) {
+        foundCity = findByNameOrId(cities, city);
+        if(foundCity) {
+          Serviceform.values.cityId = foundCity?.id as number;
+        } else {
+          AddCity({ name: city, description: city, provinceId: foundProvince.id }).then((res) => {
+            fetchData(GetCitiesbyid, setCities, foundProvince.id);
+          });
+        }
+      }
+    }
+  }, [countries, country, province, city]);
 
   useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
