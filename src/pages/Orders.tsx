@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
-import { GetAllOrders, GetAllServices, GetAllUsers, GetCurrency, GetOrderstsByRecieverId, GetOrderstsBySenderId, InitializePopup } from "../Services";
+import { GetAllOrders, GetAllServices, GetAllUsers, GetCurrency, GetOrderstsByRecieverId, GetOrderstsBySenderId } from "../Services";
 import { InputText } from "primereact/inputtext";
 import LoadingComponent from "../components/Loading";
 import { DataTable } from "primereact/datatable";
@@ -10,7 +10,6 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { InitializePopupDTO } from "../modules/getrip.modules";
-import { Dropdown } from "primereact/dropdown";
 import { LahzaTransactionInitialize, LahzaTransactionVerify } from "../Services/providerRequests";
 
 const Orders = () => {
@@ -30,7 +29,6 @@ const Orders = () => {
     subject: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     notes: { value: null, matchMode: FilterMatchMode.STARTS_WITH }
   });
-  const [paymentStatus, setPaymentStatus] = useState<any>(null);
 
   const InitializePopupForm = useFormik<InitializePopupDTO>({
     initialValues: {
@@ -92,19 +90,17 @@ const Orders = () => {
         }
       }, 1000);
     } else {
-      setPaymentStatus('Popup blocked. Please allow popups and try again.');
+      console.error('Popup blocked. Please allow popups and try again.');
     }
   };
 
   const checkPaymentStatus = (reference: string) => {
-    setPaymentStatus('Verifying payment...');
     LahzaTransactionVerify(reference)
       .then((res) => {
-        setPaymentStatus(res.data.status || 'Payment completed');
+        console.log(res.data, 'Payment completed');
       })
       .catch((error) => {
-        console.error(error);
-        setPaymentStatus('Error verifying payment');
+        console.error(error, 'Error verifying payment');
       })
       .finally(() => {
         setShowPaid(false);
