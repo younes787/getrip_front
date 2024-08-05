@@ -16,7 +16,7 @@ const Orders = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
   const role = User?.data?.role;
   const [loading, setLoading] = useState<boolean>(false);
-  const [orders, setOrders] = useState();
+  const [orders, setOrders] = useState<any[]>([]);
   const [allServices, setAllServices] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [currency, setCurrency] = useState<any[]>([]);
@@ -58,16 +58,21 @@ const Orders = () => {
     },
     validateOnChange: true,
     onSubmit: () => {
-      InitializePopupForm.values.amount = '500';
+      InitializePopupForm.values.amount = String(orders?.find((order: any) => order.id === orderId)?.amount || '0');
       InitializePopupForm.values.currency = 'USD';
       InitializePopupForm.values.channels = ['card', 'bank'];
       InitializePopupForm.values.metadata = {
         "custom_fields":[
-        {
-          "display_name":"Cart Items",
-          "variable_name":"Cart Items",
-          "value": "order"
-        },
+          {
+            "display_name": "Project Name",
+            "variable_name": "Project Name",
+            "value": "GeTrip"
+          },
+          {
+            "display_name":"OrderId",
+            "variable_name":"OrderId",
+            "value": orderId
+          },
       ]};
 
       LahzaTransactionInitialize(InitializePopupForm.values)
