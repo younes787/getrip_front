@@ -67,3 +67,39 @@ export const ProviderServiceTourVisio = async (persistenceUrl: string, Query: an
     console.error('Error: ', error);
   }
 };
+
+const API_BASE_URL = 'https://api.lahza.io';
+const SECRET_KEY = 'sk_test_KDx5Me4PklChUH7tceyQCjJrvqiyBdjz9';
+const PUBLICK_KEY = 'pk_test_DHJf84O6tLz4OrIZZjU0jepVpykDiWyEK';
+
+export const LahzaTransactionInitialize = async (transactionData: any) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/transaction/initialize`, transactionData, {
+      headers: {
+        Authorization: `Bearer ${SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error initializing Lahza transaction:', error);
+    throw error;
+  }
+};
+
+export const LahzaTransactionVerify = async (reference: string): Promise<any> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/transaction/verify/${reference}`, {
+      headers: {
+        Authorization: `Bearer ${SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying Lahza transaction:', error);
+    throw error;
+  }
+};

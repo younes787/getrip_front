@@ -135,6 +135,7 @@ export class AddRequestDTO {
   endDate: Date = new Date();
   adultPassengers: number = 0;
   childPassengers: number = 0;
+  totalPrice: number = 0;
 }
 
 export class VehicleDTO {
@@ -547,4 +548,15 @@ export interface SearchFilterParams {
   MinAmount?: number;
   MaxRating?: number;
   MinRating?: number;
+}
+export class InitializePopupDTO {
+  email: string = '';
+  mobile: string = '';
+  firstName: string = '';
+  lastName: string = '';
+  amount: string = '';
+  currency: string = '';
+  channels: string[] = [];
+  metadata: any = '';
+  label: string = '';
 }

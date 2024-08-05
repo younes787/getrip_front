@@ -33,6 +33,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [date, setDate] = useState<any>([today, today]);
   const [daysCount, setDaysCount] = useState<any>(1);
   const [facilities, setFacilities] = useState<any>();
+  const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -92,6 +93,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     childPassengers: children,
     startDate: date[0],
     endDate: date[1],
+    totalPrice: totalPrice
   });
 
   const type = serviceType?.toUpperCase();
@@ -124,7 +126,8 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           serviceType: serviceTypesRes?.data?.find((_type: any) => _type.id === serviceDetailsRes.data.typeId),
           priceValues: serviceDetailsRes.data.priceValues,
           countryTaxPercent: serviceDetailsRes.data.countryTaxPercent,
-          location: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
+          // location: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
+          location: `${serviceDetailsRes.data.countryName ?? 'No Country'}, ${serviceDetailsRes.data.provinceName ?? 'No Province'}, ${serviceDetailsRes.data.cityName ?? 'No City'}`,
           images: serviceDetailsRes.data.photos,
           overview: serviceDetailsRes.data.description,
           facilities: serviceDetailsRes.data.serviceFacilities.flatMap((category: any, index: number) =>
@@ -139,7 +142,8 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           ),
           prices: serviceDetailsRes.data.price,
           reviews: '900',
-          address: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
+          // address: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
+          address: `${serviceDetailsRes.data.countryName ?? 'No Country'}, ${serviceDetailsRes.data.provinceName ?? 'No Province'}, ${serviceDetailsRes.data.cityName ?? 'No City'}`,
           pricePerNight: serviceDetailsRes.data.price,
           dates: `${parseQueryString(queryFilter).startDate} - ${parseQueryString(queryFilter).endDate}`,
           guests: parseQueryString(queryFilter).guests,
@@ -233,8 +237,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       senderAccountId: user?.data?.accountId,
       recieverAccountId: serviceDetails?.accountId,
       serviceId: serviceDetails?.id,
+      totalPrice: totalPrice
     }));
-  }, [guests, children, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
+  }, [guests, children, totalPrice, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
 
   useEffect(() => {
     const calculateDays = (start: Date, end: Date) => {
@@ -296,6 +301,31 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       </div>
     );
   };
+
+  const calculateTotalPrice = () => {
+    if (!ingredient?.value) return 0;
+
+    let total;
+    if (!ingredient.isTaxIncluded) {
+      total = (
+        (ingredient.value * guests * daysCount) +
+        (ingredient.value * (serviceDetails?.countryTaxPercent || 0) / 100) +
+        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
+      );
+    } else {
+      total = (
+        (ingredient.value * guests * daysCount) +
+        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
+      );
+    }
+    return total;
+  };
+
+  useEffect(() => {
+    const totalPrice = calculateTotalPrice();
+    setTotalPrice(totalPrice);
+  }, [ingredient, serviceDetails, guests, daysCount, children, setTotalPrice]);
+
 
   return (<>
       { loading ? <LoadingComponent /> : <>
@@ -524,7 +554,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                     )}
                     <p className="m-0" style={{ fontSize: '17px', fontWeight: 'bold', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       Total Fees
-                      {!ingredient?.isTaxIncluded ? (
+                      <span>
+                        ${calculateTotalPrice().toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      </span>
+
+                      {/* {!ingredient?.isTaxIncluded ? (
                         <span>
                           ${(
                             (ingredient?.value * guests * daysCount) +
@@ -539,7 +573,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                             (children > 0 ? ((ingredient?.value / 2) * children * daysCount) : 0)
                           ).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                         </span>
-                      )}
+                      )} */}
                     </p>
                   </div>
                 </div>

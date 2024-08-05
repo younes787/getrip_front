@@ -19,6 +19,8 @@ import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Serv
 import { Slider } from "primereact/slider";
 import { MultiSelect } from "primereact/multiselect";
 import { InputNumber } from "primereact/inputnumber";
+import { Image } from 'primereact/image';
+import Search7526301 from '../Assets/search_7526301.png';
 
 const SearchAndFilter = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -247,8 +249,6 @@ const SearchAndFilter = () => {
   );
 
   const fetchDataToCard = async () => {
-
-
     if (selectFilterData?.selectedTab) {
 
       const { province, moreData } = selectedLocationFromSearch || {};
@@ -519,6 +519,10 @@ const SearchAndFilter = () => {
     fetchDataToCard();
   }, [pageNumber, pageSize, selectFilterData]);
 
+  const containerClass = cardType !== DataType.Service
+  ? "md:col-12 lg:col-12 sm:col-12 px-3"
+  : "md:col-9 lg:col-9 sm:col-12 px-3";
+
   return (<>
     <div className="container mx-auto search-and-filter">
      { loading ? <LoadingComponent/> : <div className="m-auto">
@@ -531,28 +535,134 @@ const SearchAndFilter = () => {
         </div>
 
         <div className="grid grid-cols-12 my-5 section-tow-search-and-filter">
-          <div className="md:col-3 lg:col-3 sm:col-12 m-filter">
-            <h2 className="px-2">Filters</h2>
-            <div className="m-block-filters overflow-hidden w-full">
+          {cardType === DataType.Service &&
+            <div className="md:col-3 lg:col-3 sm:col-12 m-filter">
+              <h2 className="px-2">Filters</h2>
+              <div className="m-block-filters overflow-hidden w-full">
 
-              {showFields &&
-                <div className='fields-x w-full'>
-                  <h4>Fields</h4>
+                {/* {showFields &&
+                  <div className='fields-x w-full'>
+                    <h4>Fields</h4>
+                    <div className="my-2 flex justify-content-between align-items-center w-full">
+                      <div className="checkbox">
+                        <MultiSelect
+                          className='fields w-full'
+                          value={selectedItems.fields}
+                          onChange={(e) => {
+                            setSelectedItems((prevState) => ({
+                              ...prevState,
+                              fields: e.value
+                            }));
+                          }}
+                          options={fields}
+                          optionLabel="name"
+                          display="chip"
+                          placeholder="Select Fields"
+                          maxSelectedLabels={100}
+                        />
+                      </div>
+
+                      <div className="number-filter">0</div>
+                    </div>
+                  </div>
+                } */}
+
+                {showVehicles &&
+                  <>
+                    <div className='vehicles-x w-full'>
+                      <h4>Vehicles</h4>
+                      <div className="my-2 flex justify-content-between align-items-center w-full">
+                        <div className="checkbox">
+                          <MultiSelect
+                            className='vehicles w-full'
+                            value={selectedItems.vehicles}
+                            onChange={(e) => {
+                              setSelectedItems((prevState) => ({
+                                ...prevState,
+                                vehicles: e.value
+                              }));
+                            }}
+                            options={vehicles}
+                            optionLabel="model"
+                            display="chip"
+                            placeholder="Select Vehicles"
+                            maxSelectedLabels={100}
+                          />
+                        </div>
+
+                        <div className="number-filter">0</div>
+                      </div>
+                    </div>
+
+                    <div className='vehicles-type-x w-full'>
+                      <h4>Vehicle Types</h4>
+                      <div className="my-2 flex justify-content-between align-items-center w-full">
+                        <div className="checkbox">
+                          <MultiSelect
+                            className='vehicle-types w-full'
+                            value={selectedItems.vehicleTypes}
+                            onChange={(e) => {
+                              setSelectedItems((prevState) => ({
+                                ...prevState,
+                                vehicleTypes: e.value
+                              }));
+                            }}
+                            options={vehicleTypes}
+                            optionLabel="name"
+                            display="chip"
+                            placeholder="Select Vehicle Types"
+                            maxSelectedLabels={100}
+                          />
+                        </div>
+
+                        <div className="number-filter">0</div>
+                      </div>
+                    </div>
+
+                    <div className='makers-x w-full'>
+                      <h4>Makers</h4>
+                      <div className="my-2 flex justify-content-between align-items-center w-full">
+                        <div className="checkbox">
+                          <MultiSelect
+                            className='makers w-full'
+                            value={selectedItems.makers}
+                            onChange={(e) => {
+                              setSelectedItems((prevState) => ({
+                                ...prevState,
+                                makers: e.value
+                              }));
+                            }}
+                            options={makers}
+                            optionLabel="name"
+                            display="chip"
+                            placeholder="Select Makers"
+                            maxSelectedLabels={100}
+                          />
+                        </div>
+
+                        <div className="number-filter">0</div>
+                      </div>
+                    </div>
+                  </>
+                }
+
+                <div className='places-x w-full'>
+                  <h4>Places</h4>
                   <div className="my-2 flex justify-content-between align-items-center w-full">
                     <div className="checkbox">
                       <MultiSelect
-                        className='fields w-full'
-                        value={selectedItems.fields}
+                        className='places w-full'
+                        value={selectedItems.places}
                         onChange={(e) => {
                           setSelectedItems((prevState) => ({
                             ...prevState,
-                            fields: e.value
+                            places: e.value
                           }));
                         }}
-                        options={fields}
+                        options={places}
                         optionLabel="name"
                         display="chip"
-                        placeholder="Select Fields"
+                        placeholder="Select Places"
                         maxSelectedLabels={100}
                       />
                     </div>
@@ -560,186 +670,82 @@ const SearchAndFilter = () => {
                     <div className="number-filter">0</div>
                   </div>
                 </div>
-              }
 
-              {showVehicles &&
-                <>
-                  <div className='vehicles-x w-full'>
-                    <h4>Vehicles</h4>
-                    <div className="my-2 flex justify-content-between align-items-center w-full">
-                      <div className="checkbox">
-                        <MultiSelect
-                          className='vehicles w-full'
-                          value={selectedItems.vehicles}
-                          onChange={(e) => {
-                            setSelectedItems((prevState) => ({
-                              ...prevState,
-                              vehicles: e.value
-                            }));
-                          }}
-                          options={vehicles}
-                          optionLabel="model"
-                          display="chip"
-                          placeholder="Select Vehicles"
-                          maxSelectedLabels={100}
-                        />
-                      </div>
+                <CheckboxList
+                  title="Residence Type"
+                  category="residence_type"
+                  items={residenceType}
+                  selectedItems={selectedItems.residence_type}
+                />
 
-                      <div className="number-filter">0</div>
+                <CheckboxList
+                  title="City"
+                  category="city"
+                  items={cities && cities.length > 0 ? cities.slice(0, showAllCities ? cities.length : 7) : []}
+                  selectedItems={selectedItems.city}
+                />
+                {cities && cities.length > 7 && (
+                  <button className="show-more-btn" onClick={toggleShowAllCities}>
+                    {showAllCities ? 'Show Less' : `Show More (${cities.length - 7} more)`}
+                  </button>
+                )}
+
+                <div className='rating-x my-2'>
+                  <h4>Rating</h4>
+                  <div className="my-2 flex justify-content-between align-items-center">
+                    <div className="checkbox">
+                      <Rating
+                        className="rat-icon-filter mx-2 border-0"
+                        value={selectedItems.ratings}
+                        stars={10}
+                        onChange={(e) => {
+                          setSelectedItems((prevState) => ({
+                            ...prevState,
+                            ratings: e.value
+                          }));
+                        }}
+                      />
                     </div>
+
+                    <div className="number-filter">0</div>
                   </div>
+                </div>
 
-                  <div className='vehicles-type-x w-full'>
-                    <h4>Vehicle Types</h4>
-                    <div className="my-2 flex justify-content-between align-items-center w-full">
-                      <div className="checkbox">
-                        <MultiSelect
-                          className='vehicle-types w-full'
-                          value={selectedItems.vehicleTypes}
-                          onChange={(e) => {
-                            setSelectedItems((prevState) => ({
-                              ...prevState,
-                              vehicleTypes: e.value
-                            }));
-                          }}
-                          options={vehicleTypes}
-                          optionLabel="name"
-                          display="chip"
-                          placeholder="Select Vehicle Types"
-                          maxSelectedLabels={100}
-                        />
-                      </div>
-
-                      <div className="number-filter">0</div>
+                <div className='slider-x my-2'>
+                  <h4>Min - Max Price</h4>
+                  <div className="my-2 flex justify-content-between align-items-center">
+                      <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[0]} onValueChange={(e) => handleInputChange(e.value as number, 0)} placeholder="Min" />
+                      <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[1]} onValueChange={(e) => handleInputChange(e.value as number, 1)} placeholder="Max" />
                     </div>
-                  </div>
-                </>
-              }
 
-              <div className='places-x w-full'>
-                <h4>Places</h4>
-                <div className="my-2 flex justify-content-between align-items-center w-full">
-                  <div className="checkbox">
-                    <MultiSelect
-                      className='places w-full'
-                      value={selectedItems.places}
-                      onChange={(e) => {
-                        setSelectedItems((prevState) => ({
-                          ...prevState,
-                          places: e.value
-                        }));
-                      }}
-                      options={places}
-                      optionLabel="name"
-                      display="chip"
-                      placeholder="Select Places"
-                      maxSelectedLabels={100}
-                    />
-                  </div>
+                  <div className="my-2 flex justify-content-between align-items-center">
+                    <div className="w-full pr-3">
+                      <Slider
+                        min={0}
+                        max={20000}
+                        className="w-full"
+                        step={1}
+                        value={selectedItems.minMaxPrice}
+                        onChange={(e) => handleSliderChange(e)}
+                        range
+                      />
+                    </div>
 
-                  <div className="number-filter">0</div>
+                    <div className="number-filter">0</div>
+                  </div>
                 </div>
+
+                {/* <CheckboxList
+                  title="Currency"
+                  category="currency"
+                  items={currency}
+                  selectedItems={selectedItems.currency}
+                /> */}
               </div>
-
-              <div className='makers-x w-full'>
-                <h4>Makers</h4>
-                <div className="my-2 flex justify-content-between align-items-center w-full">
-                  <div className="checkbox">
-                    <MultiSelect
-                      className='makers w-full'
-                      value={selectedItems.makers}
-                      onChange={(e) => {
-                        setSelectedItems((prevState) => ({
-                          ...prevState,
-                          makers: e.value
-                        }));
-                      }}
-                      options={makers}
-                      optionLabel="name"
-                      display="chip"
-                      placeholder="Select Makers"
-                      maxSelectedLabels={100}
-                    />
-                  </div>
-
-                  <div className="number-filter">0</div>
-                </div>
-              </div>
-
-              <CheckboxList
-                title="Residence Type"
-                category="residence_type"
-                items={residenceType}
-                selectedItems={selectedItems.residence_type}
-              />
-
-              <CheckboxList
-                title="City"
-                category="city"
-                items={cities && cities.length > 0 ? cities.slice(0, showAllCities ? cities.length : 7) : []}
-                selectedItems={selectedItems.city}
-              />
-              {cities && cities.length > 7 && (
-                <button className="show-more-btn" onClick={toggleShowAllCities}>
-                  {showAllCities ? 'Show Less' : `Show More (${cities.length - 7} more)`}
-                </button>
-              )}
-
-              <div className='rating-x my-2'>
-                <h4>Rating</h4>
-                <div className="my-2 flex justify-content-between align-items-center">
-                  <div className="checkbox">
-                    <Rating
-                      className="rat-icon-filter mx-2 border-0"
-                      value={selectedItems.ratings}
-                      stars={10}
-                      onChange={(e) => {
-                        setSelectedItems((prevState) => ({
-                          ...prevState,
-                          ratings: e.value
-                        }));
-                      }}
-                    />
-                  </div>
-
-                  <div className="number-filter">0</div>
-                </div>
-              </div>
-
-              <div className='slider-x my-2'>
-                <h4>Min - Max Price</h4>
-                <div className="my-2 flex justify-content-between align-items-center">
-                    <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[0]} onValueChange={(e) => handleInputChange(e.value as number, 0)} placeholder="Min" />
-                    <InputNumber inputClassName="w-3 mx-2" value={selectedItems.minMaxPrice[1]} onValueChange={(e) => handleInputChange(e.value as number, 1)} placeholder="Max" />
-                  </div>
-
-                <div className="my-2 flex justify-content-between align-items-center">
-                  <div className="w-full pr-3">
-                    <Slider
-                      min={0}
-                      max={20000}
-                      className="w-full"
-                      step={1}
-                      value={selectedItems.minMaxPrice}
-                      onChange={(e) => handleSliderChange(e)}
-                      range
-                    />
-                  </div>
-
-                  <div className="number-filter">0</div>
-                </div>
-              </div>
-
-              <CheckboxList
-                title="Currency"
-                category="currency"
-                items={currency}
-                selectedItems={selectedItems.currency}
-              />
             </div>
-          </div>
+          }
 
-          <div className="md:col-9 lg:col-9 sm:col-12 px-3">
+          <div className={containerClass}>
             <b className="p-button p-component p-button-outlined p-button-danger">{ cardType }</b>
             <div
               style={{
@@ -831,8 +837,12 @@ const SearchAndFilter = () => {
                     <FontAwesomeIcon className="mr-2" style={{color: '#4a235a', fontSize: '2.5rem'}} icon={faDatabase} />
                   </div>
                 </p>
-              : <span className="no-data-services">no data </span>}
-              </>)}
+              :
+                <div className="nop-x" style={{display: 'grid', justifyContent: 'center', alignItems: 'center'}}>
+                  <Image style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}} alt={Search7526301} imageStyle={{width: '50%', height: '100%'}} zoomSrc={Search7526301} src={Search7526301} />
+                  <span className="no-data-services">no {cardType} found</span>
+                </div>
+              } </>)}
 
               { cardType === DataType.Hotel && hotels.length > 0 ? (
                 <></>

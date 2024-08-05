@@ -144,6 +144,10 @@ const Home = () => {
     return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '400px'}} />;
   };
 
+  const renderisAd = (image: string) => {
+    return <Image src={image} alt="Product" style={{width: '100%', padding: '0 10px'}} imageStyle={{ width: '95%', height: '400px'}} />;
+  };
+
   const renderServices = (service: any) => {
     return <Card
                 title={service.name}
@@ -221,6 +225,9 @@ const Home = () => {
       value = page.objects?.map((ob: any) => ob.item);
     } else if (page.isActivity) {
       itemTemplate = renderActivity;
+      value = page.objects?.map((ob: any) => ob.item);
+    } else if (page.isAd) {
+      itemTemplate = renderisAd;
       value = page.objects?.map((ob: any) => ob.item);
     } else {
       return null;

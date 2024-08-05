@@ -485,14 +485,13 @@ html body {
   width: 100%;
   display: block;
   text-align: center;
-  margin: 70px auto;
+  margin: 30px auto;
   font-size: 24px;
   font-family: fangsong;
   font-style: italic;
-  background: $secondery_color;
-  color: #FFF;
-  padding: 22px;
+  color: $primary_color;
   border-radius: 5px;
+  text-transform: uppercase;
 }
 
 .no-data-home-page {

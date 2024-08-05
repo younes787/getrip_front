@@ -1265,4 +1265,22 @@ export const GetAllOrders = async () => {
   }
 };
 
+export const InitializePopup = async (data: any) => {
+  try {
+    const response = await api.post("/initialize_popup", data);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
+export const VerifyPaid = async (reference: any) => {
+  try {
+    const response = await api.post(`/verify/${reference}`);
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 export default api;
