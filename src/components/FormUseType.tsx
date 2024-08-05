@@ -256,11 +256,11 @@ const FormUseType = () => {
   };
 
   useEffect(() => {
-    if (country && countries?.length > 0) {
+    if (country && countries && countries?.length > 0) {
       const found = findByNameOrId(countries, country);
       setFoundCountry(found);
       if (found) {
-        Serviceform.values.countryId = found.id;
+        Serviceform.values.countryId = found.id as number;
         fetchData(GetProvincebyCid, setProvinces, found.id);
       }
     }
@@ -271,7 +271,7 @@ const FormUseType = () => {
       const found = findByNameOrId(provinces, province);
       setFoundProvince(found);
       if (found) {
-        Serviceform.values.provincyId = found.id;
+        Serviceform.values.provincyId = found.id as number;
         fetchData(GetCitiesbyid, setCities, found.id);
       } else {
         AddProvince({ name: province, countryId: foundCountry.id })
@@ -285,7 +285,7 @@ const FormUseType = () => {
       const found = findByNameOrId(cities, city);
       setFoundCity(found);
       if (found) {
-        Serviceform.values.cityId = found.id;
+        Serviceform.values.cityId = found.id as number;
       } else {
         AddCity({ name: city, description: city, provinceId: foundProvince.id })
           .then(() => fetchData(GetCitiesbyid, setCities, foundProvince.id));
