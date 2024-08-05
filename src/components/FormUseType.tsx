@@ -83,6 +83,9 @@ const FormUseType = () => {
   const [country, setCountry] = useState<string | null>(null);
   const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
+  const [foundCountry, setFoundCountry] = useState<any>(null);
+  const [foundProvince, setFoundProvince] = useState<any>(null);
+  const [foundCity, setFoundCity] = useState<any>(null);
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     const results = location.address;
@@ -253,39 +256,42 @@ const FormUseType = () => {
   };
 
   useEffect(() => {
-    if (country && province && city && countries && countries.length > 0) {
-      let {foundCountry = '', foundProvince = '', foundCity = ''}: any = {};
-
-      foundCountry = findByNameOrId(countries, country);
-      if (foundCountry) {
-        Serviceform.values.countryId = foundCountry?.id as number;
-        fetchData(GetProvincebyCid, setProvinces, foundCountry.id);
-      }
-
-      if (foundCountry && province && provinces && provinces.length > 0) {
-        foundProvince = findByNameOrId(provinces, province);
-        if (foundProvince) {
-          Serviceform.values.provincyId = foundProvince?.id as number;
-          fetchData(GetCitiesbyid, setCities, foundProvince.id);
-        } else {
-          AddProvince({ name: province, countryId: foundCountry.id }).then((res) => {
-            fetchData(GetProvincebyCid, setProvinces, foundCountry.id);
-          });
-        }
-      }
-
-      if (foundProvince && city && cities && cities.length > 0) {
-        foundCity = findByNameOrId(cities, city);
-        if(foundCity) {
-          Serviceform.values.cityId = foundCity?.id as number;
-        } else {
-          AddCity({ name: city, description: city, provinceId: foundProvince.id }).then((res) => {
-            fetchData(GetCitiesbyid, setCities, foundProvince.id);
-          });
-        }
+    if (country && countries?.length > 0) {
+      const found = findByNameOrId(countries, country);
+      setFoundCountry(found);
+      if (found) {
+        Serviceform.values.countryId = found.id;
+        fetchData(GetProvincebyCid, setProvinces, found.id);
       }
     }
-  }, [countries, country, province, city]);
+  }, [countries, country]);
+
+  useEffect(() => {
+    if (foundCountry && province && provinces?.length > 0) {
+      const found = findByNameOrId(provinces, province);
+      setFoundProvince(found);
+      if (found) {
+        Serviceform.values.provincyId = found.id;
+        fetchData(GetCitiesbyid, setCities, found.id);
+      } else {
+        AddProvince({ name: province, countryId: foundCountry.id })
+          .then(() => fetchData(GetProvincebyCid, setProvinces, foundCountry.id));
+      }
+    }
+  }, [foundCountry, provinces, province]);
+
+  useEffect(() => {
+    if (foundProvince && city && cities?.length > 0) {
+      const found = findByNameOrId(cities, city);
+      setFoundCity(found);
+      if (found) {
+        Serviceform.values.cityId = found.id;
+      } else {
+        AddCity({ name: city, description: city, provinceId: foundProvince.id })
+          .then(() => fetchData(GetCitiesbyid, setCities, foundProvince.id));
+      }
+    }
+  }, [foundProvince, city, cities]);
 
   useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
