@@ -23,6 +23,7 @@ const Orders = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const { user } = useAuth();
   const [showPaid, setShowPaid] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -42,9 +43,14 @@ const Orders = () => {
       metadata: {
         "custom_fields":[
         {
-          "display_name":"Cart Items",
-          "variable_name":"Cart Items",
-          "value": "order"
+          "display_name": "Project Name",
+          "variable_name": "Project Name",
+          "value": "GeTrip"
+        },
+        {
+          "display_name":"OrderId",
+          "variable_name":"OrderId",
+          "value": orderId
         },
       ]
       },
@@ -73,8 +79,10 @@ const Orders = () => {
       })
       .catch((error) => {
         console.error(error);
+        setOrderId(null)
         setShowPaid(false);
       }).finally(() => {
+        setOrderId(null)
         setShowPaid(false);
       });
     },
@@ -103,6 +111,7 @@ const Orders = () => {
         console.error(error, 'Error verifying payment');
       })
       .finally(() => {
+        setOrderId(null)
         setShowPaid(false);
       });
   };
@@ -162,7 +171,14 @@ const Orders = () => {
     if (!rowData.isCanceled && !rowData.isPayed) {
       return (
         <div className="gap-3">
-          <i onClick={() => setShowPaid(true)} className="pi pi-check" style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '50%',padding: '5px',margin: '2px',cursor: 'pointer'}}></i>
+          <i
+            onClick={() => {
+              setOrderId(rowData.id)
+              setShowPaid(true)
+            }}
+            className="pi pi-check"
+            style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '50%',padding: '5px',margin: '2px',cursor: 'pointer'}}
+          ></i>
         </div>
       );
     }
@@ -236,10 +252,16 @@ const Orders = () => {
       visible={showPaid}
       style={{maxWidth: '50%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
       footer={<div>
-        <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowPaid(false)} className="mt-4"></Button>
+        <Button label="Cancel" severity="danger" outlined size="small" onClick={() => {
+          setOrderId(null)
+          setShowPaid(false)
+          }} className="mt-4"></Button>
         <Button label="Pay" severity="success" outlined size="small" onClick={() => InitializePopupForm.submitForm()} className="mt-4"></Button>
       </div>}
-      onHide={() => setShowPaid(false)}
+      onHide={() => {
+        setOrderId(null)
+        setShowPaid(false)
+      }}
     >
       <div className="grid mt-3">
         <div className="md:col-12 lg:col-12">
