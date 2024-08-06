@@ -74,8 +74,6 @@ const FormUseType = () => {
   const [pricingTypes, setPricingTypes] = useState<any>();
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
-  const [selectedCountry, setSelectedCountry] = useState<number>(0);
-  const [selectedProvince, setSelectedProvince] = useState<number>(0);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: any } | null>(null);
   const [showSteps, setShowSteps] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
@@ -83,34 +81,92 @@ const FormUseType = () => {
   const [country, setCountry] = useState<string | null>(null);
   const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
-  const [foundCountry, setFoundCountry] = useState<any>(null);
-  const [foundProvince, setFoundProvince] = useState<any>(null);
-  const [foundCity, setFoundCity] = useState<any>(null);
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     const results = location.address;
-    let country, province, city = '';
+    let newCountry = '', newProvince = '', newCity = '';
 
     for (const component of results[0].address_components) {
       if (component.types.includes('country')) {
-        country = component.long_name;
+        newCountry = component.long_name;
       }
 
       if (component.types.includes('administrative_area_level_1')) {
-        province = component.long_name.replace(/Governorate|state/g, '').trim();
+        newProvince = component.long_name.replace(/Governorate|state/g, '').trim();
       }
 
       if (component.types.includes('administrative_area_level_2')) {
-        city = component.long_name.replace(/Governorate|state/g, '').trim();
+        newCity = component.long_name.replace(/Governorate|state/g, '').trim();
       }
     }
 
     setSelectedLocation(location);
-
-    if(country) setCountry(country)
-    if(province) setProvince(province)
-    if(city) setCity(city)
+    setCountry(newCountry);
+    setProvince(newProvince);
+    setCity(newCity);
   };
+
+  useEffect(() => {
+    console.log(country, province, city, countries);
+
+    const fetchLocationData = async () => {
+      if (country) {
+        const countriesRes = await GetAllCountries();
+        setCountries(countriesRes.data);
+
+        const foundCountry = findByNameOrId(countriesRes.data, country);
+        if (foundCountry) {
+          Serviceform.setFieldValue("countryId", foundCountry.id);
+
+          try {
+            const provincesRes = await GetProvincebyCid(foundCountry.id);
+            setProvinces(provincesRes.data);
+
+            if (province) {
+              const foundProvince = findByNameOrId(provincesRes.data, province);
+              if (foundProvince) {
+                Serviceform.setFieldValue("provincyId", foundProvince.id);
+
+                try {
+                  const citiesRes = await GetCitiesbyid(foundProvince.id);
+                  setCities(citiesRes.data);
+
+                  if (city) {
+                    const foundCity = findByNameOrId(citiesRes.data, city);
+                    if (foundCity) {
+                      Serviceform.setFieldValue("cityId", foundCity.id);
+                    } else {
+                      try {
+                        await AddCity({ name: city, description: city, provinceId: foundProvince.id });
+                        const res = await GetCitiesbyid(foundProvince.id);
+                        setCities(res.data);
+                      } catch (error) {
+                        console.error("Error adding city:", error);
+                      }
+                    }
+                  }
+                } catch (error) {
+                  console.error("Error fetching cities:", error);
+                }
+              } else {
+                try {
+                  await AddProvince({ name: province, countryId: foundCountry.id });
+                  const res = await GetProvincebyCid(foundCountry.id);
+                  setProvinces(res.data);
+                } catch (error) {
+                  console.error("Error adding province:", error);
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching provinces:", error);
+          }
+        }
+      }
+    };
+
+    fetchLocationData();
+  }, [country, province, city]);
 
   const findByNameOrId = <T extends { id: number; name: string }>(items: T[], nameOrId?: string | number): T | undefined => {
     if (typeof nameOrId === 'string') {
@@ -120,15 +176,6 @@ const FormUseType = () => {
       );
     } else if (typeof nameOrId === 'number') {
       return items.find(item => item.id === nameOrId);
-    }
-  };
-
-  const fetchData = async ( fetchFunction: (id: number) => Promise<any>, setStateFunction: (data: any) => void, id: number) => {
-    try {
-      const res = await fetchFunction(id);
-      setStateFunction(res.data);
-    } catch (error) {
-      console.error(`Error fetching data: `, error);
     }
   };
 
@@ -256,44 +303,6 @@ const FormUseType = () => {
   };
 
   useEffect(() => {
-    if (country && countries && countries?.length > 0) {
-      const found = findByNameOrId(countries, country);
-      setFoundCountry(found);
-      if (found) {
-        Serviceform.values.countryId = found.id as number;
-        fetchData(GetProvincebyCid, setProvinces, found.id);
-      }
-    }
-  }, [countries, country]);
-
-  useEffect(() => {
-    if (foundCountry && province && provinces?.length > 0) {
-      const found = findByNameOrId(provinces, province);
-      setFoundProvince(found);
-      if (found) {
-        Serviceform.values.provincyId = found.id as number;
-        fetchData(GetCitiesbyid, setCities, found.id);
-      } else {
-        AddProvince({ name: province, countryId: foundCountry.id })
-          .then(() => fetchData(GetProvincebyCid, setProvinces, foundCountry.id));
-      }
-    }
-  }, [foundCountry, provinces, province]);
-
-  useEffect(() => {
-    if (foundProvince && city && cities?.length > 0) {
-      const found = findByNameOrId(cities, city);
-      setFoundCity(found);
-      if (found) {
-        Serviceform.values.cityId = found.id as number;
-      } else {
-        AddCity({ name: city, description: city, provinceId: foundProvince.id })
-          .then(() => fetchData(GetCitiesbyid, setCities, foundProvince.id));
-      }
-    }
-  }, [foundProvince, city, cities]);
-
-  useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
       Serviceform.setFieldValue('isRental', [8, 9, 12].includes(Serviceform.values.typeId.id));
       Serviceform.setFieldValue('isYacht', Serviceform.values.typeId.id === 9);
@@ -331,12 +340,10 @@ const FormUseType = () => {
           setAssignedFacilitiesByServiceTypeIdWithCategory(getAssignedFacilitiesByServiceTypeIdWithCategoryRes.data);
         }
 
-        const [countriesRes, currencyRes] = await Promise.all([
-          GetAllCountries(),
+        const [currencyRes] = await Promise.all([
           GetCurrency(),
         ]);
 
-        setCountries(countriesRes.data);
         setCurrency(currencyRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -354,26 +361,12 @@ const FormUseType = () => {
   }, [location, navigate]);
 
   useEffect(() => {
-    if(selectedCountry) {
-      GetProvincebyCid(selectedCountry).then((res) => setProvinces(res.data));
-    }
-
-    if(selectedProvince) {
-      GetCitiesbyid(selectedProvince).then((res) => setCities(res.data));
-    }
-  }, [selectedCountry, selectedProvince]);
-
-  useEffect(() => {
     if(Serviceform?.values?.cityId) {
       GetPlacesbyid(Serviceform?.values?.cityId).then((res) => {
         setPlaces(res.data);
       });
     }
   }, [Serviceform.values.cityId]);
-
-  const handleCityChange = (e: any) => {
-    Serviceform.setFieldValue("cityId", e.value)
-  };
 
   const handleAddTag = () => {
     if (newTag.trim() !== '') {
@@ -562,6 +555,26 @@ const FormUseType = () => {
     );
   };
 
+  const handleCountryChange = async (e: any) => {
+    Serviceform.setFieldValue("countryId", e.value);
+    Serviceform.setFieldValue("provincyId", null);
+    Serviceform.setFieldValue("cityId", null);
+    const provincesRes = await GetProvincebyCid(e.value);
+    setProvinces(provincesRes.data);
+    setCities([]);
+  };
+
+  const handleProvinceChange = async (e: any) => {
+    Serviceform.setFieldValue("provincyId", e.value);
+    Serviceform.setFieldValue("cityId", null);
+    const citiesRes = await GetCitiesbyid(e.value);
+    setCities(citiesRes.data);
+  };
+
+  const handleCityChange = (e: any) => {
+    Serviceform.setFieldValue("cityId", e.value);
+  };
+
   return (
     <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>
@@ -709,10 +722,7 @@ const FormUseType = () => {
                   filter
                   className="mt-2	w-full"
                   value={Serviceform?.values?.countryId}
-                  onChange={(e) => {
-                    setSelectedCountry(e.value);
-                    Serviceform.setFieldValue("countryId", e.value)
-                  }}
+                  onChange={handleCountryChange}
                 />
               </div>
 
@@ -730,10 +740,7 @@ const FormUseType = () => {
                   filter
                   className="mt-2	w-full"
                   value={Serviceform?.values?.provincyId}
-                  onChange={(e) => {
-                    setSelectedProvince(e.value);
-                    Serviceform.setFieldValue("provincyId", e.value)
-                  }}
+                  onChange={handleProvinceChange}
                 />
               </div>
 
@@ -748,7 +755,7 @@ const FormUseType = () => {
                   filter
                   className="w-full"
                   value={Serviceform.values.cityId}
-                  onChange={(e) => handleCityChange(e)} />
+                  onChange={handleCityChange} />
                   {renderError(Serviceform.errors.cityId)}
               </div>
 
