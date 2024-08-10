@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes } from "../Services";
+import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes, UpdateService } from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
@@ -83,6 +83,7 @@ const FormUseTypeUpdateService = () => {
   const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
   const { serviceType, serviceId } = useParams<{ serviceType: DataType, serviceId: string }>();
+  const [serviceInitialValues, setServiceInitialValues] = useState<ServiceDTO>();
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     const results = location.address;
@@ -109,8 +110,6 @@ const FormUseTypeUpdateService = () => {
   };
 
   useEffect(() => {
-    console.log(country, province, city, countries);
-
     const fetchLocationData = async () => {
       if (country) {
         const countriesRes = await GetAllCountries();
@@ -209,7 +208,7 @@ const FormUseTypeUpdateService = () => {
   };
 
   const Serviceform = useFormik<ServiceDTO>({
-    initialValues: new ServiceDTO(),
+    initialValues: serviceInitialValues || new ServiceDTO(),
     validationSchema,
     validateOnChange: true,
     onSubmit: (values) => {
@@ -251,11 +250,11 @@ const FormUseTypeUpdateService = () => {
       values.serviceFacilities = serviceFacilities;
       values.residenceTypeId = 1;
 
-      handleAddService();
+      handleUpdateService();
     },
   });
 
-  const handleAddService = async () => {
+  const handleUpdateService = async () => {
     try {
       const formData = new FormData();
 
@@ -287,7 +286,7 @@ const FormUseTypeUpdateService = () => {
       formData.append('Id', '0');
       formData.append('Images.ObjectId', '0');
 
-      const addServiceResponse = await AddService(formData);
+      const addServiceResponse = await UpdateService(formData);
       if (addServiceResponse.isSuccess) {
           confirmDialog({
             header: 'Success!',
@@ -320,33 +319,36 @@ const FormUseTypeUpdateService = () => {
 
     const fetchData = async () => {
       try {
-          GetServiceDetailsById(Number(serviceId)).then((res) => {
-            GetServiceTypes().then( async (resType) => {
-              const serviceType = resType.data.find((type: any) => type.id === res.data.typeId);
-              Serviceform.setFieldValue("typeId", serviceType);
-              Serviceform.setFieldValue("isRental", serviceType.isRental);
-              Serviceform.setFieldValue("isTrip", serviceType.isTrip);
+        const serviceDetails = await GetServiceDetailsById(Number(serviceId));
+        const { data } = serviceDetails;
+        Serviceform.setValues(data);
+        setServiceInitialValues(data);
 
-              const [feildsTypeRes, vehicleRes] = await Promise.all([
-                GetFeildsbysid(serviceType.id),
-                GetAllYachts()
-              ]);
+        GetServiceTypes().then( async (resType) => {
+          const serviceType = resType.data.find((type: any) => type.id === data.typeId);
+          Serviceform.setFieldValue("typeId", serviceType);
+          Serviceform.setFieldValue("isRental", serviceType.isRental);
+          Serviceform.setFieldValue("isTrip", serviceType.isTrip);
 
-              setFeildsType(feildsTypeRes.data);
-              setVehicle(vehicleRes.data);
+          const [feildsTypeRes, vehicleRes] = await Promise.all([
+            GetFeildsbysid(serviceType.id),
+            GetAllYachts()
+          ]);
 
-              const [getAssignedFacilitiesByServiceTypeIdWithCategoryRes] = await Promise.all([
-                GetAssignedFacilitiesByServiceTypeIdWithCategory(serviceType.id),
-              ]);
+          setFeildsType(feildsTypeRes.data);
+          setVehicle(vehicleRes.data);
 
-              GetAllPricingTypes().then((res) => {
-                const filteredData = res?.data.filter((item: any) => item.serviceTypeId === serviceType.id);
-                setPricingTypes(filteredData);
-              });
+          const [getAssignedFacilitiesByServiceTypeIdWithCategoryRes] = await Promise.all([
+            GetAssignedFacilitiesByServiceTypeIdWithCategory(serviceType.id),
+          ]);
 
-              setAssignedFacilitiesByServiceTypeIdWithCategory(getAssignedFacilitiesByServiceTypeIdWithCategoryRes.data);
-            });
-          })
+          GetAllPricingTypes().then((res) => {
+            const filteredData = res?.data.filter((item: any) => item.serviceTypeId === serviceType.id);
+            setPricingTypes(filteredData);
+          });
+
+          setAssignedFacilitiesByServiceTypeIdWithCategory(getAssignedFacilitiesByServiceTypeIdWithCategoryRes.data);
+        });
 
         const [currencyRes] = await Promise.all([
           GetCurrency(),
@@ -361,7 +363,7 @@ const FormUseTypeUpdateService = () => {
     };
 
     fetchData();
-  }, [location, navigate]);
+  }, []);
 
   useEffect(() => {
     if(Serviceform?.values?.cityId) {
@@ -775,7 +777,7 @@ const FormUseTypeUpdateService = () => {
                       : undefined
                   }
                   city={
-                    (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
+                    (Serviceform.values.cityId && cities && cities.find((er: any) => er.id === Serviceform.values.cityId))
                       ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
                       : undefined
                   }

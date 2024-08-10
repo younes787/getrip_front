@@ -428,7 +428,7 @@ export class ServiceDTO{
     ObjectId: any,
     file: any,
   };
-  address!: Address;
+  address!: Address | undefined;
   placeHasNewActivities:boolean = false;
   hasNewRentalPlace :boolean = false;
   isRental:boolean = false;

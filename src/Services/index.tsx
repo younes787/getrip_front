@@ -103,6 +103,10 @@ export const UpdateUser = (userData: any) => {
   return FetchWithLoading(api.put("/updateuser", userData));
 };
 
+export const UpdateServiceProvider = (userData: any) => {
+  return FetchWithLoading(api.put("/updateserviceprovider", userData));
+};
+
 export const DeleteUser = (email: any) => {
   return FetchWithLoading(api.delete(`/deleteuser/${email}`));
 };

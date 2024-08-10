@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 import { UsersClientDTO, UsersServiceProviderDTO } from "../modules/getrip.modules";
 import { Button } from "primereact/button";
 import { useFormik } from "formik";
-import { ChangePassword, UpdateUser } from "../Services";
+import { ChangePassword, UpdateServiceProvider, UpdateUser } from "../Services";
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
 
@@ -33,7 +33,11 @@ const Profile = () => {
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
-      UpdateUser(formik.values);
+      if(formik.values.role !== "Client") {
+        UpdateServiceProvider(formik.values);
+      } else {
+        UpdateUser(formik.values);
+      }
     },
   });
 
