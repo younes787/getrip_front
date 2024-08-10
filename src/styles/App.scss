@@ -645,6 +645,32 @@ html body {
   // background-color: $secondery_color;
 }
 
+
+.orders-table .actions-column {
+  position: 'sticky' !important;
+  right: 0;
+  background-color: #f8f9fa;
+  z-index: 1;
+}
+
+.orders-table .actions-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.orders-table .p-datatable-thead th:last-child,
+.orders-table .p-datatable-tbody td:last-child {
+  position: 'sticky';
+  right: 0;
+  background-color: #f8f9fa;
+}
+
+.orders-table .p-datatable-wrapper {
+  overflow-x: auto;
+}
+
 @media screen and (max-width: 960px) {
   .p-menubar .p-menubar-button {
     display: none;

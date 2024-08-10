@@ -89,6 +89,7 @@ export const mapServiceData = (data: any): Service[] => {
     lat: item.lat,
     lng: item.lng,
     addressDescription: item.addressDescription,
+    priceValues: item.priceValues,
     placeId: item.placeId,
     accountId: item.accountId,
     price: item.price,

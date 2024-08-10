@@ -23,9 +23,9 @@ interface SearchBarProps {
 const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect, onSelectFilterData }) => {
   const today = new Date();
   const minSelectableDate = new Date(today);
-  minSelectableDate.setDate(today.getDate() + 10);
+  minSelectableDate.setDate(today.getDate() + 1);
 
-  const [keySearch, setKeySearch] = useState<string>('A');
+  const [keySearch, setKeySearch] = useState<any>(localStorage.getItem('keySearch')! ||'A');
   const [filteredQuery, setFilteredQuery] = useState<any>(null);
   const menuLeft = useRef<any>(null);
   const navigate = useNavigate();
@@ -100,9 +100,11 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             }
           }
 
-          setSelectedLocation({name: `${country}, ${province}`});
-          onLocationSelect({lat: latitude, lng: longitude, country, province });
-          setKeySearch(province);
+          if(!selectedLocation.name) {
+            setSelectedLocation({name: `${country}, ${province}`});
+            onLocationSelect({lat: latitude, lng: longitude, country, province });
+            setKeySearch(province);
+          }
         } else {
           console.error('Geocoding API error: ', res?.data.status);
         }

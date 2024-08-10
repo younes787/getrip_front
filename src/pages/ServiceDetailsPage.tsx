@@ -6,7 +6,7 @@ import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
 import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBaby, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt } from "@fortawesome/free-solid-svg-icons";
+import { faHandPointUp, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt, faBaby } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
 import GoogleMap from "../components/GoogleMap";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
@@ -17,6 +17,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
 import { Chip } from "primereact/chip";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -135,8 +136,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               // .filter((facility: any) => facility.isPrimary)
               .map((facility: any) => {
                 return <div className="m-2">
-                          {index === 0 ? <p>{category.categoryName}</p> : null }
-                          - {facility.name}
+                          {index === 0 ? <p> <FontAwesomeIcon icon={fas[category?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} /> {category.categoryName}</p> : null}
+                          <span className="mx-4">
+                            <FontAwesomeIcon icon={fas[facility?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} />
+                            {facility.name}
+                          </span>
                         </div>
               })
           ),
@@ -283,20 +287,23 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       return null;
     }
 
+    const allPrimaryFacilities = facilities.flatMap((category: any) =>
+      category.facilities.filter((facility: any) => facility.isPrimary)
+    );
+
     return (
-      <div className="grid grid-cols-12 my-2">
-        <h2 className="mx-3 w-full">Facilities</h2>
-        {facilities.map((category: any, categoryIndex: number) => (
-          <div className="mx-3" key={category.categoryName}>
-            {category.facilities
-              .filter((facility: any) => facility.isPrimary)
-              .map((facility: any, facilityIndex: number) => (
-                <div key={facility.name} className="md:col-span-4 lg:col-span-4 sm:col-span-12">
-                  {facilityIndex === 0 && <p>{category.categoryName}</p>}
-                  - {facility.name}
-                </div>
-              ))}
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 my-4">
+        {allPrimaryFacilities.map((facility: any) => (
+          <span
+            key={facility.name}
+            className="flex items-center bg-gray-100 rounded-md border border-gray-300 p-3 text-sm"
+          >
+            <FontAwesomeIcon
+              icon={fas[facility?.iconCode] || faBaby}
+              className="mr-2 text-xl text-gray-600"
+            />
+            {facility.name}
+          </span>
         ))}
       </div>
     );
@@ -325,7 +332,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     const totalPrice = calculateTotalPrice();
     setTotalPrice(totalPrice);
   }, [ingredient, serviceDetails, guests, daysCount, children, setTotalPrice]);
-
 
   return (<>
       { loading ? <LoadingComponent /> : <>
@@ -378,7 +384,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
               <div className="tabs">
-                {['Overview', 'Facilities', 'Prices', 'Reviews', 'Location'].map((tab) => (
+                {['Overview', 'Facilities', 'Reviews', 'Location'].map((tab) => (
                   <button key={tab} className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
                 ))}
               </div>
@@ -396,13 +402,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   <div className="tab-pane active">
                     <h2>Facilities</h2>
                     <p>{serviceDetails?.facilities}</p>
-                  </div>
-                )}
-
-                {activeTab === 'Prices' && (
-                  <div className="tab-pane active">
-                    <h2>Prices</h2>
-                    <p>{serviceDetails?.prices}</p>
                   </div>
                 )}
 

@@ -1,5 +1,5 @@
 import React, { ReactNode, createContext, useContext, useState} from "react";
-import { authLogin } from "../Services";
+import { AuthLogin } from "../Services";
 
 type User = {
   username: string;
@@ -25,7 +25,7 @@ export const AuthProvider: any = ({ children }: AuthProviderProps) => {
 
   const login = async (userData: User) => {
     try {
-      const response = await authLogin(userData);
+      const response = await AuthLogin(userData);
       const accessToken = response.data.token;
       localStorage.setItem("token", accessToken);
       localStorage.setItem("user", JSON.stringify(response));

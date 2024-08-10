@@ -94,8 +94,9 @@ const Orders = () => {
   });
 
   const openPaymentWindow = (url: string, reference: string) => {
-    const popup = window.open(url, 'PaymentWindow', 'width=600,height=600');
+    const popup = window.open(url, '_blank');
     if (popup) {
+      popup.focus();
       const timer = setInterval(() => {
         if (popup.closed) {
           clearInterval(timer);
@@ -175,7 +176,7 @@ const Orders = () => {
   const BodyTemplate = (rowData: any) => {
     if (!rowData.isCanceled && !rowData.isPayed) {
       return (
-        <div className="gap-3">
+        <div className="actions-cell">
           <i
             onClick={() => {
               setOrderId(rowData.id)
@@ -219,7 +220,7 @@ const Orders = () => {
     { field: "isPayed", header: "Payed", body: (row: any) => showIcons(row.isPayed) },
     { field: "amount", header: "Amount" },
     { field: "orderDate", header: "Order date", body: (row: any) => formatDate(row.orderDate)},
-    { field: "", header: "Actions", body: BodyTemplate }
+    { field: "", header: "Actions", body: BodyTemplate, className: 'actions-column' }
   ];
 
   return (
@@ -232,7 +233,7 @@ const Orders = () => {
             value={orders}
             stripedRows
             showGridlines
-            className="mt-5"
+            className="mt-5 orders-table"
             tableStyle={{ minWidth: "50rem" }}
             size="small"
             style={{ fontSize: "1.2rem"}}
@@ -245,8 +246,8 @@ const Orders = () => {
             rowHover
             sortMode="multiple"
           >
-            {columns.map(({ field, header, body }) => (
-              <Column key={field} field={field} filter sortable header={header} body={body} />
+            {columns.map(({ field, header, body, className }) => (
+              <Column key={field} field={field} filter sortable header={header} body={body} className={className} />
             ))}
           </DataTable>
         </div>

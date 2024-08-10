@@ -416,6 +416,7 @@ export interface Service {
   lat: number | null;
   lng: number | null;
   addressDescription: string | null;
+  priceValues: PriceValuesDTO[];
   placeId: string | null;
   accountId: number;
   price: number;

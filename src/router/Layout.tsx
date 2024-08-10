@@ -35,18 +35,35 @@ import ServiceDetailsPage from "../pages/ServiceDetailsPage";
 import SearchAndFilter from "../pages/SearchAndFilter";
 import Orders from "../pages/Orders";
 import HomePageContent from "../pages/HomePageContent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Requests from "../pages/Requests";
+import { ProgressBar } from "primereact/progressbar";
+import { useLoading } from "../Services";
 
 const Layout = () => {
   const { user } = useAuth();
   const User = JSON.parse(localStorage?.getItem('user') as any)
   const role = User?.data?.role;
   const [navState, setNavState] = useState<boolean>(false);
+  const { isLoading, setIsLoading } = useLoading();
+
+  useEffect(() => {
+    const handleApiCallStart = () => setIsLoading(true);
+    const handleApiCallEnd = () => setIsLoading(false);
+
+    window.addEventListener('api-call-start', handleApiCallStart);
+    window.addEventListener('api-call-end', handleApiCallEnd);
+
+    return () => {
+      window.removeEventListener('api-call-start', handleApiCallStart);
+      window.removeEventListener('api-call-end', handleApiCallEnd);
+    };
+  }, [setIsLoading]);
 
   return (
     <div className="h-full">
         <NavBar navState={navState} />
+        {isLoading && <ProgressBar mode="indeterminate" color="#f1881f" style={{ height: '3px'}}></ProgressBar>}
         <ToastContainer
           position="top-right"
           autoClose={5000}

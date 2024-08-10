@@ -14,6 +14,7 @@ import { HomePageRowDTO, LocationFromSearch, QueryFilter } from "../modules/getr
 import { DataType } from "../enums";
 import { useTranslation } from "react-i18next";
 import LoadingComponent from "../components/Loading";
+import { Tooltip } from "primereact/tooltip";
 
 const Home = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any);
@@ -152,7 +153,7 @@ const Home = () => {
     return <Card
                 title={service.name}
                 subTitle={<span><FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />{service.description}</span>}
-                header={ <Image  src={service?.photos[0]?.imagePath && service?.photos[0]?.imagePath } imageStyle={{borderRadius: '30px 30px 0 0'}} alt={service.photos}  preview />}
+                header={ <Image className="h-full w-full" src={service?.photos[0]?.imagePath && service?.photos[0]?.imagePath } imageStyle={{borderRadius: '30px 30px 0 0', height: '250px'}} alt={service.photos}  preview />}
                 className="md:w-21rem m-2 m-home-card relative"
               >
               <div className="grid mb-3">
@@ -164,7 +165,17 @@ const Home = () => {
                 <div className="col-4">
                   <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
                     per night
-                    <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${service?.price}</span>
+                    <Tooltip target=".custom-target-icon"/>
+
+                    <span
+                      className="mt-1 custom-target-icon"
+                      style={{fontSize: '22px', fontWeight: '550',  color: 'red'}}
+                      data-pr-tooltip={service?.priceValues[0].pricingTypeName}
+                      data-pr-position="right"
+                      data-pr-my="left center-2"
+                    >
+                      ${service?.priceValues[0].value ?? service?.price}
+                    </span>
                   </p>
                 </div>
               </div>

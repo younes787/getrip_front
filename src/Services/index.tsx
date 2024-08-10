@@ -1,12 +1,33 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { handleResponse, handleError } from "./handleResponse";
 import { ImageToRowDTO, SearchFilterParams } from "../modules/getrip.modules";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 const getToken = () => {
   return typeof window !== "undefined" && window.localStorage ? localStorage.getItem("token") : "";
 };
 
-const createAxiosInstance = (contentType: string) => {
+const LoadingContext = createContext<{
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}>({
+  isLoading: false,
+  setIsLoading: () => {},
+});
+
+export const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  return (
+    <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+      {children}
+    </LoadingContext.Provider>
+  );
+};
+
+export const useLoading = () => useContext(LoadingContext);
+
+const createAxiosInstanceWithLoading = (contentType: string): AxiosInstance => {
   const headers = {
     "Content-Type": contentType,
     Authorization: `Bearer ${getToken()}`,
@@ -17,1270 +38,601 @@ const createAxiosInstance = (contentType: string) => {
     headers,
   });
 
+  instance.interceptors.request.use((config) => {
+    window.dispatchEvent(new CustomEvent('api-call-start'));
+    return config;
+  });
+
   instance.interceptors.response.use(
     (response) => {
+      window.dispatchEvent(new CustomEvent('api-call-end'));
       return response;
     },
     (error) => {
+      window.dispatchEvent(new CustomEvent('api-call-end'));
       if (error.response && error.response.status === 401) {
         localStorage.clear();
         window.location.href = "/";
       } else {
         handleError(error);
       }
+      return Promise.reject(error);
     }
   );
 
   return instance;
 };
 
-const api = createAxiosInstance("application/json");
-const apiForm = createAxiosInstance("multipart/form-data");
+const api = createAxiosInstanceWithLoading("application/json");
+const apiForm = createAxiosInstanceWithLoading("multipart/form-data");
+
+const FetchWithLoading = async (request: Promise<any>) => {
+  try {
+    const response = await request;
+    return handleResponse(response);
+  } catch (error) {
+    handleError(error);
+  }
+};
 
 export const Getlogged = async (email: string) => {
-  try {
-    const response = await api.get(`/getlogged/${email}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getlogged/${email}`));
 };
 
-export const authRegister = async (registerData: any) => {
-  try {
-    const response = await api.post("/register", registerData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+export const AuthRegister = async (registerData: any) => {
+  return FetchWithLoading(api.post("/register", registerData));
 };
 
-export const authLogin = async (loginData: any) => {
-  try {
-    const response = await api.post("/loginuser", loginData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+export const AuthLogin = (loginData: any) => {
+  return FetchWithLoading(api.post("/loginuser", loginData));
 };
 
-export const CreateUser = async (userData: any) => {
-  try {
-    const response = await api.post("/createuser", userData);
-    return handleResponse(response, "Post");
-  } catch (error) {
-    handleError(error);
-  }
+export const CreateUser = (userData: any) => {
+  return FetchWithLoading(api.post("/createuser", userData));
 };
 
-export const RegisterServiceProvider = async (Data: any) => {
-  try {
-    const response = await api.post("/registerserviceprovider", Data);
-    return handleResponse(response, "");
-  } catch (error) {
-    handleError(error);
-  }
+export const RegisterServiceProvider = (Data: any) => {
+  return FetchWithLoading(api.post("/registerserviceprovider", Data));
 };
 
-export const UpdateUser = async (userData: any) => {
-  try {
-    const response = await api.put("/updateuser", userData);
-    return handleResponse(response, "Post");
-  } catch (error) {
-    handleError(error);
-  }
+export const UpdateUser = (userData: any) => {
+  return FetchWithLoading(api.put("/updateuser", userData));
 };
 
-export const DeleteUser = async (email: any) => {
-  try {
-    const response = await api.delete(`/deleteuser/${email}`);
-    return handleResponse(response, "Post");
-  } catch (error) {
-    handleError(error);
-  }
+export const DeleteUser = (email: any) => {
+  return FetchWithLoading(api.delete(`/deleteuser/${email}`));
 };
 
-export const GetAllUsers = async () => {
-  try {
-    const response = await api.get("/getallusers");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+export const GetAllUsers = () => {
+  return FetchWithLoading(api.get("/getallusers"));
 };
 
 export const GetAccountById = async (accountId: number) => {
-  try {
-    const response = await api.get(`/getaccountbyid/${accountId}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getaccountbyid/${accountId}`));
 };
 
 export const GetAllRoles = async () => {
-  try {
-    const response = await api.get("/getallroles");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallroles"));
 };
 
 export const GetUsersInRole = async (role: string) => {
-  try {
-    const response = await api.get(`/usersinrole/${role}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/usersinrole/${role}`));
 };
 
 export const CreateServiceType = async (ServicesData: any) => {
-  try {
-    const response = await api.post("/createservicetype", ServicesData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/createservicetype", ServicesData));
 };
 
 export const GetServiceTypes = async () => {
-  try {
-    const response = await api.get("/getallservicetypes");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallservicetypes"));
 };
 
 export const GetServiceDetailsById = async (sid: number) => {
-  try {
-    const response = await api.get(`/getservicedetailsbyid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getservicedetailsbyid/${sid}`));
 };
 
 export const GetAllServices = async () => {
-  try {
-    const response = await api.get("/getallservices");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallservices"));
 };
 
 export const GetMyServices = async (aid: number, pn: number, ps: number) => {
-  try {
-    const response = await api.get(`/getpaginatedservicesbyaccountid/${aid}/${pn}/${ps}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpaginatedservicesbyaccountid/${aid}/${pn}/${ps}`));
 };
 
 export const GetPaginatedServices = async (pn: number, ps: number, _filterData: string) => {
-  try {
-    const response = await api.get(`/getpaginatedservices/${pn}/${ps}?${_filterData}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpaginatedservices/${pn}/${ps}?${_filterData}`));
 };
 
 export const GetPaginatedServicesBySearchFilter = async (pageNumber: number, pageSize: number, filterData: SearchFilterParams) => {
-  try {
-    const queryParams = new URLSearchParams();
+  const queryParams = new URLSearchParams();
+  queryParams.append('pn', pageNumber.toString());
+  queryParams.append('ps', pageSize.toString());
 
-    queryParams.append('pn', pageNumber.toString());
-    queryParams.append('ps', pageSize.toString());
-
-    Object.entries(filterData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        if (Array.isArray(value)) {
-          value.forEach((item) => queryParams.append(key, item.toString()));
-        } else {
-          queryParams.append(key, value.toString());
-        }
+  Object.entries(filterData).forEach(([key, value]) => {
+    if (value !== undefined) {
+      if (Array.isArray(value)) {
+        value.forEach((item) => queryParams.append(key, item.toString()));
+      } else {
+        queryParams.append(key, value.toString());
       }
-    });
+    }
+  });
 
-    const response = await api.get(`/getpaginatedservicesbysearchfilter?${queryParams.toString()}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpaginatedservicesbysearchfilter?${queryParams.toString()}`));
 };
 
 export const GetAssignedServiceTypeByAccountId = async (aid: number) => {
-  try {
-    const response = await api.get(`/getassignedservicetypebyaccountid/${aid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getassignedservicetypebyaccountid/${aid}`));
 };
 
 export const AssignServiceTypeListToAccount = async (ServiceData: any) => {
-  try {
-    const response = await api.post(`/assignservicetypelisttoaccount`, ServiceData);
-    return handleResponse(response, 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/assignservicetypelisttoaccount`, ServiceData));
 };
 
 export const AddService = async (ServiceData: any) => {
-  try {
-    const response = await apiForm.post(`/addservice` , ServiceData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post(`/addservice` , ServiceData));
 };
 
 export const UpdateService = async (ServicesData: any) => {
-  try {
-    const response = await api.put("/updateservicetype", ServicesData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateservicetype", ServicesData));
 };
 
 export const AddImageToService = async (imageData:any) => {
-  try {
-    const response = await apiForm.post(`/addimagetoservice`, imageData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post(`/addimagetoservice`, imageData));
 };
 
 export const CreateCountry = async (CountryData: any) => {
-  try {
-    const response = await api.post("/createcountry", CountryData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/createcountry", CountryData));
 };
 
 export const CreatePricingType = async (PricingTypeData: any) => {
-  try {
-    const response = await api.post("/createpricingtype", PricingTypeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/createpricingtype", PricingTypeData));
 };
 
 export const UpdatePricingType = async (PricingTypeData: any) => {
-  try {
-    const response = await api.put("/updatepricingtype", PricingTypeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatepricingtype", PricingTypeData));
 };
 
 export const GetAllPricingTypes = async () => {
-  try {
-    const response = await api.get("/getallpricingtypes");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallpricingtypes"));
 };
 
 export const UpdateCountry = async (CountryData: any) => {
-  try {
-    const response = await api.put("/updatecountry", CountryData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatecountry", CountryData));
 };
 
 export const GetAllCountries = async () => {
-  try {
-    const response = await api.get("/getallcountries");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallcountries"));
 };
 
 export const GetProvimcesByName = async (name: string) => {
-  try {
-    const response = await api.get(`/getprovimcesbyname/${name}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getprovimcesbyname/${name}`));
 };
 
 export const GetProvincebyCid = async (cid:number) => {
-  try {
-    const response = await api.get(`/getprovincesbycid/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getprovincesbycid/${cid}`));
 };
 
 export const AddCity = async (CityData: any) => {
-  try {
-    const response = await api.post("/addcity", CityData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addcity", CityData));
 };
 
 export const UpdateCity = async (CountryData: any) => {
-  try {
-    const response = await api.put("/updatecity", CountryData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatecity", CountryData));
 };
 
 export const GetCitiesbyid = async (pid: number) => {
-  try {
-    const response = await api.get(`/getcitiesbypid/${pid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getcitiesbypid/${pid}`));
 };
 
 export const GetAllCities = async () => {
-  try {
-    const response = await api.get(`/getallcities`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallcities`));
 };
 
 export const AddProvince = async (ProvinceData: any) => {
-  try {
-    const response = await api.post("/addprovince", ProvinceData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addprovince", ProvinceData));
 };
 
 export const UpdateProvince = async (ProvinceData: any) => {
-  try {
-    const response = await api.put("/updateprovince", ProvinceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateprovince", ProvinceData));
 };
 
 export const GetProvincesbyid = async (cid: number) => {
-  try {
-    const response = await api.get(`/getprovincesbycid/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getprovincesbycid/${cid}`));
 };
 
 export const GetAllProvinces = async () => {
-  try {
-    const response = await api.get(`/getallprovinces`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallprovinces`));
 };
 
 export const AddPlace = async (PlaceData: any) => {
-  try {
-    const response = await api.post("/addplace", PlaceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addplace", PlaceData));
 };
 
 export const UpdatePlace = async (PlaceData: any) => {
-  try {
-    const response = await api.put("/updateplace", PlaceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateplace", PlaceData));
 };
 
 export const GetPlacesbyid = async (cid: number) => {
-  try {
-    const response = await api.get(`/getplacesbycid/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getplacesbycid/${cid}`));
 };
 
 export const GetAllPlaces = async () => {
-  try {
-    const response = await api.get(`/getallplaceswithimages`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallplaceswithimages`));
 };
 
 export const AddActivity = async (ActivityData: any) => {
-  try {
-    const response = await api.post("/addactivity", ActivityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addactivity", ActivityData));
 };
 
 export const UpdateActivity = async (ActivityData: any) => {
-  try {
-    const response = await api.put("/updateactivity", ActivityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateactivity", ActivityData));
 };
 
 export const GetActivitiesbyid = async (pid: number) => {
-  try {
-    const response = await api.get(`/getactivitiesbypid/${pid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getactivitiesbypid/${pid}`));
 };
 
 export const GetAllActivities = async () => {
-  try {
-    const response = await api.get(`/getallactivities`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallactivities`));
 };
 
 export const AddAttributeToSt = async (AttributeData: any) => {
-  try {
-    const response = await api.post("/addatributetost", AttributeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addatributetost", AttributeData));
 };
 
 export const AddAttributeToV = async (AttributeData: any) => {
-  try {
-    const response = await api.post("/addatributetov", AttributeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addatributetov", AttributeData));
 };
 
 export const UpdateAttributeToSt = async (AttributeData: any) => {
-  try {
-    const response = await api.put("/updateattributetost", AttributeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateattributetost", AttributeData));
 };
 
 export const UpdateAttributeToV = async (AttributeData: any) => {
-  try {
-    const response = await api.put("/updatteatributetov", AttributeData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatteatributetov", AttributeData));
 };
 
 export const Getattributesbysid = async (sid: number) => {
-  try {
-    const response = await api.get(`/getattributesbystid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getattributesbystid/${sid}`));
 };
 
 export const Getattributesbyvid = async (vid: number) => {
-  try {
-    const response = await api.get(`/getattributesbyvid/${vid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getattributesbyvid/${vid}`));
 };
 
 export const AddFeilds = async (FeildsData: any) => {
-  try {
-    const response = await api.post("/addservicetypefield", FeildsData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addservicetypefield", FeildsData));
 };
 
 export const UpdateFeilds = async (FeildsData: any) => {
-  try {
-    const response = await api.put("/updateservicetypefield", FeildsData);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updateservicetypefield", FeildsData));
 };
 
 export const GetFeilds = async () => {
-  try {
-    const response = await api.get("/getallservicetypefield");
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get("/getallservicetypefield"));
 };
 
 export const GetFeildsbysid = async (sid: number) => {
-  try {
-    const response = await api.get(`/getfieldsbyservicetypeid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getfieldsbyservicetypeid/${sid}`));
 };
 
 export const GetFeildType = async () => {
-  try {
-    const response = await api.get(`/getfieldtypes`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getfieldtypes`));
 };
 
 export const AddVehicle = async (VehicleData: any) => {
-  try {
-    const response = await api.post("/addvehicle", VehicleData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addvehicle", VehicleData));
 };
 
 export const AddVehicleType = async (VehicleData: any) => {
-  try {
-    const response = await api.post("/addvehicletype", VehicleData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addvehicletype", VehicleData));
 };
 
 export const UpdateVehicle = async (VehicleData: any) => {
-  try {
-    const response = await api.put("/updatevehicle", VehicleData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatevehicle", VehicleData));
 };
 
 export const UpdateVehicleType = async (VehicleData: any) => {
-  try {
-    const response = await api.put("/updatevehicletype", VehicleData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatevehicletype", VehicleData));
 };
 
 export const GetVehiclesbyid = async (mid: number) => {
-  try {
-    const response = await api.get(`/getvehiclebymid/${mid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getvehiclebymid/${mid}`));
 };
 
 export const GetVehiclesbytid = async (tid: number) => {
-  try {
-    const response = await api.get(`/getvehiclebytypeid/${tid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getvehiclebytypeid/${tid}`));
 };
 
 export const GetAllVehicles = async () => {
-  try {
-    const response = await api.get(`/getallvehicles`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallvehicles`));
 };
 
 export const GetAllVehiclesTypes = async () => {
-  try {
-    const response = await api.get(`/getallvehicletypes`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallvehicletypes`));
 };
 
 export const AddMaker = async (MakerData: any) => {
-  try {
-    const response = await api.post("/createmaker", MakerData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/createmaker", MakerData));
 };
 
 export const UpdateMaker = async (MakerData: any) => {
-  try {
-    const response = await api.put("/updatemaker", MakerData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatemaker", MakerData));
 };
 
 export const GetAllMakers = async () => {
-  try {
-    const response = await api.get(`/getallmakers`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallmakers`));
 };
 
 export const GetAllMakersWithvehicles = async () => {
-  try {
-    const response = await api.get(`/getmakerswithvehicles`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getmakerswithvehicles`));
 };
 
 export const AddImageToPlace = async (imageData:any) => {
-  try {
-    const response = await apiForm.post(`/addimagetoplace`, imageData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post(`/addimagetoplace`, imageData));
 };
 
 export const AddImageToVihcles = async (imageData:any) => {
-  try {
-    const response = await apiForm.post(`/addimagetovehicle`, imageData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post(`/addimagetovehicle`, imageData));
 };
 
 export const AddImageToResidence = async (imageData:any) => {
-  try {
-    const response = await apiForm.post(`/addimagetoresidence`, imageData);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post(`/addimagetoresidence`, imageData));
 };
 
 export const GetimagesByPlaceid = async (pid:any) => {
-  try {
-    const response = await apiForm.get(`/getimagesbyplaceid/${pid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.get(`/getimagesbyplaceid/${pid}`));
 };
 
 export const GetimagesByResidanceid = async (pid:any) => {
-  try {
-    const response = await apiForm.get(`/getimagesbyresidenceid/${pid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.get(`/getimagesbyresidenceid/${pid}`));
 };
 
 export const AddResidence = async (residenceData:any) => {
-  try {
-    const response = await api.post(`/addresidence`, residenceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/addresidence`, residenceData));
 };
 
 export const AddResidenceType = async (residenceData:any) => {
-  try {
-    const response = await api.post(`/addresidencetype`, residenceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/addresidencetype`, residenceData));
 };
 
 export const UpdateResidenceType = async (residenceData:any) => {
-  try {
-    const response = await api.put(`/updateresidencetype`, residenceData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put(`/updateresidencetype`, residenceData));
 };
 
 export const UpdateResidence = async (residenceData:any) => {
-  try {
-    const response = await api.put(`/updateresidence`, residenceData);
-    return handleResponse(response, 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put(`/updateresidence`, residenceData));
 };
 
 export const GetResidence = async () => {
-  try {
-    const response = await api.get(`/getallresidences`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallresidences`));
 };
 
 export const GetResidenceType = async () => {
-  try {
-    const response = await api.get(`/getallresidencetypes`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallresidencetypes`));
 };
 
 export const GetResidencebyCottages = async (tid:number) => {
-  try {
-    const response = await api.get(`/getcottagesbyplaceid/${tid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getcottagesbyplaceid/${tid}`));
 };
 
 export const AddCurrency = async (CurrencyData: any) => {
-  try {
-    const response = await api.post(`/createcurrency` , CurrencyData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/createcurrency` , CurrencyData));
 };
 
 export const GetCurrency = async () => {
-  try {
-    const response = await api.get(`/getcurrencies`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getcurrencies`));
 };
 
 export const UpdateCurrency = async (CurrencyData:any) => {
-  try {
-    const response = await api.put(`/updatecurrency`,CurrencyData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put(`/updatecurrency`,CurrencyData));
 };
 
 export const GetAllYachts = async () => {
-  try {
-    const response = await api.get(`/getallyachts`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallyachts`));
 };
 
 export const GetAllLanguages = async () => {
-  try {
-    const response = await api.get(`/getalllanguages`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getalllanguages`));
 };
 
 export const GetFacilityCategories = async () => {
-  try {
-    const response = await api.get(`/getfacilitycategoties`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getfacilitycategoties`));
 };
 
 export const GetFacilities = async () => {
-  try {
-    const response = await api.get(`/getfacilities`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getfacilities`));
 };
 
 export const GetFacilitiesByCategoryId = async (cid: number) => {
-  try {
-    const response = await api.get(`/getfacilitiesbycategoryid/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getfacilitiesbycategoryid/${cid}`));
 };
 
 export const GetAssignedFacilitiesByServiceId = async (sid: number) => {
-  try {
-    const response = await api.get(`/getassignedfacilitiesbyserviceid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getassignedfacilitiesbyserviceid/${sid}`));
 };
 
 export const AddFacilityCategory = async (FacilityData: any) => {
-  try {
-    const response = await api.post(`/addfacilitycategory` , FacilityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/addfacilitycategory` , FacilityData));
 };
 
 export const UpdateFacilityCategory = async (FacilityData: any) => {
-  try {
-    const response = await api.put(`/updatefacilitycategory`,FacilityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put(`/updatefacilitycategory`,FacilityData));
 };
 
 export const AddFacility = async (FacilityData: any) => {
-  try {
-    const response = await api.post(`/addfacility` , FacilityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/addfacility` , FacilityData));
 };
 
 export const UpdateFacility = async (FacilityData: any) => {
-  try {
-    const response = await api.put(`/updatefacility`,FacilityData);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put(`/updatefacility`,FacilityData));
 };
 
 export const GetAssignedFacilitiesByServiceTypeId = async (sid: number) => {
-  try {
-    const response = await api.get(`/getassignedfacilitiesbyservicetypeid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getassignedfacilitiesbyservicetypeid/${sid}`));
 };
 
 export const GetAssignedFacilitiesByServiceTypeIdWithCategory = async (stid: number) => {
-  try {
-    const response = await api.get(`/getassignedfacilitiesbyservicetypeidwithcategory/${stid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getassignedfacilitiesbyservicetypeidwithcategory/${stid}`));
 };
 
 export const AssignFaciliesToServiceType = async (Data: any) => {
-  try {
-    const response = await api.post(`/assignfaciliestoservicetype` , Data);
-    return handleResponse(response , '');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/assignfaciliestoservicetype` , Data));
 };
 
 export const GetPendingUsers = async () => {
-  try {
-    const response = await api.get(`/getpendingusers`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpendingusers`));
 };
 
 export const GetPendingServices = async () => {
-  try {
-    const response = await api.get(`/getpendingservices`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpendingservices`));
 };
 
 export const GetRejectedUsers = async () => {
-  try {
-    const response = await api.get(`/getrejectedusers`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getrejectedusers`));
 };
 
 export const GetNearByRestaurants = async (data: any) => {
-  try {
-    const response = await api.get(`/getnearbyrestaurants${data}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getnearbyrestaurants${data}`));
 };
 
 export const GetRejectedServices = async () => {
-  try {
-    const response = await api.get(`/getrejectedservices`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getrejectedservices`));
 };
 
 export const ApproveUser = async (spid: any) => {
-  try {
-    const response = await api.post(`/approveuser/${spid}`);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/approveuser/${spid}`));
 };
 
 export const RejectUser = async (data: any) => {
-  try {
-    const response = await api.post("/rejectuser", data);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/rejectuser", data));
 };
 
 export const ApproveService = async (sid: any) => {
-  try {
-    const response = await api.post(`/approveservice/${sid}`);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/approveservice/${sid}`));
 };
 
 export const DeleteService = async (sid: any) => {
-  try {
-    const response = await api.delete(`/deleteservice/${sid}`);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.delete(`/deleteservice/${sid}`));
 };
 
 export const RejectService = async (data: any) => {
-  try {
-    const response = await api.post("/rejectservice", data);
-    return handleResponse(response , 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/rejectservice", data));
 };
 
 export const AddHomePageRow = async (data: any) => {
-  try {
-    const response = await api.post("/addhomepagerow", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addhomepagerow", data));
 };
 
 export const UpdateHomePageRow = async (data: any) => {
-  try {
-    const response = await api.put("/updatehomepagerow", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updatehomepagerow", data));
 };
 
 export const DeleteRow = async (id: any) => {
-  try {
-    const response = await api.delete(`/deleterow/${id}`);
-    return handleResponse(response, 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.delete(`/deleterow/${id}`));
 };
 
 export const AddImageTorRow = async (data: ImageToRowDTO) => {
-  try {
-    const response = await apiForm.post("/addimagetorrow", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(apiForm.post("/addimagetorrow", data));
 };
 
 export const GetHomePageRows = async (ProvinceId?: number, CityId?: number) => {
-  try {
-    const queryParams = new URLSearchParams();
+  const queryParams = new URLSearchParams();
+  if (ProvinceId) queryParams.append('ProvinceId', ProvinceId.toString());
+  if (CityId) queryParams.append('CityId', CityId.toString());
 
-    if (ProvinceId) queryParams.append('ProvinceId', ProvinceId.toString());
-    if (CityId) queryParams.append('CityId', CityId.toString());
-
-    const url = `/gethomepagerows${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-
-    const response = await api.get(url);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/gethomepagerows${queryParams.toString() ? `?${queryParams.toString()}` : ''}`));
 };
 
 export const AddRequest = async (data: any) => {
-  try {
-    const response = await api.post("/addrequest", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/addrequest", data));
 };
 
 export const ApproveRequest = async (rid: any) => {
-  try {
-    const response = await api.post(`/approverequest/${rid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/approverequest/${rid}`));
 };
 
 export const RejectRequest = async (data: any) => {
-  try {
-    const response = await api.post("/rejectrequest", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/rejectrequest", data));
 };
 
 export const UpdateRequest = async (data: any) => {
-  try {
-    const response = await api.put("/updaterequest", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.put("/updaterequest", data));
 };
 
 export const DeleteRequest = async (rid: any) => {
-  try {
-    const response = await api.delete(`/deleterequest/${rid}`);
-    return handleResponse(response, 'Post');
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.delete(`/deleterequest/${rid}`));
 };
 
 export const GetAllRequestsByServiceId = async (sid: any) => {
-  try {
-    const response = await api.get(`/getallrequestsbyserviceid/${sid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallrequestsbyserviceid/${sid}`));
 };
 
 export const GetServiceProviderAllRequests = async (spid: any) => {
-  try {
-    const response = await api.get(`/getserviceproviderallrequests/${spid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getserviceproviderallrequests/${spid}`));
 };
 
 export const GetServiceProviderPendingRequests = async (spid: any) => {
-  try {
-    const response = await api.get(`/getserviceproviderpendingrequests/${spid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getserviceproviderpendingrequests/${spid}`));
 };
 
 export const GetServiceProviderApprovedRequests = async (spid: any) => {
-  try {
-    const response = await api.get(`/getserviceproviderapprovedrequests/${spid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getserviceproviderapprovedrequests/${spid}`));
 };
 
 export const GetServiceProviderRejectedRequests = async (spid: any) => {
-  try {
-    const response = await api.get(`/getserviceproviderrejectedrequests/${spid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getserviceproviderrejectedrequests/${spid}`));
 };
 
 export const GetClienterAllrequests = async (cid: any) => {
-  try {
-    const response = await api.get(`/getclienterallrequests/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getclienterallrequests/${cid}`));
 };
 
 export const GetClientPendingRequests = async (cid: any) => {
-  try {
-    const response = await api.get(`/getclientpendingrequests/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getclientpendingrequests/${cid}`));
 };
 
 export const GetClientApprovedRequests = async (cid: any) => {
-  try {
-    const response = await api.get(`/getclientapprovedrequests/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getclientapprovedrequests/${cid}`));
 };
 
 export const GetClientRejectedRequests = async (cid: any) => {
-  try {
-    const response = await api.get(`/getclientrejectedrequests/${cid}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getclientrejectedrequests/${cid}`));
 };
 
 export const GetAllRequests = async () => {
-  try {
-    const response = await api.get(`/getallrequests`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallrequests`));
 };
 
 export const GetPendingRequests = async () => {
-  try {
-    const response = await api.get(`/getpendingrequests`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getpendingrequests`));
 };
 
 export const GetApprovedRequests = async () => {
-  try {
-    const response = await api.get(`/getapprovedrequests`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getapprovedrequests`));
 };
 
 export const GetRejectedRequests = async () => {
-  try {
-    const response = await api.get(`/getrejectedrequests`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getrejectedrequests`));
 };
 
 export const GetOrderstsByRecieverId = async (recieverId: number) => {
-  try {
-    const response = await api.get(`/getorderstsbyrecieverid/${recieverId}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getorderstsbyrecieverid/${recieverId}`));
 };
 
 export const GetOrderstsBySenderId = async (senderId: number) => {
-  try {
-    const response = await api.get(`/getorderstsbysenderid/${senderId}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getorderstsbysenderid/${senderId}`));
 };
 
 export const GetAllOrders = async () => {
-  try {
-    const response = await api.get(`/getallorders`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.get(`/getallorders`));
 };
 
 export const InitializePopup = async (data: any) => {
-  try {
-    const response = await api.post("/initialize_popup", data);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post("/initialize_popup", data));
 };
 
 export const VerifyPaid = async (reference: any) => {
-  try {
-    const response = await api.post(`/verify/${reference}`);
-    return handleResponse(response);
-  } catch (error) {
-    handleError(error);
-  }
+  return FetchWithLoading(api.post(`/verify/${reference}`));
 };
-
-export default api;

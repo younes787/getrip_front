@@ -182,7 +182,7 @@ const FacilityCategories = () => {
                 <Dropdown
                   onChange={(e) => FacilityCategotiesForm.setFieldValue("iconCode", e.value.name)}
                   options={icons}
-                  optionLabel=""
+                  optionLabel="name"
                   placeholder="Select an Icon"
                   filter
                   valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityCategotiesForm?.values?.iconCode]} className="mr-2" />}</span>}
@@ -223,7 +223,7 @@ const FacilityCategories = () => {
                 <Dropdown
                   onChange={(e) => FacilityCategotiesFormEdit.setFieldValue("iconCode", e.value.name)}
                   options={icons}
-                  optionLabel=""
+                  optionLabel="name"
                   placeholder="Select an Icon"
                   filter
                   valueTemplate={<span>{<FontAwesomeIcon icon={fas[FacilityCategotiesFormEdit?.values?.iconCode]} className="mr-2" />}</span>}

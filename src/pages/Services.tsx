@@ -426,7 +426,7 @@ const Services = () => {
             <Dropdown
               onChange={(e) => ServicesForm.setFieldValue("iconCode", e.value.name)}
               options={icons}
-              optionLabel=""
+              optionLabel="name"
               placeholder="Select an Icon"
               filter
               valueTemplate={<span>{<FontAwesomeIcon icon={fas[ServicesForm?.values?.iconCode]} className="mr-2" />}</span>}
@@ -565,7 +565,7 @@ const Services = () => {
             <Dropdown
               onChange={(e) => ServicesFormUpdate.setFieldValue("iconCode", e.value.name)}
               options={icons}
-              optionLabel=""
+              optionLabel="name"
               placeholder="Select an Icon"
               filter
               valueTemplate={<span>{<FontAwesomeIcon icon={fas[ServicesFormUpdate?.values?.iconCode]} className="mr-2" />}</span>}

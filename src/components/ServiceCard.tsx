@@ -100,13 +100,18 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
       case DataType.Service:
         const serviceData = service as Service;
         return (
-          <>
-            <h2 style={{ margin: '0 0 0.5rem 0' }}>{serviceData.name}</h2>
-            <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
-              <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
-              {serviceData.description}
-            </p>
-          </>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative'}}>
+            <div className="base">
+              <h2 style={{ margin: '0 0 0.5rem 0' }}>{serviceData.name}</h2>
+              <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+                <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+                {serviceData.description}
+              </p>
+            </div>
+            <div className="prive_value" style={{fontSize: '12px', fontWeight: '500', backgroundColor: '#f1881f', color: '#FFF', borderRadius: '5px', padding: '10px', position: 'absolute', top: '0px', right: '10px'}}>
+              {serviceData.priceValues[0].pricingTypeName}: {serviceData.priceValues[0].value}
+            </div>
+          </div>
         );
       default:
         return null;
