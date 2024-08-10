@@ -53,9 +53,13 @@ html body {
 .m-home-card {
   border-radius: 30px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
-  .show-details:hover {
+  .show-details:hover, .show-update:hover {
     background-color: $secondery_color !important;
     color: #fff !important;
+  }
+
+  .p-card-content {
+    padding: 1.25rem 0 0 0;
   }
 
   .delete-details:hover {
@@ -63,7 +67,7 @@ html body {
     color: #fff !important;
   }
 
-  .show-details:focus , .delete-details:focus {
+  .show-details:focus , .delete-details:focus, .delete-update:focus {
     outline: none;
     box-shadow: none;
   }

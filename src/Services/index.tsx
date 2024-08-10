@@ -87,6 +87,10 @@ export const AuthLogin = (loginData: any) => {
   return FetchWithLoading(api.post("/loginuser", loginData));
 };
 
+export const ChangePassword = (passwordData: any) => {
+  return FetchWithLoading(api.post("/changepassword", passwordData));
+};
+
 export const CreateUser = (userData: any) => {
   return FetchWithLoading(api.post("/createuser", userData));
 };

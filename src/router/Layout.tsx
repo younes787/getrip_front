@@ -39,6 +39,7 @@ import { useEffect, useState } from "react";
 import Requests from "../pages/Requests";
 import { ProgressBar } from "primereact/progressbar";
 import { useLoading } from "../Services";
+import FormUseTypeUpdateService from "../components/FormUseTypeUpdateService";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -115,6 +116,7 @@ const Layout = () => {
             <Route path="/orders" element={<Orders />} />
             <Route path={`/${role}-requests`} element={<Requests />} />
             <Route path="/form-use-type" element={<FormUseType />} />
+            <Route path="/form-use-type-update-service/:serviceType/:serviceId" element={<FormUseTypeUpdateService />} />
           </>
         ) : (
           <>

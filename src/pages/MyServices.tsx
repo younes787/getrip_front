@@ -64,8 +64,15 @@ const MyServices = () => {
                 <div key={index} className="md:col-3 lg:col-3 my-2">
                   <Card
                     title={service.name}
-                    subTitle={<span><FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />{service.description}</span>}
-                    header={ <Image className="w-full" imageStyle={{borderRadius: '30px 30px 0 0', width: '100%', maxHeight: '220px'}} src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null}  preview />}
+                    subTitle={
+                      <span>
+                      <FontAwesomeIcon icon={faMapLocationDot} size="sm" style={{ color: 'rgb(102 101 101)' }} className="mr-2" />
+                      {service.description}
+                      </span>
+                    }
+                    header={
+                      <Image className="w-full" imageStyle={{borderRadius: '30px 30px 0 0', width: '100%', maxHeight: '220px'}} src={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null} alt={(service.photos && service?.photos[0]?.imagePath) ? service?.photos[0]?.imagePath : null}  preview />
+                    }
                     className="md:w-21rem m-2 m-home-card relative"
                   >
                     <div className="grid mb-3">
@@ -77,49 +84,18 @@ const MyServices = () => {
                       <div className="col-4">
                         <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
                           per night
-                          <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${service?.price}</span>
+                          <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>
+                            ${service?.priceValues[0].value}
+                          </span>
                         </p>
                       </div>
                     </div>
 
-                    <Button
-                      className="absolute show-details"
-                      icon={<span className="pi pi-info mx-1"></span>}
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '30px 0 30px 0',
-                        borderColor: '#f1881f',
-                        color: '#f1881f',
-                        padding: '10px 15px',
-                        bottom: '0',
-                        right: '0'
-                      }}
-                      aria-label="Filter"
-                      size="small"
-                      onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`)}
-                    >
-                      Show details
-                    </Button>
-
-                    <Button
-                      className="absolute delete-details"
-                      icon={<span className="pi pi-times mx-1"></span>}
-                      onClick={() => confirm(service.id)}
-                      style={{
-                        backgroundColor: '#fff',
-                        borderRadius: '0 30px 0 30px',
-                        borderColor: '#ef4444',
-                        color: '#ef4444',
-                        padding: '10px 25px',
-                        bottom: '0',
-                        left: '0'
-                      }}
-                      aria-label="Filter"
-                      size="small"
-                      severity="danger"
-                    >
-                      Delete
-                    </Button>
+                    <div className="buttons-service" style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'baseline'}}>
+                      <Button className="delete-details" icon={<span className="pi pi-times mx-1"></span>} style={{backgroundColor: '#fff',borderRadius: '5px',borderColor: '#ef4444',color: '#ef4444',padding: '10px 25px',}} aria-label="Filter" size="small" onClick={() => confirm(service.id)} severity="danger" />
+                      <Button className="show-update" icon={<span className="pi pi-user-edit mx-1"></span>} style={{backgroundColor: '#fff',borderRadius: '5px',borderColor: '#f1881f',color: '#f1881f',padding: '10px 15px',}} aria-label="Filter" size="small" onClick={() => navigate(`/form-use-type-update-service/${DataType.Service.toLowerCase()}/${service.id}`)}/>
+                      <Button className="show-details" icon={<span className="pi pi-info mx-1"></span>} style={{backgroundColor: '#fff',borderRadius: '5px',borderColor: '#f1881f',color: '#f1881f',padding: '10px 15px'}} aria-label="Filter" size="small" onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${service.id}`)} />
+                    </div>
                   </Card>
                 </div>
               ))}

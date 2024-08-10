@@ -54,16 +54,60 @@ export class AllowedServiceTypesDTO {
   accountId: string = '';
 }
 
-export class UsersDTO {
-  username: string = '';
+export class BaseUserDTO {
+  accountId?: number = 0;
   name: string = '';
   lastname: string = '';
-  business: string = '';
-  password: string = '';
   email: string = '';
+  password: string = '';
   role: string = '';
-  currencyId: number = 0;
 }
+
+// DTO for service provider users
+export class UsersServiceProviderDTO extends BaseUserDTO {
+  position: string = '';
+  address: string = '';
+  languageId: number = 0;
+  cityId: number = 0;
+  currencyId: number = 0;
+  zipCode: string = '';
+  taxNumber: string = '';
+  phone: string = '';
+  business: string = '';
+  token: string = '';
+  expiration: Date = new Date();
+  authorized: boolean = false;
+  allowedServiceTypes: Array<{
+    id: number;
+    serviceTypeId: number;
+    accountId: number;
+  }> = [];
+  photos: Array<{ imagePath: string }> = [];
+  clientUri: string = '';
+}
+
+// DTO for general users
+export class UsersClientDTO extends BaseUserDTO {
+  token?: string = '';
+  expiration?: Date = new Date();
+  authorized?: boolean = false;
+  photos?: Array<{ imagePath: string }> = [];
+  currencyId?: number = 0;
+  business?: string = '';
+}
+
+// DTO for minimal user information
+
+// export class UsersDTO {
+//   username: string = '';
+//   name: string = '';
+//   lastname: string = '';
+//   business: string = '';
+//   password: string = '';
+//   email: string = '';
+//   role: string = '';
+//   currencyId: number = 0;
+// }
 
 export class ServicesTypeDTO {
   id?: number = 0;

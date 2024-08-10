@@ -6,7 +6,7 @@ import { Dialog } from "primereact/dialog";
 import { useFormik } from "formik";
 import { InputText } from "primereact/inputtext";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { UsersDTO } from "../modules/getrip.modules";
+import { UsersClientDTO } from "../modules/getrip.modules";
 import { AssignServiceTypeListToAccount, CreateUser, DeleteUser, GetAllRoles, GetAssignedServiceTypeByAccountId, GetCurrency, GetServiceTypes, GetUsersInRole, UpdateUser} from "../Services";
 import LoadingComponent from "../components/Loading";
 import { FilterMatchMode } from "primereact/api";
@@ -113,8 +113,8 @@ const Users = () => {
     },
   });
 
-  const Usersform = useFormik<UsersDTO>({
-    initialValues: new UsersDTO(),
+  const Usersform = useFormik<UsersClientDTO>({
+    initialValues: new UsersClientDTO(),
     validateOnChange: true,
     onSubmit: () => {
       Usersform.values.role = rolesName;
@@ -137,8 +137,8 @@ const Users = () => {
     },
   });
 
-  const UsersformEdit = useFormik<UsersDTO>({
-    initialValues: new UsersDTO(),
+  const UsersformEdit = useFormik<UsersClientDTO>({
+    initialValues: new UsersClientDTO(),
     validateOnChange: true,
     onSubmit: () => {
       UsersformEdit.values.role = rolesName;
@@ -151,7 +151,6 @@ const Users = () => {
     setShowEdit(true);
 
     UsersformEdit.setValues({
-      username: rowData.username,
       name: rowData.name,
       lastname: rowData.lastname,
       business: rowData.business,
@@ -319,16 +318,7 @@ const Users = () => {
           >
             <div className="grid gap-4 mt-2">
               <div className="md:col-4 lg:col-4">
-                <label className="mb-2" htmlFor="Status">UserName</label>
-                <InputText
-                  placeholder="UserName"
-                  name="username"
-                  value={Usersform?.values?.username}
-                  onChange={(e) => Usersform.setFieldValue("username", e.target.value)} />
-              </div>
-
-              <div className="md:col-4 lg:col-4">
-                <label className="mb-2" htmlFor="Wallet">First Name</label>
+                <label className="mb-2" htmlFor="Wallet">Name</label>
                 <InputText
                   placeholder="First Name"
                   name="name"
@@ -406,22 +396,13 @@ const Users = () => {
 
             <div className="grid gap-4 mt-2">
               <div className="md:col-4 lg:col-4 ">
-                <label className="mb-2" htmlFor="Status">UserName</label>
+                <label className="mb-2" htmlFor="Status">Name</label>
                 <InputText
-                  placeholder="UserName"
-                  name="username"
-                  value={UsersformEdit?.values?.username}
-                  onChange={(e) => UsersformEdit.setFieldValue("username", e.target.value)}
-                  readOnly />
-              </div>
-
-              <div className="md:col-4 lg:col-4">
-                <label className="mb-2" htmlFor="Wallet">First Name</label>
-                <InputText
-                  placeholder="First Name"
+                  placeholder="name"
                   name="name"
                   value={UsersformEdit?.values?.name}
-                  onChange={(e) => UsersformEdit.setFieldValue("name", e.target.value)} />
+                  onChange={(e) => UsersformEdit.setFieldValue("name", e.target.value)}
+                  readOnly />
               </div>
 
               <div className="md:col-4 lg:col-4">
