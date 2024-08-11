@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
-import { ApproveRequest, GetAccountById, GetAllServices, GetClientApprovedRequests, GetClienterAllrequests, GetClientPendingRequests, GetClientRejectedRequests, GetServiceProviderAllRequests, GetServiceProviderApprovedRequests, GetServiceProviderPendingRequests, GetServiceProviderRejectedRequests, RejectRequest } from "../Services";
+import { ApproveRequest, GetAllServices, GetAllUsers, GetClientApprovedRequests, GetClienterAllrequests, GetClientPendingRequests, GetClientRejectedRequests, GetServiceProviderAllRequests, GetServiceProviderApprovedRequests, GetServiceProviderPendingRequests, GetServiceProviderRejectedRequests, RejectRequest } from "../Services";
 import { InputText } from "primereact/inputtext";
 import LoadingComponent from "../components/Loading";
 import { TabPanel, TabView } from "primereact/tabview";
@@ -13,7 +13,6 @@ import { Button } from "primereact/button";
 const Requests = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
   const name = User?.data?.name + ' ' + User?.data?.lastname
-  const email = User?.data?.email
   const role = User?.data?.role;
   const [loading, setLoading] = useState<boolean>(false);
   const [requests, setRequests] = useState({
@@ -23,6 +22,7 @@ const Requests = () => {
     rejected: []
   });
   const [allServices, setAllServices] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const { user } = useAuth();
   const [showDialog, setShowDialog] = useState(false);
@@ -82,6 +82,7 @@ const Requests = () => {
         });
 
         setAllServices(servicesResponse.data);
+        GetAllUsers().then((res) => setUsers(res.data))
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -193,15 +194,10 @@ const Requests = () => {
   );
 
   const AccountName = ({ accountId }: { accountId: any }) => {
-    const [name, setName] = useState<string | null>(null);
-
-    useEffect(() => {
-      if (accountId) {
-        GetAccountById(accountId).then((res) => {
-          setName(res.data.name ?? 'a');
-        });
-      }
-    }, [accountId]);
+    let name;
+    if(users) {
+      name = users.find(_use => _use.accountId === accountId)?.name;
+    }
 
     return <span>{name}</span>;
   };
