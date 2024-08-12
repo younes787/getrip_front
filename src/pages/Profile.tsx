@@ -7,7 +7,11 @@ import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { ChangePassword, UpdateServiceProvider, UpdateUser } from "../Services";
 import { Dialog } from "primereact/dialog";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileUpload } from "@fortawesome/free-solid-svg-icons";
+import { FileUpload } from "primereact/fileupload";
+import { Image } from 'primereact/image';
 
 const validationSchema = Yup.object({
   name:     Yup.string().required('Name is required'),
@@ -22,11 +26,19 @@ const validationSchemaChangePassword = Yup.object({
   newPassword: Yup.string().required('New Password is required'),
 });
 
+const validationSchemaAvatar = Yup.object().shape({
+  avatar: Yup.mixed().required('Avatar is required')
+});
+
 type UserDTO = UsersClientDTO | UsersServiceProviderDTO;
 
 const Profile = () => {
   const [initialValues, setInitialValues] = useState<UserDTO>(JSON.parse(localStorage?.getItem('user')!)?.data);
   const [visiblePassword, setVisiblePassword] = useState<boolean>(false);
+  const [showUploadAvatar, setShowUploadAvatar] = useState<boolean>(false);
+  const [avatarImage, setAvatarImage] = useState<string>(initialValues?.photos[0].imagePath);
+  const fileUploadRef = useRef<FileUpload>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const formik = useFormik<UserDTO>({
     initialValues: initialValues || {},
@@ -54,16 +66,75 @@ const Profile = () => {
     },
   });
 
+
+  const formikUploadAvatar = useFormik<{ avatar: File | null }>({
+    initialValues: {
+      avatar: null
+    },
+    enableReinitialize: true,
+    validationSchema: validationSchemaAvatar,
+    onSubmit: async (values) => {
+      if (values.avatar) {
+        try {
+          const formData = new FormData();
+          formData.append('avatar', values.avatar);
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            setAvatarImage(result.imageUrl);
+            setShowUploadAvatar(false);
+          } else {
+            console.error('Upload failed');
+          }
+        } catch (error) {
+          console.error('Error uploading avatar:', error);
+        }
+      }
+    },
+  });
+
+  const handleFileUpload = (event: any) => {
+    const file = event.files[0];
+    formikUploadAvatar.setFieldValue('avatar', file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarImage(reader.result as string)
+      setPreviewImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const openUploadDialog = () => {
+    setShowUploadAvatar(true);
+    setPreviewImage(avatarImage);
+    if (fileUploadRef.current) {
+      fileUploadRef.current.clear();
+    }
+  };
+
+  const closeUploadDialog = () => {
+    setShowUploadAvatar(false);
+    setPreviewImage(null);
+    formikUploadAvatar.resetForm();
+  };
+
   return(
     <>
       <div id="image-container-profile">
         <div className="flex">
           <div className="mt-4 ml-6">
             <Avatar
-              image={AvatarImage}
+              image={avatarImage}
               className="ml-8"
               shape="circle"
-              style={{ width:'80px' , height:'80px' }}
+              children={<FontAwesomeIcon icon={faFileUpload} onClick={openUploadDialog} className="absolute" style={{color: '#FFF', cursor: 'pointer'}} />}
+              style={{ width:'90px' , height:'90px' }}
             />
           </div>
 
@@ -210,6 +281,39 @@ const Profile = () => {
                 {formikChangePassword.touched.newPassword && formikChangePassword.errors.newPassword ? (
                   <div className="p-error">{formikChangePassword.errors.newPassword as string}</div>
                 ) : null}
+              </div>
+          </div>
+      </Dialog>
+
+      <Dialog
+        header="Upload Avatar"
+        visible={showUploadAvatar}
+        style={{ width: '50vw' }}
+        onHide={closeUploadDialog}
+        footer={
+          <>
+            <Button label="Upload" size="small" severity="warning" outlined onClick={() => formikUploadAvatar.handleSubmit()} className="mt-4"></Button>
+            <Button label="Cancel" severity="danger" outlined size="small" onClick={closeUploadDialog} className="mt-4"></Button>
+          </>
+        }
+      >
+          <div className="grid gap-3">
+              <div className="md:col-12 lg:col-12">
+                {previewImage && (
+                  <div className="mb-3">
+                    <h3>Current Avatar:</h3>
+                    <Image src={previewImage} alt="Avatar Preview" width="150" preview />
+                  </div>
+                )}
+
+                <FileUpload
+                  name="avatar"
+                  accept="image/*"
+                  maxFileSize={1000000}
+                  onSelect={handleFileUpload}
+                  ref={fileUploadRef}
+                  emptyTemplate={<p className="m-0">Drag and drop files to here to upload.</p>}
+                />
               </div>
           </div>
       </Dialog>

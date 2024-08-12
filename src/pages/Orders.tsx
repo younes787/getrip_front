@@ -22,6 +22,8 @@ const Orders = () => {
   const [currency, setCurrency] = useState<any[]>([]);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const { user } = useAuth();
+  const [showOrdersDetails, setShowOrdersDetails] = useState<boolean>(false);
+  const [dataOrdersDetails, setDataOrdersDetails] = useState<any>();
   const [showPaid, setShowPaid] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [filters, setFilters] = useState({
@@ -174,9 +176,9 @@ const Orders = () => {
   );
 
   const BodyTemplate = (rowData: any) => {
-    if (!rowData.isCanceled && !rowData.isPayed) {
       return (
         <div className="actions-cell">
+          {!rowData.isCanceled && !rowData.isPayed &&
           <i
             onClick={() => {
               setOrderId(rowData.id)
@@ -185,10 +187,17 @@ const Orders = () => {
             className="pi pi-check"
             style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '50%',padding: '5px',margin: '2px',cursor: 'pointer'}}
           ></i>
+          }
+          <i
+            onClick={() => {
+              setShowOrdersDetails(true);
+              setDataOrdersDetails(rowData);
+            }}
+            className="pi pi-info"
+            style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
+          ></i>
         </div>
       );
-    }
-    return null;
   };
 
   const onGlobalFilterChange = (e: any) => {
@@ -253,74 +262,99 @@ const Orders = () => {
         </div>
       )}
 
-    <Dialog
-      header="Pay"
-      visible={showPaid}
-      style={{maxWidth: '50%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
-      footer={<div>
-        <Button label="Cancel" severity="danger" outlined size="small" onClick={() => {
+      <Dialog
+        header="Pay"
+        visible={showPaid}
+        style={{maxWidth: '50%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
+        footer={<div>
+          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => {
+            setOrderId(null)
+            setShowPaid(false)
+            }} className="mt-4"></Button>
+          <Button label="Pay" severity="success" outlined size="small" onClick={() => InitializePopupForm.submitForm()} className="mt-4"></Button>
+        </div>}
+        onHide={() => {
           setOrderId(null)
           setShowPaid(false)
-          }} className="mt-4"></Button>
-        <Button label="Pay" severity="success" outlined size="small" onClick={() => InitializePopupForm.submitForm()} className="mt-4"></Button>
-      </div>}
-      onHide={() => {
-        setOrderId(null)
-        setShowPaid(false)
-      }}
-    >
-      <div className="grid mt-3">
-        <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="Email">Email</label>
-          <InputText
-            name="email"
-            className="w-full"
-            value={InitializePopupForm.values.email}
-            onChange={(e) => InitializePopupForm.setFieldValue("email", e.target.value)}
-          />
-        </div>
+        }}
+      >
+        <div className="grid mt-3">
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Email">Email</label>
+            <InputText
+              name="email"
+              className="w-full"
+              value={InitializePopupForm.values.email}
+              onChange={(e) => InitializePopupForm.setFieldValue("email", e.target.value)}
+            />
+          </div>
 
-        <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="Mobile">Mobile</label>
-          <InputText
-            name="mobile"
-            className="w-full"
-            value={InitializePopupForm.values.mobile}
-            onChange={(e) => InitializePopupForm.setFieldValue("mobile", e.target.value)}
-          />
-        </div>
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Mobile">Mobile</label>
+            <InputText
+              name="mobile"
+              className="w-full"
+              value={InitializePopupForm.values.mobile}
+              onChange={(e) => InitializePopupForm.setFieldValue("mobile", e.target.value)}
+            />
+          </div>
 
-        <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="First Name">First Name</label>
-          <InputText
-            name="firstName"
-            className="w-full"
-            value={InitializePopupForm.values.firstName}
-            onChange={(e) => InitializePopupForm.setFieldValue("firstName", e.target.value)}
-          />
-        </div>
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="First Name">First Name</label>
+            <InputText
+              name="firstName"
+              className="w-full"
+              value={InitializePopupForm.values.firstName}
+              onChange={(e) => InitializePopupForm.setFieldValue("firstName", e.target.value)}
+            />
+          </div>
 
-        <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="Last Name">Last Name</label>
-          <InputText
-            name="Last Name"
-            className="w-full"
-            value={InitializePopupForm.values.lastName}
-            onChange={(e) => InitializePopupForm.setFieldValue("lastName", e.target.value)}
-          />
-        </div>
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Last Name">Last Name</label>
+            <InputText
+              name="Last Name"
+              className="w-full"
+              value={InitializePopupForm.values.lastName}
+              onChange={(e) => InitializePopupForm.setFieldValue("lastName", e.target.value)}
+            />
+          </div>
 
-        <div className="md:col-12 lg:col-12">
-          <label className="mb-2" htmlFor="Label">Label</label>
-          <InputText
-            name="label"
-            className="w-full"
-            value={InitializePopupForm.values.label}
-            onChange={(e) => InitializePopupForm.setFieldValue("label", e.target.value)}
-          />
+          <div className="md:col-12 lg:col-12">
+            <label className="mb-2" htmlFor="Label">Label</label>
+            <InputText
+              name="label"
+              className="w-full"
+              value={InitializePopupForm.values.label}
+              onChange={(e) => InitializePopupForm.setFieldValue("label", e.target.value)}
+            />
+          </div>
         </div>
-      </div>
-    </Dialog>
+      </Dialog>
+
+      <Dialog
+          header={'order Info'}
+          visible={showOrdersDetails}
+          style={{ width: '50vw' }}
+          footer={<div>
+              <Button label="Hide" severity="danger" outlined size="small" onClick={() => setShowOrdersDetails(false)} className="mt-4"></Button>
+          </div>}
+          onHide={() => setShowOrdersDetails(false)}
+        >
+          <div className="grid grid-cols-12">
+            <div className="md:col-12 lg:col-12 sm:col-12">
+              {dataOrdersDetails && <>
+                <p>Request: {allUsers.find((user) => user.accountId === dataOrdersDetails.requestId)?.name}</p>
+                <p>Service: {allServices.find((service) => service.id === dataOrdersDetails.serviceId)?.name}</p>
+                <p>Order Status: {dataOrdersDetails.orderStatus}</p>
+                <p>Currency: {currency.find((currenc) => currenc.id === dataOrdersDetails.currencyId)?.name}</p>
+                <p>Canceled: {showIcons(dataOrdersDetails.isCanceled)}</p>
+                <p>Payed: {showIcons(dataOrdersDetails.isPayed)}</p>
+                <p>Amount: {formatDate(dataOrdersDetails.amount)}</p>
+                <p>Order Date: {dataOrdersDetails.orderDate}</p>
+              </>}
+            </div>
+          </div>
+      </Dialog>
     </div>
   );
 }

@@ -271,6 +271,12 @@ const FormUseType = () => {
         appendToFormData(key, value);
       });
 
+      appendToFormData('IsApprovalRequired', Serviceform.values.isApprovalRequired);
+
+      appendToFormData('IsRefundable', Serviceform.values.isRefundable);
+      appendToFormData('RefundPerCentAmount', Serviceform.values.refundPerCentAmount);
+      appendToFormData('AllowRefundDays', Serviceform.values.allowRefundDays);
+
       appendToFormData('Lat', Serviceform.values.address?.lat);
       appendToFormData('Lng', Serviceform.values.address?.lng);
       appendToFormData('AddressDescription', Serviceform.values.address?.description);
@@ -866,7 +872,7 @@ const FormUseType = () => {
                 ))}
               </>}
 
-              <div className="md:col-6 lg:col-6">
+              <div className="md:col-12 lg:col-12">
                 <label htmlFor="Wallet">Service Currency</label>
                 <InputText
                   placeholder="currency"
@@ -879,6 +885,18 @@ const FormUseType = () => {
                   onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
                   {renderError(Serviceform.errors.currencyId)}
               </div>
+
+              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
+                <InputSwitch
+                  className="mx-2"
+                  autoFocus={focusedField === `isApprovalRequired`}
+                  onInput={() => handleInputFocus(`isApprovalRequired`)}
+                  checked={Serviceform.values?.isApprovalRequired}
+                  onChange={(e) => Serviceform.setFieldValue(`isApprovalRequired`, e.value)}
+                />
+                <label htmlFor="Wallet mx-2">Approval Required</label>
+              </div>
+
             </div>
           </Fieldset>
 
@@ -980,6 +998,43 @@ const FormUseType = () => {
             </Fieldset>
           ) : null}
 
+
+          <Fieldset legend="Cancelation Policy" className="md:col-12 lg:col-12 mb-3" toggleable>
+            <div className="grid grid-cols-12">
+              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
+                <InputSwitch
+                  className="mx-2"
+                  autoFocus={focusedField === `isRefundable`}
+                  onInput={() => handleInputFocus(`isRefundable`)}
+                  checked={Serviceform.values?.isRefundable}
+                  onChange={(e) => Serviceform.setFieldValue(`isRefundable`, e.value)}
+                />
+                <label htmlFor="Wallet mx-2">Refundable</label>
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <InputNumber
+                  autoFocus={focusedField === 'refundPerCentAmount'}
+                  onInput={() => handleInputFocus('refundPerCentAmount')}
+                  value={Serviceform.values.refundPerCentAmount}
+                  className="w-full mt-1"
+                  onValueChange={(e) => Serviceform.setFieldValue(`refundPerCentAmount`, e.value)}
+                  placeholder={'Refund Per Cent Amount'}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <InputNumber
+                  autoFocus={focusedField === 'allowRefundDays'}
+                  onInput={() => handleInputFocus('allowRefundDays')}
+                  value={Serviceform.values.allowRefundDays}
+                  className="w-full mt-1"
+                  onValueChange={(e) => Serviceform.setFieldValue(`allowRefundDays`, e.value)}
+                  placeholder={'Allow Refund Days'}
+                />
+              </div>
+            </div>
+          </Fieldset>
 
           <div className="md:col-12 lg:col-12 mb-8 flex align-items-center justify-content-end">
             <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />

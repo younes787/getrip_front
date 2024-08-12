@@ -89,6 +89,8 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     lastUpdateDate: new Date(),
     subject: '',
     notes: '',
+    name: user.data.name,
+    email: user.data.email,
     serviceId: serviceDetails?.id,
     adultPassengers: guests,
     childPassengers: children,
@@ -124,6 +126,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
           tags: serviceDetailsRes.data.tags,
+          cancelationRefundable: serviceDetailsRes.data.isRefundable,
+          cancelationRefundPerCentAmount: serviceDetailsRes.data.refundPerCentAmount,
+          cancelationAllowRefundDays: serviceDetailsRes.data.allowRefundDays,
           serviceType: serviceTypesRes?.data?.find((_type: any) => _type.id === serviceDetailsRes.data.typeId),
           priceValues: serviceDetailsRes.data.priceValues,
           countryTaxPercent: serviceDetailsRes.data.countryTaxPercent,
@@ -384,7 +389,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
               <div className="tabs">
-                {['Overview', 'Facilities', 'Reviews', 'Location'].map((tab) => (
+                {['Overview', 'Facilities', 'Reviews', 'Cancelation Policy', 'Location'].map((tab) => (
                   <button key={tab} className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
                 ))}
               </div>
@@ -409,6 +414,15 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   <div className="tab-pane active">
                     <h2>Reviews</h2>
                     <p>{serviceDetails?.reviews}</p>
+                  </div>
+                )}
+
+                {activeTab === 'Cancelation Policy' && (
+                  <div className="tab-pane active">
+                    <h2>Cancelation Policy</h2>
+                    <p> Refundable: {serviceDetails?.cancelationRefundable ? <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i> : <i className="pi pi-times border-white border-1 p-2" style={{ fontSize: ".7rem", borderRadius: '50%' }} />}</p>
+                    <p> Refund Per Cent Amount: {serviceDetails?.cancelationRefundPerCentAmount ?? 0}</p>
+                    <p> Allow Refund Days: {serviceDetails?.cancelationAllowRefundDays ?? 0}</p>
                   </div>
                 )}
 
@@ -610,6 +624,29 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         >
           {type === DataType.Service ?
             <div className="grid w-full grid grid-cols-12">
+
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Name">Name</label>
+                <InputText
+                  placeholder="Name"
+                  name="name"
+                  className="w-full mt-1"
+                  value={AddRequestForm.values.name}
+                  onChange={(e) => AddRequestForm.setFieldValue("name", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Email">Email</label>
+                <InputText
+                  placeholder="Email"
+                  name="email"
+                  className="w-full mt-1"
+                  value={AddRequestForm.values.email}
+                  onChange={(e) => AddRequestForm.setFieldValue("email", e.target.value)}
+                />
+              </div>
+
               <div className="md:col-12 lg:col-12">
                 <label htmlFor="Adult Passengers">Adult Passengers</label>
                 <InputNumber

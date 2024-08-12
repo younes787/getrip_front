@@ -26,6 +26,8 @@ const Requests = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const { user } = useAuth();
   const [showDialog, setShowDialog] = useState(false);
+  const [showRequestsDetails, setShowRequestsDetails] = useState<boolean>(false);
+  const [dataRequestsDetails, setDataRequestsDetails] = useState<any>();
   const [rejectionReason, setRejectionReason] = useState('');
   const [headerRejectionReason, setHeaderRejectionReason] = useState<string>('');
   const [filters, setFilters] = useState({
@@ -139,41 +141,33 @@ const Requests = () => {
   };
 
   const BodyTemplate = (rowData: any) => {
-    if (rowData.status === "Pending, Waiting for Provider's Approval" && (role === 'Administrator' || role === 'Service Provider')) {
       return (
         <div className="gap-3">
-          <i
-            onClick={() => ApproveRequest(rowData.id)}
-            className="pi pi-check"
-            style={{
-              color: 'green',
-              border: '1px solid green',
-              fontSize: '14px',
-              borderRadius: '50%',
-              padding: '5px',
-              margin: '2px',
-              cursor: 'pointer'
-            }}
-          ></i>
-          <i
-            onClick={() => handleRejectClick(rowData.id)}
-            className="pi pi-times"
-            style={{
-              color: 'red',
-              border: '1px solid red',
-              fontSize: '14px',
-              borderRadius: '50%',
-              padding: '5px',
-              margin: '2px',
-              cursor: 'pointer'
-            }}
-          ></i>
+          {rowData.status === "Pending, Waiting for Provider's Approval" && (role === 'Administrator' || role === 'Service Provider') &&
+          <>
+            <i
+              onClick={() => ApproveRequest(rowData.id)}
+              className="pi pi-check"
+              style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            ></i>
+            <i
+              onClick={() => handleRejectClick(rowData.id)}
+              className="pi pi-times"
+              style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            ></i>
+          </>
+          }
+           <i
+              onClick={() => {
+                setShowRequestsDetails(true);
+                setDataRequestsDetails(rowData);
+              }}
+              className="pi pi-info"
+              style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            ></i>
         </div>
       );
-    }
-    return null;
   };
-
 
   const onGlobalFilterChange = (e: any) => {
     const value = e.target.value;
@@ -209,19 +203,21 @@ const Requests = () => {
     { field: "serviceId", header: "Service", body: (row: any) => allServices.find((service) => service.id === row.serviceId)?.name },
     { field: "status", header: "Status" },
     { field: "subject", header: "Subject", body: (row: any) => <div style={{ textWrap: "wrap" }}>{truncateText(row.subject, 10)}</div> },
-    { field: "notes", header: "Notes" },
-    { field: "adultPassengers", header: "Adult Passengers" },
-    { field: "childPassengers", header: "Child Passengers" },
-    { field: "endDate", header: "End Date", body: (row: any) => formatDate(row.endDate) },
-    { field: "isApproved", header: "Approved", body: (row: any) => showIcons(row.isApproved) },
-    { field: "isPending", header: "Pending", body: (row: any) => showIcons(row.isPending) },
-    { field: "lastUpdateDate", header: "Last Update Date", body: (row: any) => formatDate(row.endDate) },
-    { field: "recieverAccountId", header: "Receiver Account", body: (row: any) => <AccountName accountId={row.recieverAccountId} /> || 'Loading...'},
-    { field: "requestDate", header: "Request Date", body: (row: any) => formatDate(row.endDate) },
-    { field: "startDate", header: "Start Date", body: (row: any) => formatDate(row.endDate) },
-    { field: "rejectionNote", header: "Rejection Note" },
+    // { field: "notes", header: "Notes" },
+    // { field: "adultPassengers", header: "Adult Passengers" },
+    // { field: "childPassengers", header: "Child Passengers" },
+    // { field: "endDate", header: "End Date", body: (row: any) => formatDate(row.endDate) },
+    // { field: "isApproved", header: "Approved", body: (row: any) => showIcons(row.isApproved) },
+    // { field: "isPending", header: "Pending", body: (row: any) => showIcons(row.isPending) },
+    // { field: "lastUpdateDate", header: "Last Update Date", body: (row: any) => formatDate(row.endDate) },
+    // { field: "recieverAccountId", header: "Receiver Account", body: (row: any) => <AccountName accountId={row.recieverAccountId} /> || 'Loading...'},
+    // { field: "requestDate", header: "Request Date", body: (row: any) => formatDate(row.endDate) },
+    // { field: "startDate", header: "Start Date", body: (row: any) => formatDate(row.endDate) },
+    // { field: "rejectionNote", header: "Rejection Note" },
     { field: "", header: "Actions", body: BodyTemplate }
   ];
+
+  console.log(dataRequestsDetails);
 
   return (
     <div>
@@ -276,6 +272,39 @@ const Requests = () => {
             onChange={(e) => setRejectionReason(e.target.value)}
             placeholder="Enter rejection reason"
           />
+      </Dialog>
+
+      <Dialog
+        header={'Request Info'}
+        visible={showRequestsDetails}
+        style={{ width: '50vw' }}
+        footer={<div>
+            <Button label="Hide" severity="danger" outlined size="small" onClick={() => setShowRequestsDetails(false)} className="mt-4"></Button>
+        </div>}
+        onHide={() => setShowRequestsDetails(false)}
+      >
+        <div className="grid grid-cols-12">
+          <div className="md:col-12 lg:col-12 sm:col-12">
+            {dataRequestsDetails && <>
+              <p>Adult Passengers: {dataRequestsDetails.adultPassengers}</p>
+              <p>Child Passengers: {dataRequestsDetails.childPassengers}</p>
+              <p>End Date: {formatDate(dataRequestsDetails.endDate)}</p>
+              <p>Approved: {showIcons(dataRequestsDetails.isApproved)}</p>
+              <p>Pending: {showIcons(dataRequestsDetails.isPending)}</p>
+              <p>Last Update Date: {formatDate(dataRequestsDetails.lastUpdateDate)}</p>
+              <p>Notes: {dataRequestsDetails.notes}</p>
+              <p>Reciever Account: {<AccountName accountId={dataRequestsDetails.recieverAccountId} /> || 'Loading...'}</p>
+              <p>Rejection Note: {dataRequestsDetails.rejectionNote}</p>
+              <p>Request Date: {formatDate(dataRequestsDetails.requestDate)}</p>
+              <p>Sender Account: {name}</p>
+              <p>Service: {allServices.find((service) => service.id === dataRequestsDetails.serviceId)?.name}</p>
+              <p>Start Date: {formatDate(dataRequestsDetails.startDate)}</p>
+              <p>Status: {dataRequestsDetails.status}</p>
+              <p>Subject: {dataRequestsDetails.subject}</p>
+              <p>Total Price: {dataRequestsDetails.totalPrice}</p>
+            </>}
+          </div>
+        </div>
       </Dialog>
     </div>
   );

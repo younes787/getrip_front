@@ -157,6 +157,7 @@ const Users = () => {
       password: rowData.password,
       email: rowData.email,
       role: rowData.role,
+      photos: rowData.photos,
       currencyId: rowData.currencyId,
     });
   };

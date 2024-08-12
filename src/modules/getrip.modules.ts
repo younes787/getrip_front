@@ -91,7 +91,7 @@ export class UsersClientDTO extends BaseUserDTO {
   token?: string = '';
   expiration?: Date = new Date();
   authorized?: boolean = false;
-  photos?: Array<{ imagePath: string }> = [];
+  photos: Array<{ imagePath: string }> = [];
   currencyId?: number = 0;
   business?: string = '';
 }
@@ -173,6 +173,8 @@ export class AddRequestDTO {
   requestDate: Date = new Date();
   lastUpdateDate: Date = new Date();
   notes: string = '';
+  name: string = '';
+  email: string = '';
   subject: string = '';
   serviceId: number = 0;
   startDate: Date = new Date();
@@ -197,7 +199,6 @@ export class FacilityDTO {
   iconCode: string = '';
   categoryId: number = 0;
 }
-
 export class VehicleTypeDTO {
   id?: number = 0;
   name: string = '';
@@ -421,6 +422,7 @@ export class ServiceDTO{
   residenceTypeId?:number;
   price:number=0;
   ratingAverage:number=0;
+  isApprovalRequired: boolean = false;
   currencyId:number=0;
   isTrip:boolean = false;
   photos?: any[];
@@ -448,6 +450,9 @@ export class ServiceDTO{
   placeNewActivities?: placeNewActivitiesDTO;
   tags?: TagsDTO | any;
   serviceFacilities?: ServiceFacilitiesDTO[] = [];
+  isRefundable: boolean = false;
+  refundPerCentAmount: number = 0;
+  allowRefundDays: number = 0;
 }
 
 export interface Service {
