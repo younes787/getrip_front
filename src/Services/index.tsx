@@ -557,6 +557,10 @@ export const AddRequest = async (data: any) => {
   return FetchWithLoading(api.post("/addrequest", data));
 };
 
+export const AddInstantOrder = async (data: any) => {
+  return FetchWithLoading(api.post("/addinstantorder", data));
+};
+
 export const ApproveRequest = async (rid: any) => {
   return FetchWithLoading(api.post(`/approverequest/${rid}`));
 };

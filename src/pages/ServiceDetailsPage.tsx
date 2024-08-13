@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
+import { AddInstantOrder, AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
@@ -18,6 +18,7 @@ import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
 import { Chip } from "primereact/chip";
 import { fas } from "@fortawesome/free-solid-svg-icons";
+import { InputSwitch } from "primereact/inputswitch";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -91,6 +92,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     notes: '',
     name: user?.data?.name,
     email: user?.data?.email,
+    lastName: user?.data?.lastName,
+    phone: user?.data?.phone,
+    isForDifferentPerson: false,
     serviceId: serviceDetails?.id,
     adultPassengers: guests,
     childPassengers: children,
@@ -130,6 +134,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           cancelationRefundPerCentAmount: serviceDetailsRes.data.refundPerCentAmount,
           cancelationAllowRefundDays: serviceDetailsRes.data.allowRefundDays,
           serviceType: serviceTypesRes?.data?.find((_type: any) => _type.id === serviceDetailsRes.data.typeId),
+          isApprovalRequired: serviceDetailsRes.data.isApprovalRequired,
           priceValues: serviceDetailsRes.data.priceValues,
           countryTaxPercent: serviceDetailsRes.data.countryTaxPercent,
           // location: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
@@ -141,7 +146,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               // .filter((facility: any) => facility.isPrimary)
               .map((facility: any) => {
                 return <div className="m-2">
-                          {index === 0 ? <p> <FontAwesomeIcon icon={fas[category?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} /> {category.categoryName}</p> : null}
+                          {index === 0 ? <p style={{ fontWeight: 'bold'}}> - <FontAwesomeIcon icon={fas[category?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} /> {category.categoryName}</p> : null}
                           <span className="mx-4">
                             <FontAwesomeIcon icon={fas[facility?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} />
                             {facility.name}
@@ -278,7 +283,12 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         AddRequestForm.values.subject =  '';
         AddRequestForm.values.serviceId =  serviceDetails.id;
 
-        await AddRequest(AddRequestForm.values);
+        if(serviceDetails.isApprovalRequired) {
+          await AddRequest(AddRequestForm.values);
+        } else {
+          await AddInstantOrder(AddRequestForm.values);
+        }
+
         AddRequestForm.resetForm();
         setShowBooking(false);
       } catch (error) {
@@ -637,6 +647,28 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               </div>
 
               <div className="md:col-12 lg:col-12">
+                <label htmlFor="Last Name">Last Name</label>
+                <InputText
+                  placeholder="Last Name"
+                  name="lastName"
+                  className="w-full mt-1"
+                  value={AddRequestForm.values.lastName}
+                  onChange={(e) => AddRequestForm.setFieldValue("lastName", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Phone">Phone</label>
+                <InputText
+                  placeholder="Phone"
+                  name="phone"
+                  className="w-full mt-1"
+                  value={AddRequestForm.values.phone}
+                  onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
                 <label htmlFor="Email">Email</label>
                 <InputText
                   placeholder="Email"
@@ -645,6 +677,15 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   value={AddRequestForm.values.email}
                   onChange={(e) => AddRequestForm.setFieldValue("email", e.target.value)}
                 />
+              </div>
+
+              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
+                <InputSwitch
+                  className="mx-2"
+                  checked={AddRequestForm.values?.isForDifferentPerson}
+                  onChange={(e) => AddRequestForm.setFieldValue(`isForDifferentPerson`, e.value)}
+                />
+                <label htmlFor="Wallet mx-2">For Different Person</label>
               </div>
 
               <div className="md:col-12 lg:col-12">

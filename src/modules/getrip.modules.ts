@@ -182,6 +182,9 @@ export class AddRequestDTO {
   adultPassengers: number = 0;
   childPassengers: number = 0;
   totalPrice: number = 0;
+  isForDifferentPerson:  boolean = true;
+  lastName:  string = '';
+  phone:  string = '';
 }
 
 export class VehicleDTO {
