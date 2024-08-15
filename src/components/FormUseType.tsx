@@ -107,8 +107,6 @@ const FormUseType = () => {
   };
 
   useEffect(() => {
-    console.log(country, province, city, countries);
-
     const fetchLocationData = async () => {
       if (country) {
         const countriesRes = await GetAllCountries();

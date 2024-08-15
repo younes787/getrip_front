@@ -64,7 +64,7 @@ const Layout = () => {
   return (
     <div className="h-full">
         <NavBar navState={navState} />
-        {isLoading && <ProgressBar mode="indeterminate" color="#f1881f" style={{ height: '3px'}}></ProgressBar>}
+        {isLoading && <ProgressBar mode="indeterminate" color="#f1881f" style={{ height: '1.5px'}}></ProgressBar>}
         <ToastContainer
           position="top-right"
           autoClose={5000}

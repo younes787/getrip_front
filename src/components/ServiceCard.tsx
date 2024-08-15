@@ -51,12 +51,32 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
     }
   }, [service, type]);
 
+  const buildMoreQuery = (service: Hotel, moreData: string) => {
+    const queryParams = {
+      search_id: moreData,
+      offer_id: service.offers[0].offerId,
+      product_id: service.id
+    };
+
+    const queryString = Object.entries(queryParams)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .join('&');
+
+    return queryString;
+  };
+
+  useEffect(() => {
+    if (service as Hotel && moreData) {
+      const queryString = buildMoreQuery(service as Hotel, moreData);
+      if (queryString) {
+        setMoreQueryString(queryString);
+      }
+    }
+  }, [service as Hotel , moreData, buildMoreQuery]);
+
   const renderContent = () => {
     switch (type) {
       case DataType.Hotel:
-        const moreQuery = {search_id: moreData, offer_id: (service as Hotel).offers[0].offerId, product_id: (service as Hotel).id}
-        setMoreQueryString(moreQuery ? Object.entries(moreQuery).filter(([_, value]) => value !== undefined).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&'): '');
-
         const hotel = service as Hotel;
         return (
           <>

@@ -13,9 +13,9 @@ import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
 import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, SearchFilterParams, Service, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
-import { mapHotelData, mapRestaurantData, mapServiceData } from "../utils/mapData";
+import { mapFlightData, mapHotelData, mapRestaurantData, mapServiceData } from "../utils/mapData";
 import { DataType } from "../enums";
-import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
+import { ProviderAuthenticationservice, ProviderInitializeMapCenter, ProviderServiceTourVisio } from "../Services/providerRequests";
 import { Slider } from "primereact/slider";
 import { MultiSelect } from "primereact/multiselect";
 import { InputNumber } from "primereact/inputnumber";
@@ -41,7 +41,10 @@ const SearchAndFilter = () => {
   const [showAllCities, setShowAllCities] = useState(false);
   const [showMapLocation, setShowMapLocation] = useState(false);
   const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
-  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
+  const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch>(() => {
+    const storedLocation = localStorage.getItem('selectedLocation');
+    return storedLocation ? JSON.parse(storedLocation) : { name: '', country: '', province: '' };
+  });
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
@@ -122,7 +125,23 @@ const SearchAndFilter = () => {
   }, []);
 
   useEffect(() => {
-    setSelectedCountry(`${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`);
+    if (selectedLocationFromSearch) {
+      if (selectedLocationFromSearch?.country && selectedLocationFromSearch?.province) {
+        setSelectedCountry(`${selectedLocationFromSearch.country}, ${selectedLocationFromSearch.province}`);
+      } else if (selectedLocationFromSearch.name || selectedLocationFromSearch.moreData) {
+        if (selectedLocationFromSearch?.name?.countryName && selectedLocationFromSearch?.name?.provinceName) {
+          setSelectedCountry(`${selectedLocationFromSearch.name.countryName}, ${selectedLocationFromSearch.name.provinceName}`);
+        } else if(selectedLocationFromSearch.moreData) {
+          setSelectedCountry(`${selectedLocationFromSearch.moreData.countryName}, ${selectedLocationFromSearch.moreData.provinceName}`);
+        } else {
+          setSelectedCountry(selectedLocationFromSearch.name);
+        }
+      } else {
+        setSelectedCountry('');
+      }
+    } else {
+      setSelectedCountry('');
+    }
   }, [selectedLocationFromSearch]);
 
   const dropDownSort = [
@@ -278,71 +297,69 @@ const SearchAndFilter = () => {
       setFlights([]);
       setRestaurants([]);
       setServices([]);
-
       setCardTypeLoading(true);
 
       switch ((selectFilterData.selectedTab as string).trim().replace(/['"]+/g, '')) {
         case DataType.Hotel:
         case 'Hotels':
-          const HotelsPersistenceUrl = 'productservice/getarrivalautocomplete';
-          const HotelsQuery = {
+          setCardType(DataType.Hotel);
+          ProviderAuthenticationservice()
+          .then((tokenRes) => {
+            ProviderServiceTourVisio('productservice/getarrivalautocomplete', {
             ProductType: 2,
             Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
             Culture: 'en-US',
-          };
-
-          ProviderAuthenticationservice()
-          .then((tokenRes) => {
-            ProviderServiceTourVisio(HotelsPersistenceUrl, HotelsQuery, tokenRes)
+          }, tokenRes)
             .then((resPro) => {
-              setCardTypeLoading(false);
               if(resPro?.data?.body?.items) {
-                setCardType(DataType.Hotel);
-                  ProviderServiceTourVisio('productservice/pricesearch', {
-                    checkAllotment: true,
-                    checkStopSale: true,
-                    getOnlyDiscountedPrice: false,
-                    getOnlyBestOffers:  true,
-                    productType: 2,
-                    arrivalLocations: [
-                        {
-                          id: resPro?.data?.body?.items[0]?.city?.id,
-                          type: 2
-                        }
-                    ],
-                    roomCriteria: [
+                ProviderServiceTourVisio('productservice/pricesearch', {
+                  checkAllotment: true,
+                  checkStopSale: true,
+                  getOnlyDiscountedPrice: false,
+                  getOnlyBestOffers:  true,
+                  productType: 2,
+                  arrivalLocations: [
                       {
-                          adult: 2,
-                          childAges: [
-                            2,
-                            5
-                          ]
-                      },
-                      {
-                          adult: 1,
-                          childAges: [
-                            3
-                          ]
+                        id: resPro?.data?.body?.items[0]?.city?.id,
+                        type: 2
                       }
-                    ],
-                    nationality: "DE",
-                    checkIn: formatDate(selectFilterData?.startDate),
-                    night: 1,
-                    currency: "USD",
-                    culture: "en-US"
-                  }, tokenRes).then((resPriceSearch: any) => {
-                    if(resPriceSearch?.data?.body?.hotels) {
-                      setHotelSearchId(resPriceSearch?.data.body.searchId);
-                      setFoundLenght(resPriceSearch?.data?.body?.hotels?.length);
-                      setHotels(mapHotelData(resPriceSearch));
+                  ],
+                  roomCriteria: [
+                    {
+                        adult: 2,
+                        childAges: [
+                          2,
+                          5
+                        ]
+                    },
+                    {
+                        adult: 1,
+                        childAges: [
+                          3
+                        ]
                     }
-                  });
+                  ],
+                  nationality: "DE",
+                  checkIn: formatDate(selectFilterData?.startDate),
+                  night: 1,
+                  currency: "USD",
+                  culture: "en-US"
+                }, tokenRes)
+                .then((resPriceSearch: any) => {
+                  setCardTypeLoading(false);
+                  if (resPriceSearch?.data?.body?.hotels) {
+                    setHotelSearchId(resPriceSearch.data.body.searchId);
+                    setFoundLenght(resPriceSearch.data.body.hotels.length);
+                    setHotels(mapHotelData(resPriceSearch));
+                  }
+                });
               }
             });
           });
           break;
         case  DataType.Flight:
         case 'Flight':
+          setCardType(DataType.Flight);
           ProviderAuthenticationservice()
           .then((tokenRes) => {
             ProviderServiceTourVisio('productservice/getdepartureautocomplete', {
@@ -351,120 +368,131 @@ const SearchAndFilter = () => {
               ServiceType: selectFilterData?.flightServiceType,
               Culture: 'en-US',
             }, tokenRes).then((resDepartureAutoComplete) => {
-              console.log(resDepartureAutoComplete, 'res Departure Auto Complete');
+              setCardTypeLoading(false);
+              if(resDepartureAutoComplete?.data?.body?.items) {
+                setFoundLenght(resDepartureAutoComplete?.data?.body?.items.length);
+                setFlights(mapFlightData(resDepartureAutoComplete));
+              }
             });
 
-            ProviderServiceTourVisio('productservice/getarrivalautocomplete', {
-              ProductType: 3,
-              Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
-              ServiceType: selectFilterData?.flightServiceType,
-              DepartureLocations: [{
-                  Id: selectFilterData?.departureCity,
-                  Type: 5
-              }],
-              // ArrivalLocations: [{
-              //     Id: selectFilterData?.arrivalCity,
-              //     Type: 5
-              // }],
-              Culture: 'en-US',
-            }, tokenRes).then((resArrivalAutoComplete) => {
-              console.log(resArrivalAutoComplete, 'res Arrival Auto Complete');
-            });
+            // ProviderServiceTourVisio('productservice/getarrivalautocomplete', {
+            //   ProductType: 3,
+            //   Query: typeof selectFilterData?.address?.name === 'string' ? selectFilterData?.address?.name : selectFilterData?.address?.name?.countryName,
+            //   ServiceType: selectFilterData?.flightServiceType,
+            //   DepartureLocations: [{
+            //       Id: selectFilterData?.departureCity,
+            //       Type: 5
+            //   }],
+            //   // ArrivalLocations: [{
+            //   //     Id: selectFilterData?.arrivalCity,
+            //   //     Type: 5
+            //   // }],
+            //   Culture: 'en-US',
+            // }, tokenRes).then((resArrivalAutoComplete) => {
+            //   console.log(resArrivalAutoComplete, 'res Arrival Auto Complete');
+            // });
 
-            ProviderServiceTourVisio('productservice/getcheckindates', {
-              ProductType: 3,
-              ServiceType: selectFilterData?.flightServiceType,
-              DepartureLocations: [{
-                  Id: selectFilterData?.departureCity,
-                  Type: 5
-              }],
-              ArrivalLocations: [{
-                  Id: selectFilterData?.arrivalCity,
-                  Type: 5
-              }],
-            }, tokenRes).then((resCheckinDates) => {
-              console.log(resCheckinDates, 'res Checkin Dates');
-            });
+            // ProviderServiceTourVisio('productservice/getcheckindates', {
+            //   ProductType: 3,
+            //   ServiceType: selectFilterData?.flightServiceType,
+            //   DepartureLocations: [{
+            //       Id: selectFilterData?.departureCity,
+            //       Type: 5
+            //   }],
+            //   ArrivalLocations: [{
+            //       Id: selectFilterData?.arrivalCity,
+            //       Type: 5
+            //   }],
+            // }, tokenRes).then((resCheckinDates) => {
+            //   console.log(resCheckinDates, 'res Checkin Dates');
+            // });
 
-            console.log(selectFilterData?.departureCity, selectFilterData?.arrivalCity);
+            // console.log(selectFilterData?.departureCity, selectFilterData?.arrivalCity);
 
-            ProviderServiceTourVisio('productservice/pricesearch', {
-              ProductType: 3,
-              ServiceTypes: [selectFilterData?.flightServiceType ?? 1],
-              CheckIn: "2024-07-29T00:00:00+03:00",
-              DepartureLocations: [{
-                  id: selectFilterData?.departureCity?.slice(0, 3).toUpperCase(),
-                  type: 5
-              }],
-              ArrivalLocations: [{
-                  id: selectFilterData?.arrivalCity?.slice(0, 3).toUpperCase(),
-                  type: 5
-              }],
-              Passengers: [
-                {
-                  type: 1,
-                  count: 1
-                },
-                {
-                  type: 2,
-                  count: 1
-                },
-                {
-                  type: 3,
-                  count: 1
-                },
-                {
-                  type: 4,
-                  count: 1
-                }
-              ],
-              showOnlyNonStopFlight: false,
-              additionalParameters: {
-                getOptionsParameters: {
-                  flightBaggageGetOption: 0
-                }
-              },
-              acceptPendingProviders: false,
-              forceFlightBundlePackage: false,
-              disablePackageOfferTotalPrice: true,
-              calculateFlightFees: false,
-              flightClasses: [0],
-              Culture: "en-US",
-              Currency: "EUR"
-            }, tokenRes).then((resPriceSearch) => {
-              console.log(resPriceSearch, 'res Price Search');
-            });
-
-            // setCardTypeLoading(false);
-            // if(resPro?.data?.body?.items) {
-            //   setCardType(DataType.Flight);
-            //   setFoundLenght(resPro?.data?.body?.items.length);
-            //   setFlights(mapFlightData(resPro));
-            // }
+            // ProviderServiceTourVisio('productservice/pricesearch', {
+            //   ProductType: 3,
+            //   ServiceTypes: [selectFilterData?.flightServiceType ?? 1],
+            //   CheckIn: "2024-07-29T00:00:00+03:00",
+            //   DepartureLocations: [{
+            //       id: selectFilterData?.departureCity?.slice(0, 3).toUpperCase(),
+            //       type: 5
+            //   }],
+            //   ArrivalLocations: [{
+            //       id: selectFilterData?.arrivalCity?.slice(0, 3).toUpperCase(),
+            //       type: 5
+            //   }],
+            //   Passengers: [
+            //     {
+            //       type: 1,
+            //       count: 1
+            //     },
+            //     {
+            //       type: 2,
+            //       count: 1
+            //     },
+            //     {
+            //       type: 3,
+            //       count: 1
+            //     },
+            //     {
+            //       type: 4,
+            //       count: 1
+            //     }
+            //   ],
+            //   showOnlyNonStopFlight: false,
+            //   additionalParameters: {
+            //     getOptionsParameters: {
+            //       flightBaggageGetOption: 0
+            //     }
+            //   },
+            //   acceptPendingProviders: false,
+            //   forceFlightBundlePackage: false,
+            //   disablePackageOfferTotalPrice: true,
+            //   calculateFlightFees: false,
+            //   flightClasses: [0],
+            //   Culture: "en-US",
+            //   Currency: "EUR"
+            // }, tokenRes).then((resPriceSearch) => {
+            //   console.log(resPriceSearch, 'res Price Search');
+            // });
           });
           break;
         case  DataType.Restaurant:
         case 'Restaurants':
+          setCardType(DataType.Restaurant);
+          const fetchRestaurants = async (lat: number, lng: number) => {
+            let query = `?latitude=${lat}&longitude=${lng}&radius=5000&type=restaurant|cafe`;
+
+            if (nextPageToken) {
+              query += `&nextPageToken=${nextPageToken}`;
+            }
+
+            const resRes = await GetNearByRestaurants(query);
+            setCardTypeLoading(false);
+
+            if (resRes.data.next_page_token) {
+              setNextPageToken(resRes.data.next_page_token);
+            } else {
+              setNextPageToken(null);
+            }
+
+            setFoundLenght(resRes.data.results.length);
+            setRestaurants(mapRestaurantData(resRes));
+          };
+
           if (selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
-            let query = `?latitude=${selectedLocationFromSearch.lat}&longitude=${selectedLocationFromSearch.lng}&radius=5000&type=restaurant|cafe`;
-
-            if (nextPageToken) { query += `&nextPageToken=${nextPageToken}`; }
-
-            GetNearByRestaurants(query)
-            .then((resRes) => {
-              setCardTypeLoading(false);
-              if(resRes.data.next_page_token) {
-                setNextPageToken(resRes.data.next_page_token);
-              } else {
-                setNextPageToken(null);
+            fetchRestaurants(selectedLocationFromSearch.lat, selectedLocationFromSearch.lng);
+          } else {
+            ProviderInitializeMapCenter(selectedCountry).then((res) => {
+              const results = res?.data.results;
+              if (results && results.length > 0) {
+                fetchRestaurants(results[0].geometry.location.lat, results[0].geometry.location.lng);
               }
-              setCardType(DataType.Restaurant);
-              setFoundLenght(resRes.data.results.length);
-              setRestaurants(mapRestaurantData(resRes));
             });
           }
           break;
         default:
+            setCardType(DataType.Service);
             const SUPPORTED_TABS = ['Search All', 'Hotels', 'Restaurants', 'Flight'];
             const isSupportedTab = (tab: any) => SUPPORTED_TABS.includes(tab);
             const selectedTab = selectFilterData?.selectedTab;
@@ -490,7 +518,6 @@ const SearchAndFilter = () => {
                 .then((resSer) => {
                   setCardTypeLoading(false);
                   if(resSer?.data?.items) {
-                    setCardType(DataType.Service);
                     setFoundLenght(resSer?.data?.totalItems);
                     setServices(mapServiceData(resSer));
                   }

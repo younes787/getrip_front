@@ -217,8 +217,6 @@ const Requests = () => {
     { field: "", header: "Actions", body: BodyTemplate }
   ];
 
-  console.log(dataRequestsDetails);
-
   return (
     <div>
       {loading ? (

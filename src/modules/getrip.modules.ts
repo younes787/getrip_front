@@ -397,6 +397,7 @@ export interface LocationFromMap {
 export interface LocationFromSearch {
   lat: number;
   lng: number;
+  name?: any;
   country: string;
   province: string;
   moreData?: any
