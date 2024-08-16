@@ -19,6 +19,14 @@ import { RadioButton } from "primereact/radiobutton";
 import { Chip } from "primereact/chip";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { InputSwitch } from "primereact/inputswitch";
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+  name: Yup.string().required('Service Name is required'),
+  lastName: Yup.string().required('Service Name is required'),
+  email: Yup.string().email('Invalid email format').required('Email is required'),
+  phone: Yup.string().matches(/^[0-9]+$/, "Phone number is not valid").min(10, 'Phone number must be at least 10 digits').required('Phone number is required'),
+});
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -27,6 +35,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [showMapLocation, setShowMapLocation] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
   const [markerData, setMarkerData] = useState<{lat: any, lng: any, text: any}[]>([]);
+  const [isForDifferentPerson, setIsForDifferentPerson] = useState<boolean>(false);
   const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
   const { serviceType, serviceId, queryFilter, moreParams } = useParams<{ serviceType: DataType, serviceId: string, queryFilter: any, moreParams: any }>();
   const { user } = useAuth();
@@ -274,6 +283,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     initialValues: formInitialValues,
     enableReinitialize: true,
     validateOnChange: true,
+    validationSchema: isForDifferentPerson ? validationSchema : undefined,
     onSubmit: async () => {
       try {
         AddRequestForm.values.senderAccountId =  user.data.accountId;
@@ -341,6 +351,16 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       );
     }
     return total;
+  };
+
+  const renderError = (error: any) => {
+    if (typeof error === 'string') {
+      return <div className="text-red-500 mt-2">{error}</div>;
+    }
+    if (Array.isArray(error)) {
+      return error.map((err, index) => <div key={index} className="text-red-500 mt-2">{err}</div>);
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -626,7 +646,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           style={{maxWidth: '70%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
           footer={
             <div>
-              <Button label="Save" size="small" severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="mt-4"></Button>
+              <Button label="Book" size="small" severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="mt-4"></Button>
               <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowBooking(false)} className="mt-4"></Button>
             </div>
           }
@@ -634,59 +654,67 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         >
           {type === DataType.Service ?
             <div className="grid w-full grid grid-cols-12">
-
-              <div className="md:col-12 lg:col-12">
-                <label htmlFor="Name">Name</label>
-                <InputText
-                  placeholder="Name"
-                  name="name"
-                  className="w-full mt-1"
-                  value={AddRequestForm.values.name}
-                  onChange={(e) => AddRequestForm.setFieldValue("name", e.target.value)}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12">
-                <label htmlFor="Last Name">Last Name</label>
-                <InputText
-                  placeholder="Last Name"
-                  name="lastName"
-                  className="w-full mt-1"
-                  value={AddRequestForm.values.lastName}
-                  onChange={(e) => AddRequestForm.setFieldValue("lastName", e.target.value)}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12">
-                <label htmlFor="Phone">Phone</label>
-                <InputText
-                  placeholder="Phone"
-                  name="phone"
-                  className="w-full mt-1"
-                  value={AddRequestForm.values.phone}
-                  onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12">
-                <label htmlFor="Email">Email</label>
-                <InputText
-                  placeholder="Email"
-                  name="email"
-                  className="w-full mt-1"
-                  value={AddRequestForm.values.email}
-                  onChange={(e) => AddRequestForm.setFieldValue("email", e.target.value)}
-                />
-              </div>
-
               <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
                 <InputSwitch
                   className="mx-2"
                   checked={AddRequestForm.values?.isForDifferentPerson}
-                  onChange={(e) => AddRequestForm.setFieldValue(`isForDifferentPerson`, e.value)}
+                  onChange={(e) => {
+                    AddRequestForm.setFieldValue(`isForDifferentPerson`, e.value);
+                    setIsForDifferentPerson(true);
+                  }}
                 />
                 <label htmlFor="Wallet mx-2">For Different Person</label>
               </div>
+
+              {AddRequestForm.values?.isForDifferentPerson && <>
+                <div className="md:col-12 lg:col-12">
+                  <label htmlFor="Name">Name</label>
+                  <InputText
+                    placeholder="Name"
+                    name="name"
+                    className="w-full mt-1"
+                    value={AddRequestForm.values.name}
+                    onChange={(e) => AddRequestForm.setFieldValue("name", e.target.value)}
+                  />
+                   {renderError(AddRequestForm.errors.name)}
+                </div>
+
+                <div className="md:col-12 lg:col-12">
+                  <label htmlFor="Last Name">Last Name</label>
+                  <InputText
+                    placeholder="Last Name"
+                    name="lastName"
+                    className="w-full mt-1"
+                    value={AddRequestForm.values.lastName}
+                    onChange={(e) => AddRequestForm.setFieldValue("lastName", e.target.value)}
+                  />
+                   {renderError(AddRequestForm.errors.lastName)}
+                </div>
+
+                <div className="md:col-12 lg:col-12">
+                  <label htmlFor="Phone">Phone</label>
+                  <InputText
+                    placeholder="Phone"
+                    name="phone"
+                    className="w-full mt-1"
+                    value={AddRequestForm.values.phone}
+                    onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
+                  />
+                   {renderError(AddRequestForm.errors.phone)}
+                </div>
+
+                <div className="md:col-12 lg:col-12">
+                  <label htmlFor="Email">Email</label>
+                  <InputText
+                    placeholder="Email"
+                    name="email"
+                    className="w-full mt-1"
+                    value={AddRequestForm.values.email}
+                    onChange={(e) => AddRequestForm.setFieldValue("email", e.target.value)}
+                  />
+                   {renderError(AddRequestForm.errors.email)}
+                </div>
+              </>}
 
               <div className="md:col-12 lg:col-12">
                 <label htmlFor="Adult Passengers">Adult Passengers</label>

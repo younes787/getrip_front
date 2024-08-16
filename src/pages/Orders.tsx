@@ -54,6 +54,11 @@ const Orders = () => {
           "variable_name":"OrderId",
           "value": orderId
         },
+        {
+          "display_name":"UserID",
+          "variable_name":"UserID",
+          "value": User?.data?.id
+        },
       ]
       },
       label: '',
@@ -74,6 +79,11 @@ const Orders = () => {
             "display_name":"OrderId",
             "variable_name":"OrderId",
             "value": orderId
+          },
+          {
+            "display_name":"UserID",
+            "variable_name":"UserID",
+            "value": User?.data?.id
           },
       ]};
 
@@ -185,8 +195,8 @@ const Orders = () => {
               setShowPaid(true)
             }}
             className="pi pi-check"
-            style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '50%',padding: '5px',margin: '2px',cursor: 'pointer'}}
-          ></i>
+            style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '10px',padding: '5px',margin: '2px',cursor: 'pointer'}}
+          >Pay</i>
           }
           <i
             onClick={() => {
@@ -194,8 +204,8 @@ const Orders = () => {
               setDataOrdersDetails(rowData);
             }}
             className="pi pi-info"
-            style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
-          ></i>
+            style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
+          >Details</i>
         </div>
       );
   };
@@ -221,14 +231,14 @@ const Orders = () => {
   const header = renderHeader();
 
   const columns = [
-    { field: "requestId", header: "Request", body: (row: any) => allUsers.find((user) => user.accountId === row.requestId)?.name},
+    // { field: "requestId", header: "Request", body: (row: any) => allUsers.find((user) => user.accountId === row.requestId)?.name},
     { field: "serviceId", header: "Service", body: (row: any) => allServices.find((service) => service.id === row.serviceId)?.name},
     { field: "orderStatus", header: "Order status" },
-    { field: "currencyId", header: "Currency", body: (row: any) => currency.find((currenc) => currenc.id === row.currencyId)?.name },
-    { field: "isCanceled", header: "Canceled", body: (row: any) => showIcons(row.isCanceled) },
+    // { field: "isCanceled", header: "Canceled", body: (row: any) => showIcons(row.isCanceled) },
     { field: "isPayed", header: "Payed", body: (row: any) => showIcons(row.isPayed) },
     { field: "amount", header: "Amount" },
-    { field: "orderDate", header: "Order date", body: (row: any) => formatDate(row.orderDate)},
+    { field: "currencyId", header: "Currency", body: (row: any) => currency.find((currenc) => currenc.id === row.currencyId)?.name },
+    // { field: "orderDate", header: "Order date", body: (row: any) => formatDate(row.orderDate)},
     { field: "", header: "Actions", body: BodyTemplate, className: 'actions-column' }
   ];
 
@@ -349,8 +359,8 @@ const Orders = () => {
                 <p>Currency: {currency.find((currenc) => currenc.id === dataOrdersDetails.currencyId)?.name}</p>
                 <p>Canceled: {showIcons(dataOrdersDetails.isCanceled)}</p>
                 <p>Payed: {showIcons(dataOrdersDetails.isPayed)}</p>
-                <p>Amount: {formatDate(dataOrdersDetails.amount)}</p>
-                <p>Order Date: {dataOrdersDetails.orderDate}</p>
+                <p>Amount: {dataOrdersDetails.amount}</p>
+                <p>Order Date: {formatDate(dataOrdersDetails.orderDate)}</p>
               </>}
             </div>
           </div>

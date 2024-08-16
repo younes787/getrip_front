@@ -148,13 +148,13 @@ const Requests = () => {
             <i
               onClick={() => ApproveRequest(rowData.id)}
               className="pi pi-check"
-              style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            ></i>
+              style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            >Approve</i>
             <i
               onClick={() => handleRejectClick(rowData.id)}
               className="pi pi-times"
-              style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            ></i>
+              style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            >Reject</i>
           </>
           }
            <i
@@ -163,8 +163,8 @@ const Requests = () => {
                 setDataRequestsDetails(rowData);
               }}
               className="pi pi-info"
-              style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            ></i>
+              style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
+            >Details</i>
         </div>
       );
   };
