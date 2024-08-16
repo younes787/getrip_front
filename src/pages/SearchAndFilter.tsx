@@ -27,6 +27,7 @@ const SearchAndFilter = () => {
   const [cardTypeLoading, setCardTypeLoading] = useState<boolean>(false);
   const [showFields, setShowFields] = useState<boolean>(false);
   const [showVehicles, setShowVehicles] = useState<boolean>(false);
+  const [showResidenceType, setShowResidenceType] = useState<boolean>(false);
   const [foundLenght, setFoundLenght] = useState<number>(0);
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [residenceType, setResidenceType] = useState<any>();
@@ -514,6 +515,14 @@ const SearchAndFilter = () => {
                   setShowVehicles(false);
                 }
 
+                if(!serviceType?.isRental && serviceType?.isTrip) {
+                  setShowResidenceType(false);
+                } else if(serviceType?.isYacht) {
+                  setShowResidenceType(false);
+                } else {
+                  setShowResidenceType(true);
+                }
+
                 GetPaginatedServicesBySearchFilter(pageNumber, pageSize, queryParts)
                 .then((resSer) => {
                   setCardTypeLoading(false);
@@ -698,12 +707,14 @@ const SearchAndFilter = () => {
                   </div>
                 </div>
 
-                <CheckboxList
-                  title="Residence Type"
-                  category="residence_type"
-                  items={residenceType}
-                  selectedItems={selectedItems.residence_type}
-                />
+                {showResidenceType &&
+                  <CheckboxList
+                    title="Residence Type"
+                    category="residence_type"
+                    items={residenceType}
+                    selectedItems={selectedItems.residence_type}
+                  />
+                }
 
                 <CheckboxList
                   title="City"

@@ -125,7 +125,9 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
   useEffect(() => {
     GetServiceTypes().then((res) => {
-      const serviceTypes = res.data.map((service: any) => ({
+      const sortedServices = res.data.sort((a: any, b: any) => a.placement - b.placement);
+
+      const serviceTypes = sortedServices.map((service: any) => ({
         header: <span><FontAwesomeIcon icon={fas[service.iconCode] ?? faHandPointUp} size={"sm"} className="mr-2" />{service.name}</span>
       }));
 
