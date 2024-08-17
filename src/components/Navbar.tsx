@@ -430,8 +430,10 @@ const NavBar = ({navState}: any) => {
       ) : (
         <div className="menu-items mr-5">
           <MenuItems />
-          <Button rounded label="Become Our Partner" outlined className="outline_btn mx-1" onClick={() => setShowSignPartner(true)} />
-          <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn mx-1"/>
+          {!user?.isSuccess  && <>
+            <Button rounded label="Become Our Partner" outlined className="outline_btn mx-1" onClick={() => setShowSignPartner(true)} />
+            <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn mx-1"/>
+          </>}
         </div>
       )}
 
