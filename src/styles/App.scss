@@ -525,8 +525,6 @@ html body {
   padding: 20px;
   background-color: #fff;
   .service-details-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
     padding-bottom: 10px;
     margin-bottom: 20px;
@@ -573,6 +571,7 @@ html body {
     border: 1px solid #ccccccbd;
     border-radius: 15px;
     padding: 10px 30px 0px 20px;
+    flex-wrap: wrap
   }
 
   .tab-button {
@@ -583,6 +582,7 @@ html body {
     background-color: #fff;
     flex: 1;
     text-align: center;
+    margin: 0 15px;
   }
 
   .tab-button.active {

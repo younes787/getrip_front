@@ -591,7 +591,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
               </div>
             </div>
 
-            <Button label="Search" rounded severity="warning" style={isMobile ? {width: '90%', margin: '7px -9px 0 0'} : {minWidth: 'max-content', margin: '7px -9px 0 0'}} onClick={() => navigate("/search-and-filter")} />
+            <Button label="Search" rounded severity="warning" style={isMobile ? {width: '94%', margin: '7px -9px 0 0'} : {minWidth: 'max-content', margin: '7px -9px 0 0'}} onClick={() => navigate("/search-and-filter")} />
           </div>
         </form>
       </div>

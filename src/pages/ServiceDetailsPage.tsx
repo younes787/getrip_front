@@ -384,7 +384,19 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   return (<>
       { loading ? <LoadingComponent /> : <>
         <div className="service-details-container">
-          <header className="service-details-header">
+          <header
+            className="service-details-header"
+            style={
+              isMobile ?
+              {
+                marginTop: '10px'
+              } :
+              {
+                display: 'flex',
+                justifyContent: 'space-between'
+              }
+            }
+          >
             <div className="service-details-info">
               <h1>{serviceDetails?.name}</h1>
               <p><FontAwesomeIcon icon={faMapLocationDot} size={"sm"} style={{ color: '#000' }} className="mr-2" /> {serviceDetails?.location}</p>
@@ -431,7 +443,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
 
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
-              <div className="tabs">
+              <div className="tabs" style={{ overflow: 'scroll'}}>
                 {['Overview', 'Facilities', 'Reviews', 'Cancelation Policy', 'Location'].map((tab) => (
                   <button key={tab} className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
                 ))}
@@ -516,12 +528,17 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                       <Calendar
                         className='failds'
                         style={{ width: '100%', height: '30px' }}
-                        inputStyle={{ border: 'none' }}
-                        placeholder='Select Start - End Date'
-                        value={date}
-                        onChange={(e) => setDate(e.value)}
-                        numberOfMonths={2}
-                        selectionMode="range"
+                        placeholder='Select Start Date'
+                        value={date[0]}
+                        onChange={(e) => setDate([e.value || today, date[1]])}
+                        minDate={today}
+                      />
+                      <Calendar
+                        className='failds'
+                        style={{ width: '100%', height: '30px' }}
+                        placeholder='Select End Date'
+                        value={date[1]}
+                        onChange={(e) => setDate([date[0], e.value || today])}
                         minDate={today}
                       />
                     </p>
@@ -656,7 +673,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         <Dialog
           header="Book Now"
           visible={showBooking}
-          style={{maxWidth: '70%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
+          style={
+            isMobile ?
+            {width: '100%', padding: '0', margin: '0', backgroundColor: 'transparent'} :
+            {maxWidth: '70%', padding: '0', margin: '0', backgroundColor: 'transparent'}
+          }
           footer={
             <div>
               <Button label="Book" size="small" severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="mt-4"></Button>
@@ -680,7 +701,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               </div>
 
               {AddRequestForm.values?.isForDifferentPerson && <>
-                <div className="md:col-12 lg:col-12">
+                <div className="md:col-12 lg:col-12 mt-2 col-12">
                   <label htmlFor="Name">Name</label>
                   <InputText
                     placeholder="Name"
@@ -692,7 +713,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                    {renderError(AddRequestForm.errors.name)}
                 </div>
 
-                <div className="md:col-12 lg:col-12">
+                <div className="md:col-12 lg:col-12 mt-2 col-12">
                   <label htmlFor="Last Name">Last Name</label>
                   <InputText
                     placeholder="Last Name"
@@ -704,7 +725,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                    {renderError(AddRequestForm.errors.lastName)}
                 </div>
 
-                <div className="md:col-12 lg:col-12">
+                <div className="md:col-12 lg:col-12 mt-2 col-12">
                   <label htmlFor="Phone">Phone</label>
                   <InputText
                     placeholder="Phone"
@@ -716,7 +737,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                    {renderError(AddRequestForm.errors.phone)}
                 </div>
 
-                <div className="md:col-12 lg:col-12">
+                <div className="md:col-12 lg:col-12 mt-2 col-12">
                   <label htmlFor="Email">Email</label>
                   <InputText
                     placeholder="Email"
@@ -729,12 +750,12 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 </div>
               </>}
 
-              <div className="md:col-12 lg:col-12">
+              <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="Adult Passengers">Adult Passengers</label>
                 <InputNumber
                   placeholder="Adult Passengers"
                   name="adultPassengers"
-                  className="w-full"
+                  className="w-full mt-1"
                   step={1}
                   min={0}
                   showButtons
@@ -746,12 +767,12 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 />
               </div>
 
-              <div className="md:col-12 lg:col-12">
+              <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="Child Passengers">Child Passengers</label>
                 <InputNumber
                   placeholder="Child Passengers"
                   name="childPassengers"
-                  className="w-full"
+                  className="w-full  mt-1"
                   step={1}
                   min={0}
                   showButtons
@@ -763,11 +784,10 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 />
               </div>
 
-              <div className="md:col-12 lg:col-12">
+              <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="Start Date">Start Date</label>
                 <Calendar
-                  className=''
-                  style={{width: '100%'}}
+                  className='w-full  mt-1'
                   placeholder='Start Date'
                   value={AddRequestForm.values.startDate}
                   onChange={(e) => AddRequestForm.setFieldValue("startDate", e.value)}
@@ -775,11 +795,10 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 />
               </div>
 
-              <div className="md:col-12 lg:col-12">
+              <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="End Date">End Date</label>
                 <Calendar
-                  className=''
-                  style={{width: '100%'}}
+                  className='w-full  mt-1'
                   placeholder='End Date'
                   value={AddRequestForm.values.endDate}
                   onChange={(e) => AddRequestForm.setFieldValue("endDate", e.value)}
@@ -787,7 +806,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 />
               </div>
 
-              <div className="md:col-12 lg:col-12">
+              <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="Note">Note</label>
                 <InputText
                   placeholder="Add Note"
