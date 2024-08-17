@@ -414,6 +414,57 @@ const NavBar = ({navState}: any) => {
       <Button label="Explore" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
       <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
       <Button label="EN. $" icon="pi pi-fw pi-globe" className="border-none primary bg-transparent outline-0 shadow-none" onClick={() => setshowSelectLang(true)}/>
+      {role === "Administrator" && <>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <Button
+              className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
+              icon={<FontAwesomeIcon icon={faServer} size={"sm"} />}
+              onClick={() => {
+                setShowMenuNotificationsCard(false)
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: !showMenuServicesCard })
+              }}
+              rounded
+              style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px'}}
+              size="small"
+            />
+            <Badge
+              value={pendingServices.length}
+              style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                backgroundColor: '#4a235a'
+              }}
+            />
+        </div>
+
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <Button
+              className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
+              icon={<FontAwesomeIcon icon={faUsers} size={"sm"} />}
+              onClick={() => {
+                setShowMenuNotificationsCard(false)
+                dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })
+                dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: !showMenuUsersCard })
+              }}
+              rounded
+              aria-controls="popup_menu_left"
+              aria-haspopup
+              style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px'}}
+              size="small"
+            />
+            <Badge
+              value={pendingUsers.length}
+              style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                backgroundColor: '#f1881f'
+              }}
+            />
+        </div>
+      </>}
     </>
   );
 
@@ -463,58 +514,6 @@ const NavBar = ({navState}: any) => {
               }}
             />
           </div>
-
-          {role === "Administrator" && <>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <Button
-                  className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
-                  icon={<FontAwesomeIcon icon={faServer} size={"sm"} />}
-                  onClick={() => {
-                    setShowMenuNotificationsCard(false)
-                    dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
-                    dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: !showMenuServicesCard })
-                  }}
-                  rounded
-                  style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px'}}
-                  size="small"
-                />
-                <Badge
-                  value={pendingServices.length}
-                  style={{
-                    position: 'absolute',
-                    top: '-5px',
-                    right: '-5px',
-                    backgroundColor: '#4a235a'
-                  }}
-                />
-            </div>
-
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <Button
-                  className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
-                  icon={<FontAwesomeIcon icon={faUsers} size={"sm"} />}
-                  onClick={() => {
-                    setShowMenuNotificationsCard(false)
-                    dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false })
-                    dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: !showMenuUsersCard })
-                  }}
-                  rounded
-                  aria-controls="popup_menu_left"
-                  aria-haspopup
-                  style={{ borderColor: '#ddd', height: '2rem', width: '2rem', padding: '18px'}}
-                  size="small"
-                />
-                <Badge
-                  value={pendingUsers.length}
-                  style={{
-                    position: 'absolute',
-                    top: '-5px',
-                    right: '-5px',
-                    backgroundColor: '#f1881f'
-                  }}
-                />
-            </div>
-          </>}
 
           <Avatar
             image={AvatarImage}
