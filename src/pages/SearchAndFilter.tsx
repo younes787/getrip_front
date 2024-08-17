@@ -800,7 +800,7 @@ const SearchAndFilter = () => {
           <div className={containerClass}>
             <b className="p-button p-component p-button-outlined p-button-danger">{ cardType }</b>
             <div
-              style={{
+              style={isMobile ? {} : {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
