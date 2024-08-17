@@ -142,7 +142,33 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                 {serviceData.description}
               </p>
             </div>
-            <div className="prive_value" style={{fontSize: '12px', fontWeight: '500', backgroundColor: '#f1881f', color: '#FFF', borderRadius: '5px', padding: '10px', position: 'absolute', top: '0px', right: '10px'}}>
+            <div
+              className="prive_value"
+              style={isMobile ?
+                {
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  backgroundColor: '#f1881f',
+                  color: '#FFF',
+                  borderRadius: '5px',
+                  padding: '10px',
+                  position: 'absolute',
+                  top: '-35px',
+                  right: '10px'
+                } :
+                {
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  backgroundColor: '#f1881f',
+                  color: '#FFF',
+                  borderRadius: '5px',
+                  padding: '10px',
+                  position: 'absolute',
+                  top: '0px',
+                  right: '10px'
+                }
+              }
+              >
               {serviceData.priceValues[0].pricingTypeName}: {serviceData.priceValues[0].value}
             </div>
           </div>
