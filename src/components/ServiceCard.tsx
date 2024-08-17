@@ -22,6 +22,7 @@ interface ServiceCardProps {
 const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, type, QueryFilter, moreData }) => {
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
   const [moreQueryString, setMoreQueryString] = useState<any>();
   const [showMapLocation, setShowMapLocation] = useState<{
     markerLat?: any
@@ -73,6 +74,19 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
       }
     }
   }, [service as Hotel , moreData, buildMoreQuery]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const renderContent = () => {
     switch (type) {
@@ -143,7 +157,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
   return (
     <>
       <Card style={{ ...ServiceCardStyle }}>
-        <div className='grid grid-cols-12'>
+        <div className='grid grid-cols-12 p-4'>
           <div className="md:col-3 lg:col-3 sm:col-12">
             <img
               src={service?.image}

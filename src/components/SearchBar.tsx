@@ -43,6 +43,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [arrivalCity, setArrivalCity] = useState<any>(JSON.parse(localStorage.getItem('arrivalCity')!) || null);
   const [departureDate, setDepartureDate] = useState<any>(JSON.parse(localStorage.getItem('departureDate')!) || null);
   const [returnDate, setReturnDate] = useState<any>(JSON.parse(localStorage.getItem('returnDate')!) || null);
+  const [isMobile, setIsMobile] = useState(false);
   const [addressData, setAddressData] = useState<{
     countryId: number,
     countryName: string,
@@ -147,6 +148,19 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     });
 
     GetAllCountries().then((res)=> setCountries(res.data));
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -517,7 +531,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
 
       <div className="search__bar">
         <form className="grid w-full grid grid-cols-12">
-          <div className="form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4">
+          <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
             <FontAwesomeIcon icon={faMapMarkerAlt} size={"sm"} className="fa mr-2" />
             <AutoComplete
               className='failds'
@@ -536,7 +550,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             />
           </div>
 
-          <div className="form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4">
+          <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
             <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} className="fa mr-2" />
             <Calendar
               className='failds'
@@ -550,7 +564,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             />
           </div>
 
-          <div className="form__group sm:col-12 md:col-12 lg:col-4">
+          <div className={isMobile ? 'sm:col-12 md:col-12 lg:col-4 w-full' : 'form__group sm:col-12 md:col-12 lg:col-4'}>
             <div className="flex justify-content-center align-items-center w-full">
               <div className="w-full mx-3 relative">
                 <Menu
@@ -577,7 +591,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
               </div>
             </div>
 
-            <Button label="Search" rounded severity="warning" style={{minWidth: 'max-content', margin: '7px -9px 0 0'}} onClick={() => navigate("/search-and-filter")} />
+            <Button label="Search" rounded severity="warning" style={isMobile ? {width: '90%', margin: '7px -9px 0 0'} : {minWidth: 'max-content', margin: '7px -9px 0 0'}} onClick={() => navigate("/search-and-filter")} />
           </div>
         </form>
       </div>

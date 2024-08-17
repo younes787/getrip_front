@@ -57,6 +57,7 @@ const SearchAndFilter = () => {
   const [vehicleTypes, setVehicleTypes] = useState<any>();
   const [places, setPlaces] = useState<any>();
   const [makers, setMakers] = useState<any>();
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedItems, setSelectedItems] = useState<SidebarFilter>({
     residence_type: [],
     vehicles: [],
@@ -154,6 +155,19 @@ const SearchAndFilter = () => {
     { id: 5, label: 'Discount rate' },
     { id: 6, label: 'Newly added' },
   ];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const toggleShowAllCities = () => {
     setShowAllCities(!showAllCities);

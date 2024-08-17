@@ -27,6 +27,7 @@ const Home = () => {
   const [homePageRows, setHomePageRows] = useState<HomePageRowDTO[]>([]);
   const [selectedLocationFromSearch, setSelectedLocationFromSearch] = useState<LocationFromSearch | null>(null);
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { t } = useTranslation();
 
   const findProvince = (provinces: any[], selectedProvince?: string, provinceId?: number) => {
@@ -99,6 +100,19 @@ const Home = () => {
       Getlogged(User?.data?.email).then((res) => { return 200 })
     }
   },[]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const Footer = () => {
     return (
@@ -250,7 +264,7 @@ const Home = () => {
           <Carousel
             value={value}
             showIndicators={false}
-            numVisible={page.columnsCount}
+            numVisible={isMobile ? 1 : page.columnsCount}
             numScroll={1}
             itemTemplate={itemTemplate}
           />

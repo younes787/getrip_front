@@ -45,6 +45,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [daysCount, setDaysCount] = useState<any>(1);
   const [facilities, setFacilities] = useState<any>();
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -249,6 +250,18 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     }
   }, [serviceId]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     setFormInitialValues(prevValues => ({

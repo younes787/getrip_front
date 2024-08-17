@@ -707,6 +707,11 @@ html body {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+  .get-rp {
+    font-size: 2rem;
+    font-weight: 500;
+    color: $primary_color !important;
+  }
 }
 
 @media screen and (max-width: 560px) {
