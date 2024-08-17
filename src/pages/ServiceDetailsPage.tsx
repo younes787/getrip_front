@@ -126,13 +126,20 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   useEffect(() => {
     setLoading(true);
     if (type === DataType.Service) {
-
       Promise.all([
         GetServiceDetailsById(Number(serviceId)),
         GetAllCountries(),
         GetAllProvinces(),
         GetServiceTypes()
       ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes]) => {
+        if(serviceDetailsRes.data.lat && serviceDetailsRes.data.lng) {
+          setMarkerData([{
+            lat: serviceDetailsRes.data.lat,
+            lng: serviceDetailsRes.data.lng,
+            text: `${serviceDetailsRes.data.countryName}, ${serviceDetailsRes.data.provinceName}, ${serviceDetailsRes.data.cityName}`,
+          }]);
+        }
+
         setIngredient(serviceDetailsRes.data.priceValues[0]);
         setFacilities(serviceDetailsRes.data.serviceFacilities);
         setServiceDetails({
@@ -181,7 +188,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         setLoading(false);
       });
     } else if (type === DataType.Hotel) {
-
       ProviderAuthenticationservice()
       .then((tokenRes) => {
         ProviderServiceTourVisio('productservice/getproductinfo', {
