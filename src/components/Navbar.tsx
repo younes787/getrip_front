@@ -428,15 +428,12 @@ const NavBar = ({navState}: any) => {
           style={{color: '#000'}}
         />
       ) : (
-        <div className="menu-items mr-7 flex">
+        <div className="menu-items mr-5">
           <MenuItems />
+          <Button rounded label="Become Our Partner" outlined className="outline_btn mx-1" onClick={() => setShowSignPartner(true)} />
+          <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn mx-1"/>
         </div>
       )}
-
-      {user?.isSuccess === true ?
-        <></> :
-        <Button rounded label="Become Our Partner" outlined className="outline_btn" onClick={() => setShowSignPartner(true)}/>
-      }
 
       {user?.isSuccess === true ? (
         <>
@@ -525,9 +522,7 @@ const NavBar = ({navState}: any) => {
             style={{ cursor: "pointer" }}
           />
         </>
-      ) : (
-        <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn"/>
-      )}
+      ) : (<></>)}
     </div>
   );
 
@@ -1311,9 +1306,10 @@ const NavBar = ({navState}: any) => {
           {isMobile && showMobileMenu && (
             <div className="mobile-menu p-3 bg-white shadow-2">
               <MenuItems />
-              {!user?.isSuccess && (
+              {!user?.isSuccess && (<>
                 <Button rounded label="Become Our Partner" outlined className="outline_btn mt-2 w-full" onClick={() => setShowSignPartner(true)}/>
-              )}
+                <Button rounded label="Log In" icon="pi pi-user" onClick={() => setshow(true)} className="primary_btn  mt-2 w-full"/>
+              </>)}
             </div>
           )}
         </>
