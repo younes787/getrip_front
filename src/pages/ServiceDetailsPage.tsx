@@ -700,7 +700,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         >
           {type === DataType.Service ?
             <div className="grid w-full grid grid-cols-12">
-              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
+              {/* <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
                 <InputSwitch
                   className="mx-2"
                   checked={AddRequestForm.values?.isForDifferentPerson}
@@ -710,9 +710,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   }}
                 />
                 <label htmlFor="Wallet mx-2">For Different Person</label>
-              </div>
+              </div> */}
 
-              {AddRequestForm.values?.isForDifferentPerson && <>
+              {/* {AddRequestForm.values?.isForDifferentPerson && <> */}
                 <div className="md:col-12 lg:col-12 mt-2 col-12">
                   <label htmlFor="Name">Name</label>
                   <InputText
@@ -760,7 +760,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   />
                    {renderError(AddRequestForm.errors.email)}
                 </div>
-              </>}
+              {/* </>} */}
 
               <div className="md:col-12 lg:col-12 mt-2 col-12">
                 <label htmlFor="Adult Passengers">Adult Passengers</label>
