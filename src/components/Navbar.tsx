@@ -43,15 +43,14 @@ const NavBar = ({navState}: any) => {
   const [currencies, setCurrencies] = useState<any>();
   const User = JSON.parse(localStorage?.getItem('user') as any)
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const { logout } = useAuth();
-  const { user } = useAuth();
+  const { user, login, logout } = useAuth();
   const menuMainRoutes = useRef<any>(null);
   const [mainRoutes, setMainRoutes] = useState<any[]>([]);
   const [showDialog, setShowDialog] = useState(false);
   const [showMenuNotificationsCard, setShowMenuNotificationsCard] = useState<any>(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [check, setCheck] = useState(false);
+  const [check, setCheck] = useState<boolean>(false);
+  const [checkUserOrService, setCheckUserOrService] = useState<boolean>(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentUserId, setCurrentUserId] = useState<any>(null);
   const [currentServiceId, setCurrentServiceId] = useState<any>(null);
@@ -77,6 +76,19 @@ const NavBar = ({navState}: any) => {
       RejectUser({
         id: currentUserId,
         note: rejectionReason
+      }).then((res) => {
+        if (res.isSuccess) {
+          setCheckUserOrService(true);
+          confirmDialog({
+            header: 'Success!',
+            message: 'User Rejection successfully.',
+            icon: 'pi pi-check-circle',
+            defaultFocus: 'accept',
+            content: (props) => (
+              <CustomConfirmDialogContent {...props} resetForm={false} />
+            ),
+          });
+        }
       });
     }
 
@@ -84,6 +96,19 @@ const NavBar = ({navState}: any) => {
       RejectService({
         id: currentServiceId,
         note: rejectionReason
+      }).then((res) => {
+        if (res.isSuccess) {
+          setCheckUserOrService(true);
+          confirmDialog({
+            header: 'Success!',
+            message: 'Service Rejection successfully.',
+            icon: 'pi pi-check-circle',
+            defaultFocus: 'accept',
+            content: (props) => (
+              <CustomConfirmDialogContent {...props} resetForm={false} />
+            ),
+          });
+        }
       });
     }
 
@@ -213,7 +238,6 @@ const NavBar = ({navState}: any) => {
     Partneregister.setFieldValue('phone', phone);
   };
 
-
   const handleSelectionChange = (name: any, value: any) => {
     const languageMap: any = { 1: 'en', 2: 'ar', 3: 'tr'};
 
@@ -275,7 +299,6 @@ const NavBar = ({navState}: any) => {
     validateOnChange: true,
     onSubmit: async () => {
       setLoading(true);
-      setCheck(true);
       Partneregister.values.role = "Service Provider";
       Partneregister.values.expiration = new Date();
       Partneregister.values.accountId = user?.data?.accountId;
@@ -285,7 +308,7 @@ const NavBar = ({navState}: any) => {
       if(registerServiceProviderResponse.isSuccess) {
         setLoading(false);
         setShowSignPartner(false);
-
+        setCheck(true);
         confirmDialog({
           header: 'Success!',
           message: 'The account has been created successfully. The account is awaiting admin approval. Thank you.',
@@ -386,7 +409,7 @@ const NavBar = ({navState}: any) => {
         <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
         <p className="mb-0">{message.message}</p>
         <div className="grid align-items-center gap-3 mt-4" >
-          <Button label="Go home" outlined onClick={(event) => { hide(event); navigate('/') }} className="w-full text-green border-green-500 text-green-500"></Button>
+          <Button label="Close" outlined onClick={(event) => { hide(event); }} className="w-full text-green border-green-500 text-green-500"></Button>
         </div>
       </div>
     );
@@ -573,7 +596,25 @@ const NavBar = ({navState}: any) => {
 
             <div className="icons">
               <i
-                onClick={() => ApproveUser(user.accountId)}
+                onClick={() => {
+                  ApproveUser(user.accountId).then((res) => {
+                    if (res.isSuccess) {
+                      setCheckUserOrService(true);
+                      dispatch({ type: 'SET_LOADING_USERS' });
+                      fetchData('users');
+
+                      confirmDialog({
+                        header: 'Success!',
+                        message: 'User Approved successfully.',
+                        icon: 'pi pi-check-circle',
+                        defaultFocus: 'accept',
+                        content: (props) => (
+                          <CustomConfirmDialogContent {...props} resetForm={false} />
+                        ),
+                      });
+                    }
+                  })
+                }}
                 className="pi pi-check"
                 style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
               ></i>
@@ -608,7 +649,25 @@ const NavBar = ({navState}: any) => {
 
             <div className="icons">
               <i
-                onClick={() => ApproveService(service.id)}
+                onClick={() => {
+                  ApproveService(service.id).then((res) => {
+                    if (res.isSuccess) {
+                      setCheckUserOrService(true);
+                      dispatch({ type: 'SET_LOADING_SERVICES' });
+                      fetchData('services');
+
+                      confirmDialog({
+                        header: 'Success!',
+                        message: 'Service Approved successfully.',
+                        icon: 'pi pi-check-circle',
+                        defaultFocus: 'accept',
+                        content: (props) => (
+                          <CustomConfirmDialogContent {...props} resetForm={false} />
+                        ),
+                      });
+                    }
+                  })
+                }}
                 className="pi pi-check"
                 style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '50%', padding: '5px', margin: '2px', cursor: 'pointer' }}
               ></i>
@@ -672,6 +731,12 @@ const NavBar = ({navState}: any) => {
       {check &&
         <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
           <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Partneregister.resetForm} />
+        )}/>
+      }
+
+      {checkUserOrService &&
+        <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
+          <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={false} />
         )}/>
       }
 
