@@ -50,7 +50,8 @@ const NavBar = ({navState}: any) => {
   const [showMenuNotificationsCard, setShowMenuNotificationsCard] = useState<any>(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [check, setCheck] = useState<boolean>(false);
-  const [checkUserOrService, setCheckUserOrService] = useState<boolean>(false);
+  const [checkService, setCheckService] = useState<boolean>(false);
+  const [checkUser, setCheckUser] = useState<boolean>(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [currentUserId, setCurrentUserId] = useState<any>(null);
   const [currentServiceId, setCurrentServiceId] = useState<any>(null);
@@ -78,7 +79,7 @@ const NavBar = ({navState}: any) => {
         note: rejectionReason
       }).then((res) => {
         if (res.isSuccess) {
-          setCheckUserOrService(true);
+          setCheckUser(true);
           confirmDialog({
             header: 'Success!',
             message: 'User Rejection successfully.',
@@ -98,7 +99,7 @@ const NavBar = ({navState}: any) => {
         note: rejectionReason
       }).then((res) => {
         if (res.isSuccess) {
-          setCheckUserOrService(true);
+          setCheckService(true);
           confirmDialog({
             header: 'Success!',
             message: 'Service Rejection successfully.',
@@ -599,7 +600,7 @@ const NavBar = ({navState}: any) => {
                 onClick={() => {
                   ApproveUser(user.accountId).then((res) => {
                     if (res.isSuccess) {
-                      setCheckUserOrService(true);
+                      setCheckUser(true);
                       dispatch({ type: 'SET_LOADING_USERS' });
                       fetchData('users');
 
@@ -652,7 +653,7 @@ const NavBar = ({navState}: any) => {
                 onClick={() => {
                   ApproveService(service.id).then((res) => {
                     if (res.isSuccess) {
-                      setCheckUserOrService(true);
+                      setCheckService(true);
                       dispatch({ type: 'SET_LOADING_SERVICES' });
                       fetchData('services');
 
@@ -734,7 +735,7 @@ const NavBar = ({navState}: any) => {
         )}/>
       }
 
-      {checkUserOrService &&
+      {(checkService || checkUser) &&
         <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
           <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={false} />
         )}/>
