@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AddInstantOrder, AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
+import { AddInstantOrder, AddRequest, GetAllCountries, GetAllProvinces, GetPendingServices, GetServiceDetailsById, GetServiceTypes } from "../Services";
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
@@ -31,6 +31,7 @@ const validationSchema = Yup.object({
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [serviceDetails, setServiceDetails] = useState<any>();
+  const [pendingServicesIds, setPendingServicesIds] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('Overview');
   const [showMapLocation, setShowMapLocation] = useState(false);
   const [showBooking, setShowBooking] = useState(false);
@@ -130,8 +131,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         GetServiceDetailsById(Number(serviceId)),
         GetAllCountries(),
         GetAllProvinces(),
-        GetServiceTypes()
-      ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes]) => {
+        GetServiceTypes(),
+        GetPendingServices()
+      ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes, pendingServicesRes]) => {
+        setPendingServicesIds(pendingServicesRes.data.map((res: any) => res.id))
+
         if(serviceDetailsRes.data.lat && serviceDetailsRes.data.lng) {
           setMarkerData([{
             lat: serviceDetailsRes.data.lat,
@@ -413,6 +417,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               <Button
                 style={{fontSize: '16px', padding: '5px 18px'}}
                 rounded
+                disabled={pendingServicesIds.includes(serviceDetails?.id as number)}
                 severity="warning"
                 onClick={() => user ? setShowBooking(true) : onCheckAuth() }
               >Book Now</Button>
@@ -609,6 +614,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   <Button
                     style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
                     rounded
+                    disabled={pendingServicesIds.includes(serviceDetails?.id as number)}
                     severity="warning"
                     icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
                     onClick={() => user ? setShowBooking(true) : onCheckAuth() }

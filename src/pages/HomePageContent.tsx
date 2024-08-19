@@ -330,7 +330,7 @@ const HomePageContent = () => {
 
                 <div className="col-4">
                   <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
-                    per night
+                    per {service?.priceValues[0].pricingTypeName}
                     <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${service?.price}</span>
                   </p>
                 </div>

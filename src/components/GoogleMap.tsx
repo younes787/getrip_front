@@ -7,7 +7,7 @@ import { ProviderFetchLocationInfo, ProviderHandleMarkerHover, ProviderHandleSea
 interface MarkerProps {
   lat: number;
   lng: number;
-  text: string | any;
+  text?: string | any;
   icon?: string | any;
   onClick: () => void;
   onMouseEnter: () => void;
@@ -15,21 +15,28 @@ interface MarkerProps {
 }
 
 interface GoogleMapProps {
-  markerData?: { lat: number; lng: number; text: string }[];
+  markerData?: { lat: number; lng: number; text?: string }[];
   country?: string;
   province?: string;
   city?: string;
   onLocationSelect?: (location: LocationFromMap) => void;
 }
 
-const Marker: React.FC<MarkerProps> = ({ text, onClick, onMouseEnter, onMouseLeave }) => (
+const Marker: React.FC<MarkerProps> = ({ lat, lng, text, onClick, onMouseEnter, onMouseLeave }) => (
   <div
     onClick={onClick}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    style={{ cursor: 'pointer', fontSize: '40px', color: 'red' }}
+    style={{
+      position: 'absolute',
+      transform: 'translate(-50%, -100%)',
+      cursor: 'pointer',
+    }}
   >
-    {text}
+    <svg height="24" width="24" viewBox="0 0 24 24">
+      <path d="M12 0C7.58 0 4 3.58 4 8c0 5.5 8 16 8 16s8-10.5 8-16c0-4.42-3.58-8-8-8z" fill="red" />
+    </svg>
+    {text && <div style={{ textAlign: 'center', marginTop: '-5px' }}>{text}</div>}
   </div>
 );
 
@@ -49,22 +56,17 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
           const results = res?.data.results;
           if (results.length > 0) {
             const { lat, lng } = results[0].geometry.location;
-            setSelectedLocation({ lat, lng });
-            setMapCenter({ lat: lat, lng: lng });
             fetchLocationInfo(lat, lng);
           }
         });
       } else if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const { latitude, longitude } = position.coords;
-          setSelectedLocation({ lat: latitude, lng: longitude });
-          setMapCenter({ lat: latitude, lng: longitude });
           fetchLocationInfo(latitude, longitude);
         }, (error) => {
           console.error('Error getting current location:', error);
         });
       }
-
     };
 
     initializeMapCenter();
@@ -74,8 +76,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
     map.addListener('click', (event: any) => {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
-      setSelectedLocation({ lat, lng });
-      setMapCenter({ lat: lat, lng: lng });
       fetchLocationInfo(lat, lng);
     });
   };
@@ -87,11 +87,10 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
         const results = res?.data.results;
         if (results.length > 0) {
           const locationDetails = results[0].formatted_address;
-          setSearchQuery(locationDetails)
-
+          setSearchQuery(locationDetails);
           setLocationInfo(`Location: ${locationDetails}`);
           setSelectedLocation({ lat, lng });
-          setMapCenter({ lat: lat, lng: lng });
+          setMapCenter({ lat, lng });
           if(onLocationSelect) {
             onLocationSelect({ lat, lng, address: results });
           }
@@ -102,7 +101,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
           }
         }
       });
-
     } catch (error) {
       console.error('Error fetching location info:', error);
       setLocationInfo(`Latitude: ${lat}, Longitude: ${lng}`);
@@ -119,7 +117,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
         const results = res?.data.results;
         if (results.length > 0) {
           const locationDetails = results[0].formatted_address;
-          setMapCenter({ lat: lat, lng: lng });
           setHoverInfo(`Location: ${locationDetails}`);
         } else {
           setHoverInfo(`Latitude: ${lat}, Longitude: ${lng}`);
@@ -138,8 +135,6 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
         const results = res?.data.results;
         if (results.length > 0) {
           const { lat, lng } = results[0].geometry.location;
-          setMapCenter({ lat, lng });
-          setSelectedLocation({ lat, lng });
           fetchLocationInfo(lat, lng);
         } else {
           console.error('Location not found');
@@ -161,52 +156,48 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ markerData = [], country, provinc
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
-            handleSearch()
+            handleSearch();
           }}
         />
       </div>
 
       <div style={{ height: '400px', width: '100%', position: 'relative', borderRadius: '15px', padding: '10px'}}>
         <GoogleMapReact
-          onClick={( e: any ) => fetchLocationInfo(e.lat, e.lng)}
+          onClick={(e: any) => fetchLocationInfo(e.lat, e.lng)}
           bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_API_KEY as string }}
           center={mapCenter}
           defaultZoom={16}
           yesIWantToUseGoogleMapApiInternals
           onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
         >
-
           {markerData.map((marker, index) => (
-            <div key={index} style={{ position: 'relative'}}>
-              <Marker
-                key={index}
-                lat={marker.lat}
-                lng={marker.lng}
-                text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
-                onClick={() => setLocationInfo(`Latitude: ${marker.lat}, Longitude: ${marker.lng}, Info: ${marker.text}`)}
-                onMouseEnter={() => handleMarkerHover(marker.lat, marker.lng)}
-                onMouseLeave={() => setHoverInfo(null)}
-              />
-            </div>
+            <Marker
+              key={index}
+              lat={marker.lat}
+              lng={marker.lng}
+              text={marker.text}
+              onClick={() => setLocationInfo(`Latitude: ${marker.lat}, Longitude: ${marker.lng}, Info: ${marker.text}`)}
+              onMouseEnter={() => handleMarkerHover(marker.lat, marker.lng)}
+              onMouseLeave={() => setHoverInfo(null)}
+            />
           ))}
 
           {selectedLocation && (
-            <div style={{ position: 'relative'}}>
-              <Marker
-                lat={selectedLocation.lat}
-                lng={selectedLocation.lng}
-                text={<i className='pi pi-map-marker' style={{ cursor: 'pointer', fontSize: '30px', color: 'red'}}></i>}
-                onClick={() => setLocationInfo(`Latitude: ${selectedLocation.lat}, Longitude: ${selectedLocation.lng}`)}
-                onMouseEnter={() => handleMarkerHover(selectedLocation.lat, selectedLocation.lng)}
-                onMouseLeave={() => setHoverInfo(null)}
-              />
-            </div>
+            <Marker
+              lat={selectedLocation.lat}
+              lng={selectedLocation.lng}
+              onClick={() => setLocationInfo(`Latitude: ${selectedLocation.lat}, Longitude: ${selectedLocation.lng}`)}
+              onMouseEnter={() => false}
+              onMouseLeave={() => false}
+            />
           )}
-
         </GoogleMapReact>
       </div>
+      <div>{locationInfo}</div>
+      <div>{hoverInfo}</div>
     </>
   );
 };
+
 
 export default GoogleMap;

@@ -178,7 +178,7 @@ const Home = () => {
 
                 <div className="col-4">
                   <p style={{ display: 'grid', margin: 0, justifyContent: 'center', alignItems: 'center', fontSize: '16px', color: 'rgb(98 98 98)'}}>
-                    per night
+                    per {service?.priceValues[0].pricingTypeName}
                     <Tooltip target=".custom-target-icon"/>
 
                     <span

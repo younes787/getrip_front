@@ -70,6 +70,8 @@ const FormUseTypeUpdateService = () => {
   const [newTag, setNewTag] = useState<string>('');
   const nonEmptyTags = tags.filter(tag => tag.name.trim() !== '');
   const location = useLocation();
+  const [addFrom, setAddFrom] = useState<string>('');
+  const [showAddProvincyOrCity, setShowAddProvincyOrCity] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectShowFacilities, setSelectShowFacilities] = useState<{index: string, checked: boolean}[]>([]);
   const [pricingTypes, setPricingTypes] = useState<any>();
@@ -136,26 +138,10 @@ const FormUseTypeUpdateService = () => {
                     const foundCity = findByNameOrId(citiesRes.data, city);
                     if (foundCity) {
                       Serviceform.setFieldValue("cityId", foundCity.id);
-                    } else {
-                      try {
-                        await AddCity({ name: city, description: city, provinceId: foundProvince.id });
-                        const res = await GetCitiesbyid(foundProvince.id);
-                        setCities(res.data);
-                      } catch (error) {
-                        console.error("Error adding city:", error);
-                      }
                     }
                   }
                 } catch (error) {
                   console.error("Error fetching cities:", error);
-                }
-              } else {
-                try {
-                  await AddProvince({ name: province, countryId: foundCountry.id });
-                  const res = await GetProvincebyCid(foundCountry.id);
-                  setProvinces(res.data);
-                } catch (error) {
-                  console.error("Error adding province:", error);
                 }
               }
             }
@@ -168,6 +154,26 @@ const FormUseTypeUpdateService = () => {
 
     fetchLocationData();
   }, [country, province, city]);
+
+  const AddNewProvince = async () => {
+    try {
+      const newProvince = await AddProvince({ name: province, countryId: Serviceform.values.countryId });
+      const res = await GetProvincebyCid(newProvince.data.countryId);
+      setProvinces(res.data);
+    } catch (error) {
+      console.error("Error adding province:", error);
+    }
+  };
+
+  const AddNewCity = async () => {
+    try {
+      const newCity = await AddCity({ name: city, description: city, provinceId: Serviceform.values.provincyId });
+      const res = await GetCitiesbyid(newCity.data.provincyId);
+      setCities(res.data);
+    } catch (error) {
+      console.error("Error adding city:", error);
+    }
+  };
 
   const findByNameOrId = <T extends { id: number; name: string }>(items: T[], nameOrId?: string | number): T | undefined => {
     if (typeof nameOrId === 'string') {
@@ -710,10 +716,10 @@ const FormUseTypeUpdateService = () => {
               : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
-          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable  collapsed={true}>
+          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">
 
-              <div className="md:col-6 lg:col-6">
+              <div className="md:col-12 lg:col-12">
                 <div>
                   <label className=" primary" htmlFor="">Country</label>
                 </div>
@@ -731,37 +737,51 @@ const FormUseTypeUpdateService = () => {
                 />
               </div>
 
-              <div className="md:col-6 lg:col-6">
-                <div>
-                  <label className=" primary" htmlFor="">Provinces</label>
+              <div className="md:col-12 lg:col-12" style={{display: 'contents'}}>
+                <div className="md:col-8 lg:col-8">
+                  <label className="mb-2" htmlFor="Provinces">Provinces</label>
+                  <Dropdown
+                    placeholder="Select a Provincy"
+                    options={provinces ?? []}
+                    optionLabel="name"
+                    optionValue="id"
+                    name="provincyId"
+                    filter
+                    className="mt-2	w-full md:col-8 lg:col-8"
+                    value={Serviceform?.values?.provincyId}
+                    onChange={handleProvinceChange}
+                  />
                 </div>
 
-                <Dropdown
-                  placeholder="Select a Provincy"
-                  options={provinces ?? []}
-                  optionLabel="name"
-                  optionValue="id"
-                  name="provincyId"
-                  filter
-                  className="mt-2	w-full"
-                  value={Serviceform?.values?.provincyId}
-                  onChange={handleProvinceChange}
-                />
-              </div>
+                <div className="md:col-4 lg:col-4" style={{ display: 'flex', justifyContent: 'start', alignItems: 'center'}}>
+                  <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add Provincy" onClick={() => {
+                    setAddFrom('Provincy')
+                    setShowAddProvincyOrCity(true);
+                  }} />
+                </div>
 
-              <div className="md:col-6 lg:col-6">
-                <label className="mb-2" htmlFor="Status">{" "}City Name{" "}</label>
-                <Dropdown
-                  placeholder="Select a City"
-                  options={cities ?? []}
-                  optionLabel="name"
-                  optionValue="id"
-                  name="cityId"
-                  filter
-                  className="w-full"
-                  value={Serviceform.values.cityId}
-                  onChange={handleCityChange} />
+                <div className="md:col-8 lg:col-8">
+                  <label className="mb-2" htmlFor="Cities">Cities</label>
+                  <Dropdown
+                    placeholder="Select a City"
+                    options={cities ?? []}
+                    optionLabel="name"
+                    optionValue="id"
+                    name="cityId"
+                    filter
+                    className="w-full"
+                    value={Serviceform.values.cityId}
+                    onChange={handleCityChange}
+                  />
                   {renderError(Serviceform.errors.cityId)}
+                </div>
+
+                <div className="md:col-4 lg:col-4" style={{ display: 'flex', justifyContent: 'start', alignItems: 'center'}}>
+                  <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add City" onClick={() => {
+                    setAddFrom('City')
+                    setShowAddProvincyOrCity(true);
+                  }} />
+                </div>
               </div>
 
               <div className="md:col-12 lg:col-12">
@@ -777,7 +797,7 @@ const FormUseTypeUpdateService = () => {
                       : undefined
                   }
                   city={
-                    (Serviceform.values.cityId && cities && cities.find((er: any) => er.id === Serviceform.values.cityId))
+                    (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
                       ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
                       : undefined
                   }
@@ -1006,10 +1026,11 @@ const FormUseTypeUpdateService = () => {
                   checked={Serviceform.values?.isRefundable}
                   onChange={(e) => Serviceform.setFieldValue(`isRefundable`, e.value)}
                 />
-                <label htmlFor="Wallet mx-2">Refundable</label>
+                <label htmlFor="Wallet" className="mx-2">Refundable</label>
               </div>
 
               <div className="md:col-12 lg:col-12">
+                 <label htmlFor="Refund Per Cent Amount" className="mx-2">Refund Per Cent Amount</label>
                 <InputNumber
                   autoFocus={focusedField === 'refundPerCentAmount'}
                   onInput={() => handleInputFocus('refundPerCentAmount')}
@@ -1021,6 +1042,7 @@ const FormUseTypeUpdateService = () => {
               </div>
 
               <div className="md:col-12 lg:col-12">
+                <label htmlFor="Allow Refund Days" className="mx-2">Allow Refund Days</label>
                 <InputNumber
                   autoFocus={focusedField === 'allowRefundDays'}
                   onInput={() => handleInputFocus('allowRefundDays')}
@@ -1252,6 +1274,33 @@ const FormUseTypeUpdateService = () => {
         </div>
 
         <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => setshowPlace(false)} />
+      </Dialog>
+
+      <Dialog header={`Add ${addFrom}`} visible={showAddProvincyOrCity} className="md:w-40rem lg:w-40rem" onHide={() => setShowAddProvincyOrCity(false)}>
+        <div className="md:col-12 lg:col-12">
+          <label className="mb-2" htmlFor={`New ${addFrom}`}>New {addFrom}</label>
+          <InputText
+            placeholder={`New ${addFrom}`}
+            name={`new${addFrom}`}
+            className="w-full"
+            autoFocus={focusedField === `new${addFrom}`}
+            onInput={() => handleInputFocus(`new${addFrom}`)}
+            value={addFrom === 'Provincy' ? province as string : city as string}
+            onChange={(e) => {
+              console.log(addFrom, province, city);
+            }}
+          />
+        </div>
+
+        <Button rounded icon='pi pi-plus' severity="danger" size="small" className="mt-2" label="Add" onClick={() => {
+          if(addFrom === 'Provincy') {
+            AddNewProvince()
+          } else {
+            AddNewCity()
+          }
+          setShowAddProvincyOrCity(false)
+        }}
+        />
       </Dialog>
     </div>
   );

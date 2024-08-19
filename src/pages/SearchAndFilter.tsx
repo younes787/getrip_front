@@ -46,6 +46,7 @@ const SearchAndFilter = () => {
     const storedLocation = localStorage.getItem('selectedLocation');
     return storedLocation ? JSON.parse(storedLocation) : { name: '', country: '', province: '' };
   });
+  const [markerData, setMarkerData] = useState<{lat: any, lng: any, text: any}[]>([]);
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
   const [provinces, setProvinces] = useState<any>();
   const [countries, setCountries] = useState<any>();
@@ -66,7 +67,7 @@ const SearchAndFilter = () => {
     makers: [],
     fields: [],
     city: [],
-    minMaxPrice: [2000, 5000],
+    minMaxPrice: [0, 5000],
     ratings: 2,
     currency: []
   });
@@ -180,14 +181,6 @@ const SearchAndFilter = () => {
     const year = d.getFullYear();
     return `${year}-${month}-${day}`;
   };
-
-  const markerData = [
-    {
-      lat: selectedLocationFromSearch?.lat ?? 0,
-      lng: selectedLocationFromSearch?.lng ?? 0,
-      text: `${selectedLocationFromSearch?.country}, ${selectedLocationFromSearch?.province}`
-    },
-  ] || [];
 
   const fetchCitiesByProvinceId = async (provinceId: number, setCities: (cities: any) => void) => {
     try {
@@ -492,7 +485,16 @@ const SearchAndFilter = () => {
             }
 
             setFoundLenght(resRes.data.results.length);
+
+            setMarkerData(resRes?.data.results.map((res: any) => ({
+              lat: res.geometry.location.lat,
+              lng: res.geometry.location.lng,
+              text: `${res.vicinity}`,
+            })));
+
             setRestaurants(mapRestaurantData(resRes));
+
+
           };
 
           if (selectedLocationFromSearch?.lat && selectedLocationFromSearch?.lng) {
@@ -541,6 +543,13 @@ const SearchAndFilter = () => {
                 .then((resSer) => {
                   setCardTypeLoading(false);
                   if(resSer?.data?.items) {
+
+                    setMarkerData(resSer?.data?.items?.filter((res: any) => res.lat !== null && res.lng !== null).map((res: any) => ({
+                      lat: res.lat,
+                      lng: res.lng,
+                      text: `${res.countryName}, ${res.provinceName}, ${res.cityName}`,
+                    })));
+
                     setFoundLenght(resSer?.data?.totalItems);
                     setServices(mapServiceData(resSer));
                   }
@@ -551,6 +560,12 @@ const SearchAndFilter = () => {
               .then((resSer) => {
                 setCardTypeLoading(false);
                 if(resSer?.data?.items) {
+                  setMarkerData(resSer?.data?.items?.filter((res: any) => res.lat !== null && res.lng !== null).map((res: any) => ({
+                    lat: res.lat,
+                    lng: res.lng,
+                    text: `${res.countryName}, ${res.provinceName}, ${res.cityName}`,
+                  })));
+
                   setCardType(DataType.Service);
                   setFoundLenght(resSer?.data?.totalItems);
                   setServices(mapServiceData(resSer));
@@ -952,9 +967,6 @@ const SearchAndFilter = () => {
     >
       <GoogleMap
         markerData={markerData}
-        // country={}
-        // province={}
-        // city={}
         onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
       />
     </Dialog>

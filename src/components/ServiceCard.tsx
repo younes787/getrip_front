@@ -145,31 +145,12 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
             <div
               className="prive_value"
               style={isMobile ?
-                {
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  backgroundColor: '#f1881f',
-                  color: '#FFF',
-                  borderRadius: '5px',
-                  padding: '10px',
-                  position: 'absolute',
-                  top: '-35px',
-                  right: '10px'
-                } :
-                {
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  backgroundColor: '#f1881f',
-                  color: '#FFF',
-                  borderRadius: '5px',
-                  padding: '10px',
-                  position: 'absolute',
-                  top: '0px',
-                  right: '10px'
-                }
+                { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '-35px', right: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center'} :
+                { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '0px', right: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center'}
               }
-              >
-              {serviceData.priceValues[0].pricingTypeName}: {serviceData.priceValues[0].value}
+            >
+              {serviceData.priceValues[0].pricingTypeName}:
+              <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${serviceData.priceValues[0].value}</span>
             </div>
           </div>
         );
@@ -229,7 +210,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                 {service.hasOwnProperty('ratingAverage') && (
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Rating value={(service as Service).ratingAverage} readOnly stars={5} cancel={false} style={{ marginRight: '0.5rem' }} />
-                    <span style={{ fontSize: '0.9rem', color: '#888' }}>({(service as Service).isApproved ? 'APPROVED' : 'NOT APPROVED'})</span>
+                    {/* <span style={{ fontSize: '0.9rem', color: '#888' }}>({(service as Service).isApproved ? 'APPROVED' : 'NOT APPROVED'})</span> */}
                   </div>
                 )}
                 {service.hasOwnProperty('rating') && (
