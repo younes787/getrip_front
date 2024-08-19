@@ -136,25 +136,28 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
       case DataType.Service:
         const serviceData = service as Service;
         return (
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative'}}>
-            <div className="base">
-              <h2 style={{ margin: '0 0 0.5rem 0' }}>{serviceData.name}</h2>
-              <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
-                <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
-                {serviceData.description}
-              </p>
+          <>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative'}}>
+              <div className="base">
+                <h2 style={{ margin: '0 0 0.5rem 0' }}>{serviceData.name}</h2>
+                <p style={{ margin: '0 0 1rem 0', color: '#888' }}>
+                  <FontAwesomeIcon icon={faMapLocationDot} style={{ color: 'rgb(102 101 101)' }} size={"sm"} className="mr-2" />
+                  {`${serviceData.countryName ?? 'No Country'}, ${serviceData.provinceName ?? 'No Province'}, ${serviceData.cityName ?? 'No City'}`}
+                </p>
+              </div>
+              <div
+                className="prive_value"
+                style={isMobile ?
+                  { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '-35px', right: '10px'} :
+                  { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '0px', right: '10px'}
+                }
+              >
+                <p>{serviceData.priceValues[0].pricingTypeName}</p>
+                <span style={{fontSize: '30px', fontWeight: '550', color: '#000',  display: 'flex', justifyContent: 'end'}}>${serviceData.priceValues[0].value}</span>
+              </div>
             </div>
-            <div
-              className="prive_value"
-              style={isMobile ?
-                { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '-35px', right: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center'} :
-                { fontWeight: '550', fontSize: '20px', position: 'absolute', top: '0px', right: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center'}
-              }
-            >
-              {serviceData.priceValues[0].pricingTypeName}:
-              <span className="mt-1" style={{fontSize: '30px', fontWeight: '550',  color: '#000'}}>${serviceData.priceValues[0].value}</span>
-            </div>
-          </div>
+            <h2>{serviceData.description}</h2>
+          </>
         );
       default:
         return null;
@@ -237,6 +240,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                       className='ml-2'
                       rounded
                       label='Book Now'
+                      disabled={(service as Service)?.isPending}
                       severity="warning"
                       icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
                       onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}/${queryString}`)}

@@ -176,6 +176,8 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     localStorage.setItem('keySearch', keySearch);
     localStorage.setItem('selectedTab', JSON.stringify(serviceType[activeIndex]?.header?.props.children[1]) ?? selectedTab);
 
+    setSelectedTab(serviceType[activeIndex]?.header?.props.children[1] ?? selectedTab);
+
     if(serviceType) {
       onSelectFilterData({
         selectedTab: serviceType[activeIndex]?.header?.props.children[1] ?? selectedTab,
@@ -204,7 +206,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
           provinceName: _res.name,
         };
       });
-
+      localStorage.setItem('addressData', JSON.stringify(_fullProvinceName));
       setAddressData(_fullProvinceName);
     }).catch((error) => {
       console.error(error);

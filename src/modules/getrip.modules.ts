@@ -466,8 +466,12 @@ export interface Service {
   business: string;
   typeId: number;
   cityId: number;
+  countryName: string;
+  provinceName: string;
+  cityName: string;
   lat: number | null;
   lng: number | null;
+  isPending?: boolean;
   addressDescription: string | null;
   priceValues: PriceValuesDTO[];
   placeId: string | null;

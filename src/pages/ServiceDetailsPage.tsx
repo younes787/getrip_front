@@ -132,9 +132,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         GetAllCountries(),
         GetAllProvinces(),
         GetServiceTypes(),
-        GetPendingServices()
-      ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes, pendingServicesRes]) => {
-        setPendingServicesIds(pendingServicesRes.data.map((res: any) => res.id))
+      ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes]) => {
+
+        console.log(serviceDetailsRes, 'serviceDetailsRes');
 
         if(serviceDetailsRes.data.lat && serviceDetailsRes.data.lng) {
           setMarkerData([{
@@ -151,6 +151,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
           tags: serviceDetailsRes.data.tags,
+          isPending: serviceDetailsRes.data.isPending,
           cancelationRefundable: serviceDetailsRes.data.isRefundable,
           cancelationRefundPerCentAmount: serviceDetailsRes.data.refundPerCentAmount,
           cancelationAllowRefundDays: serviceDetailsRes.data.allowRefundDays,
@@ -417,10 +418,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               <Button
                 style={{fontSize: '16px', padding: '5px 18px'}}
                 rounded
-                disabled={pendingServicesIds.includes(serviceDetails?.id as number)}
+                label="Book Now"
+                disabled={serviceDetails?.isPending}
                 severity="warning"
                 onClick={() => user ? setShowBooking(true) : onCheckAuth() }
-              >Book Now</Button>
+              />
             </div>
           </header>
 
@@ -614,14 +616,12 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   <Button
                     style={{fontSize: '15px', marginTop: '10px', padding: '10px', width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center'}}
                     rounded
-                    disabled={pendingServicesIds.includes(serviceDetails?.id as number)}
+                    disabled={serviceDetails?.isPending}
                     severity="warning"
+                    label="Book Now"
                     icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
                     onClick={() => user ? setShowBooking(true) : onCheckAuth() }
-                  >
-                    Book Now
-                  </Button>
-
+                  />
                   {serviceDetails?.tags?.length > 0 && (
                     <div className="sidebar-tags mb-2">
                       <h3 className="m-2">Tags</h3>

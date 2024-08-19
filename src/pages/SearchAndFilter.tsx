@@ -46,6 +46,11 @@ const SearchAndFilter = () => {
     const storedLocation = localStorage.getItem('selectedLocation');
     return storedLocation ? JSON.parse(storedLocation) : { name: '', country: '', province: '' };
   });
+  const [localStorageAddressData, setLocalStorageAddressData] = useState<any>((() => {
+      const item = localStorage.getItem('addressData');
+      return item ? JSON.parse(item) : undefined;
+    })()
+  );
   const [markerData, setMarkerData] = useState<{lat: any, lng: any, text: any}[]>([]);
   const [selectFilterData, setSelectFilterData] = useState<QueryFilter | null>(null);
   const [provinces, setProvinces] = useState<any>();
@@ -213,7 +218,7 @@ const SearchAndFilter = () => {
   const findProvince = (provinces: any[], selectedProvince?: string, provinceId?: number) => {
     if(selectedProvince) {
       const searchProvinceLower = selectedProvince.substring(0, 8).toLowerCase();
-      return provinces.find((province) => {
+      return provinces?.find((province) => {
         const provinceNameLower = province.name.toLowerCase();
         return (
           provinceNameLower.substring(0, 4) === searchProvinceLower.substring(0, 4) ||
@@ -268,7 +273,7 @@ const SearchAndFilter = () => {
               />
               <label className="ml-2" htmlFor={item.id}>{item.name || item.label}</label>
             </div>
-            <div className="number-filter">0</div>
+            {/* <div className="number-filter">0</div> */}
           </div>
         )) : <span className="no-data">No {title.toLowerCase()} available</span>}
       </div>
@@ -277,12 +282,22 @@ const SearchAndFilter = () => {
 
   const fetchDataToCard = async () => {
     if (selectFilterData?.selectedTab) {
-
       const { province, moreData } = selectedLocationFromSearch || {};
       const foundProvince = province ? findProvince(provinces, province) : null;
 
+      let provId;
+      if(foundProvince?.id) {
+        provId = foundProvince?.id;
+      } else if(moreData?.provinceId) {
+        provId = moreData?.provinceId;
+      } else if(localStorageAddressData && localStorageAddressData[0]?.provinceId) {
+        provId = localStorageAddressData[0]?.provinceId;
+      } else {
+        provId = 0;
+      }
+
       const queryParts: SearchFilterParams = {
-        ProvinceId: foundProvince && foundProvince.id ? foundProvince.id : moreData?.provinceId,
+        ProvinceId: provId,
         CityIds: selectFilterData?.sidebarFilter?.city?.map((res) => res.id),
         ResidenceTypeIds: selectFilterData?.sidebarFilter?.residence_type?.map((res) => res.id),
         VehicleTypeIds: selectFilterData?.sidebarFilter?.vehicleTypes?.map((res) => res.id),
@@ -655,7 +670,7 @@ const SearchAndFilter = () => {
                           />
                         </div>
 
-                        <div className="number-filter">0</div>
+                        {/* <div className="number-filter">0</div> */}
                       </div>
                     </div>
 
@@ -680,7 +695,7 @@ const SearchAndFilter = () => {
                           />
                         </div>
 
-                        <div className="number-filter">0</div>
+                        {/* <div className="number-filter">0</div> */}
                       </div>
                     </div>
 
@@ -705,7 +720,7 @@ const SearchAndFilter = () => {
                           />
                         </div>
 
-                        <div className="number-filter">0</div>
+                        {/* <div className="number-filter">0</div> */}
                       </div>
                     </div>
                   </>
@@ -732,7 +747,7 @@ const SearchAndFilter = () => {
                       />
                     </div>
 
-                    <div className="number-filter">0</div>
+                    {/* <div className="number-filter">0</div> */}
                   </div>
                 </div>
 
@@ -774,7 +789,7 @@ const SearchAndFilter = () => {
                       />
                     </div>
 
-                    <div className="number-filter">0</div>
+                    {/* <div className="number-filter">0</div> */}
                   </div>
                 </div>
 
@@ -798,7 +813,7 @@ const SearchAndFilter = () => {
                       />
                     </div>
 
-                    <div className="number-filter">0</div>
+                    {/* <div className="number-filter">0</div> */}
                   </div>
                 </div>
 
