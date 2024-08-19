@@ -454,7 +454,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
 
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
-              <div className="tabs" style={{ overflow: 'scroll'}}>
+              <div className="tabs">
                 {['Overview', 'Facilities', 'Reviews', 'Cancelation Policy', 'Location'].map((tab) => (
                   <button key={tab} className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
                 ))}

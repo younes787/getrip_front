@@ -716,7 +716,7 @@ const FormUseTypeUpdateService = () => {
               : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
-          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable>
+          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
             <div className="grid grid-cols-12">
 
               <div className="md:col-12 lg:col-12">
@@ -787,17 +787,17 @@ const FormUseTypeUpdateService = () => {
               <div className="md:col-12 lg:col-12">
                 <GoogleMap
                   country={
-                    (Serviceform.values.countryId && countries.find((er: any) => er.id === Serviceform.values.countryId))
+                    (Serviceform.values.countryId && countries && countries.find((er: any) => er.id === Serviceform.values.countryId))
                       ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
                       : undefined
                   }
                   province={
-                    (Serviceform.values.provincyId && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
+                    (Serviceform.values.provincyId && provinces && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
                       ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
                       : undefined
                   }
                   city={
-                    (Serviceform.values.cityId && cities.find((er: any) => er.id === Serviceform.values.cityId))
+                    (Serviceform.values.cityId && cities && cities.find((er: any) => er.id === Serviceform.values.cityId))
                       ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
                       : undefined
                   }
