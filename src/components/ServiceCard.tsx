@@ -5,11 +5,12 @@ import { Rating } from 'primereact/rating';
 import { useNavigate } from 'react-router-dom';
 import { GetAssignedFacilitiesByServiceId } from '../Services';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faMapLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { Service, Hotel, Flight, Restaurant, QueryFilter } from '../modules/getrip.modules';
 import { DataType } from '../enums';
 import { Dialog } from 'primereact/dialog';
 import GoogleMap from './GoogleMap';
+import { useAuth } from '../AuthContext/AuthContext';
 
 interface ServiceCardProps {
   service: Service | Hotel | Flight | Restaurant;
@@ -19,10 +20,11 @@ interface ServiceCardProps {
   moreData?: any
 }
 
-const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, type, QueryFilter, moreData }) => {
+const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, type, QueryFilter, moreData}) => {
   const navigate = useNavigate();
   const [facilities, setFacilities] = useState<any[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const { user } = useAuth();
   const [moreQueryString, setMoreQueryString] = useState<any>();
   const [showMapLocation, setShowMapLocation] = useState<{
     markerLat?: any
@@ -221,14 +223,25 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                 )}
 
                 {type === DataType.Service ? (
-                  <Button
-                    label="View Details"
-                    className='view-details'
-                    style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
-                    onClick={() => {
-                      navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}/${queryString}`)
-                    }}
-                  />
+                  <div style={{display: 'flex'}}>
+                    <Button
+                      label="View Details"
+                      className='view-details'
+                      style={{ backgroundColor: '#FF6C00', borderColor: '#FF6C00', borderRadius: '25px' }}
+                      onClick={() => {
+                        navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}/${queryString}`)
+                      }}
+                    />
+
+                    <Button
+                      className='ml-2'
+                      rounded
+                      label='Book Now'
+                      severity="warning"
+                      icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
+                      onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}/${queryString}`)}
+                    />
+                  </div>
                 ): type === DataType.Flight ? (
                   <div style={{width:'100%', display:'flex', justifyContent: 'end', alignItems: 'center'}}>
                     {(service as Flight).airport &&
