@@ -256,58 +256,58 @@ const FormUseTypeUpdateService = () => {
       values.serviceFacilities = serviceFacilities;
       values.residenceTypeId = 1;
 
-      handleUpdateService();
+      // handleUpdateService();
     },
   });
 
-  const handleUpdateService = async () => {
-    try {
-      const formData = new FormData();
+  // const handleUpdateService = async () => {
+  //   try {
+  //     const formData = new FormData();
 
-      const appendToFormData = (key: any, value: any) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === 'object' && !(value instanceof File)) {
-            formData.append(key, JSON.stringify(value));
-          } else {
-            formData.append(key, value.toString());
-          }
-        }
-      };
+  //     const appendToFormData = (key: any, value: any) => {
+  //       if (value !== undefined && value !== null) {
+  //         if (typeof value === 'object' && !(value instanceof File)) {
+  //           formData.append(key, JSON.stringify(value));
+  //         } else {
+  //           formData.append(key, value.toString());
+  //         }
+  //       }
+  //     };
 
-      Object.entries(Serviceform.values).forEach(([key, value]) => {
-        appendToFormData(key, value);
-      });
+  //     Object.entries(Serviceform.values).forEach(([key, value]) => {
+  //       appendToFormData(key, value);
+  //     });
 
-      appendToFormData('Lat', Serviceform.values.address?.lat);
-      appendToFormData('Lng', Serviceform.values.address?.lng);
-      appendToFormData('AddressDescription', Serviceform.values.address?.description);
-      appendToFormData('AccountId', user?.data?.accountId);
-      appendToFormData('CurrencyId', user?.data?.currencyId);
+  //     appendToFormData('Lat', Serviceform.values.address?.lat);
+  //     appendToFormData('Lng', Serviceform.values.address?.lng);
+  //     appendToFormData('AddressDescription', Serviceform.values.address?.description);
+  //     appendToFormData('AccountId', user?.data?.accountId);
+  //     appendToFormData('CurrencyId', user?.data?.currencyId);
 
-      const imagesArray = fileimg ? Object.values(fileimg) : [];
-      imagesArray.forEach((file: any, index) => {
-        formData.append(`Images.file`, file);
-      });
+  //     const imagesArray = fileimg ? Object.values(fileimg) : [];
+  //     imagesArray.forEach((file: any, index) => {
+  //       formData.append(`Images.file`, file);
+  //     });
 
-      formData.append('Id', '0');
-      formData.append('Images.ObjectId', '0');
+  //     formData.append('Id', '0');
+  //     formData.append('Images.ObjectId', '0');
 
-      const addServiceResponse = await UpdateService(formData);
-      if (addServiceResponse.isSuccess) {
-          confirmDialog({
-            header: 'Success!',
-            message: 'Service added successfully.',
-            icon: 'pi pi-check-circle',
-            defaultFocus: 'accept',
-            content: (props) => (
-              <CustomConfirmDialogContent {...props} resetForm={Serviceform.resetForm} />
-            ),
-          });
-      }
-    } catch (error) {
-      console.error('Error adding service or fetching all services:', error);
-    }
-  };
+  //     const addServiceResponse = await UpdateService(formData);
+  //     if (addServiceResponse.isSuccess) {
+  //         confirmDialog({
+  //           header: 'Success!',
+  //           message: 'Service added successfully.',
+  //           icon: 'pi pi-check-circle',
+  //           defaultFocus: 'accept',
+  //           content: (props) => (
+  //             <CustomConfirmDialogContent {...props} resetForm={Serviceform.resetForm} />
+  //           ),
+  //         });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error adding service or fetching all services:', error);
+  //   }
+  // };
 
   useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
@@ -586,6 +586,15 @@ const FormUseTypeUpdateService = () => {
     Serviceform.setFieldValue("cityId", e.value);
   };
 
+  const updateBaseInfo = () => {};
+  const updateInputType = () => {};
+  const updateAddress = () => {};
+  const updateTags = () => {};
+  const updatePrice = () => {};
+  const updateFacilities = () => {};
+  const updateSteps = () => {};
+  const updateCancelationPolicy = () => {};
+
   return (
     <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>
@@ -668,10 +677,14 @@ const FormUseTypeUpdateService = () => {
                 />
                 {renderError(Serviceform.errors.images)}
               </div>
+
+              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Base Info" onClick={updateBaseInfo} />
+              </div>
             </div>
           </Fieldset>
 
-          <Fieldset legend="Input Type" className="md:col-12 lg:col-12 mb-3" toggleable  collapsed={true}>
+          <Fieldset legend="Input Type" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
             {FeildsType && FeildsType.length > 0 ?
               <div className="grid grid-cols-12">
                 {FeildsType?.map((f: any, index: number) => (
@@ -712,13 +725,16 @@ const FormUseTypeUpdateService = () => {
                     {renderError(Serviceform.errors.fields)}
                   </div>
                 ))}
+
+                <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                  <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Input Type" onClick={updateInputType} />
+                </div>
               </div>
               : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
           <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
             <div className="grid grid-cols-12">
-
               <div className="md:col-12 lg:col-12">
                 <div>
                   <label className=" primary" htmlFor="">Country</label>
@@ -818,10 +834,14 @@ const FormUseTypeUpdateService = () => {
                   </Dialog>
                 </>
               ) : <></>} */}
+
+              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Address" onClick={updateAddress} />
+              </div>
             </div>
           </Fieldset>
 
-          <Fieldset legend="Tags" className="md:col-12 lg:col-12 mb-3" toggleable  collapsed={true}>
+          <Fieldset legend="Tags" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
             <div className="grid grid-cols-12">
               {nonEmptyTags.length > 0 && (
                 <div className="md:col-12 lg:col-12">
@@ -850,10 +870,14 @@ const FormUseTypeUpdateService = () => {
                   size="small"
                   className="mt-2 col-span-12" />
               </div>
+
+              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Tags" onClick={updateTags} />
+              </div>
             </div>
           </Fieldset>
 
-          <Fieldset legend="Price" className="md:col-12 lg:col-12 mb-3" toggleable  collapsed={true}>
+          <Fieldset legend="Price" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
             <div className="grid grid-cols-12">
               {pricingTypes && pricingTypes.length > 0 && <>
                 {pricingTypes?.map((pricingType: any, index: number) => (
@@ -915,6 +939,10 @@ const FormUseTypeUpdateService = () => {
                 />
                 <label htmlFor="Wallet mx-2">Approval Required</label>
               </div>
+
+              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Price" onClick={updatePrice} />
+              </div>
             </div>
           </Fieldset>
 
@@ -973,6 +1001,10 @@ const FormUseTypeUpdateService = () => {
                       </div>
                     </div>
                   ))}
+
+                  <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                    <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Facilities" onClick={updateFacilities} />
+                  </div>
                 </div>
               ) : <p className="text-center text-red-500 text-sm italic">No Data</p>}
             </Fieldset>
@@ -1011,6 +1043,10 @@ const FormUseTypeUpdateService = () => {
                   ) : (
                     <div className="text-center">No steps available</div>
                   )}
+                </div>
+
+                <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                  <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Steps" onClick={updateSteps} />
                 </div>
               </div>
             </Fieldset>
@@ -1052,12 +1088,12 @@ const FormUseTypeUpdateService = () => {
                   placeholder={'Allow Refund Days'}
                 />
               </div>
+
+              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Cancelation Policy" onClick={updateCancelationPolicy} />
+              </div>
             </div>
           </Fieldset>
-
-          <div className="md:col-12 lg:col-12 mb-8 flex align-items-center justify-content-end">
-            <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Add service" onClick={() => Serviceform.handleSubmit()} />
-          </div>
         </div>
       </>}
 
