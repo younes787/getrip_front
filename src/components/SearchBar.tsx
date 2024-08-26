@@ -1,5 +1,5 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faArrowAltCircleDown, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
+import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { GetProvimcesByName, GetServiceTypes, GetProvincebyCid, GetAllCountries } from '../Services';
 import { Button } from 'primereact/button';
@@ -33,7 +33,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [provinces, setProvinces] = useState<any>();
   const [country, setCountry] = useState<any>(null);
   const [flightServiceType, setFlightServiceType] = useState<any>();
-  const [numVisible, setNumVisible] = useState(6);
+  const [numVisible, setNumVisible] = useState(0);
   const [countries, setCountries] = useState<any>();
   const [activeIndex, setActiveIndex] = useState<number>(parseInt(localStorage.getItem('activeIndex')!) || 0);
   const [selectedLocation, setSelectedLocation] = useState<{ name: string }>(JSON.parse(localStorage.getItem('selectedLocation')!) || { name: '' });
@@ -251,7 +251,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     return (
       <button
         className={`px-3 py-2 p-link ${activeIndex === index ? 'active-tab' : ''}`}
-        style={{ width: 'max-content', fontSize: '18px', fontWeight: '500', color: '#4a235a'}}
+        style={{width: 'max-content', fontSize: '18px', fontWeight: '500', margin: '0', padding: '0', color: '#4a235a'}}
         onClick={() => setActiveIndex(index)}
       >
         {item.header}
@@ -275,7 +275,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     if (value && value > 0) {
       setChildren(value);
     } else {
-      setChildren(1);
+      setChildren(0);
     }
   };
 
@@ -581,7 +581,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   id="popup_menu_left"
                 />
                 <Button
-                  label={`${guests} guests. ${children} children`}
+                  label={selectedTab === 'Flight' ? 'Choose Filter To Flight' : `${guests} guests. ${children} children`}
                   icon={<FontAwesomeIcon icon={faUserAlt} size={"sm"} className="more-filter-icon fa p-0" />}
                   type='button'
                   style={{minWidth: 'max-content', margin: '7px -9px 0 0'}}

@@ -12,7 +12,6 @@ import { LoginDTO, RegisterDTO, RegisterServiceProviderDTO } from "../modules/ge
 import { useAuth } from "../AuthContext/AuthContext";
 import { Avatar } from "primereact/avatar";
 import { useNavigate } from "react-router-dom";
-import AvatarImage from "../Assets/Ellipse.png";
 import LoadingComponent from "./Loading";
 import { Dropdown } from "primereact/dropdown";
 import * as Yup from 'yup';
@@ -59,6 +58,7 @@ const NavBar = ({navState}: any) => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { t, i18n } = useTranslation();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleRejectClick = (id: number, fromUser: boolean = true) => {
     if(fromUser) {
@@ -186,7 +186,28 @@ const NavBar = ({navState}: any) => {
   const { pending: pendingUsers, loading: loadingUsers } = users;
   const { pending: pendingServices, loading: loadingServices } = services;
   const role = User?.data?.role;
-  const hasOpenedRef = useRef(false);
+  const hasOpenedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (!event.target.closest('.menu-users') &&
+          !event.target.closest('.menu-services') &&
+          !event.target.closest('.menu-notifications') &&
+          !event.target.closest('.icon-services') &&
+          !event.target.closest('.icon-users') &&
+          !event.target.closest('.icon-notifications')) {
+        dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false });
+        dispatch({ type: 'SET_SHOW_MENU_SERVICES_CARD', payload: false });
+        setShowMenuNotificationsCard(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   const [externalDataToLocalStorage, setExternalDataToLocalStorage] = useState<any>(() => {
     const { language, country, currency } = JSON.parse(localStorage.getItem('externalDataToLocalStorage') || '{}');
@@ -441,7 +462,7 @@ const NavBar = ({navState}: any) => {
       {role === "Administrator" && <>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <Button
-              className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
+              className="border-1 primary bg-transparent outline-0 shadow-none mx-1 icon-services"
               icon={<FontAwesomeIcon icon={faServer} size={"sm"} />}
               onClick={() => {
                 setShowMenuNotificationsCard(false)
@@ -465,7 +486,7 @@ const NavBar = ({navState}: any) => {
 
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <Button
-              className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
+              className="border-1 primary bg-transparent outline-0 shadow-none mx-1 icon-users"
               icon={<FontAwesomeIcon icon={faUsers} size={"sm"} />}
               onClick={() => {
                 setShowMenuNotificationsCard(false)
@@ -517,7 +538,7 @@ const NavBar = ({navState}: any) => {
 
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <Button
-              className="border-1 primary bg-transparent outline-0 shadow-none mx-1"
+              className="border-1 primary bg-transparent outline-0 shadow-none mx-1 icon-notifications"
               icon={<FontAwesomeIcon icon={faBell} size={"sm"} />}
               onClick={() => {
                 dispatch({ type: 'SET_SHOW_MENU_USERS_CARD', payload: false })
@@ -540,7 +561,7 @@ const NavBar = ({navState}: any) => {
           </div>
 
           <Avatar
-            image={AvatarImage}
+            image={User?.data?.photos[0].imagePath}
             className="mx-2"
             onClick={fetchmainRoutes}
             shape="circle"
@@ -772,15 +793,22 @@ const NavBar = ({navState}: any) => {
               </label>
             </div>
 
-            <InputText
-              placeholder="Password"
-              name="password"
-              type="password"
-              className="mt-2 w-24rem	"
-              value={loginform?.values?.password}
-              onChange={(e) => loginform.setFieldValue("password", e.target.value)}
-              onBlur={loginform.handleBlur}
-            />
+            <span className="p-input-icon-right">
+              <i
+                className={`pi ${showPassword ? 'pi-eye-slash' : 'pi-eye'}`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: 'pointer', top: '30px' }}
+              />
+              <InputText
+                placeholder="Password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className="mt-2 w-24rem"
+                value={loginform?.values?.password}
+                onChange={(e) => loginform.setFieldValue("password", e.target.value)}
+                onBlur={loginform.handleBlur}
+              />
+            </span>
 
             {loginform.touched.password && loginform.errors.password ? ( <div className="p-error mt-2 text-sm">{loginform.errors.password}</div>) : null}
           </div>
@@ -876,19 +904,27 @@ const NavBar = ({navState}: any) => {
                 Password
               </label>
             </div>
-
-            <InputText
-              placeholder="Password"
-              name="password"
-              type="password"
-              className="mt-2 w-24rem	"
-              value={register?.values?.password}
-              onBlur={register.handleBlur}
-              onChange={(e) =>
-                register.setFieldValue("password", e.target.value)
-              }
-            />
-              {register.touched.password && register.errors.password ? ( <div className="p-error mt-2 text-sm">{register.errors.password}</div>) : null}
+            <span className="p-input-icon-right">
+              <i
+                className={`pi ${showPassword ? 'pi-eye-slash' : 'pi-eye'}`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: 'pointer', top: '30px' }}
+              />
+              <InputText
+                placeholder="Password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className="mt-2 w-24rem"
+                value={register?.values?.password}
+                onBlur={register.handleBlur}
+                onChange={(e) =>
+                  register.setFieldValue("password", e.target.value)
+                }
+              />
+            </span>
+            {register.touched.password && register.errors.password ? (
+              <div className="p-error mt-2 text-sm">{register.errors.password}</div>
+            ) : null}
           </div>
 
           <div className="col ml-3">
@@ -896,17 +932,24 @@ const NavBar = ({navState}: any) => {
               <label className="mb-2 primary" htmlFor="Confirm password">Confirm password</label>
             </div>
 
-            <InputText
-              placeholder="Confirm password"
-              name="confirm_password"
-              type="confirm_password"
-              className="mt-2 w-24rem	"
-              value={register?.values?.confirm_password}
-              onBlur={register.handleBlur}
-              onChange={(e) =>
-                register.setFieldValue("confirm_password", e.target.value)
-              }
-            />
+            <span className="p-input-icon-right">
+              <i
+                className={`pi ${showPassword ? 'pi-eye-slash' : 'pi-eye'}`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: 'pointer', top: '30px'}}
+              />
+              <InputText
+                placeholder="Confirm password"
+                name="confirm_password"
+                type={showPassword ? "text" : "password"}
+                className="mt-2 w-24rem"
+                value={register?.values?.confirm_password}
+                onBlur={register.handleBlur}
+                onChange={(e) =>
+                  register.setFieldValue("confirm_password", e.target.value)
+                }
+              />
+            </span>
               {register.touched.confirm_password && register.errors.confirm_password ? ( <div className="p-error mt-2 text-sm">{register.errors.confirm_password}</div>) : null}
           </div>
         </div>
@@ -994,15 +1037,23 @@ const NavBar = ({navState}: any) => {
                     <label className="mb-2 primary" htmlFor="Password">Password</label>
                   </div>
 
-                  <InputText
-                    placeholder="Password"
-                    name="password"
-                    type="password"
-                    className="mt-2	w-full"
-                    value={Partneregister?.values?.password}
-                    onBlur={Partneregister.handleBlur}
-                    onChange={(e) => Partneregister.setFieldValue("password", e.target.value)}
-                  />
+                  <span className="p-input-icon-right w-full">
+                    <i
+                      className={`pi ${showPassword ? 'pi-eye-slash' : 'pi-eye'}`}
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ cursor: 'pointer', top: '30px' }}
+                    />
+                    <InputText
+                      placeholder="Password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      className="mt-2	w-full"
+                      value={Partneregister?.values?.password}
+                      onBlur={Partneregister.handleBlur}
+                      onChange={(e) => Partneregister.setFieldValue("password", e.target.value)}
+                    />
+                  </span>
+
                   {Partneregister.touched.password && Partneregister.errors.password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.password}</div>) : null}
                 </div>
 
@@ -1010,16 +1061,22 @@ const NavBar = ({navState}: any) => {
                   <div>
                     <label className="mb-2 primary" htmlFor="Confirm password">Confirm password</label>
                   </div>
-
-                  <InputText
-                    placeholder="Confirm password"
-                    name="confirm_password"
-                    type="confirm_password"
-                    className="mt-2	w-full"
-                    value={Partneregister?.values?.confirm_password}
-                    onBlur={Partneregister.handleBlur}
-                    onChange={(e) => Partneregister.setFieldValue("confirm_password", e.target.value)}
-                  />
+                  <span className="p-input-icon-right w-full">
+                    <i
+                      className={`pi ${showPassword ? 'pi-eye-slash' : 'pi-eye'}`}
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ cursor: 'pointer', top: '30px' }}
+                    />
+                    <InputText
+                      placeholder="Confirm password"
+                      name="confirm_password"
+                      type={showPassword ? "text" : "confirm_password"}
+                      className="mt-2	w-full"
+                      value={Partneregister?.values?.confirm_password}
+                      onBlur={Partneregister.handleBlur}
+                      onChange={(e) => Partneregister.setFieldValue("confirm_password", e.target.value)}
+                    />
+                  </span>
                   {Partneregister.touched.confirm_password && Partneregister.errors.confirm_password ? ( <div className="p-error mt-2 text-sm">{Partneregister.errors.confirm_password}</div>) : null}
                 </div>
             </div>

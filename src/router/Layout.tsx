@@ -40,6 +40,7 @@ import Requests from "../pages/Requests";
 import { ProgressBar } from "primereact/progressbar";
 import { useLoading } from "../Services";
 import FormUseTypeUpdateService from "../components/FormUseTypeUpdateService";
+import CheckOut from "../pages/CheckOut";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -110,6 +111,7 @@ const Layout = () => {
             <Route path="/user-details/:accountId" element={<UserDetails />} />
             <Route path="/service-details/:serviceType/:serviceId/:queryFilter?/:moreParams?" element={<ServiceDetailsPage onCheckAuth={() => setNavState(true)} />} />
             <Route path="/search-and-filter" element={<SearchAndFilter />} />
+            <Route path="/check-out/:serviceId/:queryFilter" element={<CheckOut />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />

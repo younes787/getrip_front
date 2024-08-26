@@ -108,48 +108,86 @@ const FormUseType = () => {
     setCity(newCity);
   };
 
+  const fetchCountries = async () => {
+    try {
+      const countriesRes = await GetAllCountries();
+      return countriesRes.data;
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      return [];
+    }
+  };
+
+  const fetchProvinces = async (countryId: any) => {
+    try {
+      const provincesRes = await GetProvincebyCid(countryId);
+      return provincesRes.data;
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+      return [];
+    }
+  };
+
+  const fetchCities = async (provinceId: any) => {
+    try {
+      const citiesRes = await GetCitiesbyid(provinceId);
+      return citiesRes.data;
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    const fetchLocationData = async () => {
-      if (country) {
-        const countriesRes = await GetAllCountries();
-        setCountries(countriesRes.data);
+    const fetchData = async () => {
+      if (!country) return;
 
-        const foundCountry = findByNameOrId(countriesRes.data, country);
-        if (foundCountry) {
-          Serviceform.setFieldValue("countryId", foundCountry.id);
+      let shouldUpdateCountry = true;
 
-          try {
-            const provincesRes = await GetProvincebyCid(foundCountry.id);
-            setProvinces(provincesRes.data);
+      const countries = await fetchCountries();
+      setCountries(countries);
 
-            if (province) {
-              const foundProvince = findByNameOrId(provincesRes.data, province);
-              if (foundProvince) {
-                Serviceform.setFieldValue("provincyId", foundProvince.id);
+      const foundCountry = findByNameOrId(countries, country);
 
-                try {
-                  const citiesRes = await GetCitiesbyid(foundProvince.id);
-                  setCities(citiesRes.data);
+      if (foundCountry && foundCountry.id !== Serviceform.values.countryId) {
+        Serviceform.setFieldValue("countryId", foundCountry.id);
+        shouldUpdateCountry = false;
+      }
 
-                  if (city) {
-                    const foundCity = findByNameOrId(citiesRes.data, city);
-                    if (foundCity) {
-                      Serviceform.setFieldValue("cityId", foundCity.id);
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error fetching cities:", error);
-                }
-              }
-            }
-          } catch (error) {
-            console.error("Error fetching provinces:", error);
+      if (shouldUpdateCountry && foundCountry) {
+        let shouldUpdateProvince = true;
+
+        const provinces = await fetchProvinces(foundCountry.id);
+        setProvinces(provinces);
+
+        if (!province) return;
+
+        const foundProvince = findByNameOrId(provinces, province);
+
+        if (foundProvince && foundProvince.id !== Serviceform.values.provincyId) {
+          Serviceform.setFieldValue("provincyId", foundProvince.id);
+          shouldUpdateProvince = false;
+        }
+
+        if (shouldUpdateProvince && foundProvince) {
+          let shouldUpdateCity = true;
+
+          const cities = await fetchCities(foundProvince.id);
+          setCities(cities);
+
+          if (!city) return;
+
+          const foundCity = findByNameOrId(cities, city);
+
+          if (foundCity && foundCity.id !== Serviceform.values.cityId) {
+            Serviceform.setFieldValue("cityId", foundCity.id);
+            shouldUpdateCity = false;
           }
         }
       }
     };
 
-    fetchLocationData();
+    fetchData();
   }, [country, province, city]);
 
   const AddNewProvince = async () => {
@@ -175,11 +213,11 @@ const FormUseType = () => {
   const findByNameOrId = <T extends { id: number; name: string }>(items: T[], nameOrId?: string | number): T | undefined => {
     if (typeof nameOrId === 'string') {
       const searchTerm = nameOrId.toLowerCase().substring(0, 8);
-      return items.find(item =>
+      return items?.find(item =>
         item.name.toLowerCase().substring(0, 5) === searchTerm.substring(0, 5)
       );
     } else if (typeof nameOrId === 'number') {
-      return items.find(item => item.id === nameOrId);
+      return items?.find(item => item.id === nameOrId);
     }
   };
 
@@ -1015,7 +1053,6 @@ const FormUseType = () => {
               </div>
             </Fieldset>
           ) : null}
-
 
           <Fieldset legend="Cancelation Policy" className="md:col-12 lg:col-12 mb-3" toggleable>
             <div className="grid grid-cols-12">

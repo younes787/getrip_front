@@ -243,7 +243,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                       disabled={(service as Service)?.isPending}
                       severity="warning"
                       icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
-                      onClick={() => navigate(`/service-details/${DataType.Service.toLowerCase()}/${(service as Service).id}/${queryString}`)}
+                      onClick={() => navigate(`/check-out/${(service as Service).id}/${queryString}`)}
                     />
                   </div>
                 ): type === DataType.Flight ? (

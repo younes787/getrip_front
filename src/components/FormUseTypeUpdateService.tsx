@@ -111,48 +111,86 @@ const FormUseTypeUpdateService = () => {
     setCity(newCity);
   };
 
+  const fetchCountries = async () => {
+    try {
+      const countriesRes = await GetAllCountries();
+      return countriesRes.data;
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      return [];
+    }
+  };
+
+  const fetchProvinces = async (countryId: any) => {
+    try {
+      const provincesRes = await GetProvincebyCid(countryId);
+      return provincesRes.data;
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+      return [];
+    }
+  };
+
+  const fetchCities = async (provinceId: any) => {
+    try {
+      const citiesRes = await GetCitiesbyid(provinceId);
+      return citiesRes.data;
+    } catch (error) {
+      console.error("Error fetching cities:", error);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    const fetchLocationData = async () => {
-      if (country) {
-        const countriesRes = await GetAllCountries();
-        setCountries(countriesRes.data);
+    const fetchData = async () => {
+      if (!country) return;
 
-        const foundCountry = findByNameOrId(countriesRes.data, country);
-        if (foundCountry) {
-          Serviceform.setFieldValue("countryId", foundCountry.id);
+      let shouldUpdateCountry = true;
 
-          try {
-            const provincesRes = await GetProvincebyCid(foundCountry.id);
-            setProvinces(provincesRes.data);
+      const countries = await fetchCountries();
+      setCountries(countries);
 
-            if (province) {
-              const foundProvince = findByNameOrId(provincesRes.data, province);
-              if (foundProvince) {
-                Serviceform.setFieldValue("provincyId", foundProvince.id);
+      const foundCountry = findByNameOrId(countries, country);
 
-                try {
-                  const citiesRes = await GetCitiesbyid(foundProvince.id);
-                  setCities(citiesRes.data);
+      if (foundCountry && foundCountry.id !== Serviceform.values.countryId) {
+        Serviceform.setFieldValue("countryId", foundCountry.id);
+        shouldUpdateCountry = false;
+      }
 
-                  if (city) {
-                    const foundCity = findByNameOrId(citiesRes.data, city);
-                    if (foundCity) {
-                      Serviceform.setFieldValue("cityId", foundCity.id);
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error fetching cities:", error);
-                }
-              }
-            }
-          } catch (error) {
-            console.error("Error fetching provinces:", error);
+      if (shouldUpdateCountry && foundCountry) {
+        let shouldUpdateProvince = true;
+
+        const provinces = await fetchProvinces(foundCountry.id);
+        setProvinces(provinces);
+
+        if (!province) return;
+
+        const foundProvince = findByNameOrId(provinces, province);
+
+        if (foundProvince && foundProvince.id !== Serviceform.values.provincyId) {
+          Serviceform.setFieldValue("provincyId", foundProvince.id);
+          shouldUpdateProvince = false;
+        }
+
+        if (shouldUpdateProvince && foundProvince) {
+          let shouldUpdateCity = true;
+
+          const cities = await fetchCities(foundProvince.id);
+          setCities(cities);
+
+          if (!city) return;
+
+          const foundCity = findByNameOrId(cities, city);
+
+          if (foundCity && foundCity.id !== Serviceform.values.cityId) {
+            Serviceform.setFieldValue("cityId", foundCity.id);
+            shouldUpdateCity = false;
           }
         }
       }
     };
 
-    fetchLocationData();
+    fetchData();
   }, [country, province, city]);
 
   const AddNewProvince = async () => {
@@ -178,11 +216,11 @@ const FormUseTypeUpdateService = () => {
   const findByNameOrId = <T extends { id: number; name: string }>(items: T[], nameOrId?: string | number): T | undefined => {
     if (typeof nameOrId === 'string') {
       const searchTerm = nameOrId.toLowerCase().substring(0, 8);
-      return items.find(item =>
+      return items?.find(item =>
         item.name.toLowerCase().substring(0, 5) === searchTerm.substring(0, 5)
       );
     } else if (typeof nameOrId === 'number') {
-      return items.find(item => item.id === nameOrId);
+      return items?.find(item => item.id === nameOrId);
     }
   };
 
@@ -260,55 +298,6 @@ const FormUseTypeUpdateService = () => {
     },
   });
 
-  // const handleUpdateService = async () => {
-  //   try {
-  //     const formData = new FormData();
-
-  //     const appendToFormData = (key: any, value: any) => {
-  //       if (value !== undefined && value !== null) {
-  //         if (typeof value === 'object' && !(value instanceof File)) {
-  //           formData.append(key, JSON.stringify(value));
-  //         } else {
-  //           formData.append(key, value.toString());
-  //         }
-  //       }
-  //     };
-
-  //     Object.entries(Serviceform.values).forEach(([key, value]) => {
-  //       appendToFormData(key, value);
-  //     });
-
-  //     appendToFormData('Lat', Serviceform.values.address?.lat);
-  //     appendToFormData('Lng', Serviceform.values.address?.lng);
-  //     appendToFormData('AddressDescription', Serviceform.values.address?.description);
-  //     appendToFormData('AccountId', user?.data?.accountId);
-  //     appendToFormData('CurrencyId', user?.data?.currencyId);
-
-  //     const imagesArray = fileimg ? Object.values(fileimg) : [];
-  //     imagesArray.forEach((file: any, index) => {
-  //       formData.append(`Images.file`, file);
-  //     });
-
-  //     formData.append('Id', '0');
-  //     formData.append('Images.ObjectId', '0');
-
-  //     const addServiceResponse = await UpdateService(formData);
-  //     if (addServiceResponse.isSuccess) {
-  //         confirmDialog({
-  //           header: 'Success!',
-  //           message: 'Service added successfully.',
-  //           icon: 'pi pi-check-circle',
-  //           defaultFocus: 'accept',
-  //           content: (props) => (
-  //             <CustomConfirmDialogContent {...props} resetForm={Serviceform.resetForm} />
-  //           ),
-  //         });
-  //     }
-  //   } catch (error) {
-  //     console.error('Error adding service or fetching all services:', error);
-  //   }
-  // };
-
   useEffect(() => {
     if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
       Serviceform.setFieldValue('isRental', [8, 9, 12].includes(Serviceform.values.typeId.id));
@@ -328,6 +317,9 @@ const FormUseTypeUpdateService = () => {
         const serviceDetails = await GetServiceDetailsById(Number(serviceId));
         const { data } = serviceDetails;
         Serviceform.setValues(data);
+
+        console.log(data, 'data');
+
         setServiceInitialValues(data);
 
         GetServiceTypes().then( async (resType) => {
@@ -588,12 +580,10 @@ const FormUseTypeUpdateService = () => {
 
   const updateBaseInfo = () => {};
   const updateInputType = () => {};
-  const updateAddress = () => {};
   const updateTags = () => {};
   const updatePrice = () => {};
   const updateFacilities = () => {};
   const updateSteps = () => {};
-  const updateCancelationPolicy = () => {};
 
   return (
     <div className="container mx-auto form-user-type">
@@ -647,7 +637,7 @@ const FormUseTypeUpdateService = () => {
                       <Button className="ql-clean"></Button>
                     </span>
                   }
-                  value={Serviceform.values.description}
+                  value={Serviceform.values.description ?? ''}
                   autoFocus={focusedField === 'description'}
                   onInput={() => handleInputFocus('description')}
                   onTextChange={(e) => Serviceform.setFieldValue('description', e.textValue)}
@@ -678,63 +668,6 @@ const FormUseTypeUpdateService = () => {
                 {renderError(Serviceform.errors.images)}
               </div>
 
-              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
-                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Base Info" onClick={updateBaseInfo} />
-              </div>
-            </div>
-          </Fieldset>
-
-          <Fieldset legend="Input Type" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
-            {FeildsType && FeildsType.length > 0 ?
-              <div className="grid grid-cols-12">
-                {FeildsType?.map((f: any, index: number) => (
-                  <div key={f.name} className="md:col-6 lg:col-6">
-                    <label className="mb-2 block" htmlFor={f.name}>{f.name}</label>
-
-                    {f.fieldTypeName === 'Bool' && (
-                      <InputSwitch
-                        autoFocus={focusedField === f.name}
-                        onInput={() => handleInputFocus(f.name)}
-                        checked={Serviceform.values.fields?.[f.name]}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)} />
-                    )}
-                    {f.fieldTypeName === 'Number' && (
-                      <InputNumber
-                        autoFocus={focusedField === f.name}
-                        onInput={() => handleInputFocus(f.name)}
-                        value={Serviceform.values.fields?.[f.name]}
-                        onValueChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
-                        placeholder={f.name} />
-                    )}
-                    {f.fieldTypeName === 'Date' && (
-                      <Calendar
-                        autoFocus={focusedField === f.name}
-                        onInput={() => handleInputFocus(f.name)}
-                        value={Serviceform.values.fields?.[f.name]}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
-                        placeholder={f.name} />
-                    )}
-                    {f.fieldTypeName === 'Text' && (
-                      <InputText
-                        value={Serviceform.values.fields?.[f.name]}
-                        autoFocus={focusedField === f.name}
-                        onInput={() => handleInputFocus(f.name)}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.target.value)}
-                        placeholder={f.name} />
-                    )}
-                    {renderError(Serviceform.errors.fields)}
-                  </div>
-                ))}
-
-                <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
-                  <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Input Type" onClick={updateInputType} />
-                </div>
-              </div>
-              : <p className="text-center text-red-500 text-sm italic">No Data</p>}
-          </Fieldset>
-
-          <Fieldset legend="Address" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
-            <div className="grid grid-cols-12">
               <div className="md:col-12 lg:col-12">
                 <div>
                   <label className=" primary" htmlFor="">Country</label>
@@ -821,24 +754,94 @@ const FormUseTypeUpdateService = () => {
                 />
               </div>
 
-              {/* {Serviceform.values.typeId?.name !== "VIP transfers" &&
-                Serviceform.values.typeId?.name !== 'Transfers' &&
-                Serviceform.values.typeId?.name !== 'transfers' ? (
-                <>
-                  <Dialog header={"Add Residence"} visible={showResidence} className="md:w-40rem lg:w-40rem" onHide={() => setshowResidence(false)}>
-                    <Residence />
-                  </Dialog>
+              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
+                <InputSwitch
+                  className="mx-2"
+                  autoFocus={focusedField === `isRefundable`}
+                  onInput={() => handleInputFocus(`isRefundable`)}
+                  checked={Serviceform.values?.isRefundable}
+                  onChange={(e) => Serviceform.setFieldValue(`isRefundable`, e.value)}
+                />
+                <label htmlFor="Wallet" className="mx-2">Refundable</label>
+              </div>
 
-                  <Dialog header={"Add Vehicle"} visible={showVehicle} className="md:w-40rem lg:w-40rem" onHide={() => setshowVehicle(false)}>
-                    <Vehicle />
-                  </Dialog>
-                </>
-              ) : <></>} */}
+              <div className="md:col-12 lg:col-12">
+                 <label htmlFor="Refund Per Cent Amount" className="mx-2">Refund Per Cent Amount</label>
+                <InputNumber
+                  autoFocus={focusedField === 'refundPerCentAmount'}
+                  onInput={() => handleInputFocus('refundPerCentAmount')}
+                  value={Serviceform.values.refundPerCentAmount}
+                  className="w-full mt-1"
+                  onValueChange={(e) => Serviceform.setFieldValue(`refundPerCentAmount`, e.value)}
+                  placeholder={'Refund Per Cent Amount'}
+                />
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Allow Refund Days" className="mx-2">Allow Refund Days</label>
+                <InputNumber
+                  autoFocus={focusedField === 'allowRefundDays'}
+                  onInput={() => handleInputFocus('allowRefundDays')}
+                  value={Serviceform.values.allowRefundDays}
+                  className="w-full mt-1"
+                  onValueChange={(e) => Serviceform.setFieldValue(`allowRefundDays`, e.value)}
+                  placeholder={'Allow Refund Days'}
+                />
+              </div>
 
               <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
-                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Address" onClick={updateAddress} />
+                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Base Info" onClick={updateBaseInfo} />
               </div>
             </div>
+          </Fieldset>
+
+          <Fieldset legend="Input Type" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
+            {FeildsType && FeildsType.length > 0 ?
+              <div className="grid grid-cols-12">
+                {FeildsType?.map((f: any, index: number) => (
+                  <div key={f.name} className="md:col-6 lg:col-6">
+                    <label className="mb-2 block" htmlFor={f.name}>{f.name}</label>
+
+                    {f.fieldTypeName === 'Bool' && (
+                      <InputSwitch
+                        autoFocus={focusedField === f.name}
+                        onInput={() => handleInputFocus(f.name)}
+                        checked={Serviceform.values.fields?.[f.name]}
+                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)} />
+                    )}
+                    {f.fieldTypeName === 'Number' && (
+                      <InputNumber
+                        autoFocus={focusedField === f.name}
+                        onInput={() => handleInputFocus(f.name)}
+                        value={Serviceform.values.fields?.[f.name]}
+                        onValueChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
+                        placeholder={f.name} />
+                    )}
+                    {f.fieldTypeName === 'Date' && (
+                      <Calendar
+                        autoFocus={focusedField === f.name}
+                        onInput={() => handleInputFocus(f.name)}
+                        value={Serviceform.values.fields?.[f.name]}
+                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
+                        placeholder={f.name} />
+                    )}
+                    {f.fieldTypeName === 'Text' && (
+                      <InputText
+                        value={Serviceform.values.fields?.[f.name]}
+                        autoFocus={focusedField === f.name}
+                        onInput={() => handleInputFocus(f.name)}
+                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.target.value)}
+                        placeholder={f.name} />
+                    )}
+                    {renderError(Serviceform.errors.fields)}
+                  </div>
+                ))}
+
+                <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
+                  <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Input Type" onClick={updateInputType} />
+                </div>
+              </div>
+              : <p className="text-center text-red-500 text-sm italic">No Data</p>}
           </Fieldset>
 
           <Fieldset legend="Tags" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
@@ -1051,49 +1054,6 @@ const FormUseTypeUpdateService = () => {
               </div>
             </Fieldset>
           ) : null}
-
-          <Fieldset legend="Cancelation Policy" className="md:col-12 lg:col-12 mb-3" toggleable collapsed={true}>
-            <div className="grid grid-cols-12">
-              <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
-                <InputSwitch
-                  className="mx-2"
-                  autoFocus={focusedField === `isRefundable`}
-                  onInput={() => handleInputFocus(`isRefundable`)}
-                  checked={Serviceform.values?.isRefundable}
-                  onChange={(e) => Serviceform.setFieldValue(`isRefundable`, e.value)}
-                />
-                <label htmlFor="Wallet" className="mx-2">Refundable</label>
-              </div>
-
-              <div className="md:col-12 lg:col-12">
-                 <label htmlFor="Refund Per Cent Amount" className="mx-2">Refund Per Cent Amount</label>
-                <InputNumber
-                  autoFocus={focusedField === 'refundPerCentAmount'}
-                  onInput={() => handleInputFocus('refundPerCentAmount')}
-                  value={Serviceform.values.refundPerCentAmount}
-                  className="w-full mt-1"
-                  onValueChange={(e) => Serviceform.setFieldValue(`refundPerCentAmount`, e.value)}
-                  placeholder={'Refund Per Cent Amount'}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12">
-                <label htmlFor="Allow Refund Days" className="mx-2">Allow Refund Days</label>
-                <InputNumber
-                  autoFocus={focusedField === 'allowRefundDays'}
-                  onInput={() => handleInputFocus('allowRefundDays')}
-                  value={Serviceform.values.allowRefundDays}
-                  className="w-full mt-1"
-                  onValueChange={(e) => Serviceform.setFieldValue(`allowRefundDays`, e.value)}
-                  placeholder={'Allow Refund Days'}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
-                <Button rounded icon='pi pi-plus' type="submit" severity="danger" size="small" className="mt-2" label="Update Cancelation Policy" onClick={updateCancelationPolicy} />
-              </div>
-            </div>
-          </Fieldset>
         </div>
       </>}
 

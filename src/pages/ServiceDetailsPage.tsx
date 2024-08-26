@@ -1,42 +1,29 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { AddInstantOrder, AddRequest, GetAllCountries, GetAllProvinces, GetPendingServices, GetServiceDetailsById, GetServiceTypes } from "../Services";
+import { useNavigate, useParams } from "react-router-dom";
+import { GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
-import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
+import { LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHandPointUp, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt, faBaby } from "@fortawesome/free-solid-svg-icons";
+import { faHandPointUp, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt, faBaby, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
 import GoogleMap from "../components/GoogleMap";
 import { ProviderAuthenticationservice, ProviderServiceTourVisio } from "../Services/providerRequests";
-import { useFormik } from "formik";
 import { useAuth } from "../AuthContext/AuthContext";
-import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
 import { Chip } from "primereact/chip";
 import { fas } from "@fortawesome/free-solid-svg-icons";
-import { InputSwitch } from "primereact/inputswitch";
-import * as Yup from 'yup';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Service Name is required'),
-  lastName: Yup.string().required('Service Name is required'),
-  email: Yup.string().email('Invalid email format').required('Email is required'),
-  phone: Yup.string().matches(/^[0-9]+$/, "Phone number is not valid").min(10, 'Phone number must be at least 10 digits').required('Phone number is required'),
-});
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [serviceDetails, setServiceDetails] = useState<any>();
-  const [pendingServicesIds, setPendingServicesIds] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('Overview');
   const [showMapLocation, setShowMapLocation] = useState(false);
-  const [showBooking, setShowBooking] = useState(false);
   const [markerData, setMarkerData] = useState<{lat: any, lng: any, text: any}[]>([]);
-  const [isForDifferentPerson, setIsForDifferentPerson] = useState<boolean>(false);
   const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
   const { serviceType, serviceId, queryFilter, moreParams } = useParams<{ serviceType: DataType, serviceId: string, queryFilter: any, moreParams: any }>();
   const { user } = useAuth();
@@ -93,36 +80,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
 
   const [guests, setGuests] = useState<any>(parseQueryString(queryFilter).guests ?? 1);
   const [children, setChildren] = useState<any>(parseQueryString(queryFilter).children ?? 0);
-
-  const [formInitialValues, setFormInitialValues] = useState<AddRequestDTO>({
-    senderAccountId: user?.data?.accountId,
-    recieverAccountId: serviceDetails?.accountId,
-    requestDate: new Date(),
-    lastUpdateDate: new Date(),
-    subject: '',
-    notes: '',
-    name: user?.data?.name,
-    email: user?.data?.email,
-    lastName: user?.data?.lastName,
-    phone: user?.data?.phone,
-    isForDifferentPerson: false,
-    serviceId: serviceDetails?.id,
-    adultPassengers: guests,
-    childPassengers: children,
-    startDate: date[0],
-    endDate: date[1],
-    totalPrice: totalPrice
-  });
-
   const type = serviceType?.toUpperCase();
-
-  const findCountry = (countries: any[], countryId?: number) => {
-    return countries.find((country) => country.id === countryId);
-  };
-
-  const findProvince = (provinces: any[], provinceId?: number) => {
-    return provinces.find((province) => province.id === provinceId);
-  };
 
   useEffect(() => {
     setLoading(true);
@@ -133,8 +91,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
         GetAllProvinces(),
         GetServiceTypes(),
       ]).then(([serviceDetailsRes, countriesRes, provincesRes, serviceTypesRes]) => {
-
-        console.log(serviceDetailsRes, 'serviceDetailsRes');
 
         if(serviceDetailsRes.data.lat && serviceDetailsRes.data.lng) {
           setMarkerData([{
@@ -163,19 +119,22 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           location: `${serviceDetailsRes.data.countryName ?? 'No Country'}, ${serviceDetailsRes.data.provinceName ?? 'No Province'}, ${serviceDetailsRes.data.cityName ?? 'No City'}`,
           images: serviceDetailsRes.data.photos,
           overview: serviceDetailsRes.data.description,
-          facilities: serviceDetailsRes.data.serviceFacilities.flatMap((category: any, index: number) =>
-            category.facilities
-              // .filter((facility: any) => facility.isPrimary)
-              .map((facility: any) => {
-                return <div className="m-2">
-                          {index === 0 ? <p style={{ fontWeight: 'bold'}}> - <FontAwesomeIcon icon={fas[category?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} /> {category.categoryName}</p> : null}
-                          <span className="mx-4">
-                            <FontAwesomeIcon icon={fas[facility?.iconCode] ?? faHandPointUp} className="mr-2" style={{fontSize: '20px'}} />
-                            {facility.name}
-                          </span>
-                        </div>
-              })
-          ),
+          facilities: serviceDetailsRes.data.serviceFacilities.map((category: any, index: number) => (
+            <div key={index} className="mb-4">
+            <h3 className="font-bold mb-2">
+              <FontAwesomeIcon icon={fas[category?.iconCode] ?? faHandPointUp} className="mr-2" />
+              {category.categoryName}
+            </h3>
+            <div className="grid grid-cols-2 gap-2 mx-2">
+              {category.facilities.map((facility: any, facilityIndex: number) => (
+                <div key={facilityIndex} className="flex items-center mx-2">
+                  <FontAwesomeIcon icon={faCheck} className="mr-2 text-green-500" />
+                  {facility.name}
+                </div>
+              ))}
+            </div>
+          </div>
+          )),
           prices: serviceDetailsRes.data.price,
           reviews: '900',
           // address: `${findCountry(countriesRes.data, serviceDetailsRes.data.countryId)?.name ?? 'No Country'}, ${findProvince(provincesRes.data, serviceDetailsRes.data.provincyId)?.name ?? 'No Province'}`,
@@ -275,20 +234,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   }, []);
 
   useEffect(() => {
-    setFormInitialValues(prevValues => ({
-      ...prevValues,
-      adultPassengers: guests,
-      childPassengers: children,
-      startDate: date[0],
-      endDate: date[1],
-      senderAccountId: user?.data?.accountId,
-      recieverAccountId: serviceDetails?.accountId,
-      serviceId: serviceDetails?.id,
-      totalPrice: totalPrice
-    }));
-  }, [guests, children, totalPrice, queryFilter, date, user?.data?.accountId, serviceDetails?.accountId, serviceDetails?.id]);
-
-  useEffect(() => {
     const calculateDays = (start: Date, end: Date) => {
       const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
       const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
@@ -302,34 +247,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
       setDaysCount(calculateDays(date[0], date[1]));
     }
   }, [date]);
-
-  const AddRequestForm = useFormik<AddRequestDTO>({
-    initialValues: formInitialValues,
-    enableReinitialize: true,
-    validateOnChange: true,
-    validationSchema: isForDifferentPerson ? validationSchema : undefined,
-    onSubmit: async () => {
-      try {
-        AddRequestForm.values.senderAccountId =  user.data.accountId;
-        AddRequestForm.values.recieverAccountId =  serviceDetails.accountId;
-        AddRequestForm.values.requestDate =  new Date();
-        AddRequestForm.values.lastUpdateDate =  new Date();
-        AddRequestForm.values.subject =  '';
-        AddRequestForm.values.serviceId =  serviceDetails.id;
-
-        if(serviceDetails.isApprovalRequired) {
-          await AddRequest(AddRequestForm.values);
-        } else {
-          await AddInstantOrder(AddRequestForm.values);
-        }
-
-        AddRequestForm.resetForm();
-        setShowBooking(false);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-  });
 
   const RentalFacilities = () => {
     if (serviceDetails?.serviceType?.isRental || !facilities?.length) {
@@ -377,16 +294,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     return total;
   };
 
-  const renderError = (error: any) => {
-    if (typeof error === 'string') {
-      return <div className="text-red-500 mt-2">{error}</div>;
-    }
-    if (Array.isArray(error)) {
-      return error.map((err, index) => <div key={index} className="text-red-500 mt-2">{err}</div>);
-    }
-    return null;
-  };
-
   useEffect(() => {
     const totalPrice = calculateTotalPrice();
     setTotalPrice(totalPrice);
@@ -421,7 +328,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 label="Book Now"
                 disabled={serviceDetails?.isPending}
                 severity="warning"
-                onClick={() => user ? setShowBooking(true) : onCheckAuth() }
+                onClick={() => user ? navigate(`/check-out/${serviceDetails?.id}/${queryFilter}`) : onCheckAuth() }
               />
             </div>
           </header>
@@ -474,7 +381,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 {activeTab === 'Facilities' && (
                   <div className="tab-pane active">
                     <h2>Facilities</h2>
-                    <p>{serviceDetails?.facilities}</p>
+                    <div className="bg-white rounded-lg shadow">
+                      {serviceDetails?.facilities}
+                    </div>
                   </div>
                 )}
 
@@ -488,9 +397,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                 {activeTab === 'Cancelation Policy' && (
                   <div className="tab-pane active">
                     <h2>Cancelation Policy</h2>
-                    <p> Refundable: {serviceDetails?.cancelationRefundable ? <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i> : <i className="pi pi-times border-white border-1 p-2" style={{ fontSize: ".7rem", borderRadius: '50%' }} />}</p>
-                    <p> Refund Per Cent Amount: {serviceDetails?.cancelationRefundPerCentAmount ?? 0}</p>
-                    <p> Allow Refund Days: {serviceDetails?.cancelationAllowRefundDays ?? 0}</p>
+                    <p> Free cancellation: {serviceDetails?.cancelationRefundable ? <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i> : <i className="pi pi-times border-white border-1 p-2" style={{ fontSize: ".7rem", borderRadius: '50%' }} />}</p>
+                    <p>{serviceDetails?.cancelationRefundPerCentAmount ?? 0} % refund before 48 hours</p>
+                    <p> Full refund within {serviceDetails?.cancelationAllowRefundDays ?? 0} hours</p>
                   </div>
                 )}
 
@@ -620,7 +529,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                     severity="warning"
                     label="Book Now"
                     icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
-                    onClick={() => user ? setShowBooking(true) : onCheckAuth() }
+                    onClick={() => user ? navigate(`/check-out/${serviceDetails?.id}/${queryFilter}`) : onCheckAuth() }
                   />
                   {serviceDetails?.tags?.length > 0 && (
                     <div className="sidebar-tags mb-2">
@@ -680,156 +589,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
             markerData={markerData}
             onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
           />
-        </Dialog>
-
-        <Dialog
-          header="Book Now"
-          visible={showBooking}
-          style={
-            isMobile ?
-            {width: '100%', padding: '0', margin: '0', backgroundColor: 'transparent'} :
-            {maxWidth: '70%', padding: '0', margin: '0', backgroundColor: 'transparent'}
-          }
-          footer={
-            <div>
-              <Button label="Book" size="small" severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="mt-4"></Button>
-              <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowBooking(false)} className="mt-4"></Button>
-            </div>
-          }
-          onHide={() => setShowBooking(false)}
-        >
-          {type === DataType.Service ?
-            <div className="grid w-full grid grid-cols-12">
-              {/* <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
-                <InputSwitch
-                  className="mx-2"
-                  checked={AddRequestForm.values?.isForDifferentPerson}
-                  onChange={(e) => {
-                    AddRequestForm.setFieldValue(`isForDifferentPerson`, e.value);
-                    setIsForDifferentPerson(true);
-                  }}
-                />
-                <label htmlFor="Wallet mx-2">For Different Person</label>
-              </div> */}
-
-              {/* {AddRequestForm.values?.isForDifferentPerson && <> */}
-                <div className="md:col-12 lg:col-12 mt-2 col-12">
-                  <label htmlFor="Name">Name</label>
-                  <InputText
-                    placeholder="Name"
-                    name="name"
-                    className="w-full mt-1"
-                    value={AddRequestForm.values.name}
-                    onChange={(e) => AddRequestForm.setFieldValue("name", e.target.value)}
-                  />
-                   {renderError(AddRequestForm.errors.name)}
-                </div>
-
-                <div className="md:col-12 lg:col-12 mt-2 col-12">
-                  <label htmlFor="Last Name">Last Name</label>
-                  <InputText
-                    placeholder="Last Name"
-                    name="lastName"
-                    className="w-full mt-1"
-                    value={AddRequestForm.values.lastName}
-                    onChange={(e) => AddRequestForm.setFieldValue("lastName", e.target.value)}
-                  />
-                   {renderError(AddRequestForm.errors.lastName)}
-                </div>
-
-                <div className="md:col-12 lg:col-12 mt-2 col-12">
-                  <label htmlFor="Phone">Phone</label>
-                  <InputText
-                    placeholder="Phone"
-                    name="phone"
-                    className="w-full mt-1"
-                    value={AddRequestForm.values.phone}
-                    onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
-                  />
-                   {renderError(AddRequestForm.errors.phone)}
-                </div>
-
-                <div className="md:col-12 lg:col-12 mt-2 col-12">
-                  <label htmlFor="Email">Email</label>
-                  <InputText
-                    placeholder="Email"
-                    name="email"
-                    className="w-full mt-1"
-                    value={AddRequestForm.values.email}
-                    onChange={(e) => AddRequestForm.setFieldValue("email", e.target.value)}
-                  />
-                   {renderError(AddRequestForm.errors.email)}
-                </div>
-              {/* </>} */}
-
-              <div className="md:col-12 lg:col-12 mt-2 col-12">
-                <label htmlFor="Adult Passengers">Adult Passengers</label>
-                <InputNumber
-                  placeholder="Adult Passengers"
-                  name="adultPassengers"
-                  className="w-full mt-1"
-                  step={1}
-                  min={0}
-                  showButtons
-                  value={AddRequestForm.values.adultPassengers}
-                  onChange={(e) => {
-                    setGuests(e.value)
-                    AddRequestForm.setFieldValue("adultPassengers", e.value)
-                  }}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12 mt-2 col-12">
-                <label htmlFor="Child Passengers">Child Passengers</label>
-                <InputNumber
-                  placeholder="Child Passengers"
-                  name="childPassengers"
-                  className="w-full  mt-1"
-                  step={1}
-                  min={0}
-                  showButtons
-                  value={AddRequestForm.values.childPassengers}
-                  onChange={(e) => {
-                    setChildren(e.value)
-                    AddRequestForm.setFieldValue("childPassengers", e.value)
-                  }}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12 mt-2 col-12">
-                <label htmlFor="Start Date">Start Date</label>
-                <Calendar
-                  className='w-full  mt-1'
-                  placeholder='Start Date'
-                  value={AddRequestForm.values.startDate}
-                  onChange={(e) => AddRequestForm.setFieldValue("startDate", e.value)}
-                  minDate={today}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12 mt-2 col-12">
-                <label htmlFor="End Date">End Date</label>
-                <Calendar
-                  className='w-full  mt-1'
-                  placeholder='End Date'
-                  value={AddRequestForm.values.endDate}
-                  onChange={(e) => AddRequestForm.setFieldValue("endDate", e.value)}
-                  minDate={today}
-                />
-              </div>
-
-              <div className="md:col-12 lg:col-12 mt-2 col-12">
-                <label htmlFor="Note">Note</label>
-                <InputText
-                  placeholder="Add Note"
-                  name="note"
-                  className="w-full mt-1"
-                  value={AddRequestForm.values.notes}
-                  onChange={(e) => AddRequestForm.setFieldValue("notes", e.target.value)}
-                />
-              </div>
-            </div>
-          : <></>}
         </Dialog>
     </>}
   </>);

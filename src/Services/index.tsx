@@ -66,10 +66,10 @@ const createAxiosInstanceWithLoading = (contentType: string): AxiosInstance => {
 const api = createAxiosInstanceWithLoading("application/json");
 const apiForm = createAxiosInstanceWithLoading("multipart/form-data");
 
-const FetchWithLoading = async (request: Promise<any>) => {
+const FetchWithLoading = async (request: Promise<any>, requestType?: string) => {
   try {
     const response = await request;
-    return handleResponse(response);
+    return handleResponse(response, requestType);
   } catch (error) {
     handleError(error);
   }
@@ -80,31 +80,31 @@ export const Getlogged = async (email: string) => {
 };
 
 export const AuthRegister = async (registerData: any) => {
-  return FetchWithLoading(api.post("/register", registerData));
+  return FetchWithLoading(api.post("/register", registerData), 'Post');
 };
 
 export const AuthLogin = (loginData: any) => {
-  return FetchWithLoading(api.post("/loginuser", loginData));
+  return FetchWithLoading(api.post("/loginuser", loginData), 'Post');
 };
 
 export const ChangePassword = (passwordData: any) => {
-  return FetchWithLoading(api.post("/changepassword", passwordData));
+  return FetchWithLoading(api.post("/changepassword", passwordData), 'Post');
 };
 
 export const CreateUser = (userData: any) => {
-  return FetchWithLoading(api.post("/createuser", userData));
+  return FetchWithLoading(api.post("/createuser", userData), 'Post');
 };
 
 export const RegisterServiceProvider = (Data: any) => {
-  return FetchWithLoading(api.post("/registerserviceprovider", Data));
+  return FetchWithLoading(api.post("/registerserviceprovider", Data), 'Post');
 };
 
 export const UpdateUser = (userData: any) => {
-  return FetchWithLoading(api.put("/updateuser", userData));
+  return FetchWithLoading(api.put("/updateuser", userData), 'Post');
 };
 
 export const UpdateServiceProvider = (userData: any) => {
-  return FetchWithLoading(api.put("/updateserviceprovider", userData));
+  return FetchWithLoading(api.put("/updateserviceprovider", userData), 'Post');
 };
 
 export const DeleteUser = (email: any) => {
@@ -128,7 +128,7 @@ export const GetUsersInRole = async (role: string) => {
 };
 
 export const CreateServiceType = async (ServicesData: any) => {
-  return FetchWithLoading(api.post("/createservicetype", ServicesData));
+  return FetchWithLoading(api.post("/createservicetype", ServicesData), 'Post');
 };
 
 export const GetServiceTypes = async () => {
@@ -174,7 +174,7 @@ export const GetAssignedServiceTypeByAccountId = async (aid: number) => {
 };
 
 export const AssignServiceTypeListToAccount = async (ServiceData: any) => {
-  return FetchWithLoading(api.post(`/assignservicetypelisttoaccount`, ServiceData));
+  return FetchWithLoading(api.post(`/assignservicetypelisttoaccount`, ServiceData), 'Post');
 };
 
 export const AddService = async (ServiceData: any) => {
@@ -182,7 +182,7 @@ export const AddService = async (ServiceData: any) => {
 };
 
 export const UpdateService = async (ServicesData: any) => {
-  return FetchWithLoading(api.put("/updateservicetype", ServicesData));
+  return FetchWithLoading(api.put("/updateservicetype", ServicesData), 'Post');
 };
 
 export const AddImageToService = async (imageData:any) => {
@@ -190,15 +190,15 @@ export const AddImageToService = async (imageData:any) => {
 };
 
 export const CreateCountry = async (CountryData: any) => {
-  return FetchWithLoading(api.post("/createcountry", CountryData));
+  return FetchWithLoading(api.post("/createcountry", CountryData), 'Post');
 };
 
 export const CreatePricingType = async (PricingTypeData: any) => {
-  return FetchWithLoading(api.post("/createpricingtype", PricingTypeData));
+  return FetchWithLoading(api.post("/createpricingtype", PricingTypeData), 'Post');
 };
 
 export const UpdatePricingType = async (PricingTypeData: any) => {
-  return FetchWithLoading(api.put("/updatepricingtype", PricingTypeData));
+  return FetchWithLoading(api.put("/updatepricingtype", PricingTypeData), 'Post');
 };
 
 export const GetAllPricingTypes = async () => {
@@ -206,7 +206,7 @@ export const GetAllPricingTypes = async () => {
 };
 
 export const UpdateCountry = async (CountryData: any) => {
-  return FetchWithLoading(api.put("/updatecountry", CountryData));
+  return FetchWithLoading(api.put("/updatecountry", CountryData), 'Post');
 };
 
 export const GetAllCountries = async () => {
@@ -222,11 +222,11 @@ export const GetProvincebyCid = async (cid:number) => {
 };
 
 export const AddCity = async (CityData: any) => {
-  return FetchWithLoading(api.post("/addcity", CityData));
+  return FetchWithLoading(api.post("/addcity", CityData), 'Post');
 };
 
 export const UpdateCity = async (CountryData: any) => {
-  return FetchWithLoading(api.put("/updatecity", CountryData));
+  return FetchWithLoading(api.put("/updatecity", CountryData), 'Post');
 };
 
 export const GetCitiesbyid = async (pid: number) => {
@@ -238,11 +238,11 @@ export const GetAllCities = async () => {
 };
 
 export const AddProvince = async (ProvinceData: any) => {
-  return FetchWithLoading(api.post("/addprovince", ProvinceData));
+  return FetchWithLoading(api.post("/addprovince", ProvinceData), 'Post');
 };
 
 export const UpdateProvince = async (ProvinceData: any) => {
-  return FetchWithLoading(api.put("/updateprovince", ProvinceData));
+  return FetchWithLoading(api.put("/updateprovince", ProvinceData), 'Post');
 };
 
 export const GetProvincesbyid = async (cid: number) => {
@@ -254,11 +254,11 @@ export const GetAllProvinces = async () => {
 };
 
 export const AddPlace = async (PlaceData: any) => {
-  return FetchWithLoading(api.post("/addplace", PlaceData));
+  return FetchWithLoading(api.post("/addplace", PlaceData), 'Post');
 };
 
 export const UpdatePlace = async (PlaceData: any) => {
-  return FetchWithLoading(api.put("/updateplace", PlaceData));
+  return FetchWithLoading(api.put("/updateplace", PlaceData), 'Post');
 };
 
 export const GetPlacesbyid = async (cid: number) => {
@@ -270,11 +270,11 @@ export const GetAllPlaces = async () => {
 };
 
 export const AddActivity = async (ActivityData: any) => {
-  return FetchWithLoading(api.post("/addactivity", ActivityData));
+  return FetchWithLoading(api.post("/addactivity", ActivityData), 'Post');
 };
 
 export const UpdateActivity = async (ActivityData: any) => {
-  return FetchWithLoading(api.put("/updateactivity", ActivityData));
+  return FetchWithLoading(api.put("/updateactivity", ActivityData), 'Post');
 };
 
 export const GetActivitiesbyid = async (pid: number) => {
@@ -286,19 +286,19 @@ export const GetAllActivities = async () => {
 };
 
 export const AddAttributeToSt = async (AttributeData: any) => {
-  return FetchWithLoading(api.post("/addatributetost", AttributeData));
+  return FetchWithLoading(api.post("/addatributetost", AttributeData), 'Post');
 };
 
 export const AddAttributeToV = async (AttributeData: any) => {
-  return FetchWithLoading(api.post("/addatributetov", AttributeData));
+  return FetchWithLoading(api.post("/addatributetov", AttributeData), 'Post');
 };
 
 export const UpdateAttributeToSt = async (AttributeData: any) => {
-  return FetchWithLoading(api.put("/updateattributetost", AttributeData));
+  return FetchWithLoading(api.put("/updateattributetost", AttributeData), 'Post');
 };
 
 export const UpdateAttributeToV = async (AttributeData: any) => {
-  return FetchWithLoading(api.put("/updatteatributetov", AttributeData));
+  return FetchWithLoading(api.put("/updatteatributetov", AttributeData), 'Post');
 };
 
 export const Getattributesbysid = async (sid: number) => {
@@ -310,11 +310,11 @@ export const Getattributesbyvid = async (vid: number) => {
 };
 
 export const AddFeilds = async (FeildsData: any) => {
-  return FetchWithLoading(api.post("/addservicetypefield", FeildsData));
+  return FetchWithLoading(api.post("/addservicetypefield", FeildsData), 'Post');
 };
 
 export const UpdateFeilds = async (FeildsData: any) => {
-  return FetchWithLoading(api.put("/updateservicetypefield", FeildsData));
+  return FetchWithLoading(api.put("/updateservicetypefield", FeildsData), 'Post');
 };
 
 export const GetFeilds = async () => {
@@ -330,19 +330,19 @@ export const GetFeildType = async () => {
 };
 
 export const AddVehicle = async (VehicleData: any) => {
-  return FetchWithLoading(api.post("/addvehicle", VehicleData));
+  return FetchWithLoading(api.post("/addvehicle", VehicleData), 'Post');
 };
 
 export const AddVehicleType = async (VehicleData: any) => {
-  return FetchWithLoading(api.post("/addvehicletype", VehicleData));
+  return FetchWithLoading(api.post("/addvehicletype", VehicleData), 'Post');
 };
 
 export const UpdateVehicle = async (VehicleData: any) => {
-  return FetchWithLoading(api.put("/updatevehicle", VehicleData));
+  return FetchWithLoading(api.put("/updatevehicle", VehicleData), 'Post');
 };
 
 export const UpdateVehicleType = async (VehicleData: any) => {
-  return FetchWithLoading(api.put("/updatevehicletype", VehicleData));
+  return FetchWithLoading(api.put("/updatevehicletype", VehicleData), 'Post');
 };
 
 export const GetVehiclesbyid = async (mid: number) => {
@@ -362,11 +362,11 @@ export const GetAllVehiclesTypes = async () => {
 };
 
 export const AddMaker = async (MakerData: any) => {
-  return FetchWithLoading(api.post("/createmaker", MakerData));
+  return FetchWithLoading(api.post("/createmaker", MakerData), 'Post');
 };
 
 export const UpdateMaker = async (MakerData: any) => {
-  return FetchWithLoading(api.put("/updatemaker", MakerData));
+  return FetchWithLoading(api.put("/updatemaker", MakerData), 'Post');
 };
 
 export const GetAllMakers = async () => {
@@ -398,19 +398,19 @@ export const GetimagesByResidanceid = async (pid:any) => {
 };
 
 export const AddResidence = async (residenceData:any) => {
-  return FetchWithLoading(api.post(`/addresidence`, residenceData));
+  return FetchWithLoading(api.post(`/addresidence`, residenceData), 'Post');
 };
 
 export const AddResidenceType = async (residenceData:any) => {
-  return FetchWithLoading(api.post(`/addresidencetype`, residenceData));
+  return FetchWithLoading(api.post(`/addresidencetype`, residenceData), 'Post');
 };
 
 export const UpdateResidenceType = async (residenceData:any) => {
-  return FetchWithLoading(api.put(`/updateresidencetype`, residenceData));
+  return FetchWithLoading(api.put(`/updateresidencetype`, residenceData), 'Post');
 };
 
 export const UpdateResidence = async (residenceData:any) => {
-  return FetchWithLoading(api.put(`/updateresidence`, residenceData));
+  return FetchWithLoading(api.put(`/updateresidence`, residenceData), 'Post');
 };
 
 export const GetResidence = async () => {
@@ -426,7 +426,7 @@ export const GetResidencebyCottages = async (tid:number) => {
 };
 
 export const AddCurrency = async (CurrencyData: any) => {
-  return FetchWithLoading(api.post(`/createcurrency` , CurrencyData));
+  return FetchWithLoading(api.post(`/createcurrency` , CurrencyData), 'Post');
 };
 
 export const GetCurrency = async () => {
@@ -434,7 +434,7 @@ export const GetCurrency = async () => {
 };
 
 export const UpdateCurrency = async (CurrencyData:any) => {
-  return FetchWithLoading(api.put(`/updatecurrency`,CurrencyData));
+  return FetchWithLoading(api.put(`/updatecurrency`,CurrencyData), 'Post');
 };
 
 export const GetAllYachts = async () => {
@@ -462,19 +462,19 @@ export const GetAssignedFacilitiesByServiceId = async (sid: number) => {
 };
 
 export const AddFacilityCategory = async (FacilityData: any) => {
-  return FetchWithLoading(api.post(`/addfacilitycategory` , FacilityData));
+  return FetchWithLoading(api.post(`/addfacilitycategory` , FacilityData), 'Post');
 };
 
 export const UpdateFacilityCategory = async (FacilityData: any) => {
-  return FetchWithLoading(api.put(`/updatefacilitycategory`,FacilityData));
+  return FetchWithLoading(api.put(`/updatefacilitycategory`,FacilityData), 'Post');
 };
 
 export const AddFacility = async (FacilityData: any) => {
-  return FetchWithLoading(api.post(`/addfacility` , FacilityData));
+  return FetchWithLoading(api.post(`/addfacility` , FacilityData), 'Post');
 };
 
 export const UpdateFacility = async (FacilityData: any) => {
-  return FetchWithLoading(api.put(`/updatefacility`,FacilityData));
+  return FetchWithLoading(api.put(`/updatefacility`,FacilityData), 'Post');
 };
 
 export const GetAssignedFacilitiesByServiceTypeId = async (sid: number) => {
@@ -486,7 +486,7 @@ export const GetAssignedFacilitiesByServiceTypeIdWithCategory = async (stid: num
 };
 
 export const AssignFaciliesToServiceType = async (Data: any) => {
-  return FetchWithLoading(api.post(`/assignfaciliestoservicetype` , Data));
+  return FetchWithLoading(api.post(`/assignfaciliestoservicetype` , Data), 'Post');
 };
 
 export const GetPendingUsers = async () => {
@@ -506,23 +506,23 @@ export const GetNearByRestaurants = async (data: any) => {
 };
 
 export const GetRejectedServices = async () => {
-  return FetchWithLoading(api.get(`/getrejectedservices`));
+  return FetchWithLoading(api.get(`/getrejectedservices`), 'Post');
 };
 
 export const ApproveUser = async (spid: any) => {
-  return FetchWithLoading(api.post(`/approveuser/${spid}`));
+  return FetchWithLoading(api.post(`/approveuser/${spid}`), 'Post');
 };
 
 export const RejectUser = async (data: any) => {
-  return FetchWithLoading(api.post("/rejectuser", data));
+  return FetchWithLoading(api.post("/rejectuser", data), 'Post');
 };
 
 export const ApproveService = async (sid: any) => {
-  return FetchWithLoading(api.post(`/approveservice/${sid}`));
+  return FetchWithLoading(api.post(`/approveservice/${sid}`), 'Post');
 };
 
 export const DeleteService = async (sid: any) => {
-  return FetchWithLoading(api.delete(`/deleteservice/${sid}`));
+  return FetchWithLoading(api.delete(`/deleteservice/${sid}`), 'Post');
 };
 
 export const RejectService = async (data: any) => {
@@ -530,15 +530,15 @@ export const RejectService = async (data: any) => {
 };
 
 export const AddHomePageRow = async (data: any) => {
-  return FetchWithLoading(api.post("/addhomepagerow", data));
+  return FetchWithLoading(api.post("/addhomepagerow", data), 'Post');
 };
 
 export const UpdateHomePageRow = async (data: any) => {
-  return FetchWithLoading(api.put("/updatehomepagerow", data));
+  return FetchWithLoading(api.put("/updatehomepagerow", data), 'Post');
 };
 
 export const DeleteRow = async (id: any) => {
-  return FetchWithLoading(api.delete(`/deleterow/${id}`));
+  return FetchWithLoading(api.delete(`/deleterow/${id}`), 'Post');
 };
 
 export const AddImageTorRow = async (data: ImageToRowDTO) => {
@@ -554,27 +554,27 @@ export const GetHomePageRows = async (ProvinceId?: number, CityId?: number) => {
 };
 
 export const AddRequest = async (data: any) => {
-  return FetchWithLoading(api.post("/addrequest", data));
+  return FetchWithLoading(api.post("/addrequest", data), 'Post');
 };
 
 export const AddInstantOrder = async (data: any) => {
-  return FetchWithLoading(api.post("/addinstantorder", data));
+  return FetchWithLoading(api.post("/addinstantorder", data), 'Post');
 };
 
 export const ApproveRequest = async (rid: any) => {
-  return FetchWithLoading(api.post(`/approverequest/${rid}`));
+  return FetchWithLoading(api.post(`/approverequest/${rid}`), 'Post');
 };
 
 export const RejectRequest = async (data: any) => {
-  return FetchWithLoading(api.post("/rejectrequest", data));
+  return FetchWithLoading(api.post("/rejectrequest", data), 'Post');
 };
 
 export const UpdateRequest = async (data: any) => {
-  return FetchWithLoading(api.put("/updaterequest", data));
+  return FetchWithLoading(api.put("/updaterequest", data), 'Post');
 };
 
 export const DeleteRequest = async (rid: any) => {
-  return FetchWithLoading(api.delete(`/deleterequest/${rid}`));
+  return FetchWithLoading(api.delete(`/deleterequest/${rid}`), 'Post');
 };
 
 export const GetAllRequestsByServiceId = async (sid: any) => {

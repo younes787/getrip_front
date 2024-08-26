@@ -1,5 +1,4 @@
 import { Avatar } from "primereact/avatar";
-import AvatarImage from "../Assets/Ellipse.png";
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
 import { UsersClientDTO, UsersServiceProviderDTO } from "../modules/getrip.modules";
@@ -17,7 +16,7 @@ const validationSchema = Yup.object({
   name:     Yup.string().required('Name is required'),
   lastname: Yup.string().required('Lastname is required'),
   business: Yup.string().required('Business is required'),
-  password: Yup.string().required('Password is required'),
+  // password: Yup.string().required('Password is required'),
   email:    Yup.string().email('Invalid email format').required('Email is required'),
 });
 
@@ -44,11 +43,17 @@ const Profile = () => {
     initialValues: initialValues || {},
     enableReinitialize: true,
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       if(formik.values.role !== "Client") {
-        UpdateServiceProvider(formik.values);
+        const response = await UpdateServiceProvider(formik.values);
+        const accessToken = response?.data.token;
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem("user", JSON.stringify(response));
       } else {
-        UpdateUser(formik.values);
+        const response = await UpdateUser(formik.values);
+        const accessToken = response?.data.token;
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem("user", JSON.stringify(response));
       }
     },
   });

@@ -686,6 +686,9 @@ html body {
     padding-left: 10rem;
     padding-right: 10rem;
   }
+  .check-out-page {
+    padding: 2rem 15rem;
+  }
 }
 
 @media screen and (max-width: 1200px) {
@@ -700,12 +703,20 @@ html body {
     padding-left: 5rem;
     padding-right: 5rem;
   }
+
+  .check-out-page {
+    padding: 2rem 10rem;
+  }
 }
 
 @media screen and (max-width: 768px) {
   .search-and-filter, .form-user-type {
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+
+  .check-out-page {
+    padding: 1rem 2rem;
   }
   .get-rp {
     font-size: 2rem;
@@ -718,5 +729,9 @@ html body {
   .search-and-filter, .form-user-type {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  .check-out-page {
+    padding: 1rem;
   }
 }
