@@ -554,11 +554,11 @@ export const GetHomePageRows = async (ProvinceId?: number, CityId?: number) => {
 };
 
 export const AddRequest = async (data: any) => {
-  return FetchWithLoading(api.post("/addrequest", data), 'Post');
+  return FetchWithLoading(api.post("/addrequest", data));
 };
 
 export const AddInstantOrder = async (data: any) => {
-  return FetchWithLoading(api.post("/addinstantorder", data), 'Post');
+  return FetchWithLoading(api.post("/addinstantorder", data));
 };
 
 export const ApproveRequest = async (rid: any) => {

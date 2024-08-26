@@ -457,6 +457,7 @@ export class ServiceDTO{
   isRefundable: boolean = false;
   refundPerCentAmount: number = 0;
   allowRefundDays: number = 0;
+  ChildPercentage: number = 0;
 }
 
 export interface Service {
@@ -479,6 +480,7 @@ export interface Service {
   price: number;
   currencyId: number;
   isActive: boolean;
+  isApprovalRequired: boolean;
   isArchived: boolean;
   isApproved: boolean;
   ratingAverage: number;

@@ -106,6 +106,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           id: serviceDetailsRes.data.id,
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
+          childPercentage: serviceDetailsRes.data.childPercentage,
           tags: serviceDetailsRes.data.tags,
           isPending: serviceDetailsRes.data.isPending,
           cancelationRefundable: serviceDetailsRes.data.isRefundable,
@@ -278,19 +279,22 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const calculateTotalPrice = () => {
     if (!ingredient?.value) return 0;
 
-    let total;
+    const { value } = ingredient;
+    const countryTaxPercent = serviceDetails?.countryTaxPercent || 0;
+    const childDiscount = serviceDetails?.childPercentage ? 1 - (serviceDetails?.childPercentage / 100) : 0;
+
+    const childPricePerDay = parseFloat((value * childDiscount).toFixed(2));
+
+    let total = value * guests * daysCount;
+
     if (!ingredient.isTaxIncluded) {
-      total = (
-        (ingredient.value * guests * daysCount) +
-        (ingredient.value * (serviceDetails?.countryTaxPercent || 0) / 100) +
-        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
-      );
-    } else {
-      total = (
-        (ingredient.value * guests * daysCount) +
-        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
-      );
+      total += (value * countryTaxPercent / 100);
     }
+
+    if (children > 0) {
+      total += (childPricePerDay * children * daysCount);
+    }
+
     return total;
   };
 
@@ -300,7 +304,11 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   }, [ingredient, serviceDetails, guests, daysCount, children, setTotalPrice]);
 
   return (<>
-      { loading ? <LoadingComponent /> : <>
+      { loading ? <LoadingComponent /> : <div className="relative">
+        <div className="flex justify-content-start align-items-center m-2" style={isMobile ? {} : {position: 'absolute', top: '10px', left: '10px'}}>
+          <Button icon="pi pi-angle-left" className="p-2" label="Back" onClick={() =>  navigate(-1)} />
+        </div>
+
         <div className="service-details-container">
           <header
             className="service-details-header"
@@ -325,7 +333,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               <Button
                 style={{fontSize: '16px', padding: '5px 18px'}}
                 rounded
-                label="Book Now"
+                label={serviceDetails?.isApprovalRequired ? 'Request Now' : 'Book Now'}
                 disabled={serviceDetails?.isPending}
                 severity="warning"
                 onClick={() => user ? navigate(`/check-out/${serviceDetails?.id}/${queryFilter}`) : onCheckAuth() }
@@ -398,8 +406,8 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   <div className="tab-pane active">
                     <h2>Cancelation Policy</h2>
                     <p> Free cancellation: {serviceDetails?.cancelationRefundable ? <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i> : <i className="pi pi-times border-white border-1 p-2" style={{ fontSize: ".7rem", borderRadius: '50%' }} />}</p>
-                    <p>{serviceDetails?.cancelationRefundPerCentAmount ?? 0} % refund before 48 hours</p>
-                    <p> Full refund within {serviceDetails?.cancelationAllowRefundDays ?? 0} hours</p>
+                    <p>{serviceDetails?.cancelationRefundPerCentAmount ?? 0} % refund before {serviceDetails?.cancelationAllowRefundDays ?? 0} Days</p>
+                    <p> Full refund within {serviceDetails?.cancelationAllowRefundDays ?? 0} Days</p>
                   </div>
                 )}
 
@@ -527,7 +535,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                     rounded
                     disabled={serviceDetails?.isPending}
                     severity="warning"
-                    label="Book Now"
+                    label={serviceDetails?.isApprovalRequired ? 'Request Now' : 'Book Now'}
                     icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}
                     onClick={() => user ? navigate(`/check-out/${serviceDetails?.id}/${queryFilter}`) : onCheckAuth() }
                   />
@@ -590,7 +598,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
             onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
           />
         </Dialog>
-    </>}
+    </div>}
   </>);
 };
 

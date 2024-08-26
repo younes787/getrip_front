@@ -953,6 +953,18 @@ const FormUseType = () => {
                 <label htmlFor="Wallet mx-2">Approval Required</label>
               </div>
 
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Child price percentage" className="mx-2">Child price percentage</label>
+                <InputNumber
+                  autoFocus={focusedField === 'ChildPercentage'}
+                  onInput={() => handleInputFocus('ChildPercentage')}
+                  value={Serviceform.values.ChildPercentage}
+                  className="w-full mt-1"
+                  onValueChange={(e) => Serviceform.setFieldValue(`ChildPercentage`, e.value)}
+                  placeholder={'Child price percentage'}
+                />
+              </div>
+
             </div>
           </Fieldset>
 

@@ -93,6 +93,7 @@ export const mapServiceData = (data: any): Service[] => {
     placeId: item.placeId,
     accountId: item.accountId,
     price: item.price,
+    isApprovalRequired: item.isApprovalRequired,
     countryName: item.countryName,
     provinceName: item.provinceName,
     cityName: item.cityName,

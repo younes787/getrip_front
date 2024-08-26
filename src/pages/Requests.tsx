@@ -9,6 +9,8 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
+import { faCheck, faInfo, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Requests = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -142,29 +144,63 @@ const Requests = () => {
 
   const BodyTemplate = (rowData: any) => {
       return (
-        <div className="gap-3">
+        <div className="actions-cell flex">
           {rowData.status === "Pending, Waiting for Provider's Approval" && (role === 'Administrator' || role === 'Service Provider') &&
           <>
-            <i
+            <div
               onClick={() => ApproveRequest(rowData.id)}
-              className="pi pi-check"
-              style={{ color: 'green', border: '1px solid green', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            >Approve</i>
-            <i
+              style={{
+                width: 'max-content',
+                color: 'green',
+                border: '1px solid green',
+                fontSize: '14px',
+                borderRadius: '7px',
+                padding: '10px',
+                margin: '2px',
+                cursor: 'pointer'
+              }}
+            >
+              Approve
+              <FontAwesomeIcon icon={faCheck} className="mx-2"/>
+            </div>
+
+            <div
               onClick={() => handleRejectClick(rowData.id)}
-              className="pi pi-times"
-              style={{ color: 'red', border: '1px solid red', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            >Reject</i>
+              style={{
+                width: 'max-content',
+                color: 'red',
+                border: '1px solid red',
+                fontSize: '14px',
+                borderRadius: '7px',
+                padding: '10px',
+                margin: '2px',
+                cursor: 'pointer'
+              }}
+            >
+              Reject
+              <FontAwesomeIcon icon={faTimes} className="mx-2"/>
+            </div>
           </>
           }
-           <i
+           <div
               onClick={() => {
                 setShowRequestsDetails(true);
                 setDataRequestsDetails(rowData);
               }}
-              className="pi pi-info"
-              style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
-            >Details</i>
+              style={{
+                width: 'max-content',
+                color: 'orange',
+                border: '1px solid orange',
+                fontSize: '14px',
+                borderRadius: '7px',
+                padding: '10px',
+                margin: '2px',
+                cursor: 'pointer'
+              }}
+            >
+              Details
+              <FontAwesomeIcon icon={faInfo} className="mx-2"/>
+            </div>
         </div>
       );
   };

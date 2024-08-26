@@ -318,7 +318,7 @@ const FormUseTypeUpdateService = () => {
         const { data } = serviceDetails;
         Serviceform.setValues(data);
 
-        console.log(data, 'data');
+        console.log(data, 'data'); //!! not compleat !!
 
         setServiceInitialValues(data);
 

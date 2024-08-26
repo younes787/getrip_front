@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AddInstantOrder, AddRequest, GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceTypes } from "../Services";
-import { DataType } from "../enums";
+import { AddInstantOrder, AddRequest, GetServiceDetailsById, GetServiceTypes } from "../Services";
 import LoadingComponent from "../components/Loading";
-import { AddRequestDTO, LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
+import { AddRequestDTO, PriceValuesDTO } from "../modules/getrip.modules";
 import { useFormik } from "formik";
 import { useAuth } from "../AuthContext/AuthContext";
 import { InputText } from "primereact/inputtext";
@@ -12,8 +11,11 @@ import { Calendar } from "primereact/calendar";
 import * as Yup from 'yup';
 import { Button } from "primereact/button";
 import { RadioButton } from "primereact/radiobutton";
-import { fas, faHandPointUp, faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { fas, faHandPointUp, faMapLocationDot, faBell } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Message } from "primereact/message";
+import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
+import { LahzaTransactionInitialize, LahzaTransactionVerify } from "../Services/providerRequests";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -23,25 +25,21 @@ const validationSchema = Yup.object({
 });
 
 const CheckOut = () => {
+  const User = JSON.parse(localStorage?.getItem('user') as any)
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [serviceDetails, setServiceDetails] = useState<any>();
-  const [pendingServicesIds, setPendingServicesIds] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState('Overview');
-  const [showMapLocation, setShowMapLocation] = useState(false);
-  const [showBooking, setShowBooking] = useState(false);
-  const [markerData, setMarkerData] = useState<{lat: any, lng: any, text: any}[]>([]);
   const [isForDifferentPerson, setIsForDifferentPerson] = useState<boolean>(false);
-  const [selectedLocationFromMap, setSelectedLocationFromMap] = useState<LocationFromMap | null>(null);
-  const { serviceType, serviceId, queryFilter, moreParams } = useParams<{ serviceType: DataType, serviceId: string, queryFilter: any, moreParams: any }>();
+  const { serviceId, queryFilter } = useParams<{ serviceId: string, queryFilter: any }>();
   const { user } = useAuth();
   const today = new Date();
   const [ingredient, setIngredient] = useState<PriceValuesDTO>();
   const [date, setDate] = useState<any>([today, today]);
   const [daysCount, setDaysCount] = useState<any>(1);
-  const [facilities, setFacilities] = useState<any>();
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -152,19 +150,22 @@ const CheckOut = () => {
  const calculateTotalPrice = () => {
     if (!ingredient?.value) return 0;
 
-    let total;
+    const { value } = ingredient;
+    const countryTaxPercent = serviceDetails?.countryTaxPercent || 0;
+    const childDiscount = serviceDetails?.childPercentage ? 1 - (serviceDetails?.childPercentage / 100) : 0;
+
+    const childPricePerDay = parseFloat((value * childDiscount).toFixed(2));
+
+    let total = value * guests * daysCount;
+
     if (!ingredient.isTaxIncluded) {
-      total = (
-        (ingredient.value * guests * daysCount) +
-        (ingredient.value * (serviceDetails?.countryTaxPercent || 0) / 100) +
-        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
-      );
-    } else {
-      total = (
-        (ingredient.value * guests * daysCount) +
-        (children > 0 ? ((ingredient.value / 2) * children * daysCount) : 0)
-      );
+      total += (value * countryTaxPercent / 100);
     }
+
+    if (children > 0) {
+      total += (childPricePerDay * children * daysCount);
+    }
+
     return total;
   };
 
@@ -213,6 +214,8 @@ const CheckOut = () => {
     validateOnChange: true,
     validationSchema: isForDifferentPerson ? validationSchema : undefined,
     onSubmit: async () => {
+      setIsLoading(true);
+
       try {
         AddRequestForm.values.senderAccountId =  user.data.accountId;
         AddRequestForm.values.recieverAccountId =  serviceDetails.accountId;
@@ -222,18 +225,116 @@ const CheckOut = () => {
         AddRequestForm.values.serviceId =  serviceDetails.id;
 
         if(serviceDetails.isApprovalRequired) {
-          await AddRequest(AddRequestForm.values);
+          const AddRequestResponse = await AddRequest(AddRequestForm.values);
+          if (AddRequestResponse.isSuccess) {
+            setShowConfirmDialog(true);
+
+              confirmDialog({
+                header: 'Success!',
+                message: 'Admin approval pending for this request..',
+                icon: 'pi pi-check-circle',
+                defaultFocus: 'accept',
+                content: (props) => (
+                  <CustomConfirmDialogContent {...props} resetForm={AddRequestForm.resetForm} />
+                ),
+              });
+          }
         } else {
-          await AddInstantOrder(AddRequestForm.values);
+          const AddInstantOrderResponse = await AddInstantOrder(AddRequestForm.values);
+          if (AddInstantOrderResponse.isSuccess) {
+            setLoading(true);
+            LahzaTransactionInitialize({
+              email: User?.data?.email,
+              mobile: User?.data?.phone ?? '',
+              firstName: User?.data?.name,
+              lastName: User?.data?.lastname,
+              amount: String(AddInstantOrderResponse.data.amount || '0'),
+              currency: 'USD',
+              channels: ['card', 'bank'],
+              metadata: {
+                "custom_fields":[
+                  {
+                    "display_name": "Project Name",
+                    "variable_name": "Project Name",
+                    "value": "GeTrip"
+                  },
+                  {
+                    "display_name":"OrderId",
+                    "variable_name":"OrderId",
+                    "value": AddInstantOrderResponse.data.id
+                  },
+                  {
+                    "display_name":"UserID",
+                    "variable_name":"UserID",
+                    "value": User?.data?.id
+                  },
+              ]}
+            })
+            .then((res) => {
+              if (res['status']) {
+                const { authorization_url, reference } = res.data;
+                openPaymentWindow(authorization_url, reference);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            }).finally(() => {
+              setLoading(false);
+            });
+          }
         }
 
         AddRequestForm.resetForm();
-        setShowBooking(false);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     },
   });
+
+  const openPaymentWindow = (url: string, reference: string) => {
+    const popup = window.open(url, '_blank');
+    if (popup) {
+      popup.focus();
+      const timer = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(timer);
+          checkPaymentStatus(reference);
+        }
+      }, 1000);
+    } else {
+      console.error('Popup blocked. Please allow popups and try again.');
+    }
+  };
+
+  const checkPaymentStatus = (reference: string) => {
+    LahzaTransactionVerify(reference)
+      .then((res) => {
+        console.log(res.data, 'Payment completed');
+      })
+      .catch((error) => {
+        console.error(error, 'Error verifying payment');
+      })
+      .finally(() => {
+        navigate('/search-and-filter')
+      });
+  };
+
+  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate, resetForm }: any) => {
+    return (
+      <div className="flex flex-column align-items-center p-5 surface-overlay border-round custom-widht">
+        <div className="border-circle bg-green-500 text-white inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
+          <i className="pi pi-check-circle text-5xl"></i>
+        </div>
+        <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
+        <p className="mb-0">{message.message}</p>
+        <div className="grid align-items-center gap-3 mt-4" >
+          <Button label="Go Services Page" outlined onClick={(event) => { hide(event); navigate('/search-and-filter') }} className="w-full text-green border-green-500 text-green-500"></Button>
+        </div>
+      </div>
+    );
+  };
 
   const renderError = (error: any) => {
     if (typeof error === 'string') {
@@ -248,6 +349,12 @@ const CheckOut = () => {
   return(
     loading ? <LoadingComponent /> :
     <div className="container check-out-page">
+      {showConfirmDialog ?
+        <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
+          <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={AddRequestForm.resetForm} />
+        )}/>
+      : null}
+
       <div className="grid grid grid-cols-12">
         <div className="service-details-info md:col-12 lg:col-12 mt-2 col-12">
           <h1>{serviceDetails?.name}</h1>
@@ -415,8 +522,45 @@ const CheckOut = () => {
           />
         </div>
 
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <Button label="Book" size="small" severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="mt-4"></Button>
+        {serviceDetails?.isApprovalRequired &&
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <Message
+              style={{
+                  border: 'solid #f1881f',
+                  borderWidth: '0 0 0 6px',
+                  color: '#f1881f'
+              }}
+              className="w-full justify-content-start"
+              severity="warn"
+              content={
+                <div className="flex align-items-center">
+                    <FontAwesomeIcon icon={faBell} />
+                    <div className="ml-2">Please Note: Your Request will be sent to the admin for approval before processing.</div>
+                </div>
+              }
+            />
+          </div>
+        }
+
+        <div className="flex justify-content-end align-items-center mt-4" style={{width: '100%'}}>
+          <Button label="Cancel" size="small" severity="danger" outlined onClick={() =>  navigate(-1)} className="m-1"></Button>
+          <Button
+            size="small"
+            severity="warning"
+            outlined
+            onClick={() => AddRequestForm.handleSubmit()}
+            className="m-1"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+                <span>
+                  <i className="pi pi-spin pi-spinner"></i>
+                  {'  '}
+                  Loading...
+                </span>
+              ) : serviceDetails?.isApprovalRequired ? 'Request Now' : 'Book Now'
+            }
+          </Button>
         </div>
       </div>
     </div>

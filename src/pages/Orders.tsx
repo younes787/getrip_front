@@ -11,6 +11,8 @@ import { Button } from "primereact/button";
 import { useFormik } from "formik";
 import { InitializePopupDTO } from "../modules/getrip.modules";
 import { LahzaTransactionInitialize, LahzaTransactionVerify } from "../Services/providerRequests";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faInfo } from "@fortawesome/free-solid-svg-icons";
 
 const Orders = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -26,6 +28,7 @@ const Orders = () => {
   const [dataOrdersDetails, setDataOrdersDetails] = useState<any>();
   const [showPaid, setShowPaid] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     status: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -65,6 +68,8 @@ const Orders = () => {
     },
     validateOnChange: true,
     onSubmit: () => {
+      setIsLoading(true);
+
       InitializePopupForm.values.amount = String(orders?.find((order: any) => order.id === orderId)?.amount || '0');
       InitializePopupForm.values.currency = 'USD';
       InitializePopupForm.values.channels = ['card', 'bank'];
@@ -100,6 +105,7 @@ const Orders = () => {
         setShowPaid(false);
       }).finally(() => {
         setOrderId(null)
+        setIsLoading(false);
         setShowPaid(false);
       });
     },
@@ -189,23 +195,44 @@ const Orders = () => {
       return (
         <div className="actions-cell">
           {!rowData.isCanceled && !rowData.isPayed &&
-          <i
+          <div
             onClick={() => {
               setOrderId(rowData.id)
               setShowPaid(true)
             }}
-            className="pi pi-check"
-            style={{color: 'green',border: '1px solid green',fontSize: '14px',borderRadius: '10px',padding: '5px',margin: '2px',cursor: 'pointer'}}
-          >Pay</i>
+            style={{
+              color: 'green',
+              border: '1px solid green',
+              fontSize: '14px',
+              borderRadius: '7px',
+              padding: '10px',
+              margin: '2px',
+              cursor: 'pointer'
+            }}
+          >
+            Pay
+            <FontAwesomeIcon icon={faCheck} className="mx-2"/>
+          </div>
           }
-          <i
+
+          <div
             onClick={() => {
               setShowOrdersDetails(true);
               setDataOrdersDetails(rowData);
             }}
-            className="pi pi-info"
-            style={{ color: 'orange', border: '1px solid orange', fontSize: '14px', borderRadius: '10px', padding: '5px', margin: '2px', cursor: 'pointer'}}
-          >Details</i>
+            style={{
+              color: 'orange',
+              border: '1px solid orange',
+              fontSize: '14px',
+              borderRadius: '7px',
+              padding: '10px',
+              margin: '2px',
+              cursor: 'pointer'
+            }}
+          >
+            Details
+            <FontAwesomeIcon icon={faInfo} className="mx-2"/>
+          </div>
         </div>
       );
   };
@@ -277,11 +304,35 @@ const Orders = () => {
         visible={showPaid}
         style={{maxWidth: '50%', padding: '0', margin: '0', backgroundColor: 'transparent'}}
         footer={<div>
-          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => {
-            setOrderId(null)
-            setShowPaid(false)
-            }} className="mt-4"></Button>
-          <Button label="Pay" severity="success" outlined size="small" onClick={() => InitializePopupForm.submitForm()} className="mt-4"></Button>
+          <Button
+            label="Cancel"
+            severity="danger"
+            outlined
+            size="small"
+            onClick={() => {
+              setOrderId(null)
+              setShowPaid(false)
+            }}
+            className="mt-4"
+          ></Button>
+
+          <Button
+            disabled={isLoading}
+            severity="success"
+            outlined
+            size="small"
+            onClick={() => InitializePopupForm.submitForm()}
+            className="mt-4"
+          >
+            {isLoading ? (
+                <span>
+                  <i className="pi pi-spin pi-spinner"></i>
+                  {'  '}
+                  Loading...
+                </span>
+              ) : 'Pay'
+            }
+          </Button>
         </div>}
         onHide={() => {
           setOrderId(null)

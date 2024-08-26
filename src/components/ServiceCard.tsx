@@ -239,7 +239,7 @@ const ServiceCard : React.FC<ServiceCardProps> = ({ ServiceCardStyle, service, t
                     <Button
                       className='ml-2'
                       rounded
-                      label='Book Now'
+                      label={(service as Service)?.isApprovalRequired ? 'Request Now' : 'Book Now'}
                       disabled={(service as Service)?.isPending}
                       severity="warning"
                       icon={ <FontAwesomeIcon className="mr-2" icon={faBook} size={"sm"} />}

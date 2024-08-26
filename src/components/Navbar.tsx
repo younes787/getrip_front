@@ -982,7 +982,7 @@ const NavBar = ({navState}: any) => {
         header={header}
         visible={showsignPartner}
         className="card-container"
-        style={{ width: "50vw" }}
+        style={isMobile ? { width: "100vw" } : { width: "50vw" }}
         onHide={() => setShowSignPartner(false)}
       >
         <h4 className="primary flex justify-content-center">Join to become Our partner</h4>
