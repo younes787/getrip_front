@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
-import { AddTicketOffer, GetAllFlightRequests, GetAllUsers, GetCurrency, GetFlightsRequestsByClientId, GetTicketOffersByrRequestId } from "../Services";
+import { AddTicketOffer, GetAllFlightRequests, GetAllUsers, GetAssignedServiceTypeByAccountId, GetCurrency, GetFlightsRequestsByClientId, GetServiceTypes, GetTicketOffersByrRequestId } from "../Services";
 import { InputText } from "primereact/inputtext";
 import LoadingComponent from "../components/Loading";
 import { DataTable } from "primereact/datatable";
@@ -26,6 +26,7 @@ const FlightRequests = () => {
   const [ticketOffers, setTicketOffers] = useState<any[]>([]);
   const [isOfferLoading, setIsOfferLoading] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isFlightService, setIsFlightService] = useState<boolean>(false);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
@@ -113,7 +114,28 @@ const FlightRequests = () => {
     GetAllUsers().then((res) => setAllUsers(res.data));
     GetCurrency().then((res) => setCurrencies(res.data));
     fetchData();
-  }, [user.data.accountId]);
+  }, [User?.data?.accountId]);
+
+  useEffect(() => {
+    const checkFlightService = async () => {
+      const isFlightService = await checkIsFlightService(User?.data?.accountId);
+      setIsFlightService(isFlightService);
+    };
+
+    checkFlightService();
+  }, [User?.data?.accountId]);
+
+  async function checkIsFlightService(accountId: any): Promise<boolean> {
+    if (!accountId) return false;
+
+    try {
+      const services = await GetAssignedServiceTypeByAccountId(accountId);
+      return services.data.some((service: any) => service.isFlightService);
+    } catch (error) {
+      console.error('Error checking flight service:', error);
+      return false;
+    }
+  }
 
   const formatDate = (date: any) => {
     const d = new Date(date);
@@ -122,12 +144,10 @@ const FlightRequests = () => {
     return `${d.getFullYear()}-${month}-${day}`;
   };
 
-  console.log(role);
-
   const BodyTemplate = (rowData: any) => {
       return (
         <div className="actions-cell" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          {role !== 'Client' &&
+          {role !== 'Client' && isFlightService &&
             <div
               onClick={() => {
                 setRequestId(rowData.id)
