@@ -1,4 +1,4 @@
-import { Bounce, toast } from "react-toastify";
+import { Bounce, Slide, toast } from "react-toastify";
 
 export const handleResponse = (response: any, requestType?: string) => {
   if (response === undefined) {
@@ -21,7 +21,15 @@ export const handleResponse = (response: any, requestType?: string) => {
 };
 
 export const handleError = (error: any) => {
-  toast(error?.response?.data?.title ?? error?.response?.data.message, {
+  let errorMessage = 'An error occurred';
+
+  if (error?.response?.data) {
+    errorMessage = error.response.data.title || error.response.data.message || errorMessage;
+  } else if (error?.message) {
+    errorMessage = error.message;
+  }
+
+  toast(errorMessage, {
     position: "top-right",
     autoClose: 5000,
     hideProgressBar: false,
