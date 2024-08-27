@@ -593,8 +593,6 @@ const FormUseTypeUpdateService = () => {
     // UpdateSteps(StepsData: any)
   };
 
-  console.log(serviceInitialValues, 'serviceInitialValues');
-
   return (
     <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>

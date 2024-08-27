@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
-import { AddTicketOffer, GetAllFlightRequests, GetAllUsers, GetAssignedServiceTypeByAccountId, GetCurrency, GetFlightsRequestsByClientId, GetServiceTypes, GetTicketOffersByrRequestId } from "../Services";
+import { AddTicketOffer, GetAllFlightRequests, GetAllUsers, GetAssignedServiceTypeByAccountId, GetCurrency, GetFlightsRequestsByClientId, GetTicketOffersByrRequestId } from "../Services";
 import { InputText } from "primereact/inputtext";
 import LoadingComponent from "../components/Loading";
 import { DataTable } from "primereact/datatable";
@@ -73,7 +73,7 @@ const FlightRequests = () => {
 
       AddTicketOffer(AddTicketOfferPopupForm.values)
       .then((res) => {
-        console.log(res, 'res');
+        // console.log(res, 'res');
       })
       .catch((error) => {
         console.error(error);

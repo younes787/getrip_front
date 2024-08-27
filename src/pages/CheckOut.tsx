@@ -311,7 +311,7 @@ const CheckOut = () => {
   const checkPaymentStatus = (reference: string) => {
     LahzaTransactionVerify(reference)
       .then((res) => {
-        console.log(res.data, 'Payment completed');
+        // console.log(res.data, 'Payment completed');
       })
       .catch((error) => {
         console.error(error, 'Error verifying payment');

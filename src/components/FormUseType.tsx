@@ -103,9 +103,39 @@ const FormUseType = () => {
     }
 
     setSelectedLocation(location);
-    setCountry(newCountry);
-    setProvince(newProvince);
-    setCity(newCity);
+
+    fetchCountries().then((countryRes) => {
+      setCountries(countryRes);
+
+      if(countryRes) {
+        const foundCountry = findByNameOrId(countryRes, newCountry);
+        if (foundCountry && foundCountry.id !== Serviceform.values.countryId) {
+          Serviceform.setFieldValue("countryId", foundCountry.id);
+        }
+
+        if(foundCountry) {
+          fetchProvinces(foundCountry.id).then((provinceRes) => {
+            setProvinces(provinceRes);
+            setProvince(newProvince);
+            const foundProvince = findByNameOrId(provinceRes, newProvince ?? '');
+            if (foundProvince && foundProvince.id !== Serviceform.values.provincyId) {
+              Serviceform.setFieldValue("provincyId", foundProvince.id);
+
+              fetchCities(foundProvince.id).then((cityRes) => {
+                setCities(cityRes);
+                setCity(newCity);
+                if(cityRes) {
+                  const foundCity = findByNameOrId(cityRes, newCity ?? '');
+                  if (foundCity  && foundCity.id !== Serviceform.values.cityId) {
+                    Serviceform.setFieldValue("cityId", foundCity.id);
+                  }
+                }
+              });
+            }
+          });
+        }
+      }
+    });
   };
 
   const fetchCountries = async () => {
@@ -137,58 +167,6 @@ const FormUseType = () => {
       return [];
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!country) return;
-
-      let shouldUpdateCountry = true;
-
-      const countries = await fetchCountries();
-      setCountries(countries);
-
-      const foundCountry = findByNameOrId(countries, country);
-
-      if (foundCountry && foundCountry.id !== Serviceform.values.countryId) {
-        Serviceform.setFieldValue("countryId", foundCountry.id);
-        shouldUpdateCountry = false;
-      }
-
-      if (shouldUpdateCountry && foundCountry) {
-        let shouldUpdateProvince = true;
-
-        const provinces = await fetchProvinces(foundCountry.id);
-        setProvinces(provinces);
-
-        if (!province) return;
-
-        const foundProvince = findByNameOrId(provinces, province);
-
-        if (foundProvince && foundProvince.id !== Serviceform.values.provincyId) {
-          Serviceform.setFieldValue("provincyId", foundProvince.id);
-          shouldUpdateProvince = false;
-        }
-
-        if (shouldUpdateProvince && foundProvince) {
-          let shouldUpdateCity = true;
-
-          const cities = await fetchCities(foundProvince.id);
-          setCities(cities);
-
-          if (!city) return;
-
-          const foundCity = findByNameOrId(cities, city);
-
-          if (foundCity && foundCity.id !== Serviceform.values.cityId) {
-            Serviceform.setFieldValue("cityId", foundCity.id);
-            shouldUpdateCity = false;
-          }
-        }
-      }
-    };
-
-    fetchData();
-  }, [country, province, city]);
 
   const AddNewProvince = async () => {
     try {
