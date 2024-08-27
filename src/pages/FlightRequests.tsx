@@ -250,6 +250,8 @@ const FlightRequests = () => {
       )}
 
       <Sidebar visible={visibleOffer} onHide={() => setVisibleOffer(false)}>
+        <h2>Offers</h2>
+
         {isOfferLoading ? (
           <span>
             <i className="pi pi-spin pi-spinner"></i>
