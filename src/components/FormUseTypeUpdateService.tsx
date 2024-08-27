@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useFormik } from 'formik';
 import { InputText } from 'primereact/inputtext';
-import * as Yup from 'yup';
 import { Button } from "primereact/button";
-import { AddService, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes, UpdateService } from "../Services";
+import { GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes, UpdateService, UpdateTagsList, UpdateFacility } from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
-import { FildsDTO, ServiceDTO, ServiceFacilitiesDTO, Address, TagsDTO, StepsDTO } from "../modules/getrip.modules";
+import { ServiceDTO, Address, StepsDTO } from "../modules/getrip.modules";
 import { InputNumber } from "primereact/inputnumber";
 import { Calendar } from "primereact/calendar";
 import { useAuth } from "../AuthContext/AuthContext";
@@ -17,7 +15,7 @@ import { Fieldset } from "primereact/fieldset";
 import { Tag } from "primereact/tag";
 import { Image } from 'primereact/image';
 import LoadingComponent from "./Loading";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import GoogleMap from "./GoogleMap";
 import { Editor } from "primereact/editor";
 import { Timeline } from "primereact/timeline";
@@ -25,28 +23,6 @@ import { ProgressBar } from "primereact/progressbar";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Card } from "primereact/card";
 import { DataType } from "../enums";
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Service Name is required'),
-  description: Yup.string().required('Service Description is required'),
-  // files: Yup.mixed().required('Service Image is required'),
-  // price: Yup.number().required('Service Price is required').positive('Price must be a positive number'),
-  cityId: Yup.number().required('City is required'),
-  // placeId: Yup.number().required('Place is required'),
-  // newPLaceName: Yup.string(),
-  // fields: Yup.object().shape({
-  //   someFieldName: Yup.string().required('This field is required')
-  // }),
-  // images: Yup.object().shape({
-  //   files: Yup.string().required('This Image is required')
-  // }),
-  // tags: Yup.array().of(
-  //   Yup.object().shape({
-  //     name: Yup.string().required('Tag name is required')
-  //   })
-  // ),
-  currencyId: Yup.number().required('Currency is required'),
-});
 
 const FormUseTypeUpdateService = () => {
   const [fileimg, setFileimg] = useState<any>();
@@ -63,7 +39,7 @@ const FormUseTypeUpdateService = () => {
   const [showPlace, setshowPlace] = useState<boolean>(false);
   const [showVehicle, setshowVehicle] = useState<boolean>(false);
   const [otherPlace, setOtherPlace] = useState<any>();
-  const [tags, setTags] = useState([{ name: '' }]);
+  const [tags, setTags] = useState([{ id:0, name: '' }]);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [focusedField, setFocusedField] = useState('');
@@ -85,7 +61,7 @@ const FormUseTypeUpdateService = () => {
   const [province, setProvince] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
   const { serviceType, serviceId } = useParams<{ serviceType: DataType, serviceId: string }>();
-  const [serviceInitialValues, setServiceInitialValues] = useState<ServiceDTO>();
+  const [serviceInitialValues, setServiceInitialValues] = useState<ServiceDTO>(new ServiceDTO());
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: any }) => {
     const results = location.address;
@@ -152,8 +128,12 @@ const FormUseTypeUpdateService = () => {
 
       const foundCountry = findByNameOrId(countries, country);
 
-      if (foundCountry && foundCountry.id !== Serviceform.values.countryId) {
-        Serviceform.setFieldValue("countryId", foundCountry.id);
+      if (foundCountry && foundCountry.id !== serviceInitialValues?.countryId) {
+        setServiceInitialValues(prevState => ({
+          ...prevState,
+          countryId: foundCountry.id
+        }));
+
         shouldUpdateCountry = false;
       }
 
@@ -167,8 +147,12 @@ const FormUseTypeUpdateService = () => {
 
         const foundProvince = findByNameOrId(provinces, province);
 
-        if (foundProvince && foundProvince.id !== Serviceform.values.provincyId) {
-          Serviceform.setFieldValue("provincyId", foundProvince.id);
+        if (foundProvince && foundProvince.id !== serviceInitialValues?.provincyId) {
+          setServiceInitialValues(prevState => ({
+            ...prevState,
+            provincyId: foundProvince.id
+          }));
+
           shouldUpdateProvince = false;
         }
 
@@ -182,8 +166,12 @@ const FormUseTypeUpdateService = () => {
 
           const foundCity = findByNameOrId(cities, city);
 
-          if (foundCity && foundCity.id !== Serviceform.values.cityId) {
-            Serviceform.setFieldValue("cityId", foundCity.id);
+          if (foundCity && foundCity.id !== serviceInitialValues?.cityId) {
+            setServiceInitialValues(prevState => ({
+              ...prevState,
+              cityId: foundCity.id
+            }));
+
             shouldUpdateCity = false;
           }
         }
@@ -195,7 +183,7 @@ const FormUseTypeUpdateService = () => {
 
   const AddNewProvince = async () => {
     try {
-      const newProvince = await AddProvince({ name: province, countryId: Serviceform.values.countryId });
+      const newProvince = await AddProvince({ name: province, countryId: serviceInitialValues?.countryId });
       const res = await GetProvincebyCid(newProvince.data.countryId);
       setProvinces(res.data);
     } catch (error) {
@@ -205,7 +193,7 @@ const FormUseTypeUpdateService = () => {
 
   const AddNewCity = async () => {
     try {
-      const newCity = await AddCity({ name: city, description: city, provinceId: Serviceform.values.provincyId });
+      const newCity = await AddCity({ name: city, description: city, provinceId: serviceInitialValues?.provincyId });
       const res = await GetCitiesbyid(newCity.data.provincyId);
       setCities(res.data);
     } catch (error) {
@@ -251,64 +239,6 @@ const FormUseTypeUpdateService = () => {
     return { lat, lng, country, province, city, description };
   };
 
-  const Serviceform = useFormik<ServiceDTO>({
-    initialValues: serviceInitialValues || new ServiceDTO(),
-    validationSchema,
-    validateOnChange: true,
-    onSubmit: (values) => {
-      values.typeId?.id === 9 ? Serviceform.values.isYacht = true : Serviceform.values.isYacht = false;
-      values.typeId?.id === 12 ? Serviceform.values.isVehicle = true : Serviceform.values.isVehicle = false;
-      values.accountId = user?.data?.accountId;
-      values.rentalPlaceName !== '' ? Serviceform.values.hasNewRentalPlace = true :Serviceform.values.hasNewRentalPlace = false;
-      values.typeId =  Serviceform.values.typeId?.id;
-      values.images = { ObjectId: 0, file: fileimg}
-      values.steps = steps;
-
-      if (selectedLocation) { values.address = extractLocationDetails(selectedLocation); }
-
-      const formattedFields: FildsDTO[] = Object.keys(values.fields).map((key, index) => ({
-        id: index,
-        value: JSON.stringify(values.fields[key]),
-        serviceTypeFieldId: FeildsType.find((f:any) => f.name === key)?.id || 0,
-        serviceId: 0
-      })) || [];
-
-      const formattedTags: TagsDTO[] =  values.tags && values.tags.map((tag : any, index :any) => ({
-        id: index,
-        name: tag.name,
-        serviceId: 0
-      })) || [];
-
-      const serviceFacilities: ServiceFacilitiesDTO[] = values.serviceFacilities
-      ?.filter((serviceFacility: any) => serviceFacility !== undefined)
-      .map((serviceFacility: any) => ({
-        name: '',
-        serviceId: 0,
-        serviceTypeFacilityId: serviceFacility.serviceTypeFacilityId,
-        isPrimary: serviceFacility.isPrimary ?? false,
-        isAdditionalCharges: serviceFacility.isAdditionalCharges ?? false,
-      })) || [];
-
-      values.tags = formattedTags;
-      values.fields = formattedFields;
-      values.serviceFacilities = serviceFacilities;
-      values.residenceTypeId = 1;
-
-      // handleUpdateService();
-    },
-  });
-
-  useEffect(() => {
-    if (Serviceform.values.typeId && Serviceform.values.typeId.id !== undefined) {
-      Serviceform.setFieldValue('isRental', [8, 9, 12].includes(Serviceform.values.typeId.id));
-      Serviceform.setFieldValue('isYacht', Serviceform.values.typeId.id === 9);
-      Serviceform.setFieldValue('isResidence', Serviceform.values.typeId.id === 8);
-      Serviceform.setFieldValue('isVehicle', Serviceform.values.typeId.id === 12);
-      Serviceform.setFieldValue('isTrip', [7, 10, 11, 13].includes(Serviceform.values.typeId.id));
-      Serviceform.setFieldValue('isCruise', Serviceform.values.typeId.id === 10);
-    }
-  }, [Serviceform.values.typeId]);
-
   useEffect(() => {
     setLoading(true);
 
@@ -316,17 +246,71 @@ const FormUseTypeUpdateService = () => {
       try {
         const serviceDetails = await GetServiceDetailsById(Number(serviceId));
         const { data } = serviceDetails;
-        Serviceform.setValues(data);
 
-        console.log(data, 'data'); //!! not compleat !!
+        setServiceInitialValues({
+          // isRental: [8, 9, 12].includes(serviceInitialValues?.typeId.id),
+          // isYacht: serviceInitialValues?.typeId.id === 9,
+          // isResidence: serviceInitialValues?.typeId.id === 8,
+          // isVehicle: serviceInitialValues?.typeId.id === 12,
+          // isTrip: [7, 10, 11, 13].includes(serviceInitialValues?.typeId.id),
+          // isCruise: serviceInitialValues?.typeId.id === 10,
 
-        setServiceInitialValues(data);
+
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          typeId: data.typeId,
+          cityId: data.cityId,
+          countryId: data.countryId,
+          provincyId: data.provincyId,
+          placeId: data.placeId,
+          accountId: data.accountId,
+          vehicleTypeId: data.vehicleTypeId,
+          residenceTypeId: data.residenceTypeId,
+          price: data.price,
+          ratingAverage: data.ratingAverage,
+          isApprovalRequired: data.isApprovalRequired,
+          currencyId: data.currencyId,
+          isTrip: data.isTrip,
+          photos: data.photos,
+          images: data.photos.map((img: any) => img.imagePath),
+          address: data.address,
+          placeHasNewActivities: data.placeHasNewActivities,
+          hasNewRentalPlace: data.hasNewRentalPlace,
+          isRental: data.isRental,
+          isTaxIncluded: data.isTaxIncluded,
+          isActive: data.isActive,
+          isArchived: data.isArchived,
+          isApproved: data.isApproved,
+          isYacht: data.isYacht,
+          isCruise: data.isCruise,
+          isVehicle: data.isVehicle,
+          isResidence: data.isResidence,
+          priceValues: data.priceValues,
+          rentalPlaceName: data.rentalPlaceName,
+          fields: data.fields,
+          steps: data.steps,
+          stepsActivities: data.stepsActivities,
+          placeNewActivities: data.placeNewActivities,
+          tags: data.tags,
+          serviceFacilities: data.serviceFacilities,
+          isRefundable: data.isRefundable,
+          refundPerCentAmount: data.refundPerCentAmount,
+          allowRefundDays: data.allowRefundDays,
+          ChildPercentage: data.ChildPercentage,
+        });
+
+        setFileimg(data.photos.map((img: any) => img.imagePath));
+        setTags(data.tags);
 
         GetServiceTypes().then( async (resType) => {
           const serviceType = resType.data.find((type: any) => type.id === data.typeId);
-          Serviceform.setFieldValue("typeId", serviceType);
-          Serviceform.setFieldValue("isRental", serviceType.isRental);
-          Serviceform.setFieldValue("isTrip", serviceType.isTrip);
+          setServiceInitialValues(prevState => ({
+            ...prevState,
+            typeId: serviceType,
+            isRental: serviceType.isRental,
+            isTrip: serviceType.isTrip,
+          }));
 
           const [feildsTypeRes, vehicleRes] = await Promise.all([
             GetFeildsbysid(serviceType.id),
@@ -364,43 +348,39 @@ const FormUseTypeUpdateService = () => {
   }, []);
 
   useEffect(() => {
-    if(Serviceform?.values?.cityId) {
-      GetPlacesbyid(Serviceform?.values?.cityId).then((res) => {
+    if(serviceInitialValues?.cityId) {
+      GetPlacesbyid(serviceInitialValues?.cityId).then((res) => {
         setPlaces(res.data);
       });
     }
-  }, [Serviceform.values.cityId]);
+  }, [serviceInitialValues?.cityId]);
 
   const handleAddTag = () => {
     if (newTag.trim() !== '') {
-      const updatedTags = [...tags, { name: newTag }];
+      const updatedTags = [...tags, { id: 0, name: newTag }];
       setTags(updatedTags);
       setNewTag('');
-      Serviceform.setFieldValue('tags', updatedTags);
+
+      setServiceInitialValues(prevState => ({...prevState,
+        tags: updatedTags
+      }));
     }
   };
 
   const handleRemoveTag = (index: number) => {
     const updatedTags = tags.filter((_, i) => i !== index);
     setTags(updatedTags);
-    Serviceform.setFieldValue('tags', updatedTags);
+
+    setServiceInitialValues(prevState => ({...prevState,
+      tags: updatedTags
+    }));
   };
 
   const handleInputFocus = (field: string) => {
     setFocusedField(field);
   };
 
-  const renderError = (error: any) => {
-    if (typeof error === 'string') {
-      return <div className="text-red-500 mt-2">{error}</div>;
-    }
-    if (Array.isArray(error)) {
-      return error.map((err, index) => <div key={index} className="text-red-500 mt-2">{err}</div>);
-    }
-    return null;
-  };
-
-  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate, resetForm }: any) => {
+  const CustomConfirmDialogContent = ({ headerRef, message, hide, navigate }: any) => {
     return (
       <div className="flex flex-column align-items-center p-5 surface-overlay border-round custom-widht">
         <div className="border-circle bg-green-500 text-white inline-flex justify-content-center align-items-center h-6rem w-6rem -mt-8">
@@ -409,7 +389,7 @@ const FormUseTypeUpdateService = () => {
         <span className="font-bold text-2xl block mb-2 mt-4" ref={headerRef}>{message.header}</span>
         <p className="mb-0">{message.message}</p>
         <div className="grid align-items-center gap-3 mt-4" >
-          <Button label="Continue adding services" onClick={(event) => { hide(event); resetForm(); }} className="w-full bg-green-500 border-green-500"></Button>
+          <Button label="Continue adding services" onClick={(event) => { hide(event) }} className="w-full bg-green-500 border-green-500"></Button>
           <Button label="Go home" outlined onClick={(event) => { hide(event); navigate('/') }} className="w-full text-green border-green-500 text-green-500"></Button>
         </div>
       </div>
@@ -559,31 +539,61 @@ const FormUseTypeUpdateService = () => {
   };
 
   const handleCountryChange = async (e: any) => {
-    Serviceform.setFieldValue("countryId", e.value);
-    Serviceform.setFieldValue("provincyId", null);
-    Serviceform.setFieldValue("cityId", null);
+    setServiceInitialValues(prevState => ({
+      ...prevState,
+      countryId: e.value,
+      provincyId: 0,
+      cityId: 0,
+    }));
+
     const provincesRes = await GetProvincebyCid(e.value);
     setProvinces(provincesRes.data);
     setCities([]);
   };
 
   const handleProvinceChange = async (e: any) => {
-    Serviceform.setFieldValue("provincyId", e.value);
-    Serviceform.setFieldValue("cityId", null);
+    setServiceInitialValues(prevState => ({
+      ...prevState,
+      provincyId: e.value,
+      cityId: 0,
+    }));
+
     const citiesRes = await GetCitiesbyid(e.value);
     setCities(citiesRes.data);
   };
 
   const handleCityChange = (e: any) => {
-    Serviceform.setFieldValue("cityId", e.value);
+    setServiceInitialValues(prevState => ({
+      ...prevState,
+      cityId: e.value,
+    }));
   };
 
-  const updateBaseInfo = () => {};
-  const updateInputType = () => {};
-  const updateTags = () => {};
-  const updatePrice = () => {};
-  const updateFacilities = () => {};
-  const updateSteps = () => {};
+  const updateBaseInfo = () => {
+    // UpdateService(ServicesData: any)
+  };
+
+  const updateInputType = () => {
+    // UpdateInputType(InputTypeData: any)
+  };
+
+  const updateTags = () => {
+    // UpdateTagsList(tagsData: any)
+  };
+
+  const updatePrice = () => {
+    // UpdatePrice(PriceData: any)
+  };
+
+  const updateFacilities = () => {
+    // UpdateFacility(FacilityData: any)
+  };
+
+  const updateSteps = () => {
+    // UpdateSteps(StepsData: any)
+  };
+
+  console.log(serviceInitialValues, 'serviceInitialValues');
 
   return (
     <div className="container mx-auto form-user-type">
@@ -594,10 +604,10 @@ const FormUseTypeUpdateService = () => {
           </div>
 
           <div className="md:col-11 lg:col-11 getrip-type text-center flex justify-content-center align-items-center">
-            {Serviceform?.values?.typeId?.photos &&
-              <Image alt={Serviceform?.values?.typeId?.name} zoomSrc={Serviceform?.values?.typeId?.photos[0].imagePath} src={Serviceform?.values?.typeId?.photos[0].imagePath} width="90" height="90" preview />
+            {serviceInitialValues?.typeId?.photos &&
+              <Image alt={serviceInitialValues?.typeId?.name} zoomSrc={serviceInitialValues?.typeId?.photos[0].imagePath} src={serviceInitialValues?.typeId?.photos[0].imagePath} width="90" height="90" preview />
             }
-            <span className="primary mx-2 text-xl antialiased get-rp">{Serviceform?.values?.typeId?.name}</span>
+            <span className="primary mx-2 text-xl antialiased get-rp">{serviceInitialValues?.typeId?.name}</span>
           </div>
         </div>
 
@@ -610,11 +620,16 @@ const FormUseTypeUpdateService = () => {
                   placeholder="Service Name"
                   name="name"
                   className="w-full mt-1"
-                  value={Serviceform.values.name}
+                  value={serviceInitialValues?.name}
                   autoFocus={focusedField === 'name'}
                   onInput={() => handleInputFocus('name')}
-                  onChange={(e) => Serviceform.setFieldValue('name', e.target.value)} />
-                  {renderError(Serviceform.errors.name)}
+                  onChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      name: e.target.value
+                    }));
+                  }}
+                />
               </div>
 
               <div className="md:col-12 lg:col-12">
@@ -637,13 +652,17 @@ const FormUseTypeUpdateService = () => {
                       <Button className="ql-clean"></Button>
                     </span>
                   }
-                  value={Serviceform.values.description ?? ''}
+                  value={serviceInitialValues?.description ?? ''}
                   autoFocus={focusedField === 'description'}
                   onInput={() => handleInputFocus('description')}
-                  onTextChange={(e) => Serviceform.setFieldValue('description', e.textValue)}
+                  onTextChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      description: e.textValue
+                    }));
+                  }}
                   style={{ height: "220px" }}
                 />
-                {renderError(Serviceform.errors.description)}
               </div>
 
               <div className="md:col-12 lg:col-12">
@@ -665,7 +684,6 @@ const FormUseTypeUpdateService = () => {
                   cancelOptions={cancelOptions}
                   uploadOptions={{ style: { display: 'none' } }}
                 />
-                {renderError(Serviceform.errors.images)}
               </div>
 
               <div className="md:col-12 lg:col-12">
@@ -681,7 +699,7 @@ const FormUseTypeUpdateService = () => {
                   name="countryId"
                   filter
                   className="mt-2	w-full"
-                  value={Serviceform?.values?.countryId}
+                  value={serviceInitialValues?.countryId}
                   onChange={handleCountryChange}
                 />
               </div>
@@ -697,7 +715,7 @@ const FormUseTypeUpdateService = () => {
                     name="provincyId"
                     filter
                     className="mt-2	w-full md:col-8 lg:col-8"
-                    value={Serviceform?.values?.provincyId}
+                    value={serviceInitialValues?.provincyId}
                     onChange={handleProvinceChange}
                   />
                 </div>
@@ -719,10 +737,9 @@ const FormUseTypeUpdateService = () => {
                     name="cityId"
                     filter
                     className="w-full"
-                    value={Serviceform.values.cityId}
+                    value={serviceInitialValues?.cityId}
                     onChange={handleCityChange}
                   />
-                  {renderError(Serviceform.errors.cityId)}
                 </div>
 
                 <div className="md:col-4 lg:col-4" style={{ display: 'flex', justifyContent: 'start', alignItems: 'center'}}>
@@ -736,18 +753,18 @@ const FormUseTypeUpdateService = () => {
               <div className="md:col-12 lg:col-12">
                 <GoogleMap
                   country={
-                    (Serviceform.values.countryId && countries && countries.find((er: any) => er.id === Serviceform.values.countryId))
-                      ? countries.find((er: any) => er.id === Serviceform.values.countryId).name
+                    (serviceInitialValues?.countryId && countries && countries.find((er: any) => er.id === serviceInitialValues?.countryId))
+                      ? countries.find((er: any) => er.id === serviceInitialValues?.countryId).name
                       : undefined
                   }
                   province={
-                    (Serviceform.values.provincyId && provinces && provinces.find((er: any) => er.id === Serviceform.values.provincyId))
-                      ? provinces.find((er: any) => er.id === Serviceform.values.provincyId).name
+                    (serviceInitialValues?.provincyId && provinces && provinces.find((er: any) => er.id === serviceInitialValues?.provincyId))
+                      ? provinces.find((er: any) => er.id === serviceInitialValues?.provincyId).name
                       : undefined
                   }
                   city={
-                    (Serviceform.values.cityId && cities && cities.find((er: any) => er.id === Serviceform.values.cityId))
-                      ? cities.find((er: any) => er.id === Serviceform.values.cityId).name
+                    (serviceInitialValues?.cityId && cities && cities.find((er: any) => er.id === serviceInitialValues?.cityId))
+                      ? cities.find((er: any) => er.id === serviceInitialValues?.cityId).name
                       : undefined
                   }
                   onLocationSelect={handleLocationSelect}
@@ -759,8 +776,13 @@ const FormUseTypeUpdateService = () => {
                   className="mx-2"
                   autoFocus={focusedField === `isRefundable`}
                   onInput={() => handleInputFocus(`isRefundable`)}
-                  checked={Serviceform.values?.isRefundable}
-                  onChange={(e) => Serviceform.setFieldValue(`isRefundable`, e.value)}
+                  checked={serviceInitialValues?.isRefundable}
+                  onChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      isRefundable: e.value
+                    }));
+                  }}
                 />
                 <label htmlFor="Wallet" className="mx-2">Refundable</label>
               </div>
@@ -770,9 +792,14 @@ const FormUseTypeUpdateService = () => {
                 <InputNumber
                   autoFocus={focusedField === 'refundPerCentAmount'}
                   onInput={() => handleInputFocus('refundPerCentAmount')}
-                  value={Serviceform.values.refundPerCentAmount}
+                  value={serviceInitialValues?.refundPerCentAmount}
                   className="w-full mt-1"
-                  onValueChange={(e) => Serviceform.setFieldValue(`refundPerCentAmount`, e.value)}
+                  onValueChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      refundPerCentAmount: e.value as number
+                    }));
+                  }}
                   placeholder={'Refund Per Cent Amount'}
                 />
               </div>
@@ -782,9 +809,14 @@ const FormUseTypeUpdateService = () => {
                 <InputNumber
                   autoFocus={focusedField === 'allowRefundDays'}
                   onInput={() => handleInputFocus('allowRefundDays')}
-                  value={Serviceform.values.allowRefundDays}
+                  value={serviceInitialValues?.allowRefundDays}
                   className="w-full mt-1"
-                  onValueChange={(e) => Serviceform.setFieldValue(`allowRefundDays`, e.value)}
+                  onValueChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      allowRefundDays: e.value  as number
+                    }));
+                  }}
                   placeholder={'Allow Refund Days'}
                 />
               </div>
@@ -806,34 +838,67 @@ const FormUseTypeUpdateService = () => {
                       <InputSwitch
                         autoFocus={focusedField === f.name}
                         onInput={() => handleInputFocus(f.name)}
-                        checked={Serviceform.values.fields?.[f.name]}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)} />
+                        checked={serviceInitialValues?.fields?.[f.name]}
+                        onChange={(e) => {
+                          setServiceInitialValues(prevState => ({
+                            ...prevState,
+                            fields: {
+                              ...(prevState.fields || {}),
+                              [f.name]: e.value
+                            }
+                          }));
+                        }}
+                      />
                     )}
                     {f.fieldTypeName === 'Number' && (
                       <InputNumber
                         autoFocus={focusedField === f.name}
                         onInput={() => handleInputFocus(f.name)}
-                        value={Serviceform.values.fields?.[f.name]}
-                        onValueChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
+                        value={serviceInitialValues?.fields?.[f.name]}
+                        onValueChange={(e) => {
+                          setServiceInitialValues(prevState => ({
+                            ...prevState,
+                            fields: {
+                              ...(prevState.fields || {}),
+                              [f.name]: e.value
+                            }
+                          }));
+
+                        }}
                         placeholder={f.name} />
                     )}
                     {f.fieldTypeName === 'Date' && (
                       <Calendar
                         autoFocus={focusedField === f.name}
                         onInput={() => handleInputFocus(f.name)}
-                        value={Serviceform.values.fields?.[f.name]}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
+                        value={serviceInitialValues?.fields?.[f.name]}
+                        onChange={(e) => {
+                          setServiceInitialValues(prevState => ({
+                            ...prevState,
+                            fields: {
+                              ...(prevState.fields || {}),
+                              [f.name]: e.value
+                            }
+                          }));
+                        }}
                         placeholder={f.name} />
                     )}
                     {f.fieldTypeName === 'Text' && (
                       <InputText
-                        value={Serviceform.values.fields?.[f.name]}
+                        value={serviceInitialValues?.fields?.[f.name]}
                         autoFocus={focusedField === f.name}
                         onInput={() => handleInputFocus(f.name)}
-                        onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.target.value)}
+                        onChange={(e) => {
+                          setServiceInitialValues(prevState => ({
+                            ...prevState,
+                            fields: {
+                              ...(prevState.fields || {}),
+                              [f.name]: e.target.value
+                            }
+                          }));
+                        }}
                         placeholder={f.name} />
                     )}
-                    {renderError(Serviceform.errors.fields)}
                   </div>
                 ))}
 
@@ -862,8 +927,8 @@ const FormUseTypeUpdateService = () => {
                   value={newTag}
                   autoFocus={focusedField === 'tags.name'}
                   onInput={() => handleInputFocus('tags.name')}
-                  onChange={(e) => setNewTag(e.target.value)} />
-                  {/* {renderError(Serviceform.errors.tags)} */}
+                  onChange={(e) => setNewTag(e.target.value)}
+                />
                 <Button
                   icon="pi pi-plus"
                   label="Add Tag"
@@ -871,7 +936,8 @@ const FormUseTypeUpdateService = () => {
                   rounded
                   severity="info"
                   size="small"
-                  className="mt-2 col-span-12" />
+                  className="mt-2 col-span-12"
+                />
               </div>
 
               <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
@@ -890,15 +956,27 @@ const FormUseTypeUpdateService = () => {
                       <InputNumber
                         autoFocus={focusedField === pricingType.name}
                         onInput={() => handleInputFocus(pricingType.name)}
-                        value={Serviceform.values.fields?.[pricingType.name]}
+                        value={serviceInitialValues?.fields?.[pricingType.name]}
                         className="w-full mt-1"
                         onValueChange={(e) => {
+                          setServiceInitialValues(prevState => {
+                            const updatedPriceValues = [...(prevState.priceValues || [])];
+                            updatedPriceValues[index] = {
+                              ...updatedPriceValues[index],
+                              pricingTypeId: pricingType.id,
+                              pricingTypeName: pricingType.name,
+                              value: e.value
+                            };
 
-                          Serviceform.setFieldValue(`priceValues.${index}.pricingTypeId`, pricingType.id);
-                          Serviceform.setFieldValue(`priceValues.${index}.pricingTypeName`, pricingType.name);
-                          Serviceform.setFieldValue(`priceValues.${index}.value`, e.value);
-
-                          Serviceform.setFieldValue(`fields.${pricingType.name}`, e.value);
+                            return {
+                              ...prevState,
+                              priceValues: updatedPriceValues,
+                              fields: {
+                                ...(prevState.fields || {}),
+                                [pricingType.name]: e.value
+                              }
+                            };
+                          });
                         }}
                         placeholder={pricingType.name}
                       />
@@ -909,8 +987,17 @@ const FormUseTypeUpdateService = () => {
                         className="mx-2"
                         autoFocus={focusedField === `priceValues.${index}.isTaxIncluded`}
                         onInput={() => handleInputFocus(`priceValues.${index}.isTaxIncluded`)}
-                        checked={Serviceform.values.priceValues ? Serviceform.values.priceValues[index]?.isTaxIncluded : false}
-                        onChange={(e) => Serviceform.setFieldValue(`priceValues.${index}.isTaxIncluded`, e.value)}
+                        checked={serviceInitialValues?.priceValues ? serviceInitialValues?.priceValues[index]?.isTaxIncluded : false}
+                        onChange={(e) => {
+                          setServiceInitialValues(prevState => ({
+                            ...prevState,
+                            priceValues: prevState.priceValues.map((priceValue, i) =>
+                              i === index
+                                ? { ...priceValue, isTaxIncluded: e.value }
+                                : priceValue
+                            )
+                          }));
+                        }}
                       />
                       <label htmlFor="Wallet mx-2">Tax Included</label>
                     </div>
@@ -928,8 +1015,13 @@ const FormUseTypeUpdateService = () => {
                   value={'USD'}
                   autoFocus={focusedField === 'currency'}
                   onInput={() => handleInputFocus('currency')}
-                  onChange={(e) => Serviceform.setFieldValue('currencyId', user.data.currencyId)} />
-                  {renderError(Serviceform.errors.currencyId)}
+                  onChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      currencyId: user.data.currencyId
+                    }));
+                  }}
+                />
               </div>
 
               <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
@@ -937,10 +1029,32 @@ const FormUseTypeUpdateService = () => {
                   className="mx-2"
                   autoFocus={focusedField === `isApprovalRequired`}
                   onInput={() => handleInputFocus(`isApprovalRequired`)}
-                  checked={Serviceform.values?.isApprovalRequired}
-                  onChange={(e) => Serviceform.setFieldValue(`isApprovalRequired`, e.value)}
+                  checked={serviceInitialValues?.isApprovalRequired}
+                  onChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      isApprovalRequired: e.value
+                    }));
+                  }}
                 />
                 <label htmlFor="Wallet mx-2">Approval Required</label>
+              </div>
+
+              <div className="md:col-12 lg:col-12">
+                <label htmlFor="Child price percentage" className="mx-2">Child price percentage</label>
+                <InputNumber
+                  autoFocus={focusedField === 'ChildPercentage'}
+                  onInput={() => handleInputFocus('ChildPercentage')}
+                  value={serviceInitialValues?.ChildPercentage}
+                  className="w-full mt-1"
+                  onValueChange={(e) => {
+                    setServiceInitialValues(prevState => ({
+                      ...prevState,
+                      ChildPercentage: e.value as number
+                    }));
+                  }}
+                  placeholder={'Child price percentage'}
+                />
               </div>
 
               <div className="md:col-12 lg:col-12 flex align-items-center justify-content-end">
@@ -949,7 +1063,7 @@ const FormUseTypeUpdateService = () => {
             </div>
           </Fieldset>
 
-          {Serviceform.values.typeId?.isRental  === true &&  Serviceform.values.typeId?.isTrip === false ? (
+          {serviceInitialValues?.typeId?.isRental  === true &&  serviceInitialValues?.typeId?.isTrip === false ? (
             <Fieldset legend="Facilities" className="md:col-12 lg:col-12 mb-3 field-set-facilities" toggleable collapsed={true}>
               {assignedFacilitiesByServiceTypeIdWithCategory && assignedFacilitiesByServiceTypeIdWithCategory.length > 0 ? (
                 <div className="grid grid-cols-12 gap-4">
@@ -978,10 +1092,20 @@ const FormUseTypeUpdateService = () => {
                                 <InputSwitch
                                   className="mr-4"
                                   name={`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`}
-                                  checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isPrimary || false}
+                                  checked={serviceInitialValues?.serviceFacilities?.[facility.serviceTypeFacilityId]?.isPrimary || false}
                                   onChange={(e) => {
-                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isPrimary`, e.value)
-                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                    setServiceInitialValues((prevState: ServiceDTO) => ({
+                                      ...prevState,
+                                      serviceFacilities: prevState?.serviceFacilities?.map(facility =>
+                                        facility.serviceTypeFacilityId === facility.serviceTypeFacilityId
+                                          ? {
+                                              ...facility,
+                                              isPrimary: e.value,
+                                              serviceTypeFacilityId: facility.serviceTypeFacilityId
+                                            }
+                                          : facility
+                                      )
+                                    }));
                                   }}
                                 />
                               </div>
@@ -991,10 +1115,20 @@ const FormUseTypeUpdateService = () => {
                                 <InputSwitch
                                   className="mr-4"
                                   name={`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`}
-                                  checked={Serviceform.values.serviceFacilities?.[facility.serviceTypeFacilityId]?.isAdditionalCharges || false}
+                                  checked={serviceInitialValues?.serviceFacilities?.[facility.serviceTypeFacilityId]?.isAdditionalCharges || false}
                                   onChange={(e) => {
-                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].isAdditionalCharges`, e.value);
-                                    Serviceform.setFieldValue(`serviceFacilities[${facility.serviceTypeFacilityId}].serviceTypeFacilityId`, facility.serviceTypeFacilityId);
+                                    setServiceInitialValues((prevState: ServiceDTO) => ({
+                                      ...prevState,
+                                      serviceFacilities: prevState?.serviceFacilities?.map(facility =>
+                                        facility.serviceTypeFacilityId === facility.serviceTypeFacilityId
+                                          ? {
+                                              ...facility,
+                                              isAdditionalCharges: e.value,
+                                              serviceTypeFacilityId: facility.serviceTypeFacilityId
+                                            }
+                                          : facility
+                                      )
+                                    }));
                                   }}
                                 />
                               </div>
@@ -1011,7 +1145,7 @@ const FormUseTypeUpdateService = () => {
                 </div>
               ) : <p className="text-center text-red-500 text-sm italic">No Data</p>}
             </Fieldset>
-          ) : Serviceform.values.typeId?.isRental  === false &&  Serviceform.values.typeId?.isTrip === true ? (
+          ) : serviceInitialValues?.typeId?.isRental  === false &&  serviceInitialValues?.typeId?.isTrip === true ? (
             <Fieldset legend="Steps" className="md:col-12 lg:col-12 mb-3 field-set-steps" toggleable collapsed={true}>
 
               <div className="grid grid-cols-12">
@@ -1028,21 +1162,6 @@ const FormUseTypeUpdateService = () => {
                       marker={customizedMarker}
                       content={customizedContent}
                     />
-
-                    // steps.map((step, index) => (
-                    //   <div className="md:col-4 lg:col-4">
-                    //     <Card title={step?.name} key={index} footer={() => cardFooter(step, index)}>
-                          // <p>{step?.description}</p>
-                          // <p>City: {cities.find((cit:any) => cit.id === step?.cityId).name}</p>
-                          // <p>Step Count: {step?.stepCount}</p>
-                          // <p>Place ID: {step?.placeId}</p>
-                          // <p>Has New Place: {step?.hasNewPlace ? 'Yes' : 'No'}</p>
-                          // {step?.hasNewPlace && <p>New Place Name: {step?.newPlaceName}</p>}
-                          // <p>Arrival Time: {new Date(step.arrivalTime).toLocaleString()}</p>
-                          // <p>Departure Time: {new Date(step.departureTime).toLocaleString()}</p>
-                    //     </Card>
-                    //   </div>
-                    // ))
                   ) : (
                     <div className="text-center">No steps available</div>
                   )}
@@ -1058,7 +1177,7 @@ const FormUseTypeUpdateService = () => {
       </>}
 
       <ConfirmDialog content={({ headerRef, contentRef, footerRef, hide, message }) => (
-        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} resetForm={Serviceform.resetForm} />
+        <CustomConfirmDialogContent headerRef={headerRef} message={message} hide={hide} navigate={navigate} />
       )}/>
 
       <Dialog
@@ -1250,7 +1369,6 @@ const FormUseTypeUpdateService = () => {
                 }
               }}
             />
-              {renderError(Serviceform.errors.placeId)}
           </div>
         </div>
       </Dialog>
@@ -1282,9 +1400,6 @@ const FormUseTypeUpdateService = () => {
             autoFocus={focusedField === `new${addFrom}`}
             onInput={() => handleInputFocus(`new${addFrom}`)}
             value={addFrom === 'Provincy' ? province as string : city as string}
-            onChange={(e) => {
-              console.log(addFrom, province, city);
-            }}
           />
         </div>
 

@@ -1,6 +1,6 @@
 import { Menubar } from "primereact/menubar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBell, faServer, faUsers} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBell, faChartArea, faChartBar, faHistory, faList, faPlaneDeparture, faPlus, faServer, faSignOut, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import { Menu } from "primereact/menu";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { Button } from "primereact/button";
@@ -400,13 +400,14 @@ const NavBar = ({navState}: any) => {
         {
           label: "User Menu",
           items: [
-            { label: "Dashboard", icon: "pi pi-chart-bar", command: () => navigate('/dashboard'), condition: role === 'Administrator' },
-            { label: "My profile", icon: "pi pi-user", command: () => navigate('/profile') },
-            { label: "My services", icon: "pi pi-list", command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
-            { label: "Add services", icon: "pi pi-plus", command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
-            { label: "My orders", icon: "pi pi-history", command: () => navigate('/orders') },
-            { label: `My requests`, icon: "pi pi-user", command: () => navigate(`/${role}-requests`) },
-            { label: "Log out", icon: "pi pi-sign-out", command: () => logout() }
+            { label: "Dashboard", icon: <FontAwesomeIcon icon={faChartBar} className="mr-2" />, command: () => navigate('/dashboard'), condition: role === 'Administrator' },
+            { label: "My Profile", icon: <FontAwesomeIcon icon={faUser} className="mr-2" />, command: () => navigate('/profile') },
+            { label: "My Services", icon: <FontAwesomeIcon icon={faList} className="mr-2" />, command: () => navigate('/my-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "Add Services", icon: <FontAwesomeIcon icon={faPlus} className="mr-2" />, command: () => navigate('/add-services'), condition: role === 'Administrator' || role === 'Service Provider' },
+            { label: "My Orders", icon: <FontAwesomeIcon icon={faHistory} className="mr-2" />, command: () => navigate('/orders') },
+            { label: "Flight Requests", icon: <FontAwesomeIcon icon={faPlaneDeparture} className="mr-2" />, command: () => navigate('/flight-requests') },
+            { label: `My Requests`, icon: <FontAwesomeIcon icon={faUser} className="mr-2" />, command: () => navigate(`/${role}-requests`) },
+            { label: "Log Out", icon: <FontAwesomeIcon icon={faSignOut} className="mr-2" />, command: () => logout() }
           ].filter(c => c.condition === undefined || c.condition)
         }
       ]);

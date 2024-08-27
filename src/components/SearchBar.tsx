@@ -300,7 +300,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         </div>
       );
 
-      if (!['Restaurants', 'Flight'].includes(selectedTab as string)) {
+      if (!['Restaurants', 'Flight'].includes((selectedTab as string).trim().replace(/['"]+/g, ''))) {
         return [
           {
             label: 'Fields',
@@ -348,7 +348,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             )
           }
         ];
-      } else if(selectedTab === 'Flight') {
+      } else if((selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight') {
         return [
           {
             label: 'Departure City',
@@ -581,7 +581,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   id="popup_menu_left"
                 />
                 <Button
-                  label={selectedTab === 'Flight' ? 'Choose Filter To Flight' : `${guests} guests. ${children} children`}
+                  label={(selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight' ? 'Choose Filter To Flight' : `${guests} guests. ${children} children`}
                   icon={<FontAwesomeIcon icon={faUserAlt} size={"sm"} className="more-filter-icon fa p-0" />}
                   type='button'
                   style={{minWidth: 'max-content', margin: '7px -9px 0 0'}}

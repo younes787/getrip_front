@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AssignFaciliesToServiceType, CreateServiceType, GetAllVehiclesTypes, GetAssignedFacilitiesByServiceTypeId, GetFacilitiesByCategoryId, GetFacilityCategories, GetResidenceType, GetServiceTypes, UpdateService } from "../Services";
+import { AssignFaciliesToServiceType, CreateServiceType, GetAllVehiclesTypes, GetAssignedFacilitiesByServiceTypeId, GetFacilitiesByCategoryId, GetFacilityCategories, GetResidenceType, GetServiceTypes, UpdateServiceType } from "../Services";
 import { Card } from "primereact/card";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
@@ -177,7 +177,7 @@ const Services = () => {
     validateOnChange: true,
     onSubmit: async () => {
       try {
-        const serviceType = await UpdateService(ServicesFormUpdate.values);
+        const serviceType = await UpdateServiceType(ServicesFormUpdate.values);
 
         setSelectedRadioOptionsPrimary(null);
         setSelectedRadioOptionsSecondary(null);

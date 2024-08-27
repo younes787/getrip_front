@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingComponent from "../components/Loading";
 import SearchBar from "../components/SearchBar";
 import { Button } from "primereact/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapLocation, faArrowUpShortWide, faForward, faBackward, faDatabase } from "@fortawesome/free-solid-svg-icons";
+import { faMapLocation, faArrowUpShortWide, faForward, faBackward, faDatabase, faPlusSquare, faPlaceOfWorship, faCalendarAlt, faUserAlt, faPlaneDeparture, faPlaneArrival } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "primereact/checkbox";
-import { GetAllCountries, GetAllMakers, GetAllPlaces, GetAllProvinces, GetAllVehicles, GetAllVehiclesTypes, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetNearByRestaurants, GetPaginatedServicesBySearchFilter, GetProvincebyCid, GetResidenceType, GetServiceTypes } from "../Services";
+import { AddFlightRequest, GetAllCountries, GetAllMakers, GetAllPlaces, GetAllProvinces, GetAllVehicles, GetAllVehiclesTypes, GetCitiesbyid, GetCurrency, GetFeildsbysid, GetNearByRestaurants, GetPaginatedServicesBySearchFilter, GetProvincebyCid, GetResidenceType, GetServiceTypes } from "../Services";
 import ServiceCard from "../components/ServiceCard";
 import { Rating } from "primereact/rating";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import GoogleMap from "../components/GoogleMap";
-import { Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, SearchFilterParams, Service, SidebarFilter } from "../modules/getrip.modules";
+import { AddFlightRequestDTO, Flight, Hotel, LocationFromMap, LocationFromSearch, QueryFilter, Restaurant, SearchFilterParams, Service, SidebarFilter } from "../modules/getrip.modules";
 import { Paginator } from "primereact/paginator";
 import { mapFlightData, mapHotelData, mapRestaurantData, mapServiceData } from "../utils/mapData";
 import { DataType } from "../enums";
@@ -21,8 +21,11 @@ import { MultiSelect } from "primereact/multiselect";
 import { InputNumber } from "primereact/inputnumber";
 import { Image } from 'primereact/image';
 import Search7526301 from '../Assets/search_7526301.png';
+import { useFormik } from "formik";
+import { Calendar } from "primereact/calendar";
 
 const SearchAndFilter = () => {
+  const User = JSON.parse(localStorage?.getItem('user') as any)
   const [loading, setLoading] = useState<boolean>(false);
   const [cardTypeLoading, setCardTypeLoading] = useState<boolean>(false);
   const [showFields, setShowFields] = useState<boolean>(false);
@@ -63,7 +66,12 @@ const SearchAndFilter = () => {
   const [vehicleTypes, setVehicleTypes] = useState<any>();
   const [places, setPlaces] = useState<any>();
   const [makers, setMakers] = useState<any>();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [showRequestCustomOffer, setShowRequestCustomOffer] = useState<boolean>(false);
+  const [focusedField, setFocusedField] = useState<any>('');
+
+  const handleInputFocus = (field: string) => { setFocusedField(field) };
+
   const [selectedItems, setSelectedItems] = useState<SidebarFilter>({
     residence_type: [],
     vehicles: [],
@@ -97,6 +105,17 @@ const SearchAndFilter = () => {
       minMaxPrice: e.value
     }));
   };
+
+  const RequestCustomOfferForm = useFormik<AddFlightRequestDTO>({
+    initialValues: new AddFlightRequestDTO(),
+    validateOnChange: true,
+    onSubmit: () => {
+      RequestCustomOfferForm.values.id = 0;
+      RequestCustomOfferForm.values.senderAccountId = User?.data?.accountId;
+      AddFlightRequest(RequestCustomOfferForm.values);
+      setShowRequestCustomOffer(false);
+    },
+  });
 
   const handleInputChange = (value: number, index: number) => {
     const newMinMaxPrice = [...selectedItems.minMaxPrice];
@@ -595,13 +614,19 @@ const SearchAndFilter = () => {
     }
   };
 
+  const FlightTemplate = ({ icon, label, inputComponent }: any) => (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <FontAwesomeIcon icon={icon} size={"sm"} className="fa mr-2" />
+      <span className='mx-2' style={{width: '200px'}}>{label}</span>
+      {inputComponent}
+    </div>
+  );
+
   useEffect(() => {
     fetchDataToCard();
   }, [pageNumber, pageSize, selectFilterData]);
 
-  const containerClass = cardType !== DataType.Service
-  ? "md:col-12 lg:col-12 sm:col-12 px-3"
-  : "md:col-9 lg:col-9 sm:col-12 px-3";
+  const containerClass = cardType !== DataType.Service ? "md:col-12 lg:col-12 sm:col-12 px-3" : "md:col-9 lg:col-9 sm:col-12 px-3";
 
   return (<>
     <div className="container mx-auto search-and-filter">
@@ -890,6 +915,7 @@ const SearchAndFilter = () => {
                     ServiceCardStyle={{ width: '100%', margin: '15px 0', boxShadow: 'rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px'}}
                     type={DataType.Flight}
                   />
+
                 ))
               ) : cardType === DataType.Restaurant && restaurants.length > 0 ? (
                 restaurants.map(restaurant => (
@@ -929,7 +955,46 @@ const SearchAndFilter = () => {
               { cardType === DataType.Hotel && hotels.length > 0 ? (
                 <></>
               ) : cardType === DataType.Flight && flights.length > 0 ? (
-                <></>
+                <div
+                  style={{
+                    backgroundColor: '#f1881f',
+                    padding: '55px',
+                    display: 'grid',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: '#FFF',
+                    fontWeight: 'bold',
+                    borderRadius: '6px'
+                  }}
+                  className="w-fill"
+                >
+                  <p
+                    style={{fontSize: '22px'}}
+                    className="pb-1"
+                  >
+                    Didn’t find your desired flight ?
+                  </p>
+
+                  <Button
+                    outlined
+                    iconPos="right"
+                    style={{
+                      borderColor: '#FFF',
+                      color: '#FFF',
+                      padding: '20px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '18px'
+                    }}
+                    icon={
+                      <FontAwesomeIcon className="mr-2" icon={faPlusSquare} size={"lg"} />
+                    }
+                    onClick={() => setShowRequestCustomOffer(true)}
+                  >
+                    Request custom offer
+                  </Button>
+                </div>
               ) : cardType === DataType.Restaurant && restaurants.length > 0 ? (
                 <div className="flex justify-content-center align-items-center w-full">
                   <Button
@@ -975,15 +1040,229 @@ const SearchAndFilter = () => {
         margin: '0',
         backgroundColor: 'transparent'
       }}
-      footer={<div>
-        <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowMapLocation(false)} className="mt-4"></Button>
-      </div>}
+      footer={
+        <div>
+          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowMapLocation(false)} className="mt-4"></Button>
+        </div>
+      }
       onHide={() => setShowMapLocation(false)}
     >
       <GoogleMap
         markerData={markerData}
         onLocationSelect={(location: LocationFromMap) => { setSelectedLocationFromMap(location) }}
       />
+    </Dialog>
+
+    <Dialog
+      header="Add Request Custom Offer"
+      visible={showRequestCustomOffer}
+      style={isMobile ? { width: "100vw" } : { width: "50vw" }}
+      footer={
+        <div>
+          <Button label="Add" size="small" severity="warning" outlined onClick={() => RequestCustomOfferForm.handleSubmit()} className="mt-4"></Button>
+          <Button label="Cancel" severity="danger" outlined size="small" onClick={() => setShowRequestCustomOffer(false)} className="mt-4"></Button>
+        </div>
+      }
+      onHide={() => setShowRequestCustomOffer(false)}
+    >
+      <div className="grid grid-cols-12">
+        <div className='md:col-12 lg:col-12'>
+          <FlightTemplate
+            icon={faPlaceOfWorship}
+            label="Flight Type"
+            inputComponent={
+              <Dropdown
+                placeholder="Select a Flight Type"
+                options={[
+                  {name: 'One Way'},
+                  {name: 'Round Trip'},
+                  {name: 'Multi City'},
+                ]}
+                optionLabel="name"
+                optionValue="name"
+                name="flightType"
+                filter
+                autoFocus={focusedField === 'flightType'}
+                onInput={() => handleInputFocus('flightType')}
+                className="mt-2	w-full"
+                value={RequestCustomOfferForm.values.flightType}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("flightType", e.value)}
+              />
+            }
+          />
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
+            <span className='mx-2' style={{width: '200px'}}>Adult Passengers</span>
+            <InputNumber
+                inputId="adultPassengers"
+                value={RequestCustomOfferForm.values.adultPassengers}
+                onValueChange={(e) => RequestCustomOfferForm.setFieldValue("adultPassengers", e.value)}
+                showButtons
+                buttonLayout="horizontal"
+                step={1}
+                min={0}
+                autoFocus={focusedField === 'adultPassengers'}
+                onInput={() => handleInputFocus('adultPassengers')}
+                className="w-full"
+                inputClassName="input-template"
+                decrementButtonClassName="p-button-secondery"
+                incrementButtonClassName="p-button-secondery"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+            />
+          </div>
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <FontAwesomeIcon icon={faUserAlt} size={"sm"} className="fa mr-2" />
+              <span className='mx-2' style={{width: '200px'}}>Child Passengers</span>
+              <InputNumber
+                inputId="childPassengers"
+                value={RequestCustomOfferForm.values.childPassengers}
+                onValueChange={(e) => RequestCustomOfferForm.setFieldValue("childPassengers", e.value)}
+                showButtons
+                buttonLayout="horizontal"
+                step={1}
+                min={0}
+                className="w-full"
+                autoFocus={focusedField === 'childPassengers'}
+                onInput={() => handleInputFocus('childPassengers')}
+                inputClassName="input-template"
+                decrementButtonClassName="p-button-secondery"
+                incrementButtonClassName="p-button-secondery"
+                incrementButtonIcon="pi pi-plus"
+                decrementButtonIcon="pi pi-minus"
+              />
+            </div>
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <FlightTemplate
+            icon={faPlaneDeparture}
+            label="Country"
+            inputComponent={
+              <Dropdown
+                placeholder="Select a Country"
+                options={countries}
+                optionLabel="name"
+                optionValue="name"
+                name="country"
+                filter
+                autoFocus={focusedField === 'faPlaneDeparture'}
+                onInput={() => handleInputFocus('faPlaneDeparture')}
+                className="mt-2	w-full"
+                value={RequestCustomOfferForm.values.country}
+                onChange={(e) => {
+                  RequestCustomOfferForm.setFieldValue("country", e.value);
+                  GetProvincebyCid(countries?.find((countr: any) => countr.name === e.value).id).then((res) => setProvinces(res.data));
+                }}
+              />
+            }
+          />
+        </div>
+
+        <div className='m-2 w-full departure'>
+          <FlightTemplate
+            icon={faPlaneDeparture}
+            label="Departure City"
+            inputComponent={
+              <Dropdown
+                placeholder="Select a Departure city"
+                options={provinces}
+                optionLabel="name"
+                optionValue="name"
+                name="departureCity"
+                filter
+                autoFocus={focusedField === 'faPlaneDepartureCity'}
+                onInput={() => handleInputFocus('faPlaneDepartureCity')}
+                className="mt-2	w-full"
+                value={RequestCustomOfferForm.values.departureCity}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("departureCity", e.value)}
+              />
+            }
+          />
+        </div>
+
+        <div className='m-2 w-full departure'>
+          <FlightTemplate
+            icon={faPlaneArrival}
+            label="Arrival City"
+            inputComponent={
+              <Dropdown
+                placeholder="Select a Arrival city"
+                options={provinces}
+                optionLabel="name"
+                optionValue="name"
+                name="arrivalCity"
+                filter
+                autoFocus={focusedField === 'faPlaneDepartureCityArrival'}
+                onInput={() => handleInputFocus('faPlaneDepartureCityArrival')}
+                className="mt-2	w-full"
+                value={RequestCustomOfferForm.values.arrivalCity}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("arrivalCity", e.value)}
+              />
+            }
+          />
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <FlightTemplate
+            icon={faCalendarAlt}
+            label="Departure Date"
+            inputComponent={
+              <Calendar
+                className="w-full"
+                inputId="departureDate"
+                autoFocus={focusedField === 'faPlaneDepartureDepartureDate'}
+                onInput={() => handleInputFocus('faPlaneDepartureDepartureDate')}
+                value={RequestCustomOfferForm.values.departureDate}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("departureDate", e.value)}
+                showIcon
+              />
+            }
+          />
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <FlightTemplate
+            icon={faCalendarAlt}
+            label="Return Date"
+            inputComponent={
+              <Calendar
+                className="w-full"
+                inputId="returnDate"
+                autoFocus={focusedField === 'faPlaneDepartureReturnDate'}
+                onInput={() => handleInputFocus('faPlaneDepartureReturnDate')}
+                value={RequestCustomOfferForm.values.returnDate}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("returnDate", e.value)}
+                showIcon
+              />
+            }
+          />
+        </div>
+
+        <div className='md:col-12 lg:col-12'>
+          <FlightTemplate
+            icon={faCalendarAlt}
+            label="Request Date"
+            inputComponent={
+              <Calendar
+                className="w-full"
+                inputId="requestDate"
+                autoFocus={focusedField === 'faPlaneDepartureRequestDate'}
+                onInput={() => handleInputFocus('faPlaneDepartureRequestDate')}
+                value={RequestCustomOfferForm.values.requestDate}
+                onChange={(e) => RequestCustomOfferForm.setFieldValue("requestDate", e.value)}
+                showIcon
+              />
+            }
+          />
+        </div>
+      </div>
     </Dialog>
   </>);
 };

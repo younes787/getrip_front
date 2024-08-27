@@ -103,6 +103,14 @@ export const UpdateUser = (userData: any) => {
   return FetchWithLoading(api.put("/updateuser", userData), 'Post');
 };
 
+export const UpdateService = (serviceData: any) => {
+  return FetchWithLoading(api.put("/updateservice", serviceData), 'Post');
+};
+
+export const UpdateTagsList = (tagsData: any) => {
+  return FetchWithLoading(api.put("/updatetagslist", tagsData), 'Post');
+};
+
 export const UpdateServiceProvider = (userData: any) => {
   return FetchWithLoading(api.put("/updateserviceprovider", userData), 'Post');
 };
@@ -181,7 +189,7 @@ export const AddService = async (ServiceData: any) => {
   return FetchWithLoading(apiForm.post(`/addservice` , ServiceData));
 };
 
-export const UpdateService = async (ServicesData: any) => {
+export const UpdateServiceType = async (ServicesData: any) => {
   return FetchWithLoading(api.put("/updateservicetype", ServicesData), 'Post');
 };
 
@@ -647,4 +655,32 @@ export const InitializePopup = async (data: any) => {
 
 export const VerifyPaid = async (reference: any) => {
   return FetchWithLoading(api.post(`/verify/${reference}`));
+};
+
+export const AddFlightRequest = async (data: any) => {
+  return FetchWithLoading(api.post("/addflightrequest", data));
+};
+
+export const AddTicketOffer = async (data: any) => {
+  return FetchWithLoading(api.post("/addticketoffer", data));
+};
+
+export const GetAllFlightRequests = async () => {
+  return FetchWithLoading(api.get(`/getallflightrequests`));
+};
+
+export const GetAllTicketOffers = async () => {
+  return FetchWithLoading(api.get(`/getallticketoffers`));
+};
+
+export const GetFlightsRequestsByClientId = async (cid: number) => {
+  return FetchWithLoading(api.get(`/getflightsrequestsbyclientid/${cid}`));
+};
+
+export const GetTicketOffersByrRequestId = async (rid: number) => {
+  return FetchWithLoading(api.get(`/getticketoffersbyrequestid/${rid}`));
+};
+
+export const GetTicketOffersByProviderId = async (pid: number) => {
+  return FetchWithLoading(api.get(`/getticketoffersbyproviderid/${pid}`));
 };

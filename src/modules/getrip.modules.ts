@@ -609,6 +609,7 @@ export interface SearchFilterParams {
   MaxRating?: number;
   MinRating?: number;
 }
+
 export class InitializePopupDTO {
   email: string = '';
   mobile: string = '';
@@ -619,4 +620,28 @@ export class InitializePopupDTO {
   channels: string[] = [];
   metadata: any = '';
   label: string = '';
+}
+
+export class AddFlightRequestDTO {
+  id: number = 0;
+  flightType: string = '';
+  adultPassengers: number = 0;
+  childPassengers: number = 0;
+  departureCity: string = '';
+  arrivalCity: string = '';
+  departureDate: Date = new Date();
+  returnDate: Date = new Date();
+  senderAccountId: number = 0;
+  requestDate: Date = new Date();
+  country: string = '';
+}
+
+export class AddTicketOfferDTO {
+  id: number = 0;
+  serviceProviderId: number = 0;
+  ticketRequestId: number = 0;
+  price: number = 0;
+  isTaxIncluded: boolean = false;
+  note: string = '';
+  currencyId: number = 0;
 }

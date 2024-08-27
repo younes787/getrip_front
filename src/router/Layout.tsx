@@ -41,6 +41,7 @@ import { ProgressBar } from "primereact/progressbar";
 import { useLoading } from "../Services";
 import FormUseTypeUpdateService from "../components/FormUseTypeUpdateService";
 import CheckOut from "../pages/CheckOut";
+import FlightRequests from "../pages/FlightRequests";
 
 const Layout = () => {
   const { user } = useAuth();
@@ -116,6 +117,7 @@ const Layout = () => {
             <Route path="/my-services" element={<MyServices />} />
             <Route path="/add-services" element={<AddServices />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/flight-requests" element={<FlightRequests />} />
             <Route path={`/${role}-requests`} element={<Requests />} />
             <Route path="/form-use-type" element={<FormUseType />} />
             <Route path="/form-use-type-update-service/:serviceType/:serviceId" element={<FormUseTypeUpdateService />} />
