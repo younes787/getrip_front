@@ -119,6 +119,7 @@ export class ServicesTypeDTO {
   isTrip: boolean = false;
   isResidence: boolean = false;
   isVehicle: boolean = false;
+  isFlightService: boolean = false;
   isCruise: boolean = false;
   isYacht: boolean = false;
   residenceTypeId?: number;

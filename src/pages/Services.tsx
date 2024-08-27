@@ -20,6 +20,7 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
+import { InputSwitch } from "primereact/inputswitch";
 
 interface RadioOptionPrimary {
   title: string,
@@ -222,6 +223,7 @@ const Services = () => {
       isTrip: serviceType.isTrip,
       iconCode: serviceType.iconCode,
       isResidence: serviceType.isResidence,
+      isFlightService: serviceType.isFlightService,
       isVehicle: serviceType.isVehicle,
       isCruise: serviceType.isCruise,
       isYacht: serviceType.isYacht,
@@ -435,6 +437,16 @@ const Services = () => {
             />
           </div>
 
+          <div className="md:col-12 lg:col-12 flex justify-content-start align-items-center">
+            <label htmlFor="Flight Service">Flight Service</label>
+            <InputSwitch
+              name="isFlightService"
+              className="mx-2"
+              checked={ServicesForm.values?.isFlightService}
+              onChange={(e) => ServicesForm.setFieldValue("isFlightService", e.value)}
+            />
+          </div>
+
           <div className="md:col-12 lg:col-6">
             <h3>Select an Option</h3>
             {radioOptionsPrimary.map((radioOption) => (
@@ -571,6 +583,16 @@ const Services = () => {
               valueTemplate={<span>{<FontAwesomeIcon icon={fas[ServicesFormUpdate?.values?.iconCode]} className="mr-2" />}</span>}
               itemTemplate={iconOption}
               className="w-full"
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12 flex justify-content-start align-items-center">
+            <label htmlFor="Flight Service">Flight Service</label>
+            <InputSwitch
+              name="isFlightService"
+              className="mx-2"
+              checked={ServicesFormUpdate.values?.isFlightService}
+              onChange={(e) => ServicesFormUpdate.setFieldValue("isFlightService", e.value)}
             />
           </div>
 

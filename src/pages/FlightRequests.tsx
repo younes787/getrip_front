@@ -122,27 +122,31 @@ const FlightRequests = () => {
     return `${d.getFullYear()}-${month}-${day}`;
   };
 
+  console.log(role);
+
   const BodyTemplate = (rowData: any) => {
       return (
         <div className="actions-cell" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <div
-            onClick={() => {
-              setRequestId(rowData.id)
-              setShowAddOffer(true)
-            }}
-            style={{
-              color: 'green',
-              border: '1px solid green',
-              fontSize: '14px',
-              borderRadius: '7px',
-              padding: '10px',
-              margin: '2px',
-              cursor: 'pointer'
-            }}
-          >
-            Add Offer
-            <FontAwesomeIcon icon={faCodePullRequest} className="mx-2"/>
-          </div>
+          {role !== 'Client' &&
+            <div
+              onClick={() => {
+                setRequestId(rowData.id)
+                setShowAddOffer(true)
+              }}
+              style={{
+                color: 'green',
+                border: '1px solid green',
+                fontSize: '14px',
+                borderRadius: '7px',
+                padding: '10px',
+                margin: '2px',
+                cursor: 'pointer'
+              }}
+            >
+              Add Offer
+              <FontAwesomeIcon icon={faCodePullRequest} className="mx-2"/>
+            </div>
+          }
 
           <Button
             onClick={() => {
