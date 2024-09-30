@@ -153,7 +153,7 @@ const Dashboard = () => {
       <span>
         <h1 className="text-center text-4xl get-rp ml-5">
           <Trans i18nKey="Dashboard.welcomeMessage" components={{ strongClass: <span className="secondery" /> }}>
-            Welcome In Ge<span className="secondery">t</span>rip
+            Ge<span className="secondery">t</span>rip
           </Trans>
         </h1>
       </span>

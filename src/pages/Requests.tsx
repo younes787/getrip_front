@@ -253,6 +253,82 @@ const Requests = () => {
     { field: "", header: "Actions", body: BodyTemplate }
   ];
 
+  const RequestInfoTable = ({ dataRequestsDetails }: any) => {
+    const data = [
+      {
+        label: 'Adult Passengers',
+        value: dataRequestsDetails.adultPassengers
+      },
+      {
+        label: 'Child Passengers',
+        value: dataRequestsDetails.childPassengers
+      },
+      {
+        label: 'End Date',
+        value: formatDate(dataRequestsDetails.endDate)
+      },
+      {
+        label: 'Approved',
+        value: showIcons(dataRequestsDetails.isApproved)
+      },
+      {
+        label: 'Pending',
+        value: showIcons(dataRequestsDetails.isPending)
+      },
+      {
+        label: 'Last Update Date',
+        value: formatDate(dataRequestsDetails.lastUpdateDate)
+      },
+      {
+        label: 'Notes',
+        value: dataRequestsDetails.notes
+      },
+      {
+        label: 'Reciever Account',
+        value: <AccountName accountId={dataRequestsDetails.recieverAccountId} /> || 'Loading...'
+      },
+      {
+        label: 'Rejection Note',
+        value: dataRequestsDetails.rejectionNote
+      },
+      {
+        label: 'Request Date',
+        value: formatDate(dataRequestsDetails.requestDate)
+      },
+      {
+        label: 'Sender Account',
+        value: name
+      },
+      {
+        label: 'Service',
+        value: allServices.find((service) => service.id === dataRequestsDetails.serviceId)?.name
+      },
+      {
+        label: 'Start Date',
+        value: formatDate(dataRequestsDetails.startDate)
+      },
+      {
+        label: 'Status',
+        value: dataRequestsDetails.status
+      },
+      {
+        label: 'Subject',
+        value: dataRequestsDetails.subject
+      },
+      {
+        label: 'Total Price',
+        value: dataRequestsDetails.totalPrice
+      },
+    ];
+
+    return (
+      <DataTable value={data} tableStyle={{ width: '100%' }}>
+        <Column field="label" header="Policy" />
+        <Column field="value" header="Details" />
+      </DataTable>
+    );
+  };
+
   return (
     <div>
       {loading ? (
@@ -320,22 +396,7 @@ const Requests = () => {
         <div className="grid grid-cols-12">
           <div className="md:col-12 lg:col-12 sm:col-12">
             {dataRequestsDetails && <>
-              <p>Adult Passengers: {dataRequestsDetails.adultPassengers}</p>
-              <p>Child Passengers: {dataRequestsDetails.childPassengers}</p>
-              <p>End Date: {formatDate(dataRequestsDetails.endDate)}</p>
-              <p>Approved: {showIcons(dataRequestsDetails.isApproved)}</p>
-              <p>Pending: {showIcons(dataRequestsDetails.isPending)}</p>
-              <p>Last Update Date: {formatDate(dataRequestsDetails.lastUpdateDate)}</p>
-              <p>Notes: {dataRequestsDetails.notes}</p>
-              <p>Reciever Account: {<AccountName accountId={dataRequestsDetails.recieverAccountId} /> || 'Loading...'}</p>
-              <p>Rejection Note: {dataRequestsDetails.rejectionNote}</p>
-              <p>Request Date: {formatDate(dataRequestsDetails.requestDate)}</p>
-              <p>Sender Account: {name}</p>
-              <p>Service: {allServices.find((service) => service.id === dataRequestsDetails.serviceId)?.name}</p>
-              <p>Start Date: {formatDate(dataRequestsDetails.startDate)}</p>
-              <p>Status: {dataRequestsDetails.status}</p>
-              <p>Subject: {dataRequestsDetails.subject}</p>
-              <p>Total Price: {dataRequestsDetails.totalPrice}</p>
+              <RequestInfoTable dataRequestsDetails={dataRequestsDetails} />
             </>}
           </div>
         </div>

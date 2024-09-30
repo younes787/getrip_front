@@ -382,19 +382,6 @@ const CheckOut = () => {
         </div>
         }
 
-        {/* <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
-          <InputSwitch
-            className="mx-2"
-            checked={AddRequestForm.values?.isForDifferentPerson}
-            onChange={(e) => {
-              AddRequestForm.setFieldValue(`isForDifferentPerson`, e.value);
-              setIsForDifferentPerson(true);
-            }}
-          />
-          <label htmlFor="Wallet mx-2">For Different Person</label>
-        </div> */}
-
-        {/* {AddRequestForm.values?.isForDifferentPerson && <> */}
           <div className="md:col-12 lg:col-12 mt-2 col-12">
             <label htmlFor="Name">Name</label>
             <InputText
@@ -420,15 +407,59 @@ const CheckOut = () => {
           </div>
 
           <div className="md:col-12 lg:col-12 mt-2 col-12">
-            <label htmlFor="Phone">Phone</label>
-            <InputText
-              placeholder="Phone"
-              name="phone"
-              className="w-full mt-1"
-              value={AddRequestForm.values.phone}
-              onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
+            <label htmlFor="Start Date">Start Date</label>
+            <Calendar
+              className='w-full  mt-1'
+              placeholder='Start Date'
+              value={AddRequestForm.values.startDate}
+              onChange={(e) => AddRequestForm.setFieldValue("startDate", e.value)}
+              minDate={today}
             />
-              {renderError(AddRequestForm.errors.phone)}
+          </div>
+
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <label htmlFor="End Date">End Date</label>
+            <Calendar
+              className='w-full  mt-1'
+              placeholder='End Date'
+              value={AddRequestForm.values.endDate}
+              onChange={(e) => AddRequestForm.setFieldValue("endDate", e.value)}
+              minDate={today}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <label htmlFor="Adult Passengers">Adults</label>
+            <InputNumber
+              placeholder="Adult Passengers"
+              name="adultPassengers"
+              className="w-full mt-1"
+              step={1}
+              min={0}
+              showButtons
+              value={AddRequestForm.values.adultPassengers}
+              onChange={(e) => {
+                setGuests(e.value)
+                AddRequestForm.setFieldValue("adultPassengers", e.value)
+              }}
+            />
+          </div>
+
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <label htmlFor="Child Passengers">Childs</label>
+            <InputNumber
+              placeholder="Child Passengers"
+              name="childPassengers"
+              className="w-full  mt-1"
+              step={1}
+              min={0}
+              showButtons
+              value={AddRequestForm.values.childPassengers}
+              onChange={(e) => {
+                setChildren(e.value)
+                AddRequestForm.setFieldValue("childPassengers", e.value)
+              }}
+            />
           </div>
 
           <div className="md:col-12 lg:col-12 mt-2 col-12">
@@ -442,85 +473,29 @@ const CheckOut = () => {
             />
               {renderError(AddRequestForm.errors.email)}
           </div>
-        {/* </>} */}
 
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="Adult Passengers">Adult Passengers</label>
-          <InputNumber
-            placeholder="Adult Passengers"
-            name="adultPassengers"
-            className="w-full mt-1"
-            step={1}
-            min={0}
-            showButtons
-            value={AddRequestForm.values.adultPassengers}
-            onChange={(e) => {
-              setGuests(e.value)
-              AddRequestForm.setFieldValue("adultPassengers", e.value)
-            }}
-          />
-        </div>
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <label htmlFor="Phone">Phone</label>
+            <InputText
+              placeholder="Phone"
+              name="phone"
+              className="w-full mt-1"
+              value={AddRequestForm.values.phone}
+              onChange={(e) => AddRequestForm.setFieldValue("phone", e.target.value)}
+            />
+              {renderError(AddRequestForm.errors.phone)}
+          </div>
 
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="Child Passengers">Child Passengers</label>
-          <InputNumber
-            placeholder="Child Passengers"
-            name="childPassengers"
-            className="w-full  mt-1"
-            step={1}
-            min={0}
-            showButtons
-            value={AddRequestForm.values.childPassengers}
-            onChange={(e) => {
-              setChildren(e.value)
-              AddRequestForm.setFieldValue("childPassengers", e.value)
-            }}
-          />
-        </div>
-
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="Start Date">Start Date</label>
-          <Calendar
-            className='w-full  mt-1'
-            placeholder='Start Date'
-            value={AddRequestForm.values.startDate}
-            onChange={(e) => AddRequestForm.setFieldValue("startDate", e.value)}
-            minDate={today}
-          />
-        </div>
-
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="End Date">End Date</label>
-          <Calendar
-            className='w-full  mt-1'
-            placeholder='End Date'
-            value={AddRequestForm.values.endDate}
-            onChange={(e) => AddRequestForm.setFieldValue("endDate", e.value)}
-            minDate={today}
-          />
-        </div>
-
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="Total Price">Total Price</label>
-          <InputNumber
-            placeholder="Total Price"
-            name="totalPrice"
-            disabled
-            className="w-full mt-1"
-            value={formInitialValues.totalPrice}
-          />
-        </div>
-
-        <div className="md:col-12 lg:col-12 mt-2 col-12">
-          <label htmlFor="Note">Note</label>
-          <InputText
-            placeholder="Add Note"
-            name="note"
-            className="w-full mt-1"
-            value={AddRequestForm.values.notes}
-            onChange={(e) => AddRequestForm.setFieldValue("notes", e.target.value)}
-          />
-        </div>
+          <div className="md:col-12 lg:col-12 mt-2 col-12">
+            <label htmlFor="Note">Note</label>
+            <InputText
+              placeholder="Add Note"
+              name="note"
+              className="w-full mt-1"
+              value={AddRequestForm.values.notes}
+              onChange={(e) => AddRequestForm.setFieldValue("notes", e.target.value)}
+            />
+          </div>
 
         {serviceDetails?.isApprovalRequired &&
           <div className="md:col-12 lg:col-12 mt-2 col-12">
@@ -542,16 +517,13 @@ const CheckOut = () => {
           </div>
         }
 
-        <div className="flex justify-content-end align-items-center mt-4" style={{width: '100%'}}>
-          <Button label="Cancel" size="small" severity="danger" outlined onClick={() =>  navigate(-1)} className="m-1"></Button>
-          <Button
-            size="small"
-            severity="warning"
-            outlined
-            onClick={() => AddRequestForm.handleSubmit()}
-            className="m-1"
-            disabled={isLoading}
-          >
+        <div className="flex justify-content-start align-items-center" style={{width: '100%'}}>
+          <p style={{fontSize: '18px', fontWeight: 'bold', color: '#f1881f', background: '#FFF'}}>Total Price: <span >{parseFloat(formInitialValues.totalPrice.toFixed(2))}</span></p>
+        </div>
+
+        <div className="flex justify-content-end align-items-center" style={{width: '100%'}}>
+          <Button style={{fontSize: '22px', fontWeight: 'bold', color: '#FFF', background: 'red'}} label="Cancel" severity="danger" outlined onClick={() =>  navigate(-1)} className="m-1"></Button>
+          <Button style={{fontSize: '22px', fontWeight: 'bold', color: '#FFF', background: '#f1881f'}} severity="warning" outlined onClick={() => AddRequestForm.handleSubmit()} className="m-1" disabled={isLoading}>
             {isLoading ? (
                 <span>
                   <i className="pi pi-spin pi-spinner"></i>

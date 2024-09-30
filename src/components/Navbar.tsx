@@ -457,8 +457,16 @@ const NavBar = ({navState}: any) => {
 
   const MenuItems = () => (
     <>
-      <Button label="Explore" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
-      <Button label="Packages" className="border-none primary bg-transparent outline-0 shadow-none px-5"/>
+      <Button
+        label="Nearby Restaurants"
+        className="border-none primary bg-transparent outline-0 shadow-none px-5"
+        onClick={() => {
+          localStorage.setItem('activeIndex', "12");
+          localStorage.setItem('selectedTab', "Restaurants");
+          navigate(`/search-and-filter`);
+        }}
+      />
+
       <Button label="EN. $" icon="pi pi-fw pi-globe" className="border-none primary bg-transparent outline-0 shadow-none" onClick={() => setshowSelectLang(true)}/>
       {role === "Administrator" && <>
         <div style={{ position: 'relative', display: 'inline-block' }}>

@@ -286,8 +286,8 @@ const Home = () => {
     <div className="container md:mx-4 sm:mx-2 lg:mx-8 overflow-hidden">
       <div id="image-container-home">
         <div className="md:col-12 lg:col-12 md:w-full lg:w-full text-center home">
-          <h1 className="my-6 get-rp">Get Your Trip With Ge<span className="secondery">t</span>rip</h1>
-          <div className="md:w-9 lg:w-9 m-auto">
+          <h1 className="my-6 get-rp">Get Your Trip with Ge<span className="secondery">t</span>rip</h1>
+          <div className="md:w-10 lg:w-10 m-auto">
             <SearchBar
               onLocationSelect={(location: LocationFromSearch) =>  setSelectedLocationFromSearch(location)}
               onSelectFilterData={(_filterData: QueryFilter) => setSelectFilterData(_filterData)}

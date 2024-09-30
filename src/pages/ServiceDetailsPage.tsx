@@ -4,7 +4,7 @@ import { GetAllCountries, GetAllProvinces, GetServiceDetailsById, GetServiceType
 import { DataType } from "../enums";
 import LoadingComponent from "../components/Loading";
 import { Dialog } from "primereact/dialog";
-import { LocationFromMap, PriceValuesDTO } from "../modules/getrip.modules";
+import { LocationFromMap, PriceValuesDTO, Service } from "../modules/getrip.modules";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHandPointUp, faBook, faCalendarAlt, faHeart, faMapLocation, faMapLocationDot, faShareAlt, faUserAlt, faBaby, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "primereact/button";
@@ -16,6 +16,9 @@ import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
 import { Chip } from "primereact/chip";
 import { fas } from "@fortawesome/free-solid-svg-icons";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Rating } from "primereact/rating";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const navigate = useNavigate();
@@ -102,10 +105,12 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
 
         setIngredient(serviceDetailsRes.data.priceValues[0]);
         setFacilities(serviceDetailsRes.data.serviceFacilities);
+
         setServiceDetails({
           id: serviceDetailsRes.data.id,
           accountId: serviceDetailsRes.data.accountId,
           name: serviceDetailsRes.data.name,
+          ratingAverage: serviceDetailsRes.data.ratingAverage,
           childPercentage: serviceDetailsRes.data.childPercentage,
           tags: serviceDetailsRes.data.tags,
           isPending: serviceDetailsRes.data.isPending,
@@ -303,6 +308,34 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
     setTotalPrice(totalPrice);
   }, [ingredient, serviceDetails, guests, daysCount, children, setTotalPrice]);
 
+  const CancellationPolicyTable = ({ serviceDetails }: any) => {
+    const data = [
+      {
+        label: 'Free cancellation',
+        value: serviceDetails?.cancelationRefundable ? (
+          <i className="pi pi-check-circle" style={{ color: '#FF6C00' }} />
+        ) : (
+          <i className="pi pi-times" style={{ fontSize: ".7rem", padding: '0.5rem', border: '1px solid white', borderRadius: '50%' }} />
+        )
+      },
+      {
+        label: 'Partial refund policy',
+        value: `${serviceDetails?.cancelationRefundPerCentAmount ?? 0}% refund before ${serviceDetails?.cancelationAllowRefundDays ?? 0} days`
+      },
+      {
+        label: 'Full refund policy',
+        value: `Full refund within ${serviceDetails?.cancelationAllowRefundDays ?? 0} days`
+      }
+    ];
+
+    return (
+      <DataTable value={data} tableStyle={{ width: '100%' }}>
+        <Column field="label" header="Policy" />
+        <Column field="value" header="Details" />
+      </DataTable>
+    );
+  };
+
   return (<>
       { loading ? <LoadingComponent /> : <div className="relative">
         <div className="flex justify-content-start align-items-center m-2" style={isMobile ? {} : {position: 'absolute', top: '10px', left: '10px'}}>
@@ -327,7 +360,9 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
               <h1>{serviceDetails?.name}</h1>
               <p><FontAwesomeIcon icon={faMapLocationDot} size={"sm"} style={{ color: '#000' }} className="mr-2" /> {serviceDetails?.location}</p>
             </div>
+
             <div className="service-details-actions">
+              <Rating value={serviceDetails?.ratingAverage} readOnly stars={5} cancel={false} style={{ marginRight: '0.5rem' }} />
               <Button style={{backgroundColor: '#fff', color: '#000', border: 'none', fontSize: '16px'}} icon={<FontAwesomeIcon icon={faShareAlt} size={"sm"} className="mr-2" />} onClick={() => false}>Share</Button>
               <Button style={{backgroundColor: '#fff', color: '#000', border: 'none', fontSize: '16px'}} icon={<FontAwesomeIcon icon={faHeart} size={"sm"} className="mr-2" />} onClick={() => false}>Save</Button>
               <Button
@@ -372,7 +407,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
           <div className="grid grid-cols-12 my-2">
             <div className="md:col-8 lg:col-8 sm:col-12">
               <div className="tabs">
-                {['Overview', 'Facilities', 'Reviews', 'Cancelation Policy', 'Location'].map((tab) => (
+                {['Overview', 'Facilities', 'Cancelation Policy', 'Location'].map((tab) => (
                   <button key={tab} className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
                 ))}
               </div>
@@ -395,19 +430,10 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                   </div>
                 )}
 
-                {activeTab === 'Reviews' && (
-                  <div className="tab-pane active">
-                    <h2>Reviews</h2>
-                    <p>{serviceDetails?.reviews}</p>
-                  </div>
-                )}
-
                 {activeTab === 'Cancelation Policy' && (
-                  <div className="tab-pane active">
+                  <div className="tab-pane active w-full">
                     <h2>Cancelation Policy</h2>
-                    <p> Free cancellation: {serviceDetails?.cancelationRefundable ? <i className="pi pi-check-circle" style={{ marginRight: '0.5rem', color: '#FF6C00' }}></i> : <i className="pi pi-times border-white border-1 p-2" style={{ fontSize: ".7rem", borderRadius: '50%' }} />}</p>
-                    <p>{serviceDetails?.cancelationRefundPerCentAmount ?? 0} % refund before {serviceDetails?.cancelationAllowRefundDays ?? 0} Days</p>
-                    <p> Full refund within {serviceDetails?.cancelationAllowRefundDays ?? 0} Days</p>
+                    <CancellationPolicyTable serviceDetails={serviceDetails} />
                   </div>
                 )}
 

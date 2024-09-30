@@ -292,7 +292,7 @@ const Services = () => {
   );
 
   const onTabChange = async (e: any) => {
-    setLoading(true);
+    // setLoading(true);
     const newIndex = e.index;
     setActiveIndex(newIndex);
 
@@ -679,7 +679,8 @@ const Services = () => {
 
       <Dialog header="Add Facilities"
         visible={showFacilities}
-        className=""
+        className="md:w-50 lg:w-50"
+        style={{ maxWidth: '1000px' }}
         onHide={() => setShowFacilities(false)}
         footer={
           <div className="flex justify-end mt-4">
@@ -696,7 +697,7 @@ const Services = () => {
                 ) : (
                   <div className="grid grid-cols-12 gap-4">
                     {facilitiesByCategoryId && facilitiesByCategoryId.length > 0 && facilitiesByCategoryId.map((facility: any, idx: number) => (
-                      <div className="md:col-4 lg:col-4 flex items-center" key={idx}>
+                      <div className="md:col-3 lg:col-3 flex items-center" key={idx}>
                         <Checkbox
                           name={facility.name}
                           checked={selectedAssignFaciliesToServiceType.includes(facility.id)}

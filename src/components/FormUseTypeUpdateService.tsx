@@ -593,6 +593,11 @@ const FormUseTypeUpdateService = () => {
     // UpdateSteps(StepsData: any)
   };
 
+  console.log(
+    assignedFacilitiesByServiceTypeIdWithCategory
+    ,selectShowFacilities
+  );
+
   return (
     <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>
@@ -1094,14 +1099,11 @@ const FormUseTypeUpdateService = () => {
                                   onChange={(e) => {
                                     setServiceInitialValues((prevState: ServiceDTO) => ({
                                       ...prevState,
-                                      serviceFacilities: prevState?.serviceFacilities?.map(facility =>
-                                        facility.serviceTypeFacilityId === facility.serviceTypeFacilityId
-                                          ? {
+                                      serviceFacilities: prevState?.serviceFacilities?.map(facility => ({
                                               ...facility,
                                               isPrimary: e.value,
                                               serviceTypeFacilityId: facility.serviceTypeFacilityId
-                                            }
-                                          : facility
+                                            })
                                       )
                                     }));
                                   }}
@@ -1117,14 +1119,11 @@ const FormUseTypeUpdateService = () => {
                                   onChange={(e) => {
                                     setServiceInitialValues((prevState: ServiceDTO) => ({
                                       ...prevState,
-                                      serviceFacilities: prevState?.serviceFacilities?.map(facility =>
-                                        facility.serviceTypeFacilityId === facility.serviceTypeFacilityId
-                                          ? {
+                                      serviceFacilities: prevState?.serviceFacilities?.map(facility => ({
                                               ...facility,
                                               isAdditionalCharges: e.value,
                                               serviceTypeFacilityId: facility.serviceTypeFacilityId
-                                            }
-                                          : facility
+                                            })
                                       )
                                     }));
                                   }}

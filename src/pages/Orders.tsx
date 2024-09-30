@@ -269,6 +269,50 @@ const Orders = () => {
     { field: "", header: "Actions", body: BodyTemplate, className: 'actions-column' }
   ];
 
+  const OrderInfoTable = ({ dataOrdersDetails }: any) => {
+    const data = [
+      {
+        label: 'Request',
+        value: allUsers.find((user: any) => user.accountId === dataOrdersDetails.requestId)?.name
+      },
+      {
+        label: 'Service',
+        value: allServices.find((service) => service.id === dataOrdersDetails.serviceId)?.name
+      },
+      {
+        label: 'Order Status',
+        value: dataOrdersDetails.orderStatus
+      },
+      {
+        label: 'Currency',
+        value: currency.find((currenc) => currenc.id === dataOrdersDetails.currencyId)?.name
+      },
+      {
+        label: 'Canceled',
+        value: showIcons(dataOrdersDetails.isCanceled)
+      },
+      {
+        label: 'Payed',
+        value: showIcons(dataOrdersDetails.isPayed)
+      },
+      {
+        label: 'Amount',
+        value: dataOrdersDetails.amount
+      },
+      {
+        label: 'Order Date',
+        value: formatDate(dataOrdersDetails.orderDate)
+      },
+    ];
+
+    return (
+      <DataTable value={data} tableStyle={{ width: '100%' }}>
+        <Column field="label" header="Policy" />
+        <Column field="value" header="Details" />
+      </DataTable>
+    );
+  };
+
   return (
     <div>
       {loading ? (
@@ -401,20 +445,9 @@ const Orders = () => {
           </div>}
           onHide={() => setShowOrdersDetails(false)}
         >
-          <div className="grid grid-cols-12">
-            <div className="md:col-12 lg:col-12 sm:col-12">
-              {dataOrdersDetails && <>
-                <p>Request: {allUsers.find((user) => user.accountId === dataOrdersDetails.requestId)?.name}</p>
-                <p>Service: {allServices.find((service) => service.id === dataOrdersDetails.serviceId)?.name}</p>
-                <p>Order Status: {dataOrdersDetails.orderStatus}</p>
-                <p>Currency: {currency.find((currenc) => currenc.id === dataOrdersDetails.currencyId)?.name}</p>
-                <p>Canceled: {showIcons(dataOrdersDetails.isCanceled)}</p>
-                <p>Payed: {showIcons(dataOrdersDetails.isPayed)}</p>
-                <p>Amount: {dataOrdersDetails.amount}</p>
-                <p>Order Date: {formatDate(dataOrdersDetails.orderDate)}</p>
-              </>}
-            </div>
-          </div>
+          {dataOrdersDetails && (
+            <OrderInfoTable dataOrdersDetails={dataOrdersDetails} />
+          )}
       </Dialog>
     </div>
   );

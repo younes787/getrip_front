@@ -84,7 +84,7 @@ export const AuthRegister = async (registerData: any) => {
 };
 
 export const AuthLogin = (loginData: any) => {
-  return FetchWithLoading(api.post("/loginuser", loginData), 'Post');
+  return FetchWithLoading(api.post("/loginuser", loginData));
 };
 
 export const ChangePassword = (passwordData: any) => {
@@ -514,7 +514,7 @@ export const GetNearByRestaurants = async (data: any) => {
 };
 
 export const GetRejectedServices = async () => {
-  return FetchWithLoading(api.get(`/getrejectedservices`), 'Post');
+  return FetchWithLoading(api.get(`/getrejectedservices`));
 };
 
 export const ApproveUser = async (spid: any) => {
