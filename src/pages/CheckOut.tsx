@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Message } from "primereact/message";
 import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
 import { LahzaTransactionInitialize, LahzaTransactionVerify } from "../Services/providerRequests";
+import { formatDate } from "../Helper/functions";
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Service Name is required'),
@@ -40,14 +41,6 @@ const CheckOut = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    const year = d.getFullYear();
-    return `${year}-${month}-${day}`;
-  };
 
   const parseQueryString = (queryString: string): any =>  {
     const params = new URLSearchParams(queryString);
@@ -411,6 +404,7 @@ const CheckOut = () => {
             <Calendar
               className='w-full  mt-1'
               placeholder='Start Date'
+              dateFormat="dd/mm/yy"
               value={AddRequestForm.values.startDate}
               onChange={(e) => AddRequestForm.setFieldValue("startDate", e.value)}
               minDate={today}
@@ -422,6 +416,7 @@ const CheckOut = () => {
             <Calendar
               className='w-full  mt-1'
               placeholder='End Date'
+              dateFormat="dd/mm/yy"
               value={AddRequestForm.values.endDate}
               onChange={(e) => AddRequestForm.setFieldValue("endDate", e.value)}
               minDate={today}

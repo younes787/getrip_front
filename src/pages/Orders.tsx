@@ -13,6 +13,7 @@ import { InitializePopupDTO } from "../modules/getrip.modules";
 import { LahzaTransactionInitialize, LahzaTransactionVerify } from "../Services/providerRequests";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faInfo } from "@fortawesome/free-solid-svg-icons";
+import { formatDate } from "../Helper/functions";
 
 const Orders = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -169,13 +170,6 @@ const Orders = () => {
     GetCurrency().then((res) => setCurrency(res.data));
     fetchData();
   }, [user.data.accountId]);
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    return `${d.getFullYear()}-${month}-${day}`;
-  };
 
   const showIcons = (check: boolean) => (
     <i

@@ -23,6 +23,7 @@ import { Image } from 'primereact/image';
 import Search7526301 from '../Assets/search_7526301.png';
 import { useFormik } from "formik";
 import { Calendar } from "primereact/calendar";
+import { formatDate } from "../Helper/functions";
 
 const SearchAndFilter = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -196,14 +197,6 @@ const SearchAndFilter = () => {
 
   const toggleShowAllCities = () => {
     setShowAllCities(!showAllCities);
-  };
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    const year = d.getFullYear();
-    return `${year}-${month}-${day}`;
   };
 
   const fetchCitiesByProvinceId = async (provinceId: number, setCities: (cities: any) => void) => {
@@ -1217,6 +1210,7 @@ const SearchAndFilter = () => {
               <Calendar
                 className="w-full"
                 inputId="departureDate"
+                dateFormat="dd/mm/yy"
                 autoFocus={focusedField === 'faPlaneDepartureDepartureDate'}
                 onInput={() => handleInputFocus('faPlaneDepartureDepartureDate')}
                 value={RequestCustomOfferForm.values.departureDate}
@@ -1235,6 +1229,7 @@ const SearchAndFilter = () => {
               <Calendar
                 className="w-full"
                 inputId="returnDate"
+                dateFormat="dd/mm/yy"
                 autoFocus={focusedField === 'faPlaneDepartureReturnDate'}
                 onInput={() => handleInputFocus('faPlaneDepartureReturnDate')}
                 value={RequestCustomOfferForm.values.returnDate}
@@ -1253,6 +1248,7 @@ const SearchAndFilter = () => {
               <Calendar
                 className="w-full"
                 inputId="requestDate"
+                dateFormat="dd/mm/yy"
                 autoFocus={focusedField === 'faPlaneDepartureRequestDate'}
                 onInput={() => handleInputFocus('faPlaneDepartureRequestDate')}
                 value={RequestCustomOfferForm.values.requestDate}

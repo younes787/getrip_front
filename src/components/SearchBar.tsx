@@ -11,8 +11,9 @@ import { QueryFilter } from '../modules/getrip.modules';
 import { InputNumber } from 'primereact/inputnumber';
 import { Menu } from 'primereact/menu';
 import { Dropdown } from 'primereact/dropdown';
-import { ProviderHandleCurrandLocation } from '../Services/providerRequests';
+import { ProviderhandleCurrentLocation } from '../Services/providerRequests';
 import { fas } from "@fortawesome/free-solid-svg-icons";
+import { RadioButton } from 'primereact/radiobutton';
 
 interface SearchBarProps {
   SearchBarStyle?: CSSProperties;
@@ -76,16 +77,16 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
   const [date, setDate] = useState<any>(getInitialDate());
 
   const FlightTemplate = ({ icon, label, inputComponent }: any) => (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div>
       <FontAwesomeIcon icon={icon} size={"sm"} className="fa mr-2" />
       <span className='mx-2' style={{width: '200px'}}>{label}</span>
       {inputComponent}
     </div>
   );
 
-  const handleCurrandLocation = async ({latitude, longitude}: any) => {
+  const handleCurrentLocation = async ({latitude, longitude}: any) => {
     try {
-      ProviderHandleCurrandLocation(latitude, longitude)
+      ProviderhandleCurrentLocation(latitude, longitude)
       .then((res) => {
         if (res?.data.status === 'OK') {
           const results = res?.data.results;
@@ -142,7 +143,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
     });
 
     navigator.geolocation.getCurrentPosition((position) => {
-      handleCurrandLocation(position.coords)
+      handleCurrentLocation(position.coords)
     }, (error) => {
       console.error('Error getting current location:', error);
     });
@@ -300,7 +301,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         </div>
       );
 
-      if (!['Restaurants', 'Flight'].includes((selectedTab as string).trim().replace(/['"]+/g, ''))) {
+      if (!['Restaurants'].includes((selectedTab as string).trim().replace(/['"]+/g, ''))) {
         return [
           {
             label: 'Fields',
@@ -348,132 +349,99 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
             )
           }
         ];
-      } else if((selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight') {
-        return [
-          {
-            label: 'Departure City',
-            template: () => (
-              <>
-                <div className='m-2 w-full departure'>
-                  <FlightTemplate
-                    icon={faPlaceOfWorship}
-                    label="Flight Service Type"
-                    inputComponent={
-                      <Dropdown
-                        placeholder="Select a Flight Service Type"
-                        options={[
-                          {id: 1, name: 'One Way'},
-                          {id: 2, name: 'Round Trip'},
-                          {id: 3, name: 'Multi City'},
-                        ]}
-                        optionLabel="name"
-                        optionValue="id"
-                        name="flightServiceType"
-                        filter
-                        className="mt-2	w-full"
-                        value={flightServiceType}
-                        onChange={(e) => setFlightServiceType(e.value)}
-                      />
-                    }
-                  />
-                </div>
-
-                <Dropdown
-                  placeholder="Select a Country"
-                  options={countries}
-                  optionLabel="name"
-                  optionValue="id"
-                  name="country_name"
-                  filter
-                  className="mt-2	w-full"
-                  value={country}
-                  onChange={(e) => {
-                    setCountry(e.value);
-                    GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
-                  }}
-                />
-
-                <div className='m-2 w-full departure'>
-                  <FlightTemplate
-                    icon={faPlaneDeparture}
-                    label="Departure City"
-                    inputComponent={
-                      <Dropdown
-                        placeholder="Select a Departure city"
-                        options={provinces}
-                        optionLabel="name"
-                        optionValue="name"
-                        name="departureCity"
-                        filter
-                        className="mt-2	w-full"
-                        value={departureCity}
-                        onChange={(e) => setDepartureCity(e.value)}
-                      />
-                    }
-                  />
-                </div>
-
-                <div className='m-2 w-full departure'>
-                  <FlightTemplate
-                    icon={faPlaneArrival}
-                    label="Arrival City"
-                    inputComponent={
-                      <Dropdown
-                        placeholder="Select a Arrival city"
-                        options={provinces}
-                        optionLabel="name"
-                        optionValue="name"
-                        name="arrivalCity"
-                        filter
-                        className="mt-2	w-full"
-                        value={arrivalCity}
-                        onChange={(e) => setArrivalCity(e.value)}
-                      />
-                    }
-                  />
-                </div>
-
-                <div className='m-2 w-full departure'>
-                  <FlightTemplate
-                    icon={faCalendarAlt}
-                    label="Departure Date"
-                    inputComponent={
-                      <Calendar
-                        className="w-full"
-                        inputId="departureDate"
-                        autoFocus={focusedField === 'departureDate'}
-                        onInput={() => handleInputFocus('departureDate')}
-                        value={departureDate}
-                        onChange={(e) => setDepartureDate(e.value)}
-                        showIcon
-                      />
-                    }
-                  />
-                </div>
-
-                <div className='m-2 w-full departure'>
-                  <FlightTemplate
-                    icon={faCalendarAlt}
-                    label="Return Date"
-                    inputComponent={
-                      <Calendar
-                        className="w-full"
-                        inputId="returnDate"
-                        autoFocus={focusedField === 'returnDate'}
-                        onInput={() => handleInputFocus('returnDate')}
-                        value={returnDate}
-                        onChange={(e) => setReturnDate(e.value)}
-                        showIcon
-                      />
-                    }
-                  />
-                </div>
-                {commonCloseButton}
-              </>
-            )
-          }
-        ];
       }
+      // else if((selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight') {
+      //   return [
+      //     {
+      //       label: 'Departure City',
+      //       template: () => (
+      //         <>
+      //           <div className='m-2 w-full departure'>
+      //             <FlightTemplate
+      //               icon={faPlaceOfWorship}
+      //               label="Flight Service Type"
+      //               inputComponent={
+      //                 <Dropdown
+      //                   placeholder="Select a Flight Service Type"
+      //                   options={[
+      //                     {id: 1, name: 'One Way'},
+      //                     {id: 2, name: 'Round Trip'},
+      //                     {id: 3, name: 'Multi City'},
+      //                   ]}
+      //                   optionLabel="name"
+      //                   optionValue="id"
+      //                   name="flightServiceType"
+      //                   filter
+      //                   className="mt-2	w-full"
+      //                   value={flightServiceType}
+      //                   onChange={(e) => setFlightServiceType(e.value)}
+      //                 />
+      //               }
+      //             />
+      //           </div>
+
+      //           <Dropdown
+      //             placeholder="Select a Country"
+      //             options={countries}
+      //             optionLabel="name"
+      //             optionValue="id"
+      //             name="country_name"
+      //             filter
+      //             className="mt-2	w-full"
+      //             value={country}
+      //             onChange={(e) => {
+      //               setCountry(e.value);
+      //               GetProvincebyCid(e.value).then((res) => setProvinces(res.data));
+      //             }}
+      //           />
+
+      //           <div className='m-2 w-full departure'>
+      //             <FlightTemplate
+      //               icon={faPlaneDeparture}
+      //               label="Departure City"
+      //               inputComponent={
+      //                 <Dropdown
+      //                   placeholder="Select a Departure city"
+      //                   options={provinces}
+      //                   optionLabel="name"
+      //                   optionValue="name"
+      //                   name="departureCity"
+      //                   filter
+      //                   className="mt-2	w-full"
+      //                   value={departureCity}
+      //                   onChange={(e) => setDepartureCity(e.value)}
+      //                 />
+      //               }
+      //             />
+      //           </div>
+
+      //           <div className='m-2 w-full departure'>
+      //             <FlightTemplate
+      //               icon={faPlaneArrival}
+      //               label="Arrival City"
+      //               inputComponent={
+      //                 <Dropdown
+      //                   placeholder="Select a Arrival city"
+      //                   options={provinces}
+      //                   optionLabel="name"
+      //                   optionValue="name"
+      //                   name="arrivalCity"
+      //                   filter
+      //                   className="mt-2	w-full"
+      //                   value={arrivalCity}
+      //                   onChange={(e) => setArrivalCity(e.value)}
+      //                 />
+      //               }
+      //             />
+      //           </div>
+
+
+      //           {commonCloseButton}
+      //         </>
+      //       )
+      //     }
+      //   ];
+      // }
 
       return [
         {
@@ -531,40 +499,153 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
         itemTemplate={titleTemplate}
       />
 
-      <div className="search__bar">
-        <form className="grid w-full grid grid-cols-12">
-          <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
-            <FontAwesomeIcon icon={faMapMarkerAlt} size={"sm"} className="fa mr-2" />
-            <AutoComplete
-              className='failds'
-              style={{width: '100%'}}
-              placeholder='Type to search address...'
-              tooltip='At least one letter must be written'
-              tooltipOptions={{position: 'bottom'}}
-              field="name"
-              value={selectedLocation.name}
-              suggestions={filteredQuery}
-              completeMethod={search}
-              onChange={(e) => {
-                onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '', moreData: e.value });
-                setSelectedLocation({name: e.value});
-              }}
+        {((selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight') &&
+          <div className="m-2 w-full departure">
+            <FlightTemplate
+              inputComponent={
+                <div className="card flex justify-content-start px-7 search_radio_flight" style={{fontSize: '15px'}}>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { id: 1, name: 'One Way' },
+                      { id: 2, name: 'Round Trip' },
+                      { id: 3, name: 'Multi City' }
+                    ].map((option) => (
+                      <div key={option.id} className="flex align-items-start">
+                        <RadioButton
+                          inputId={`flightServiceType${option.id}`}
+                          name="flightServiceType"
+                          value={option.id}
+                          onChange={(e) => setFlightServiceType(e.value)}
+                          checked={flightServiceType === option.id}
+                        />
+                        <label htmlFor={`flightServiceType${option.id}`} className="ml-2 mb-2">
+                          {option.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
             />
           </div>
+        }
 
-          <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
-            <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} className="fa mr-2" />
-            <Calendar
-              className='failds'
-              style={{width: '100%'}}
-              placeholder='Select Start - End Date'
-              value={date}
-              onChange={(e) => setDate(e.value)}
-              numberOfMonths={2}
-              selectionMode="range"
-              minDate={today}
-            />
-          </div>
+      <div className="search__bar">
+        <form className="grid w-full grid grid-cols-12" style={((selectedTab as string).trim().replace(/['"]+/g, '') !== 'Flight') ? {} : {flexWrap: 'nowrap'}}>
+
+          {((selectedTab as string).trim().replace(/['"]+/g, '') !== 'Flight') ? (
+            <>
+              <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
+                <FontAwesomeIcon icon={faMapMarkerAlt} size="sm" className="fa mr-2" />
+                <AutoComplete
+                  className='failds'
+                  style={{width: '100%'}}
+                  placeholder='Type to search address...'
+                  tooltip='At least one letter must be written'
+                  tooltipOptions={{position: 'bottom'}}
+                  field="name"
+                  value={selectedLocation.name}
+                  suggestions={filteredQuery}
+                  completeMethod={search}
+                  onChange={(e) => {
+                    onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '', moreData: e.value });
+                    setSelectedLocation({name: e.value});
+                  }}
+                />
+              </div>
+
+              <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2 sm:col-12 md:col-12 lg:col-4'}>
+                <FontAwesomeIcon icon={faCalendarAlt} size={"sm"} className="fa mr-2" />
+                <Calendar
+                  className='failds'
+                  style={{width: '100%'}}
+                  placeholder='Select Start - End Date'
+                  value={date}
+                  onChange={(e) => setDate(e.value)}
+                  numberOfMonths={2}
+                  selectionMode="range"
+                  minDate={today}
+                  dateFormat="dd/mm/yy"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group'}>
+                <FontAwesomeIcon icon={faPlaneDeparture} size="sm" className="fa mr-2" />
+                <AutoComplete
+                  className='failds'
+                  style={{width: '100%'}}
+                  placeholder='From?'
+                  tooltip='At least one letter must be written'
+                  tooltipOptions={{position: 'bottom'}}
+                  field="name"
+                  value={departureCity ?? selectedLocation.name}
+                  suggestions={filteredQuery}
+                  completeMethod={search}
+                  onChange={(e) => {
+                    onLocationSelect({lat: 0, lng: 0, country: e.value.name, province: '', moreData: e.value });
+                    setSelectedLocation({name: e.value});
+                    setDepartureCity(e.value)
+                  }}
+                />
+              </div>
+
+              <div style={isMobile ? {width: '100%', borderBottom: '1px solid #ddd'} : {}} className={'form__group lg:border-x-2'}>
+                <FontAwesomeIcon icon={faPlaneArrival} size="sm" className="fa mr-2" />
+                <AutoComplete
+                  className='failds'
+                  style={{width: '100%'}}
+                  placeholder='To?'
+                  tooltip='At least one letter must be written'
+                  tooltipOptions={{position: 'bottom'}}
+                  field="name"
+                  value={arrivalCity}
+                  suggestions={filteredQuery}
+                  completeMethod={search}
+                  onChange={(e) => setArrivalCity(e.value)}
+                />
+              </div>
+
+              <div className="form__group lg:border-x-2">
+                <div className='m-2 p-2 departure'>
+                  <FlightTemplate
+                    inputComponent={
+                      <Calendar
+                        className="w-full"
+                        inputId="departureDate"
+                        dateFormat="dd/mm/yy"
+                        placeholder='Departure'
+                        autoFocus={focusedField === 'departureDate'}
+                        onInput={() => handleInputFocus('departureDate')}
+                        value={departureDate}
+                        onChange={(e) => setDepartureDate(e.value)}
+                        showIcon
+                      />
+                    }
+                  />
+                </div>
+
+                <div className='m-2 p-2 departure'>
+                  <FlightTemplate
+                    inputComponent={
+                      <Calendar
+                        className="w-full"
+                        inputId="returnDate"
+                        placeholder='Return'
+                        dateFormat="dd/mm/yy"
+                        autoFocus={focusedField === 'returnDate'}
+                        onInput={() => handleInputFocus('returnDate')}
+                        value={returnDate}
+                        onChange={(e) => setReturnDate(e.value)}
+                        showIcon
+                      />
+                    }
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           <div className={isMobile ? 'sm:col-12 md:col-12 lg:col-4 w-full' : 'form__group sm:col-12 md:col-12 lg:col-4'}>
             <div className="flex justify-content-center align-items-center w-full">
@@ -581,7 +662,7 @@ const SearchBar : React.FC<SearchBarProps> = ({ SearchBarStyle, onLocationSelect
                   id="popup_menu_left"
                 />
                 <Button
-                  label={(selectedTab as string).trim().replace(/['"]+/g, '') === 'Flight' ? 'Choose Filter To Flight' : `${guests} guests. ${children} children`}
+                  label={(selectedTab as string).trim().replace(/['"]+/g, '') === 'Restaurants' ? 'No Filter' : `${guests} guests. ${children} children`}
                   icon={<FontAwesomeIcon icon={faUserAlt} size={"sm"} className="more-filter-icon fa p-0" />}
                   type='button'
                   style={{minWidth: 'max-content', margin: '7px -9px 0 0'}}

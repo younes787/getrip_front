@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const ProviderHandleCurrandLocation = async (latitude: number, longitude: number) => {
+export const ProviderhandleCurrentLocation = async (latitude: number, longitude: number) => {
   try {
     return await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GOOGLE_MAP_API_KEY}`);
   } catch (error) {

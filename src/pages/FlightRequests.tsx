@@ -17,6 +17,7 @@ import { Dropdown } from "primereact/dropdown";
 import { InputSwitch } from "primereact/inputswitch";
 import { Sidebar } from 'primereact/sidebar';
 import { Card } from "primereact/card";
+import { formatDate } from "../Helper/functions";
 
 const FlightRequests = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -136,13 +137,6 @@ const FlightRequests = () => {
       return false;
     }
   }
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    return `${d.getFullYear()}-${month}-${day}`;
-  };
 
   const BodyTemplate = (rowData: any) => {
       return (

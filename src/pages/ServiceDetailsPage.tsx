@@ -19,6 +19,7 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Rating } from "primereact/rating";
+import { formatDate } from "../Helper/functions";
 
 const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const navigate = useNavigate();
@@ -37,14 +38,6 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
   const [facilities, setFacilities] = useState<any>();
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [isMobile, setIsMobile] = useState(false);
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    const year = d.getFullYear();
-    return `${year}-${month}-${day}`;
-  };
 
   const parseQueryString = (queryString: string): any =>  {
     const params = new URLSearchParams(queryString);
@@ -486,6 +479,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                         style={{ width: '100%', height: '30px' }}
                         placeholder='Select Start Date'
                         value={date[0]}
+                        dateFormat="dd/mm/yy"
                         onChange={(e) => setDate([e.value || today, date[1]])}
                         minDate={today}
                       />
@@ -494,6 +488,7 @@ const ServiceDetailsPage = ({onCheckAuth}: any) => {
                         style={{ width: '100%', height: '30px' }}
                         placeholder='Select End Date'
                         value={date[1]}
+                        dateFormat="dd/mm/yy"
                         onChange={(e) => setDate([date[0], e.value || today])}
                         minDate={today}
                       />

@@ -15,6 +15,7 @@ import { useAuth } from "../AuthContext/AuthContext";
 import { FilterMatchMode } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 import { GetAllRequests, GetPendingRequests, GetApprovedRequests, GetRejectedRequests, GetAllServices, GetAllUsers, DeleteRequest } from "../Services";
+import { formatDate } from "../Helper/functions";
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -80,13 +81,6 @@ const Dashboard = () => {
     const words = text?.split(" ");
     if (words?.length <= wordCount) return text;
     return `${words.slice(0, wordCount).join(" ")}...`;
-  };
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    return `${d.getFullYear()}-${month}-${day}`;
   };
 
   const showIcons = (check: boolean) => (

@@ -713,6 +713,7 @@ const FormUseType = () => {
                         autoFocus={focusedField === f.name}
                         onInput={() => handleInputFocus(f.name)}
                         value={Serviceform.values.fields?.[f.name]}
+                        dateFormat="dd/mm/yy"
                         onChange={(e) => Serviceform.setFieldValue(`fields.${f.name}`, e.value)}
                         placeholder={f.name} />
                     )}
@@ -1240,6 +1241,7 @@ const FormUseType = () => {
               name="departureTime"
               className='departureTime w-full'
               placeholder='Departure Time'
+              dateFormat="dd/mm/yy"
               value={stepsDelagData?.departureTime}
               onChange={(e) => setStepsDelagData({...stepsDelagData, departureTime: e.value})}
               showIcon={true}
@@ -1252,6 +1254,7 @@ const FormUseType = () => {
               name="arrivalTime"
               className='arrivalTime w-full'
               placeholder='Arrival Time'
+              dateFormat="dd/mm/yy"
               value={stepsDelagData?.arrivalTime}
               onChange={(e) => setStepsDelagData({...stepsDelagData, arrivalTime: e.value})}
               showIcon={true}

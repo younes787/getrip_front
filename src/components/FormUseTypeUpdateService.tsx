@@ -884,6 +884,7 @@ const FormUseTypeUpdateService = () => {
                             }
                           }));
                         }}
+                        dateFormat="dd/mm/yy"
                         placeholder={f.name} />
                     )}
                     {f.fieldTypeName === 'Text' && (
@@ -1324,6 +1325,7 @@ const FormUseTypeUpdateService = () => {
               name="departureTime"
               className='departureTime w-full'
               placeholder='Departure Time'
+              dateFormat="dd/mm/yy"
               value={stepsDelagData?.departureTime}
               onChange={(e) => setStepsDelagData({...stepsDelagData, departureTime: e.value})}
               showIcon={true}
@@ -1336,6 +1338,7 @@ const FormUseTypeUpdateService = () => {
               name="arrivalTime"
               className='arrivalTime w-full'
               placeholder='Arrival Time'
+              dateFormat="dd/mm/yy"
               value={stepsDelagData?.arrivalTime}
               onChange={(e) => setStepsDelagData({...stepsDelagData, arrivalTime: e.value})}
               showIcon={true}

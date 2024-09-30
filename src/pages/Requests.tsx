@@ -11,6 +11,7 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { faCheck, faInfo, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { formatDate } from "../Helper/functions";
 
 const Requests = () => {
   const User = JSON.parse(localStorage?.getItem('user') as any)
@@ -101,13 +102,6 @@ const Requests = () => {
     const words = text?.split(" ");
     if (words?.length <= wordCount) return text;
     return `${words.slice(0, wordCount).join(" ")}...`;
-  };
-
-  const formatDate = (date: any) => {
-    const d = new Date(date);
-    const month = `0${d.getMonth() + 1}`.slice(-2);
-    const day = `0${d.getDate()}`.slice(-2);
-    return `${d.getFullYear()}-${month}-${day}`;
   };
 
   const showIcons = (check: boolean) => (
