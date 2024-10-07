@@ -850,7 +850,7 @@ const FormUseTypeUpdateService = () => {
               </div>
 
               <div className="md:col-12 lg:col-12">
-                {/* <GoogleMap
+                <GoogleMap
                   country={
                     (serviceInitialValues?.countryId && countries && countries.find((er: any) => er.id === serviceInitialValues?.countryId))
                       ? countries.find((er: any) => er.id === serviceInitialValues?.countryId).name
@@ -867,7 +867,7 @@ const FormUseTypeUpdateService = () => {
                       : undefined
                   }
                   onLocationSelect={handleLocationSelect}
-                /> */}
+                />
               </div>
 
               <div className="md:col-12 lg:col-12 my-2 flex justify-content-start align-items-center">
