@@ -1,5 +1,5 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react';
-import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faPlaneArrival, faPlaneDeparture, faPlaceOfWorship } from "@fortawesome/free-solid-svg-icons";
+import { faHotel, faSearch, faPlane, faBowlFood, faMapMarkerAlt, faCalendarAlt, faHandPointUp, faUserAlt, faPlaneArrival, faPlaneDeparture } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { GetProvimcesByName, GetServiceTypes, GetProvincebyCid, GetAllCountries } from '../Services';
 import { Button } from 'primereact/button';
@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { QueryFilter } from '../modules/getrip.modules';
 import { InputNumber } from 'primereact/inputnumber';
 import { Menu } from 'primereact/menu';
-import { Dropdown } from 'primereact/dropdown';
 import { ProviderhandleCurrentLocation } from '../Services/providerRequests';
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { RadioButton } from 'primereact/radiobutton';

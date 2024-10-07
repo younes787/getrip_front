@@ -104,11 +104,19 @@ export const UpdateUser = (userData: any) => {
 };
 
 export const UpdateService = (serviceData: any) => {
-  return FetchWithLoading(api.put("/updateservice", serviceData), 'Post');
+  return FetchWithLoading(api.put("/updateservice", serviceData));
 };
 
 export const UpdateTagsList = (tagsData: any) => {
-  return FetchWithLoading(api.put("/updatetagslist", tagsData), 'Post');
+  return FetchWithLoading(api.put("/updatetagslist", tagsData));
+};
+
+export const UpdateFieldValuesList = (fieldValueData: any) => {
+  return FetchWithLoading(api.post("/updatefieldvalueslist", fieldValueData));
+};
+
+export const UpdatePricingValuesList = (updatepricingvalueslistData: any) => {
+  return FetchWithLoading(api.put("/updatepricingvalueslist", updatepricingvalueslistData));
 };
 
 export const UpdateServiceProvider = (userData: any) => {
@@ -230,7 +238,7 @@ export const GetProvincebyCid = async (cid:number) => {
 };
 
 export const AddCity = async (CityData: any) => {
-  return FetchWithLoading(api.post("/addcity", CityData), 'Post');
+  return FetchWithLoading(api.post("/addcity", CityData));
 };
 
 export const UpdateCity = async (CountryData: any) => {
