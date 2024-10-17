@@ -331,10 +331,12 @@ const FormUseTypeUpdateService = () => {
             GetAssignedFacilitiesByServiceTypeIdWithCategory(serviceType.id),
           ]);
 
-          GetAllPricingTypes().then((res) => {
-            const filteredData = res?.data.filter((item: any) => item.serviceTypeId === serviceType.id);
-            setPricingTypes(filteredData);
-          });
+          setPricingTypes(data.priceValues);
+
+          // GetAllPricingTypes().then((res) => {
+            // const filteredData = res?.data.filter((item: any) => item.serviceTypeId === serviceType.id);
+            // setPricingTypes(filteredData);
+          // });
 
           setAssignedFacilitiesByServiceTypeIdWithCategory(getAssignedFacilitiesByServiceTypeIdWithCategoryRes.data);
         });
@@ -703,6 +705,8 @@ const FormUseTypeUpdateService = () => {
     // UpdateSteps(StepsData: any)
   };
 
+  console.log(pricingTypes);
+
   return (
     <div className="container mx-auto form-user-type">
       {loading ? <LoadingComponent/> : <>
@@ -1061,11 +1065,11 @@ const FormUseTypeUpdateService = () => {
                 {pricingTypes?.map((pricingType: any, index: number) => (
                   <>
                     <div className="md:col-6 lg:col-6 my-2">
-                      <label htmlFor={pricingType.name}>{pricingType.name}</label>
+                      <label htmlFor={pricingType.pricingTypeName}>{pricingType.pricingTypeName}</label>
                       <InputNumber
-                        autoFocus={focusedField === pricingType.name}
-                        onInput={() => handleInputFocus(pricingType.name)}
-                        value={serviceInitialValues?.fields?.[pricingType.name]}
+                        autoFocus={focusedField === pricingType.pricingTypeName}
+                        onInput={() => handleInputFocus(pricingType.pricingTypeName)}
+                        value={pricingType?.value}
                         className="w-full mt-1"
                         onValueChange={(e) => {
                           setServiceInitialValues(prevState => {
@@ -1073,7 +1077,7 @@ const FormUseTypeUpdateService = () => {
                             updatedPriceValues[index] = {
                               ...updatedPriceValues[index],
                               pricingTypeId: pricingType.id,
-                              pricingTypeName: pricingType.name,
+                              pricingTypeName: pricingType.pricingTypeName,
                               value: e.value
                             };
 
