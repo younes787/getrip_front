@@ -119,6 +119,14 @@ export const UpdatePricingValuesList = (updatepricingvalueslistData: any) => {
   return FetchWithLoading(api.put("/updatepricingvalueslist", updatepricingvalueslistData));
 };
 
+export const AddPricingValuesList = (addpricingvalueslistData: any) => {
+  return FetchWithLoading(api.post("/addpricingvalueslist", addpricingvalueslistData));
+};
+
+export const AssignField = (assignfieldData: any) => {
+  return FetchWithLoading(api.post("/assignfield", assignfieldData));
+};
+
 export const UpdateServiceProvider = (userData: any) => {
   return FetchWithLoading(api.put("/updateserviceprovider", userData), 'Post');
 };

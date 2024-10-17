@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { InputText } from 'primereact/inputtext';
 import { Button } from "primereact/button";
-import { GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes, UpdateService, UpdateTagsList, UpdateFacility, UpdateFieldValuesList, UpdatePricingValuesList, AssignFaciliesToServiceType } from "../Services";
+import { GetCitiesbyid, GetCurrency, GetFeildsbysid, GetPlacesbyid, GetResidencebyCottages, GetAllYachts, GetAllPricingTypes, GetAllCountries, GetProvincebyCid, GetAssignedFacilitiesByServiceTypeIdWithCategory, AddCity, AddProvince, GetServiceDetailsById, GetServiceTypes, UpdateService, UpdateTagsList, UpdateFacility, UpdateFieldValuesList, UpdatePricingValuesList, AssignFaciliesToServiceType, AddPricingValuesList } from "../Services";
 import { Dropdown } from "primereact/dropdown";
 import { Dialog } from "primereact/dialog";
 import { InputSwitch } from "primereact/inputswitch";
@@ -615,8 +615,10 @@ const FormUseTypeUpdateService = () => {
       }
 
       const inputTypeData = fieldsArray.map((field: any) => {
+
         return {
           id: field.fieldId,
+          valueId: field.valueId,
           value: serviceInitialValues.fields[field.fieldName],
           serviceTypeFieldId: field.fieldId,
           serviceId: field.serviceId,
@@ -660,9 +662,16 @@ const FormUseTypeUpdateService = () => {
         };
       });
 
-      const response = await UpdatePricingValuesList(UpdatePricingValuesListData);
-      if (response.success) {
-        console.log(response);
+      if(serviceInitialValues.priceValues[0].id === 0) {
+        const response = await AddPricingValuesList(UpdatePricingValuesListData);
+        if (response.success) {
+          console.log(response);
+        }
+      } else {
+        const response = await UpdatePricingValuesList(UpdatePricingValuesListData);
+        if (response.success) {
+          console.log(response);
+        }
       }
     } catch (error) {
       console.error('Error in updateBaseInfo:', error);
